@@ -21,6 +21,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -503,15 +504,8 @@ public final class CipherTest extends TestCase {
         setExpectedOutputSize("PBEWITHSHAAND128BITAES-CBC-BC", Cipher.DECRYPT_MODE, 0);
         setExpectedOutputSize("PBEWITHSHAAND192BITAES-CBC-BC", Cipher.DECRYPT_MODE, 0);
         setExpectedOutputSize("PBEWITHSHAAND256BITAES-CBC-BC", Cipher.DECRYPT_MODE, 0);
-        // AndroidOpenSSL returns the block size for the block ciphers
-        setExpectedOutputSize("AES/CBC/PKCS5PADDING", Cipher.DECRYPT_MODE, "AndroidOpenSSL", 16);
-        setExpectedOutputSize("AES/CBC/PKCS7PADDING", Cipher.DECRYPT_MODE, "AndroidOpenSSL", 16);
-        setExpectedOutputSize("AES/ECB/PKCS5PADDING", Cipher.DECRYPT_MODE, "AndroidOpenSSL", 16);
-        setExpectedOutputSize("AES/ECB/PKCS7PADDING", Cipher.DECRYPT_MODE, "AndroidOpenSSL", 16);
-        setExpectedOutputSize("DESEDE/CBC/PKCS5PADDING", Cipher.DECRYPT_MODE, "AndroidOpenSSL", 8);
-        setExpectedOutputSize("DESEDE/CBC/PKCS7PADDING", Cipher.DECRYPT_MODE, "AndroidOpenSSL", 8);
-        setExpectedOutputSize("DESEDE/ECB/PKCS5PADDING", Cipher.DECRYPT_MODE, "AndroidOpenSSL", 8);
-        setExpectedOutputSize("DESEDE/ECB/PKCS7PADDING", Cipher.DECRYPT_MODE, "AndroidOpenSSL", 8);
+        setExpectedOutputSize("DESEDE/CBC/PKCS5PADDING", Cipher.DECRYPT_MODE, "AndroidOpenSSL", 0);
+        setExpectedOutputSize("DESEDE/CBC/PKCS7PADDING", Cipher.DECRYPT_MODE, "AndroidOpenSSL", 0);
 
         if (StandardNames.IS_RI) {
             setExpectedOutputSize("AESWRAP", Cipher.WRAP_MODE, 8);
@@ -3286,6 +3280,63 @@ public final class CipherTest extends TestCase {
         } catch (InvalidKeyException expected) {
         } finally {
             Security.removeProvider(mockProvider.getName());
+        }
+    }
+
+    /*
+     * When in decrypt mode and using padding, the buffer shouldn't necessarily have room for an
+     * extra block when using padding.
+     * http://b/19186852
+     */
+    public void testDecryptBufferMultipleBlockSize_mustNotThrowException() throws Exception {
+        String testString = "Hello, World!";
+        byte[] testKey = "0123456789012345".getBytes(StandardCharsets.US_ASCII);
+        String testedCipher = "AES/ECB/PKCS7Padding";
+
+        Cipher encCipher = Cipher.getInstance(testedCipher);
+        encCipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(testKey, "AES"));
+        byte[] plainBuffer = testString.getBytes(StandardCharsets.US_ASCII);
+        byte[] encryptedBuffer = new byte[16];
+        int encryptedLength = encCipher.doFinal(
+                plainBuffer, 0, plainBuffer.length, encryptedBuffer);
+        assertEquals(16, encryptedLength);
+
+        Cipher cipher = Cipher.getInstance(testedCipher);
+        cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(testKey, "AES"));
+        // Must not throw exception.
+        int unencryptedBytes = cipher.doFinal(
+                encryptedBuffer, 0, encryptedBuffer.length, encryptedBuffer);
+        assertEquals(testString,
+                new String(encryptedBuffer, 0, unencryptedBytes, StandardCharsets.US_ASCII));
+    }
+
+    /**
+     * When using padding in decrypt mode, ensure that empty buffers decode to empty strings
+     * (no padding needed for the empty buffer).
+     * http://b/19186852
+     */
+    public void testDecryptBufferZeroSize_mustDecodeToEmptyString() throws Exception {
+        String[] androidOpenSSLCiphers = { "AES/CBC/PKCS5PADDING", "AES/CBC/PKCS7PADDING",
+                "AES/ECB/PKCS5PADDING", "AES/ECB/PKCS7PADDING", "DESEDE/CBC/PKCS5PADDING",
+                "DESEDE/CBC/PKCS7PADDING" };
+        for (String c : androidOpenSSLCiphers) {
+            Cipher cipher = Cipher.getInstance(c);
+            if (c.contains("/CBC/")) {
+                cipher.init(Cipher.DECRYPT_MODE,
+                        new SecretKeySpec("0123456789012345".getBytes(StandardCharsets.US_ASCII),
+                                (c.startsWith("AES/")) ? "AES" : "DESEDE"),
+                        new IvParameterSpec(
+                                ("01234567" + ((c.startsWith("AES/")) ? "89012345" : ""))
+                                        .getBytes(StandardCharsets.US_ASCII)));
+            } else {
+                cipher.init(Cipher.DECRYPT_MODE,
+                        new SecretKeySpec("0123456789012345".getBytes(StandardCharsets.US_ASCII),
+                                (c.startsWith("AES/")) ? "AES" : "DESEDE"));
+            }
+
+            byte[] buffer = new byte[0];
+            int bytesProduced = cipher.doFinal(buffer, 0, buffer.length, buffer);
+            assertEquals("", new String(buffer, 0, bytesProduced, StandardCharsets.US_ASCII));
         }
     }
 }
