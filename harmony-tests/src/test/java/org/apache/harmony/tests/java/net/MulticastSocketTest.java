@@ -706,7 +706,7 @@ public class MulticastSocketTest extends junit.framework.TestCase {
         Enumeration theInterfaces = NetworkInterface.getNetworkInterfaces();
         while (theInterfaces.hasMoreElements()) {
             NetworkInterface thisInterface = (NetworkInterface) theInterfaces.nextElement();
-            if (thisInterface.getInetAddresses().hasMoreElements() && thisInterface.isUp()) {
+            if (willWorkForMulticast(thisInterface)) {
                 if ((!(thisInterface.getInetAddresses().nextElement()).isLoopbackAddress())) {
                     MulticastSocket receivingSocket = createReceivingSocket(0);
                     InetSocketAddress groupAddress =
