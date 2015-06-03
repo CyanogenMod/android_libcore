@@ -16,33 +16,58 @@
 
 package java.lang;
 
-import java.net.MalformedURLException;
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
+import java.net.URLStreamHandler;
 import java.util.ArrayList;
 import java.util.List;
+import libcore.io.ClassPathURLStreamHandler;
 
 class VMClassLoader {
+
+    private static final ClassPathURLStreamHandler[] bootClassPathUrlHandlers;
+    static {
+        bootClassPathUrlHandlers = createBootClassPathUrlHandlers();
+    }
+
+    /**
+     * Creates an array of ClassPathURLStreamHandler objects for handling resource loading from
+     * the boot classpath.
+     */
+    private static ClassPathURLStreamHandler[] createBootClassPathUrlHandlers() {
+        String[] bootClassPathEntries = getBootClassPathEntries();
+        ArrayList<String> zipFileUris = new ArrayList<String>(bootClassPathEntries.length);
+        ArrayList<URLStreamHandler> urlStreamHandlers =
+                new ArrayList<URLStreamHandler>(bootClassPathEntries.length);
+        for (String bootClassPathEntry : bootClassPathEntries) {
+            try {
+                String entryUri = new File(bootClassPathEntry).toURI().toString();
+
+                // We assume all entries are zip or jar files.
+                URLStreamHandler urlStreamHandler =
+                        new ClassPathURLStreamHandler(bootClassPathEntry);
+                zipFileUris.add(entryUri);
+                urlStreamHandlers.add(urlStreamHandler);
+            } catch (IOException e) {
+                // Skip it
+                System.logE("Unable to open boot classpath entry: " + bootClassPathEntry, e);
+            }
+        }
+        return urlStreamHandlers.toArray(new ClassPathURLStreamHandler[urlStreamHandlers.size()]);
+    }
 
     /**
      * Get a resource from a file in the bootstrap class path.
      *
-     * It would be simpler to just walk through the class path elements
-     * ourselves, but that would require reopening Jar files.
-     *
-     * We assume that the bootclasspath can't change once the VM has
-     * started.  This assumption seems to be supported by the spec.
+     * We assume that the bootclasspath can't change once the VM has started.
+     * This assumption seems to be supported by the spec.
      */
     static URL getResource(String name) {
-        int numEntries = getBootClassPathSize();
-        for (int i = 0; i < numEntries; i++) {
-            String urlStr = getBootClassPathResource(name, i);
-            if (urlStr != null) {
-                try {
-                    return new URL(urlStr);
-                } catch (MalformedURLException mue) {
-                    mue.printStackTrace();
-                    // unexpected; keep going
-                }
+        for (ClassPathURLStreamHandler urlHandler : bootClassPathUrlHandlers) {
+            URL url = urlHandler.getEntryUrlOrNull(name);
+            if (url != null) {
+                return url;
             }
         }
         return null;
@@ -53,16 +78,10 @@ class VMClassLoader {
      */
     static List<URL> getResources(String name) {
         ArrayList<URL> list = new ArrayList<URL>();
-        int numEntries = getBootClassPathSize();
-        for (int i = 0; i < numEntries; i++) {
-            String urlStr = getBootClassPathResource(name, i);
-            if (urlStr != null) {
-                try {
-                    list.add(new URL(urlStr));
-                } catch (MalformedURLException mue) {
-                    mue.printStackTrace();
-                    // unexpected; keep going
-                }
+        for (ClassPathURLStreamHandler urlHandler : bootClassPathUrlHandlers) {
+            URL url = urlHandler.getEntryUrlOrNull(name);
+            if (url != null) {
+                list.add(url);
             }
         }
         return list;
@@ -73,6 +92,6 @@ class VMClassLoader {
     /**
      * Boot class path manipulation, for getResources().
      */
-    native private static int getBootClassPathSize();
-    native private static String getBootClassPathResource(String name, int index);
+    native private static String[] getBootClassPathEntries();
+
 }
