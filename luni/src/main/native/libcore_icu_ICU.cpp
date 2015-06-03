@@ -890,9 +890,14 @@ void register_libcore_icu_ICU(JNIEnv* env) {
     }
 
     // Use the ICU data files that shipped with the device for everything else.
+    const char* systemPathPrefix = getenv("ANDROID_ROOT");
+    if (systemPathPrefix == NULL) {
+        ALOGE("ANDROID_ROOT environment variable not set"); \
+        abort();
+    }
     std::string systemPath;
-    systemPath = u_getDataDirectory();
-    systemPath += "/";
+    systemPath = systemPathPrefix;
+    systemPath += "/usr/icu/";
     systemPath += U_ICUDATA_NAME;
     systemPath += ".dat";
 
