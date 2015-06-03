@@ -718,30 +718,18 @@ public final class StandardNames extends Assert {
         addBoth(   "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA");
         addBoth(   "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA");
         addBoth(   "TLS_RSA_WITH_AES_256_CBC_SHA");
-        addBoth(   "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA");
-        addBoth(   "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA");
         addBoth(   "TLS_DHE_RSA_WITH_AES_256_CBC_SHA");
         addBoth(   "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA");
         addBoth(   "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA");
         addBoth(   "TLS_RSA_WITH_AES_128_CBC_SHA");
-        addBoth(   "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA");
-        addBoth(   "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA");
         addBoth(   "TLS_DHE_RSA_WITH_AES_128_CBC_SHA");
         addBoth(   "TLS_ECDHE_ECDSA_WITH_RC4_128_SHA");
         addBoth(   "TLS_ECDHE_RSA_WITH_RC4_128_SHA");
         addBoth(   "SSL_RSA_WITH_RC4_128_SHA");
-        addBoth(   "TLS_ECDH_ECDSA_WITH_RC4_128_SHA");
-        addBoth(   "TLS_ECDH_RSA_WITH_RC4_128_SHA");
-        addBoth(   "TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA");
-        addBoth(   "TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA");
         addBoth(   "SSL_RSA_WITH_3DES_EDE_CBC_SHA");
-        addBoth(   "TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA");
-        addBoth(   "TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA");
-        addBoth(   "SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA");
         addBoth(   "SSL_RSA_WITH_RC4_128_MD5");
 
         // TLSv1.2 cipher suites
-        addBoth(   "TLS_RSA_WITH_NULL_SHA256");
         addBoth(   "TLS_RSA_WITH_AES_128_CBC_SHA256");
         addBoth(   "TLS_RSA_WITH_AES_256_CBC_SHA256");
         addOpenSsl("TLS_RSA_WITH_AES_128_GCM_SHA256");
@@ -750,14 +738,6 @@ public final class StandardNames extends Assert {
         addBoth(   "TLS_DHE_RSA_WITH_AES_256_CBC_SHA256");
         addOpenSsl("TLS_DHE_RSA_WITH_AES_128_GCM_SHA256");
         addOpenSsl("TLS_DHE_RSA_WITH_AES_256_GCM_SHA384");
-        addBoth(   "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256");
-        addBoth(   "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384");
-        addOpenSsl("TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256");
-        addOpenSsl("TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384");
-        addBoth(   "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256");
-        addBoth(   "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384");
-        addOpenSsl("TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256");
-        addOpenSsl("TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384");
         addBoth(   "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256");
         addBoth(   "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384");
         addOpenSsl("TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256");
@@ -766,14 +746,9 @@ public final class StandardNames extends Assert {
         addBoth(   "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384");
         addOpenSsl("TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256");
         addOpenSsl("TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384");
-        addBoth(   "TLS_DH_anon_WITH_AES_128_CBC_SHA256");
-        addBoth(   "TLS_DH_anon_WITH_AES_256_CBC_SHA256");
-        addOpenSsl("TLS_DH_anon_WITH_AES_128_GCM_SHA256");
-        addOpenSsl("TLS_DH_anon_WITH_AES_256_GCM_SHA384");
 
         // Pre-Shared Key (PSK) cipher suites
         addOpenSsl("TLS_PSK_WITH_RC4_128_SHA");
-        addOpenSsl("TLS_PSK_WITH_3DES_EDE_CBC_SHA");
         addOpenSsl("TLS_PSK_WITH_AES_128_CBC_SHA");
         addOpenSsl("TLS_PSK_WITH_AES_256_CBC_SHA");
         addOpenSsl("TLS_ECDHE_PSK_WITH_AES_128_CBC_SHA");
@@ -787,29 +762,6 @@ public final class StandardNames extends Assert {
         addOpenSsl(CIPHER_SUITE_FALLBACK);
 
         // non-defaultCipherSuites
-        addBoth(   "TLS_ECDH_anon_WITH_AES_256_CBC_SHA");
-        addBoth(   "TLS_DH_anon_WITH_AES_256_CBC_SHA");
-        addBoth(   "TLS_ECDH_anon_WITH_AES_128_CBC_SHA");
-        addBoth(   "TLS_DH_anon_WITH_AES_128_CBC_SHA");
-        addBoth(   "TLS_ECDH_anon_WITH_RC4_128_SHA");
-        addBoth(   "SSL_DH_anon_WITH_RC4_128_MD5");
-        addBoth(   "TLS_ECDH_anon_WITH_3DES_EDE_CBC_SHA");
-        addBoth(   "SSL_DH_anon_WITH_3DES_EDE_CBC_SHA");
-        addBoth(   "TLS_ECDHE_ECDSA_WITH_NULL_SHA");
-        addBoth(   "TLS_ECDHE_RSA_WITH_NULL_SHA");
-        addBoth(   "SSL_RSA_WITH_NULL_SHA");
-        addBoth(   "TLS_ECDH_ECDSA_WITH_NULL_SHA");
-        addBoth(   "TLS_ECDH_RSA_WITH_NULL_SHA");
-        addBoth(   "TLS_ECDH_anon_WITH_NULL_SHA");
-        addBoth(   "SSL_RSA_WITH_NULL_MD5");
-        addBoth(   "SSL_RSA_WITH_DES_CBC_SHA");
-        addBoth(   "SSL_DHE_RSA_WITH_DES_CBC_SHA");
-        addBoth(   "SSL_DH_anon_WITH_DES_CBC_SHA");
-        addBoth(   "SSL_RSA_EXPORT_WITH_RC4_40_MD5");
-        addBoth(   "SSL_DH_anon_EXPORT_WITH_RC4_40_MD5");
-        addBoth(   "SSL_RSA_EXPORT_WITH_DES40_CBC_SHA");
-        addBoth(   "SSL_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA");
-        addBoth(   "SSL_DH_anon_EXPORT_WITH_DES40_CBC_SHA");
 
         // Android does not have Kerberos support
         addRi(     "TLS_KRB5_WITH_RC4_128_SHA");
@@ -837,6 +789,54 @@ public final class StandardNames extends Assert {
         // Dropped
         addNeither("SSL_DH_DSS_EXPORT_WITH_DES40_CBC_SHA");
         addNeither("SSL_DH_RSA_EXPORT_WITH_DES40_CBC_SHA");
+        addRi(     "SSL_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA");
+        addRi(     "SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA");
+        addRi(     "SSL_DHE_RSA_WITH_DES_CBC_SHA");
+        addRi(     "SSL_DH_anon_EXPORT_WITH_DES40_CBC_SHA");
+        addRi(     "SSL_DH_anon_EXPORT_WITH_RC4_40_MD5");
+        addRi(     "SSL_DH_anon_WITH_3DES_EDE_CBC_SHA");
+        addRi(     "SSL_DH_anon_WITH_DES_CBC_SHA");
+        addRi(     "SSL_DH_anon_WITH_RC4_128_MD5");
+        addRi(     "SSL_RSA_EXPORT_WITH_DES40_CBC_SHA");
+        addRi(     "SSL_RSA_EXPORT_WITH_RC4_40_MD5");
+        addRi(     "SSL_RSA_WITH_DES_CBC_SHA");
+        addRi(     "SSL_RSA_WITH_NULL_MD5");
+        addRi(     "SSL_RSA_WITH_NULL_SHA");
+        addRi(     "TLS_DH_anon_WITH_AES_128_CBC_SHA");
+        addRi(     "TLS_DH_anon_WITH_AES_128_CBC_SHA256");
+        addNeither("TLS_DH_anon_WITH_AES_128_GCM_SHA256");
+        addRi(     "TLS_DH_anon_WITH_AES_256_CBC_SHA");
+        addRi(     "TLS_DH_anon_WITH_AES_256_CBC_SHA256");
+        addNeither("TLS_DH_anon_WITH_AES_256_GCM_SHA384");
+        addRi(     "TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA");
+        addRi(     "TLS_ECDHE_ECDSA_WITH_NULL_SHA");
+        addRi(     "TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA");
+        addRi(     "TLS_ECDHE_RSA_WITH_NULL_SHA");
+        addRi(     "TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA");
+        addRi(     "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA");
+        addRi(     "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256");
+        addNeither("TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256");
+        addRi(     "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA");
+        addRi(     "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384");
+        addNeither("TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384");
+        addRi(     "TLS_ECDH_ECDSA_WITH_NULL_SHA");
+        addRi(     "TLS_ECDH_ECDSA_WITH_RC4_128_SHA");
+        addRi(     "TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA");
+        addRi(     "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA");
+        addRi(     "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256");
+        addNeither("TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256");
+        addRi(     "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA");
+        addRi(     "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384");
+        addNeither("TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384");
+        addRi(     "TLS_ECDH_RSA_WITH_NULL_SHA");
+        addRi(     "TLS_ECDH_RSA_WITH_RC4_128_SHA");
+        addRi(     "TLS_ECDH_anon_WITH_3DES_EDE_CBC_SHA");
+        addRi(     "TLS_ECDH_anon_WITH_AES_128_CBC_SHA");
+        addRi(     "TLS_ECDH_anon_WITH_AES_256_CBC_SHA");
+        addRi(     "TLS_ECDH_anon_WITH_NULL_SHA");
+        addRi(     "TLS_ECDH_anon_WITH_RC4_128_SHA");
+        addNeither("TLS_PSK_WITH_3DES_EDE_CBC_SHA");
+        addRi(     "TLS_RSA_WITH_NULL_SHA256");
 
         // Old non standard exportable encryption
         addNeither("SSL_RSA_EXPORT1024_WITH_DES_CBC_SHA");
