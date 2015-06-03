@@ -134,14 +134,22 @@ import java.util.Arrays;
  * used to control how many idle connections to each server will be held.
  *
  * <p>By default, this implementation of {@code HttpURLConnection} requests that
- * servers use gzip compression. Since {@link #getContentLength()} returns the
- * number of bytes transmitted, you cannot use that method to predict how many
- * bytes can be read from {@link #getInputStream()}. Instead, read that stream
- * until it is exhausted: when {@link InputStream#read} returns -1. Gzip
- * compression can be disabled by setting the acceptable encodings in the
- * request header: <pre>   {@code
+ * servers use gzip compression and it automatically decompresses the data for
+ * callers of {@link #getInputStream()}. The Content-Encoding and Content-Length
+ * response headers are cleared in this case. Gzip compression can be disabled by
+ * setting the acceptable encodings in the request header: <pre>   {@code
  *   urlConnection.setRequestProperty("Accept-Encoding", "identity");
  * }</pre>
+ *
+ * <p>Setting the Accept-Encoding request header explicitly disables automatic
+ * decompression and leaves the response headers intact; callers must handle
+ * decompression as needed, according to the Content-Encoding header of the
+ * response.
+ *
+ * <p>{@link #getContentLength()} returns the number of bytes transmitted and
+ * cannot be used to predict how many bytes can be read from
+ * {@link #getInputStream()} for compressed streams. Instead, read that stream
+ * until it is exhausted, i.e. when {@link InputStream#read} returns -1.
  *
  * <h3>Handling Network Sign-On</h3>
  * Some Wi-Fi networks block Internet access until the user clicks through a
