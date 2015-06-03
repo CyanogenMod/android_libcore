@@ -19,26 +19,19 @@ package dalvik.system;
 import android.system.ErrnoException;
 import android.system.StructStat;
 import java.io.File;
-import java.io.FilterInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.JarURLConnection;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLStreamHandler;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.jar.JarFile;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 import libcore.io.IoUtils;
 import libcore.io.Libcore;
-import static android.system.OsConstants.*;
+import libcore.io.ClassPathURLStreamHandler;
+
+import static android.system.OsConstants.S_ISDIR;
 
 /**
  * A pair of lists of entries, associated with a {@code ClassLoader}.
@@ -417,8 +410,7 @@ import static android.system.OsConstants.*;
         private final File zip;
         private final DexFile dexFile;
 
-        private ZipFile zipFile;
-        private URLStreamHandler urlHandler;
+        private ClassPathURLStreamHandler urlHandler;
         private boolean initialized;
 
         public Element(File file, boolean isDirectory, File zip, DexFile dexFile) {
@@ -450,8 +442,7 @@ import static android.system.OsConstants.*;
             }
 
             try {
-                zipFile = new ZipFile(zip);
-                urlHandler = new ElementURLStreamHandler(zipFile);
+                urlHandler = new ClassPathURLStreamHandler(zip.getPath());
             } catch (IOException ioe) {
                 /*
                  * Note: ZipException (a subclass of IOException)
@@ -460,7 +451,6 @@ import static android.system.OsConstants.*;
                  * file).
                  */
                 System.logE("Unable to open zip file: " + file, ioe);
-                zipFile = null;
             }
         }
 
@@ -480,125 +470,12 @@ import static android.system.OsConstants.*;
                 }
             }
 
-            if (zipFile == null || zipFile.getEntry(name) == null) {
-                /*
-                 * Either this element has no zip/jar file (first
-                 * clause), or the zip/jar file doesn't have an entry
-                 * for the given name (second clause).
+            if (urlHandler == null) {
+                /* This element has no zip/jar file.
                  */
                 return null;
             }
-
-            try {
-                /*
-                 * File.toURI() is compliant with RFC 1738 in
-                 * always creating absolute path names. If we
-                 * construct the URL by concatenating strings, we
-                 * might end up with illegal URLs for relative
-                 * names.
-                 */
-                URI fileUri = file.toURI();
-                return new URL("jar", null, -1, fileUri.toString() + "!/" + name, urlHandler);
-            } catch (MalformedURLException ex) {
-                throw new RuntimeException(ex);
-            }
-        }
-
-        /**
-         * URLStreamHandler for an Element. Avoids the need to open a .jar file again to read
-         * resources.
-         */
-        private static class ElementURLStreamHandler extends URLStreamHandler {
-
-            private final ZipFile zipFile;
-
-            public ElementURLStreamHandler(ZipFile zipFile) {
-                this.zipFile = zipFile;
-            }
-
-            @Override
-            protected URLConnection openConnection(URL url) throws IOException {
-                return new ElementJarURLConnection(url, zipFile);
-            }
-        }
-
-        /**
-         * A JarURLConnection that is backed by a ZipFile held open by an {@link Element}. For
-         * backwards compatibility it extends JarURLConnection even though it's not actually backed
-         * by a {@link JarFile}.
-         */
-        private static class ElementJarURLConnection extends JarURLConnection {
-
-            private final ZipFile zipFile;
-            private final ZipEntry zipEntry;
-
-            private InputStream jarInput;
-            private boolean closed;
-            private JarFile jarFile;
-
-            public ElementJarURLConnection(URL url, ZipFile zipFile) throws MalformedURLException {
-                super(url);
-                this.zipFile = zipFile;
-                this.zipEntry = zipFile.getEntry(getEntryName());
-                if (zipEntry == null) {
-                    throw new MalformedURLException(
-                            "URL does not correspond to an entry in the zip file. URL=" + url
-                                    + ", zipfile=" + zipFile.getName());
-                }
-            }
-
-            @Override
-            public void connect() {
-                connected = true;
-            }
-
-            @Override
-            public JarFile getJarFile() throws IOException {
-                // This is expensive because we only pretend that we wrap a JarFile.
-                if (jarFile == null) {
-                    jarFile = new JarFile(zipFile.getName());
-                }
-                return jarFile;
-            }
-
-            @Override
-            public InputStream getInputStream() throws IOException {
-                if (closed) {
-                    throw new IllegalStateException("JarURLConnection InputStream has been closed");
-                }
-                connect();
-                if (jarInput != null) {
-                    return jarInput;
-                }
-                return jarInput = new FilterInputStream(zipFile.getInputStream(zipEntry)) {
-                    @Override
-                    public void close() throws IOException {
-                        super.close();
-                        closed = true;
-                    }
-                };
-            }
-
-            /**
-             * Returns the content type of the entry based on the name of the entry. Returns
-             * non-null results ("content/unknown" for unknown types).
-             *
-             * @return the content type
-             */
-            @Override
-            public String getContentType() {
-                String cType = guessContentTypeFromName(getEntryName());
-                if (cType == null) {
-                    cType = "content/unknown";
-                }
-                return cType;
-            }
-
-            @Override
-            public int getContentLength() {
-                connect();
-                return (int) zipEntry.getSize();
-            }
+            return urlHandler.getEntryUrlOrNull(name);
         }
     }
 }
