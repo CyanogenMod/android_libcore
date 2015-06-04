@@ -117,33 +117,33 @@ import java.net.UnknownHostException;
  *     <tbody>
  *         <tr>
  *             <td>SSL_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA</td>
- *             <td>9-22</td>
- *             <td>9-19</td>
+ *             <td>9&ndash;22</td>
+ *             <td>9&ndash;19</td>
  *         </tr>
  *         <tr>
  *             <td>SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA</td>
- *             <td>9-22</td>
- *             <td>9-19</td>
+ *             <td>9&ndash;22</td>
+ *             <td>9&ndash;19</td>
  *         </tr>
  *         <tr>
  *             <td>SSL_DHE_DSS_WITH_DES_CBC_SHA</td>
- *             <td>9-22</td>
- *             <td>9-19</td>
+ *             <td>9&ndash;22</td>
+ *             <td>9&ndash;19</td>
  *         </tr>
  *         <tr>
  *             <td>SSL_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA</td>
  *             <td>9+</td>
- *             <td>9-19</td>
+ *             <td>9&ndash;19</td>
  *         </tr>
  *         <tr>
  *             <td>SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA</td>
  *             <td>9+</td>
- *             <td>9-19</td>
+ *             <td>9&ndash;19</td>
  *         </tr>
  *         <tr>
  *             <td>SSL_DHE_RSA_WITH_DES_CBC_SHA</td>
  *             <td>9+</td>
- *             <td>9-19</td>
+ *             <td>9&ndash;19</td>
  *         </tr>
  *         <tr>
  *             <td>SSL_DH_anon_EXPORT_WITH_DES40_CBC_SHA</td>
@@ -173,22 +173,22 @@ import java.net.UnknownHostException;
  *         <tr>
  *             <td>SSL_RSA_EXPORT_WITH_DES40_CBC_SHA</td>
  *             <td>9+</td>
- *             <td>9-19</td>
+ *             <td>9&ndash;19</td>
  *         </tr>
  *         <tr>
  *             <td>SSL_RSA_EXPORT_WITH_RC4_40_MD5</td>
  *             <td>9+</td>
- *             <td>9-19</td>
+ *             <td>9&ndash;19</td>
  *         </tr>
  *         <tr>
  *             <td>SSL_RSA_WITH_3DES_EDE_CBC_SHA</td>
  *             <td>9+</td>
- *             <td>9-19</td>
+ *             <td>9&ndash;19</td>
  *         </tr>
  *         <tr>
  *             <td>SSL_RSA_WITH_DES_CBC_SHA</td>
  *             <td>9+</td>
- *             <td>9-19</td>
+ *             <td>9&ndash;19</td>
  *         </tr>
  *         <tr>
  *             <td>SSL_RSA_WITH_NULL_MD5</td>
@@ -203,7 +203,7 @@ import java.net.UnknownHostException;
  *         <tr>
  *             <td>SSL_RSA_WITH_RC4_128_MD5</td>
  *             <td>9+</td>
- *             <td>9-19</td>
+ *             <td>9&ndash;19</td>
  *         </tr>
  *         <tr>
  *             <td>SSL_RSA_WITH_RC4_128_SHA</td>
@@ -212,32 +212,32 @@ import java.net.UnknownHostException;
  *         </tr>
  *         <tr>
  *             <td>TLS_DHE_DSS_WITH_AES_128_CBC_SHA</td>
- *             <td>9-22</td>
- *             <td>9-22</td>
+ *             <td>9&ndash;22</td>
+ *             <td>9&ndash;22</td>
  *         </tr>
  *         <tr>
  *             <td>TLS_DHE_DSS_WITH_AES_128_CBC_SHA256</td>
- *             <td>20-22</td>
+ *             <td>20&ndash;22</td>
  *             <td></td>
  *         </tr>
  *         <tr>
  *             <td>TLS_DHE_DSS_WITH_AES_128_GCM_SHA256</td>
- *             <td>20-22</td>
+ *             <td>20&ndash;22</td>
  *             <td></td>
  *         </tr>
  *         <tr>
  *             <td>TLS_DHE_DSS_WITH_AES_256_CBC_SHA</td>
- *             <td>9-22</td>
- *             <td>11-22</td>
+ *             <td>9&ndash;22</td>
+ *             <td>11&ndash;22</td>
  *         </tr>
  *         <tr>
  *             <td>TLS_DHE_DSS_WITH_AES_256_CBC_SHA256</td>
- *             <td>20-22</td>
+ *             <td>20&ndash;22</td>
  *             <td></td>
  *         </tr>
  *         <tr>
  *             <td>TLS_DHE_DSS_WITH_AES_256_GCM_SHA384</td>
- *             <td>20-22</td>
+ *             <td>20&ndash;22</td>
  *             <td></td>
  *         </tr>
  *         <tr>
@@ -303,7 +303,7 @@ import java.net.UnknownHostException;
  *         <tr>
  *             <td>TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA</td>
  *             <td>11+</td>
- *             <td>11-19</td>
+ *             <td>11&ndash;19</td>
  *         </tr>
  *         <tr>
  *             <td>TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA</td>
@@ -358,7 +358,7 @@ import java.net.UnknownHostException;
  *         <tr>
  *             <td>TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA</td>
  *             <td>11+</td>
- *             <td>11-19</td>
+ *             <td>11&ndash;19</td>
  *         </tr>
  *         <tr>
  *             <td>TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA</td>
@@ -403,12 +403,12 @@ import java.net.UnknownHostException;
  *         <tr>
  *             <td>TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA</td>
  *             <td>11+</td>
- *             <td>11-19</td>
+ *             <td>11&ndash;19</td>
  *         </tr>
  *         <tr>
  *             <td>TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA</td>
  *             <td>11+</td>
- *             <td>11-19</td>
+ *             <td>11&ndash;19</td>
  *         </tr>
  *         <tr>
  *             <td>TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256</td>
@@ -423,7 +423,7 @@ import java.net.UnknownHostException;
  *         <tr>
  *             <td>TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA</td>
  *             <td>11+</td>
- *             <td>11-19</td>
+ *             <td>11&ndash;19</td>
  *         </tr>
  *         <tr>
  *             <td>TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384</td>
@@ -443,17 +443,17 @@ import java.net.UnknownHostException;
  *         <tr>
  *             <td>TLS_ECDH_ECDSA_WITH_RC4_128_SHA</td>
  *             <td>11+</td>
- *             <td>11-19</td>
+ *             <td>11&ndash;19</td>
  *         </tr>
  *         <tr>
  *             <td>TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA</td>
  *             <td>11+</td>
- *             <td>11-19</td>
+ *             <td>11&ndash;19</td>
  *         </tr>
  *         <tr>
  *             <td>TLS_ECDH_RSA_WITH_AES_128_CBC_SHA</td>
  *             <td>11+</td>
- *             <td>11-19</td>
+ *             <td>11&ndash;19</td>
  *         </tr>
  *         <tr>
  *             <td>TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256</td>
@@ -468,7 +468,7 @@ import java.net.UnknownHostException;
  *         <tr>
  *             <td>TLS_ECDH_RSA_WITH_AES_256_CBC_SHA</td>
  *             <td>11+</td>
- *             <td>11-19</td>
+ *             <td>11&ndash;19</td>
  *         </tr>
  *         <tr>
  *             <td>TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384</td>
@@ -488,7 +488,7 @@ import java.net.UnknownHostException;
  *         <tr>
  *             <td>TLS_ECDH_RSA_WITH_RC4_128_SHA</td>
  *             <td>11+</td>
- *             <td>11-19</td>
+ *             <td>11&ndash;19</td>
  *         </tr>
  *         <tr>
  *             <td>TLS_ECDH_anon_WITH_3DES_EDE_CBC_SHA</td>
@@ -610,43 +610,43 @@ import java.net.UnknownHostException;
  *             <td>AES256-SHA</td>
  *             <td>TLS_RSA_WITH_AES_256_CBC_SHA</td>
  *             <td>1+</td>
- *             <td>1-8, 11+</td>
+ *             <td>1&ndash;8, 11+</td>
  *         </tr>
  *         <tr>
  *             <td>DES-CBC-MD5</td>
  *             <td>SSL_CK_DES_64_CBC_WITH_MD5</td>
- *             <td>1-8</td>
- *             <td>1-8</td>
+ *             <td>1&ndash;8</td>
+ *             <td>1&ndash;8</td>
  *         </tr>
  *         <tr>
  *             <td>DES-CBC-SHA</td>
  *             <td>SSL_RSA_WITH_DES_CBC_SHA</td>
  *             <td>1+</td>
- *             <td>1-19</td>
+ *             <td>1&ndash;19</td>
  *         </tr>
  *         <tr>
  *             <td>DES-CBC3-MD5</td>
  *             <td>SSL_CK_DES_192_EDE3_CBC_WITH_MD5</td>
- *             <td>1-8</td>
- *             <td>1-8</td>
+ *             <td>1&ndash;8</td>
+ *             <td>1&ndash;8</td>
  *         </tr>
  *         <tr>
  *             <td>DES-CBC3-SHA</td>
  *             <td>SSL_RSA_WITH_3DES_EDE_CBC_SHA</td>
  *             <td>1+</td>
- *             <td>1-19</td>
+ *             <td>1&ndash;19</td>
  *         </tr>
  *         <tr>
  *             <td>DHE-DSS-AES128-SHA</td>
  *             <td>TLS_DHE_DSS_WITH_AES_128_CBC_SHA</td>
- *             <td>1-22</td>
- *             <td>1-22</td>
+ *             <td>1&ndash;22</td>
+ *             <td>1&ndash;22</td>
  *         </tr>
  *         <tr>
  *             <td>DHE-DSS-AES256-SHA</td>
  *             <td>TLS_DHE_DSS_WITH_AES_256_CBC_SHA</td>
- *             <td>1-22</td>
- *             <td>1-8, 11-22</td>
+ *             <td>1&ndash;22</td>
+ *             <td>1&ndash;8, 11&ndash;22</td>
  *         </tr>
  *         <tr>
  *             <td>DHE-RSA-AES128-SHA</td>
@@ -658,73 +658,73 @@ import java.net.UnknownHostException;
  *             <td>DHE-RSA-AES256-SHA</td>
  *             <td>TLS_DHE_RSA_WITH_AES_256_CBC_SHA</td>
  *             <td>1+</td>
- *             <td>1-8, 11+</td>
+ *             <td>1&ndash;8, 11+</td>
  *         </tr>
  *         <tr>
  *             <td>EDH-DSS-DES-CBC-SHA</td>
  *             <td>SSL_DHE_DSS_WITH_DES_CBC_SHA</td>
- *             <td>1-22</td>
- *             <td>1-19</td>
+ *             <td>1&ndash;22</td>
+ *             <td>1&ndash;19</td>
  *         </tr>
  *         <tr>
  *             <td>EDH-DSS-DES-CBC3-SHA</td>
  *             <td>SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA</td>
- *             <td>1-22</td>
- *             <td>1-19</td>
+ *             <td>1&ndash;22</td>
+ *             <td>1&ndash;19</td>
  *         </tr>
  *         <tr>
  *             <td>EDH-RSA-DES-CBC-SHA</td>
  *             <td>SSL_DHE_RSA_WITH_DES_CBC_SHA</td>
  *             <td>1+</td>
- *             <td>1-19</td>
+ *             <td>1&ndash;19</td>
  *         </tr>
  *         <tr>
  *             <td>EDH-RSA-DES-CBC3-SHA</td>
  *             <td>SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA</td>
  *             <td>1+</td>
- *             <td>1-19</td>
+ *             <td>1&ndash;19</td>
  *         </tr>
  *         <tr>
  *             <td>EXP-DES-CBC-SHA</td>
  *             <td>SSL_RSA_EXPORT_WITH_DES40_CBC_SHA</td>
  *             <td>1+</td>
- *             <td>1-19</td>
+ *             <td>1&ndash;19</td>
  *         </tr>
  *         <tr>
  *             <td>EXP-EDH-DSS-DES-CBC-SHA</td>
  *             <td>SSL_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA</td>
- *             <td>1-22</td>
- *             <td>1-19</td>
+ *             <td>1&ndash;22</td>
+ *             <td>1&ndash;19</td>
  *         </tr>
  *         <tr>
  *             <td>EXP-EDH-RSA-DES-CBC-SHA</td>
  *             <td>SSL_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA</td>
  *             <td>1+</td>
- *             <td>1-19</td>
+ *             <td>1&ndash;19</td>
  *         </tr>
  *         <tr>
  *             <td>EXP-RC2-CBC-MD5</td>
  *             <td>SSL_RSA_EXPORT_WITH_RC2_CBC_40_MD5</td>
- *             <td>1-8</td>
- *             <td>1-8</td>
+ *             <td>1&ndash;8</td>
+ *             <td>1&ndash;8</td>
  *         </tr>
  *         <tr>
  *             <td>EXP-RC4-MD5</td>
  *             <td>SSL_RSA_EXPORT_WITH_RC4_40_MD5</td>
  *             <td>1+</td>
- *             <td>1-19</td>
+ *             <td>1&ndash;19</td>
  *         </tr>
  *         <tr>
  *             <td>RC2-CBC-MD5</td>
  *             <td>SSL_CK_RC2_128_CBC_WITH_MD5</td>
- *             <td>1-8</td>
- *             <td>1-8</td>
+ *             <td>1&ndash;8</td>
+ *             <td>1&ndash;8</td>
  *         </tr>
  *         <tr>
  *             <td>RC4-MD5</td>
  *             <td>SSL_RSA_WITH_RC4_128_MD5</td>
  *             <td>1+</td>
- *             <td>1-19</td>
+ *             <td>1&ndash;19</td>
  *         </tr>
  *         <tr>
  *             <td>RC4-SHA</td>
