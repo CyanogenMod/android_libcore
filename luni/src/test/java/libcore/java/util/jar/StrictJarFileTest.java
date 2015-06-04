@@ -173,6 +173,18 @@ public class StrictJarFileTest extends TestCase {
         assertThrowsOnInit("removed.jar");
     }
 
+    public void testJarWithNoManifest() throws Exception {
+        String jarFileName = "StrictJarFileTestNoManifest.jar";
+        Support_Resources.copyFile(resources, null, jarFileName);
+        StrictJarFile jarFile = new StrictJarFile(
+                new File(resources,  jarFileName).getAbsolutePath());
+
+        assertNull(jarFile.getManifest());
+        ZipEntry entry = jarFile.findEntry("Test.class");
+        assertNotNull(entry);
+        assertNull(jarFile.getCertificateChains(entry));
+    }
+
     private void assertThrowsOnInit(String name) throws Exception {
         Support_Resources.copyFile(resources, null,  name);
         try {
