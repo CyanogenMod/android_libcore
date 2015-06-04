@@ -50,6 +50,7 @@ public class StrictJarFileTest extends TestCase {
         Support_Resources.copyFile(resources, null, JAR_1);
         String fileName = (new File(resources, JAR_1)).getCanonicalPath();
         StrictJarFile jarFile = new StrictJarFile(fileName);
+        assertEquals(fileName, jarFile.getName());
         jarFile.close();
     }
 
