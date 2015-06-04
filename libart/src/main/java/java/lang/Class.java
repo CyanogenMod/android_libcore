@@ -159,7 +159,14 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     /** Lazily computed name of this class; always prefer calling getName(). */
     private transient String name;
 
-    /** The superclass, or null if this is java.lang.Object, an interface or primitive type. */
+    /**
+     * The superclass, or null if this is java.lang.Object or a primitive type.
+     *
+     * Note that interfaces have java.lang.Object as their
+     * superclass. This doesn't match the expectations of
+     * getSuperClass() which needs to check for interfaces and return
+     * null.
+     */
     private transient Class<? super T> superClass;
 
     /** If class verify fails, we must return same error on subsequent tries. */
