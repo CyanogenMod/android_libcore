@@ -40,6 +40,8 @@ import libcore.io.Streams;
  */
 public final class StrictJarFile {
 
+    private final String fileName;
+
     private final long nativeHandle;
 
     // NOTE: It's possible to share a file descriptor with the native
@@ -55,6 +57,7 @@ public final class StrictJarFile {
     private boolean closed;
 
     public StrictJarFile(String fileName) throws IOException, SecurityException {
+        this.fileName = fileName;
         this.nativeHandle = nativeOpenJarFile(fileName);
         this.raf = new RandomAccessFile(fileName, "r");
 
@@ -89,6 +92,10 @@ public final class StrictJarFile {
         }
 
         guard.open("close");
+    }
+
+    public String getName() {
+        return fileName;
     }
 
     public Manifest getManifest() {
