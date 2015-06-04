@@ -61,18 +61,27 @@ public final class StrictJarFile {
         try {
             // Read the MANIFEST and signature files up front and try to
             // parse them. We never want to accept a JAR File with broken signatures
-            // or manifests, so it's best to throw as early as possible.
+            // or manifests, so it's best to throw as early as possible. It is valid
+            // for a jar file to be missing a manifest and it's treated the same
+            // as any other unsigned jar.
             HashMap<String, byte[]> metaEntries = getMetaEntries();
-            this.manifest = new Manifest(metaEntries.get(JarFile.MANIFEST_NAME), true);
-            this.verifier = new JarVerifier(fileName, manifest, metaEntries);
-            Set<String> files = this.manifest.getEntries().keySet();
-            for (String file : files) {
-                if (findEntry(file) == null) {
-                    throw new SecurityException(fileName + ": File " + file + " in manifest does not exist");
+            byte[] manifestBytes = metaEntries.get(JarFile.MANIFEST_NAME);
+            if (manifestBytes == null) {
+                this.manifest = null;
+                this.verifier = null;
+                isSigned = false;
+            } else {
+                this.manifest = new Manifest(manifestBytes, true);
+                this.verifier = new JarVerifier(fileName, manifest, metaEntries);
+                Set<String> files = this.manifest.getEntries().keySet();
+                for (String file : files) {
+                    if (findEntry(file) == null) {
+                        throw new SecurityException(
+                                fileName + ": File " + file + " in manifest does not exist");
+                    }
                 }
+                isSigned = verifier.readCertificates() && verifier.isSignedJar();
             }
-
-            isSigned = verifier.readCertificates() && verifier.isSignedJar();
         } catch (IOException | SecurityException e) {
             nativeClose(this.nativeHandle);
             IoUtils.closeQuietly(this.raf);
