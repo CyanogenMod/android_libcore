@@ -88,52 +88,52 @@ import java.nio.ByteBuffer;
  *         </tr>
  *         <tr>
  *             <td>SSL_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA</td>
- *             <td>9+</td>
+ *             <td>9&ndash;22</td>
  *             <td>9&ndash;19</td>
  *         </tr>
  *         <tr>
  *             <td>SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA</td>
- *             <td>9+</td>
+ *             <td>9&ndash;22</td>
  *             <td>9&ndash;19</td>
  *         </tr>
  *         <tr>
  *             <td>SSL_DHE_RSA_WITH_DES_CBC_SHA</td>
- *             <td>9+</td>
+ *             <td>9&ndash;22</td>
  *             <td>9&ndash;19</td>
  *         </tr>
  *         <tr>
  *             <td>SSL_DH_anon_EXPORT_WITH_DES40_CBC_SHA</td>
- *             <td>9+</td>
+ *             <td>9&ndash;22</td>
  *             <td></td>
  *         </tr>
  *         <tr>
  *             <td>SSL_DH_anon_EXPORT_WITH_RC4_40_MD5</td>
- *             <td>9+</td>
+ *             <td>9&ndash;22</td>
  *             <td></td>
  *         </tr>
  *         <tr>
  *             <td>SSL_DH_anon_WITH_3DES_EDE_CBC_SHA</td>
- *             <td>9+</td>
+ *             <td>9&ndash;22</td>
  *             <td></td>
  *         </tr>
  *         <tr>
  *             <td>SSL_DH_anon_WITH_DES_CBC_SHA</td>
- *             <td>9+</td>
+ *             <td>9&ndash;22</td>
  *             <td></td>
  *         </tr>
  *         <tr>
  *             <td>SSL_DH_anon_WITH_RC4_128_MD5</td>
- *             <td>9+</td>
+ *             <td>9&ndash;22</td>
  *             <td></td>
  *         </tr>
  *         <tr>
  *             <td>SSL_RSA_EXPORT_WITH_DES40_CBC_SHA</td>
- *             <td>9+</td>
+ *             <td>9&ndash;22</td>
  *             <td>9&ndash;19</td>
  *         </tr>
  *         <tr>
  *             <td>SSL_RSA_EXPORT_WITH_RC4_40_MD5</td>
- *             <td>9+</td>
+ *             <td>9&ndash;22</td>
  *             <td>9&ndash;19</td>
  *         </tr>
  *         <tr>
@@ -143,17 +143,17 @@ import java.nio.ByteBuffer;
  *         </tr>
  *         <tr>
  *             <td>SSL_RSA_WITH_DES_CBC_SHA</td>
- *             <td>9+</td>
+ *             <td>9&ndash;22</td>
  *             <td>9&ndash;19</td>
  *         </tr>
  *         <tr>
  *             <td>SSL_RSA_WITH_NULL_MD5</td>
- *             <td>9+</td>
+ *             <td>9&ndash;22</td>
  *             <td></td>
  *         </tr>
  *         <tr>
  *             <td>SSL_RSA_WITH_NULL_SHA</td>
- *             <td>9+</td>
+ *             <td>9&ndash;22</td>
  *             <td></td>
  *         </tr>
  *         <tr>
@@ -298,32 +298,32 @@ import java.nio.ByteBuffer;
  *         </tr>
  *         <tr>
  *             <td>TLS_DH_anon_WITH_AES_128_CBC_SHA</td>
- *             <td>9+</td>
+ *             <td>9&ndash;22</td>
  *             <td></td>
  *         </tr>
  *         <tr>
  *             <td>TLS_DH_anon_WITH_AES_128_CBC_SHA256</td>
- *             <td>20+</td>
+ *             <td>20&ndash;22</td>
  *             <td></td>
  *         </tr>
  *         <tr>
  *             <td>TLS_DH_anon_WITH_AES_128_GCM_SHA256</td>
- *             <td>20+</td>
+ *             <td>20&ndash;22</td>
  *             <td></td>
  *         </tr>
  *         <tr>
  *             <td>TLS_DH_anon_WITH_AES_256_CBC_SHA</td>
- *             <td>9+</td>
+ *             <td>9&ndash;22</td>
  *             <td></td>
  *         </tr>
  *         <tr>
  *             <td>TLS_DH_anon_WITH_AES_256_CBC_SHA256</td>
- *             <td>20+</td>
+ *             <td>20&ndash;22</td>
  *             <td></td>
  *         </tr>
  *         <tr>
  *             <td>TLS_DH_anon_WITH_AES_256_GCM_SHA384</td>
- *             <td>20+</td>
+ *             <td>20&ndash;22</td>
  *             <td></td>
  *         </tr>
  *         <tr>
@@ -333,7 +333,7 @@ import java.nio.ByteBuffer;
  *         </tr>
  *         <tr>
  *             <td>TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA</td>
- *             <td>20+</td>
+ *             <td>20&ndash;22</td>
  *             <td></td>
  *         </tr>
  *         <tr>
@@ -368,7 +368,7 @@ import java.nio.ByteBuffer;
  *         </tr>
  *         <tr>
  *             <td>TLS_ECDHE_ECDSA_WITH_NULL_SHA</td>
- *             <td>20+</td>
+ *             <td>20&ndash;22</td>
  *             <td></td>
  *         </tr>
  *         <tr>
@@ -378,7 +378,7 @@ import java.nio.ByteBuffer;
  *         </tr>
  *         <tr>
  *             <td>TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA</td>
- *             <td>20+</td>
+ *             <td>20&ndash;22</td>
  *             <td></td>
  *         </tr>
  *         <tr>
@@ -413,7 +413,7 @@ import java.nio.ByteBuffer;
  *         </tr>
  *         <tr>
  *             <td>TLS_ECDHE_RSA_WITH_NULL_SHA</td>
- *             <td>20+</td>
+ *             <td>20&ndash;22</td>
  *             <td></td>
  *         </tr>
  *         <tr>
@@ -423,117 +423,117 @@ import java.nio.ByteBuffer;
  *         </tr>
  *         <tr>
  *             <td>TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA</td>
- *             <td>20+</td>
+ *             <td>20&ndash;22</td>
  *             <td></td>
  *         </tr>
  *         <tr>
  *             <td>TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA</td>
- *             <td>20+</td>
+ *             <td>20&ndash;22</td>
  *             <td></td>
  *         </tr>
  *         <tr>
  *             <td>TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256</td>
- *             <td>20+</td>
+ *             <td>20&ndash;22</td>
  *             <td></td>
  *         </tr>
  *         <tr>
  *             <td>TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256</td>
- *             <td>20+</td>
+ *             <td>20&ndash;22</td>
  *             <td></td>
  *         </tr>
  *         <tr>
  *             <td>TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA</td>
- *             <td>20+</td>
+ *             <td>20&ndash;22</td>
  *             <td></td>
  *         </tr>
  *         <tr>
  *             <td>TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384</td>
- *             <td>20+</td>
+ *             <td>20&ndash;22</td>
  *             <td></td>
  *         </tr>
  *         <tr>
  *             <td>TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384</td>
- *             <td>20+</td>
+ *             <td>20&ndash;22</td>
  *             <td></td>
  *         </tr>
  *         <tr>
  *             <td>TLS_ECDH_ECDSA_WITH_NULL_SHA</td>
- *             <td>20+</td>
+ *             <td>20&ndash;22</td>
  *             <td></td>
  *         </tr>
  *         <tr>
  *             <td>TLS_ECDH_ECDSA_WITH_RC4_128_SHA</td>
- *             <td>20+</td>
+ *             <td>20&ndash;22</td>
  *             <td></td>
  *         </tr>
  *         <tr>
  *             <td>TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA</td>
- *             <td>20+</td>
+ *             <td>20&ndash;22</td>
  *             <td></td>
  *         </tr>
  *         <tr>
  *             <td>TLS_ECDH_RSA_WITH_AES_128_CBC_SHA</td>
- *             <td>20+</td>
+ *             <td>20&ndash;22</td>
  *             <td></td>
  *         </tr>
  *         <tr>
  *             <td>TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256</td>
- *             <td>20+</td>
+ *             <td>20&ndash;22</td>
  *             <td></td>
  *         </tr>
  *         <tr>
  *             <td>TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256</td>
- *             <td>20+</td>
+ *             <td>20&ndash;22</td>
  *             <td></td>
  *         </tr>
  *         <tr>
  *             <td>TLS_ECDH_RSA_WITH_AES_256_CBC_SHA</td>
- *             <td>20+</td>
+ *             <td>20&ndash;22</td>
  *             <td></td>
  *         </tr>
  *         <tr>
  *             <td>TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384</td>
- *             <td>20+</td>
+ *             <td>20&ndash;22</td>
  *             <td></td>
  *         </tr>
  *         <tr>
  *             <td>TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384</td>
- *             <td>20+</td>
+ *             <td>20&ndash;22</td>
  *             <td></td>
  *         </tr>
  *         <tr>
  *             <td>TLS_ECDH_RSA_WITH_NULL_SHA</td>
- *             <td>20+</td>
+ *             <td>20&ndash;22</td>
  *             <td></td>
  *         </tr>
  *         <tr>
  *             <td>TLS_ECDH_RSA_WITH_RC4_128_SHA</td>
- *             <td>20+</td>
+ *             <td>20&ndash;22</td>
  *             <td></td>
  *         </tr>
  *         <tr>
  *             <td>TLS_ECDH_anon_WITH_3DES_EDE_CBC_SHA</td>
- *             <td>20+</td>
+ *             <td>20&ndash;22</td>
  *             <td></td>
  *         </tr>
  *         <tr>
  *             <td>TLS_ECDH_anon_WITH_AES_128_CBC_SHA</td>
- *             <td>20+</td>
+ *             <td>20&ndash;22</td>
  *             <td></td>
  *         </tr>
  *         <tr>
  *             <td>TLS_ECDH_anon_WITH_AES_256_CBC_SHA</td>
- *             <td>20+</td>
+ *             <td>20&ndash;22</td>
  *             <td></td>
  *         </tr>
  *         <tr>
  *             <td>TLS_ECDH_anon_WITH_NULL_SHA</td>
- *             <td>20+</td>
+ *             <td>20&ndash;22</td>
  *             <td></td>
  *         </tr>
  *         <tr>
  *             <td>TLS_ECDH_anon_WITH_RC4_128_SHA</td>
- *             <td>20+</td>
+ *             <td>20&ndash;22</td>
  *             <td></td>
  *         </tr>
  *         <tr>
@@ -563,7 +563,7 @@ import java.nio.ByteBuffer;
  *         </tr>
  *         <tr>
  *             <td>TLS_PSK_WITH_3DES_EDE_CBC_SHA</td>
- *             <td>21+</td>
+ *             <td>21&ndash;22</td>
  *             <td></td>
  *         </tr>
  *         <tr>
@@ -638,7 +638,7 @@ import java.nio.ByteBuffer;
  *         </tr>
  *         <tr>
  *             <td>TLS_RSA_WITH_NULL_SHA256</td>
- *             <td>20+</td>
+ *             <td>20&ndash;22</td>
  *             <td></td>
  *         </tr>
  *     </tbody>
