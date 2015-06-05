@@ -34,6 +34,7 @@ package java.lang;
 
 import dalvik.system.BaseDexClassLoader;
 import dalvik.system.VMDebug;
+import dalvik.system.VMRuntime;
 import dalvik.system.VMStack;
 import java.io.File;
 import java.io.IOException;
@@ -438,20 +439,17 @@ public class Runtime {
             String ldLibraryPath, String dexPath);
 
     /**
-     * Provides a hint to the VM that it would be useful to attempt
+     * Provides a hint to the runtime that it would be useful to attempt
      * to perform any outstanding object finalization.
      */
     public void runFinalization() {
-        try {
-            FinalizerReference.finalizeAllEnqueued();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        // 0 for no timeout.
+        VMRuntime.runFinalization(0);
     }
 
     /**
      * Sets the flag that indicates whether all objects are finalized when the
-     * VM is about to exit. Note that all finalization which occurs
+     * runtime is about to exit. Note that all finalization which occurs
      * when the system is exiting is performed after all running threads have
      * been terminated.
      *
