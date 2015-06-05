@@ -16,6 +16,7 @@
 
 package dalvik.system;
 
+import java.lang.ref.FinalizerReference;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -300,6 +301,30 @@ public final class VMRuntime {
      * Registers a native free by reducing the number of native bytes accounted for.
      */
     public native void registerNativeFree(int bytes);
+
+    /**
+     * Wait for objects to be finalized.
+     *
+     * If finalization takes longer than timeout, then the function returns before all objects are
+     * finalized.
+     *
+     * @param timeout
+     *            timeout in nanoseconds of the maximum time to wait until all pending finalizers
+     *            are run. If timeout is 0, then there is no timeout. Note that the timeout does
+     *            not stop the finalization process, it merely stops the wait.
+     *
+     * @see #Runtime.runFinalization()
+     * @see #wait(long,int)
+     */
+    public static void runFinalization(long timeout) {
+        try {
+            FinalizerReference.finalizeAllEnqueued(timeout);
+        } catch (InterruptedException e) {
+            // Interrupt the current thread without actually throwing the InterruptionException
+            // for the caller.
+            Thread.currentThread().interrupt();
+        }
+    }
 
     public native void requestConcurrentGC();
     public native void concurrentGC();
