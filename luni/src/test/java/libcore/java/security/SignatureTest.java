@@ -261,6 +261,12 @@ public class SignatureTest extends TestCase {
     public void test_getInstance() throws Exception {
         Provider[] providers = Security.getProviders();
         for (Provider provider : providers) {
+            // Do not test AndroidKeyStore's Signature. It needs an AndroidKeyStore-specific key.
+            // It's OKish not to test AndroidKeyStore's Signature here because it's tested
+            // by cts/tests/test/keystore.
+            if (provider.getName().startsWith("AndroidKeyStore")) {
+                continue;
+            }
             Set<Provider.Service> services = provider.getServices();
             for (Provider.Service service : services) {
                 String type = service.getType();
