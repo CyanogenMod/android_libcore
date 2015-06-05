@@ -1489,6 +1489,9 @@ public final
     @CallerSensitive
     public Field getField(String name)
         throws NoSuchFieldException, SecurityException {
+        if (name == null) {
+            throw new NullPointerException("name == null");
+        }
         Field field = getPublicFieldRecursive(name);
         if (field == null) {
             throw new NoSuchFieldException(name);
@@ -1931,6 +1934,18 @@ public final
     @CallerSensitive
     public Field getDeclaredField(String name)
         throws NoSuchFieldException, SecurityException {
+<<<<<<< HEAD
+=======
+        /* ----- BEGIN android -----
+        // be very careful not to change the stack depth of this
+        // checkMemberAccess call for security reasons
+        // see java.lang.SecurityManager.checkMemberAccess
+        checkMemberAccess(Member.DECLARED, Reflection.getCallerClass(), true);
+        Field field = searchFields(privateGetDeclaredFields(false), name);*/
+        if (name == null) {
+            throw new NullPointerException();
+        }
+>>>>>>> a3f122d... Throw NullPointerException from reflection
         Field field = getDeclaredFieldInternal(name);
         if (field == null) {
             throw new NoSuchFieldException(name);
