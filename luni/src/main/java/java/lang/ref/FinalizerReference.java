@@ -82,7 +82,7 @@ public final class FinalizerReference<T> extends Reference<T> {
     /**
      * Waits for all currently-enqueued references to be finalized.
      */
-    public static void finalizeAllEnqueued() throws InterruptedException {
+    public static void finalizeAllEnqueued(long timeout) throws InterruptedException {
         // Alloate a new sentinel, this creates a FinalizerReference.
         Sentinel sentinel;
         // Keep looping until we safely enqueue our sentinel FinalizerReference.
@@ -91,7 +91,7 @@ public final class FinalizerReference<T> extends Reference<T> {
         do {
             sentinel = new Sentinel();
         } while (!enqueueSentinelReference(sentinel));
-        sentinel.awaitFinalization();
+        sentinel.awaitFinalization(timeout);
     }
 
     private static boolean enqueueSentinelReference(Sentinel sentinel) {
@@ -144,9 +144,22 @@ public final class FinalizerReference<T> extends Reference<T> {
             notifyAll();
         }
 
-        synchronized void awaitFinalization() throws InterruptedException {
+        synchronized void awaitFinalization(long timeout) throws InterruptedException {
+            final long startTime = System.nanoTime();
+            final long endTime = startTime + timeout;
             while (!finalized) {
-                wait();
+                // 0 signifies no timeout.
+                if (timeout != 0) {
+                    final long currentTime = System.nanoTime();
+                    if (currentTime >= endTime) {
+                        break;
+                    } else {
+                        final long deltaTime = endTime - currentTime;
+                        wait(deltaTime / 1000000, (int)(deltaTime % 1000000));
+                    }
+                } else {
+                    wait();
+                }
             }
         }
     }
