@@ -41,7 +41,9 @@ public class MulticastSocket extends DatagramSocket {
      * @throws IOException if an error occurs.
      */
     public MulticastSocket() throws IOException {
+        super((SocketAddress) null);
         setReuseAddress(true);
+        bind(null);
     }
 
     /**
@@ -51,8 +53,7 @@ public class MulticastSocket extends DatagramSocket {
      * @throws IOException if an error occurs.
      */
     public MulticastSocket(int port) throws IOException {
-        super(port);
-        setReuseAddress(true);
+        this(new InetSocketAddress(Inet6Address.ANY, port));
     }
 
     /**
@@ -64,8 +65,11 @@ public class MulticastSocket extends DatagramSocket {
      * @throws IOException if an error occurs.
      */
     public MulticastSocket(SocketAddress localAddress) throws IOException {
-        super(localAddress);
+        super((SocketAddress) null);
         setReuseAddress(true);
+        if (localAddress != null) {
+            bind(localAddress);
+        }
     }
 
     /**
