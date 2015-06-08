@@ -172,7 +172,12 @@ public abstract class Signature extends SignatureSpi {
             throw new NoSuchAlgorithmException("Unknown algorithm: " + algorithm);
         }
 
-        SpiAndProvider spiAndProvider = tryAlgorithm(null, provider, algorithm);
+        SpiAndProvider spiAndProvider;
+        try {
+            spiAndProvider = tryAlgorithm(null, provider, algorithm);
+        } catch (InvalidKeyException e) {
+            throw new IllegalStateException("InvalidKeyException thrown when key == null", e);
+        }
         if (spiAndProvider == null) {
             if (provider == null) {
                 throw new NoSuchAlgorithmException("No provider found for " + algorithm);
@@ -187,7 +192,12 @@ public abstract class Signature extends SignatureSpi {
         return new SignatureImpl(algorithm, provider);
     }
 
-    private static Engine.SpiAndProvider tryAlgorithm(Key key, Provider provider, String algorithm) {
+    /**
+     * @throws InvalidKeyException if the specified key cannot be used to
+     *             initialize any provider.
+     */
+    private static Engine.SpiAndProvider tryAlgorithm(
+            Key key, Provider provider, String algorithm) throws InvalidKeyException {
         if (provider != null) {
             Provider.Service service = provider.getService(SERVICE, algorithm);
             if (service == null) {
@@ -196,14 +206,21 @@ public abstract class Signature extends SignatureSpi {
             return tryAlgorithmWithProvider(null, service);
         }
         ArrayList<Provider.Service> services = ENGINE.getServices(algorithm);
-        if (services == null) {
+        if (services == null || services.isEmpty()) {
             return null;
         }
+        boolean keySupported = false;
         for (Provider.Service service : services) {
-            Engine.SpiAndProvider sap = tryAlgorithmWithProvider(key, service);
-            if (sap != null) {
-                return sap;
+            if (key == null || service.supportsParameter(key)) {
+                keySupported = true;
+                Engine.SpiAndProvider sap = tryAlgorithmWithProvider(key, service);
+                if (sap != null) {
+                    return sap;
+                }
             }
+        }
+        if (!keySupported) {
+            throw new InvalidKeyException("No provider supports the provided key");
         }
         return null;
     }
@@ -661,7 +678,7 @@ public abstract class Signature extends SignatureSpi {
 
         @Override
         void ensureProviderChosen() {
-            getSpi(null);
+            getSpi();
         }
 
         @Override
@@ -719,8 +736,11 @@ public abstract class Signature extends SignatureSpi {
 
         /**
          * Makes sure a CipherSpi that matches this type is selected.
+         *
+         * @throws InvalidKeyException if the specified key cannot be used to
+         *             initialize this signature.
          */
-        private SignatureSpi getSpi(Key key) {
+        private SignatureSpi getSpi(Key key) throws InvalidKeyException {
             synchronized (initLock) {
                 if (spiImpl != null && key == null) {
                     return spiImpl;
@@ -742,7 +762,11 @@ public abstract class Signature extends SignatureSpi {
          * Convenience call when the Key is not available.
          */
         private SignatureSpi getSpi() {
-            return getSpi(null);
+            try {
+                return getSpi(null);
+            } catch (InvalidKeyException e) {
+                throw new IllegalStateException("InvalidKeyException thrown when key == null", e);
+            }
         }
 
         @Override
