@@ -94,6 +94,31 @@ public class SignatureTest extends TestCase {
         }
     }
 
+    /**
+     * Several exceptions can be thrown by init. Check that in this case we throw the right one,
+     * as the error could fall under the umbrella of other exceptions.
+     * http://b/18987633
+     */
+    public void testSignature_init_DoesNotSupportKeyClass_throwsInvalidKeyException()
+            throws Exception {
+        Provider mockProvider = new MockProvider("MockProvider") {
+            public void setup() {
+                put("Signature.FOO", MockSignatureSpi.AllKeyTypes.class.getName());
+                put("Signature.FOO SupportedKeyClasses", "None");
+            }
+        };
+
+        Security.addProvider(mockProvider);
+        try {
+            Signature s = Signature.getInstance("FOO");
+            s.initSign(new MockPrivateKey());
+            fail("Expected InvalidKeyException");
+        } catch (InvalidKeyException expected) {
+        } finally {
+            Security.removeProvider(mockProvider.getName());
+        }
+    }
+
     public void testSignature_getInstance_OnlyUsesSpecifiedProvider_SameNameAndClass_Success()
             throws Exception {
         Provider mockProvider = new MockProvider("MockProvider") {
