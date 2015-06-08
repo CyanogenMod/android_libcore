@@ -297,7 +297,15 @@ public class Cipher {
         }
 
         String[] transformParts = checkTransformation(transformation);
-        if (tryCombinations(null, provider, transformParts) == null) {
+
+        boolean providerSupportsAlgorithm;
+        try {
+            providerSupportsAlgorithm =
+                    tryCombinations(null /* key */, provider, transformParts) != null;
+        } catch (InvalidKeyException e) {
+            throw new IllegalStateException("InvalidKeyException thrown when key == null", e);
+        }
+        if (!providerSupportsAlgorithm) {
             if (provider == null) {
                 throw new NoSuchAlgorithmException("No provider found for " + transformation);
             } else {
@@ -340,8 +348,11 @@ public class Cipher {
 
     /**
      * Makes sure a CipherSpi that matches this type is selected.
+     *
+     * @throws InvalidKeyException if the specified key cannot be used to
+     *             initialize this cipher.
      */
-    private CipherSpi getSpi(Key key) {
+    private CipherSpi getSpi(Key key) throws InvalidKeyException {
         if (specifiedSpi != null) {
             return specifiedSpi;
         }
@@ -351,8 +362,8 @@ public class Cipher {
                 return spiImpl;
             }
 
-            final Engine.SpiAndProvider sap = tryCombinations(key, specifiedProvider,
-                    transformParts);
+            final Engine.SpiAndProvider sap = tryCombinations(
+                    key, specifiedProvider, transformParts);
             if (sap == null) {
                 throw new ProviderException("No provider for " + transformation);
             }
@@ -368,7 +379,11 @@ public class Cipher {
      * Convenience call when the Key is not available.
      */
     private CipherSpi getSpi() {
-        return getSpi(null);
+        try {
+            return getSpi(null);
+        } catch (InvalidKeyException e) {
+            throw new IllegalStateException("InvalidKeyException thrown when key == null", e);
+        }
     }
 
     /**
@@ -396,9 +411,12 @@ public class Cipher {
      *   [cipher]//[padding]
      *   [cipher]
      * </pre>
+     *
+     * @throws InvalidKeyException if the specified key cannot be used to
+     *             initialize any provider.
      */
     private static Engine.SpiAndProvider tryCombinations(Key key, Provider provider,
-            String[] transformParts) {
+            String[] transformParts) throws InvalidKeyException {
         Engine.SpiAndProvider sap = null;
 
         if (transformParts[1] != null && transformParts[2] != null) {
@@ -428,35 +446,42 @@ public class Cipher {
         return tryTransform(key, provider, transformParts[0], transformParts, NeedToSet.BOTH);
     }
 
+    /**
+     * @throws InvalidKeyException if the specified key cannot be used to
+     *             initialize this cipher.
+     */
     private static Engine.SpiAndProvider tryTransform(Key key, Provider provider, String transform,
-            String[] transformParts, NeedToSet type) {
+            String[] transformParts, NeedToSet type) throws InvalidKeyException {
         if (provider != null) {
             Provider.Service service = provider.getService(SERVICE, transform);
             if (service == null) {
                 return null;
             }
-            return tryTransformWithProvider(null, transformParts, type, service);
+            return tryTransformWithProvider(transformParts, type, service);
         }
         ArrayList<Provider.Service> services = ENGINE.getServices(transform);
-        if (services == null) {
+        if (services == null || services.isEmpty()) {
             return null;
         }
+        boolean keySupported = false;
         for (Provider.Service service : services) {
-            Engine.SpiAndProvider sap = tryTransformWithProvider(key, transformParts, type, service);
-            if (sap != null) {
-                return sap;
+            if (key == null || service.supportsParameter(key)) {
+                keySupported = true;
+                Engine.SpiAndProvider sap = tryTransformWithProvider(transformParts, type, service);
+                if (sap != null) {
+                    return sap;
+                }
             }
+        }
+        if (!keySupported) {
+            throw new InvalidKeyException("No provider supports the provided key");
         }
         return null;
     }
 
-    private static Engine.SpiAndProvider tryTransformWithProvider(Key key, String[] transformParts,
+    private static Engine.SpiAndProvider tryTransformWithProvider(String[] transformParts,
             NeedToSet type, Provider.Service service) {
         try {
-            if (key != null && !service.supportsParameter(key)) {
-                return null;
-            }
-
             /*
              * Check to see if the Cipher even supports the attributes before
              * trying to instantiate it.
