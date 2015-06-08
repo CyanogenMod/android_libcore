@@ -819,7 +819,7 @@ public class DatagramSocketTest extends junit.framework.TestCase {
     }
 
     public void test_getReuseAddress() throws Exception {
-        DatagramSocket theSocket = new DatagramSocket();
+        DatagramSocket theSocket = new DatagramSocket(null);
         theSocket.setReuseAddress(true);
         assertTrue("getReuseAddress false when it should be true", theSocket.getReuseAddress());
         theSocket.setReuseAddress(false);
