@@ -38,7 +38,9 @@ import java.security.spec.ECGenParameterSpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 
 import javax.crypto.KeyAgreement;
 import javax.crypto.SecretKey;
@@ -374,8 +376,8 @@ public class ECDHKeyAgreementTest extends TestCase {
         if (providers == null) {
             return new Provider[0];
         }
-        // Sort providers by name to guarantee non-determinism in the order in which providers are
-        // used in the tests.
+        // Sort providers by name to guarantee deterministic order in which providers are used in
+        // the tests.
         return sortByName(providers);
     }
 
@@ -384,8 +386,21 @@ public class ECDHKeyAgreementTest extends TestCase {
         if (providers == null) {
             return new Provider[0];
         }
-        // Sort providers by name to guarantee non-determinism in the order in which providers are
-        // used in the tests.
+
+        // Do not test AndroidKeyStore's KeyFactory. It only handles Android Keystore-backed keys.
+        // It's OKish not to test AndroidKeyStore's KeyFactory here because it's tested by
+        // cts/tests/test/keystore.
+        List<Provider> filteredProvidersList = new ArrayList<Provider>(providers.length);
+        for (Provider provider : providers) {
+            if ("AndroidKeyStore".equals(provider.getName())) {
+                continue;
+            }
+            filteredProvidersList.add(provider);
+        }
+        providers = filteredProvidersList.toArray(new Provider[filteredProvidersList.size()]);
+
+        // Sort providers by name to guarantee deterministic order in which providers are used in
+        // the tests.
         return sortByName(providers);
     }
 
