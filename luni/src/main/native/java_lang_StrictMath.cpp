@@ -42,14 +42,6 @@ static jdouble StrictMath_IEEEremainder(JNIEnv*, jclass, jdouble a, jdouble b) {
     return ieee_remainder(a, b);
 }
 
-static jdouble StrictMath_floor(JNIEnv*, jclass, jdouble a) {
-    return ieee_floor(a);
-}
-
-static jdouble StrictMath_ceil(JNIEnv*, jclass, jdouble a) {
-    return ieee_ceil(a);
-}
-
 static jdouble StrictMath_rint(JNIEnv*, jclass, jdouble a) {
     return ieee_rint(a);
 }
@@ -68,9 +60,7 @@ static jdouble StrictMath_nextafter(JNIEnv*, jclass, jdouble a, jdouble b) {
 
 static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(StrictMath, IEEEremainder, "!(DD)D"),
-    NATIVE_METHOD(StrictMath, ceil, "!(D)D"),
     NATIVE_METHOD(StrictMath, cos, "!(D)D"),
-    NATIVE_METHOD(StrictMath, floor, "!(D)D"),
     NATIVE_METHOD(StrictMath, hypot, "!(DD)D"),
     NATIVE_METHOD(StrictMath, nextafter, "!(DD)D"),
     NATIVE_METHOD(StrictMath, pow, "!(DD)D"),

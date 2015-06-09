@@ -300,7 +300,7 @@ public final class StrictMath {
         int ix, hx, id;
 
         final long bits = Double.doubleToRawLongBits(x);
-        hx = (int) (bits >>> 32);
+        hx = highBits(bits);
         ix = hx & 0x7fffffff;
         if (ix >= 0x44100000) { /* if |x| >= 2^66 */
             if (ix > 0x7ff00000 || (ix == 0x7ff00000 && (((int) bits) != 0))) {
@@ -404,12 +404,12 @@ public final class StrictMath {
         final long yBits = Double.doubleToRawLongBits(y);
         final long xBits = Double.doubleToRawLongBits(x);
 
-        hx = (int) (xBits >>> 32); // __HI(x);
+        hx = highBits(xBits); // __HI(x);
         ix = hx & 0x7fffffff;
-        lx = (int) xBits; // __LO(x);
-        hy = (int) (yBits >>> 32); // __HI(y);
+        lx = lowBits(xBits); // __LO(x);
+        hy = highBits(yBits); // __HI(y);
         iy = hy & 0x7fffffff;
-        ly = (int) yBits; // __LO(y);
+        ly = lowBits(yBits); // __LO(y);
         if (((ix | ((lx | -lx) >> 31)) > 0x7ff00000)
                 || ((iy | ((ly | -ly) >> 31)) > 0x7ff00000)) { /* x or y is NaN */
             return x + y;
@@ -525,14 +525,14 @@ public final class StrictMath {
         int sign; // caution: should be unsigned
         long bits = Double.doubleToRawLongBits(x);
 
-        hx = (int) (bits >>> 32);
+        hx = highBits(bits);
         sign = hx & 0x80000000; /* sign= sign(x) */
         hx ^= sign;
         if (hx >= 0x7ff00000) {
             return (x + x); /* ieee_cbrt(NaN,INF) is itself */
         }
 
-        if ((hx | ((int) bits)) == 0) {
+        if ((hx | lowBits(bits)) == 0) {
             return x; /* ieee_cbrt(0) is itself */
         }
 
@@ -599,8 +599,79 @@ public final class StrictMath {
      * <li>{@code ceil(-infinity) = -infinity}</li>
      * <li>{@code ceil(NaN) = NaN}</li>
      * </ul>
+     *
+     * @param d
+     *          the double value whose ceiling will be computed.
+     * @return the ceiling of the argument.
      */
-    public static native double ceil(double d);
+    public static double ceil(double d) {
+        final long bits = Double.doubleToRawLongBits(d);
+        int highBits = highBits(bits); // high word of d
+        int lowBits = lowBits(bits); // low word of d
+        int exp = ((highBits >> 20) & 0x7ff) - 0x3ff; // value of exponent
+
+        /* negative exponent */
+        if (exp < 0) {
+            if (HUGE + d > 0.0) {
+                if (highBits < 0) { // if |d| < 1 return -0
+                    highBits = 0x80000000;
+                } else if ((highBits | lowBits) != 0) {
+                    // raise inexact if d != 0, this is ignored by Java
+                    highBits = 0x3ff00000; // return 1
+                }
+                lowBits = 0;
+            }
+        }
+        /* exponent in range [0, 20) */
+        else if (exp < 20) {
+            int i = (0x000fffff) >> exp; // careful, should be unsigned
+            /* d is integral */
+            if (((highBits & i) | lowBits) == 0) {
+                return d;
+            }
+            if (HUGE + d > 0.0) { // raise inexact flag: this is ignored by Java
+                if (highBits > 0) {
+                    highBits += (0x00100000) >> exp;
+                }
+                highBits &= (~i);
+                lowBits = 0;
+            }
+        }
+        /* exponent in range (51, inf) */
+        else if (exp > 51) {
+            /* inf or NaN */
+            if (exp == 0x400) {
+                return d + d;
+            }
+            return d; // d is integral
+        }
+        /* exponent in range [21,51] */
+        else {
+            int i = (0xffffffff) >>> (exp - 20); // careful, should be unsigned
+            /* d is integral */
+            if ((lowBits & i) == 0) {
+                return d;
+            }
+            /* raise inexact flag: this is ignored by Java */
+            if (HUGE + d > 0.0) {
+                if (highBits > 0) {
+                    if (exp == 20) {
+                        highBits += 1;
+                    } else {
+                        // careful, j should be unsigned
+                        int j = (int)(lowBits + (1 << (52 - exp)));
+                        if ((lowBits < 0) && (j >= 0)) {
+                             highBits += 1; // carry occurred
+                        }
+                        lowBits = j;
+                    }
+                }
+                lowBits &= (~i);
+            }
+        }
+        /* combine highBits and unsigned lowBits for final result */
+        return Double.longBitsToDouble(((long)highBits << 32) + (lowBits & 0xFFFFFFFFL));
+    }
 
     private static final long ONEBITS = Double.doubleToRawLongBits(1.00000000000000000000e+00)
             & 0x00000000ffffffffL;
@@ -624,7 +695,7 @@ public final class StrictMath {
         double t, w;
         int ix;
         final long bits = Double.doubleToRawLongBits(x);
-        ix = (int) (bits >>> 32) & 0x7fffffff;
+        ix = highBits(bits) & 0x7fffffff;
 
         /* x is INF or NaN */
         if (ix >= 0x7ff00000) {
@@ -715,8 +786,8 @@ public final class StrictMath {
         int k = 0, xsb;
         int hx; // should be unsigned, be careful!
         final long bits = Double.doubleToRawLongBits(x);
-        int lowBits = (int) bits;
-        int highBits = (int) (bits >>> 32);
+        int lowBits = lowBits(bits);
+        int highBits = highBits(bits);
         hx = highBits & 0x7fffffff;
         xsb = (highBits >>> 31) & 1;
 
@@ -814,8 +885,8 @@ public final class StrictMath {
         int k, xsb;
         long yBits = 0;
         final long bits = Double.doubleToRawLongBits(x);
-        int highBits = (int) (bits >>> 32);
-        int lowBits = (int) (bits);
+        int highBits = highBits(bits);
+        int lowBits = lowBits(bits);
         int hx = highBits & 0x7fffffff; // caution: should be unsigned!
         xsb = highBits & 0x80000000; /* sign bit of x */
         y = xsb == 0 ? x : -x; /* y = |x| */
@@ -930,8 +1001,79 @@ public final class StrictMath {
      * <li>{@code floor(-infinity) = -infinity}</li>
      * <li>{@code floor(NaN) = NaN}</li>
      * </ul>
+     *
+     * @param d
+     *          the double value whose floor will be computed.
+     * @return the floor of the argument.
      */
-    public static native double floor(double d);
+    public static double floor(double d) {
+        final long bits = Double.doubleToRawLongBits(d);
+        int highBits = highBits(bits); // high word of d
+        int lowBits = lowBits(bits); // low word of d
+        int exp = ((highBits >> 20) & 0x7ff) - 0x3ff; // value of exponent
+
+        /* negative exponent */
+        if (exp < 0) {
+            if (HUGE + d > 0.0) {
+                if (highBits >= 0) { // if |d| < 1
+                    highBits = 0;
+                } else if (((highBits & 0x7fffffff) | lowBits) != 0) {
+                    // raise inexact if d != 0, this is ignored by Java
+                    highBits = 0xbff00000;
+                }
+                lowBits = 0;
+            }
+        }
+        /* exponent in range [0, 20) */
+        else if (exp < 20) {
+            int i = (0x000fffff) >> exp; // careful, should be unsigned
+            /* d is integral */
+            if (((highBits & i) | lowBits) == 0) {
+                return d;
+            }
+            if (HUGE + d > 0.0) { // raise inexact flag: this is ignored by Java
+                if (highBits < 0) {
+                    highBits += (0x00100000) >> exp;
+                }
+                highBits &= (~i);
+                lowBits = 0;
+            }
+        }
+        /* exponent in range (51, inf) */
+        else if (exp > 51) {
+            /* inf or NaN */
+            if (exp == 0x400) {
+                return d + d;
+            }
+            return d; // d is integral
+        }
+        /* exponent in range [21,51] */
+        else {
+            int i = (0xffffffff) >>> (exp - 20); // careful, should be unsigned
+            /* d is integral */
+            if ((lowBits & i) == 0) {
+                return d;
+            }
+            /* raise inexact flag: this is ignored by java */
+            if (HUGE + d > 0.0) {
+                if (highBits < 0) {
+                    if (exp == 20) {
+                        highBits += 1;
+                    } else {
+                        // careful, j should be unsigned
+                        int j = (int)(lowBits + (1 << (52 - exp)));
+                        if ((lowBits < 0) && (j >= 0)) {
+                             highBits += 1; // carry occurred
+                        }
+                        lowBits = j;
+                    }
+                }
+                lowBits &= (~i);
+            }
+        }
+        /* combine highBits and unsigned lowBits for final result */
+        return Double.longBitsToDouble(((long)highBits << 32) + (lowBits & 0xFFFFFFFFL));
+    }
 
     /**
      * Returns {@code sqrt(}<i>{@code x}</i><sup>{@code 2}</sup>{@code +} <i>
@@ -1016,8 +1158,8 @@ public final class StrictMath {
         int lx; // watch out, should be unsigned
 
         long bits = Double.doubleToRawLongBits(x);
-        hx = (int) (bits >>> 32); /* high word of x */
-        lx = (int) bits; /* low word of x */
+        hx = highBits(bits); /* high word of x */
+        lx = lowBits(bits); /* low word of x */
 
         if (hx < 0x00100000) { /* x < 2**-1022 */
             if (((hx & 0x7fffffff) | lx) == 0) {
@@ -1031,7 +1173,7 @@ public final class StrictMath {
             k -= 54;
             x *= TWO54; /* subnormal number, scale up x */
             bits = Double.doubleToRawLongBits(x);
-            hx = (int) (bits >>> 32); /* high word of x */
+            hx = highBits(bits); /* high word of x */
         }
 
         if (hx >= 0x7ff00000) {
@@ -1119,8 +1261,8 @@ public final class StrictMath {
         int i, k = 0, hx;
         int lx; // careful: lx should be unsigned!
         long bits = Double.doubleToRawLongBits(x);
-        hx = (int) (bits >> 32); /* high word of x */
-        lx = (int) bits; /* low word of x */
+        hx = highBits(bits); /* high word of x */
+        lx = lowBits(bits); /* low word of x */
         if (hx < 0x00100000) { /* x < 2**-1022 */
             if (((hx & 0x7fffffff) | lx) == 0) {
                 return -TWO54 / 0.0; /* ieee_log(+-0)=-inf */
@@ -1133,7 +1275,7 @@ public final class StrictMath {
             k -= 54;
             x *= TWO54; /* subnormal number, scale up x */
             bits = Double.doubleToRawLongBits(x);
-            hx = (int) (bits >> 32); /* high word of x */
+            hx = highBits(bits); /* high word of x */
         }
 
         if (hx >= 0x7ff00000) {
@@ -1186,7 +1328,7 @@ public final class StrictMath {
         int k, hx, hu = 0, ax;
 
         final long bits = Double.doubleToRawLongBits(x);
-        hx = (int) (bits >>> 32); /* high word of x */
+        hx = highBits(bits); /* high word of x */
         ax = hx & 0x7fffffff;
 
         k = 1;
@@ -1221,13 +1363,13 @@ public final class StrictMath {
             if (hx < 0x43400000) {
                 u = 1.0 + x;
                 uBits = Double.doubleToRawLongBits(u);
-                hu = (int) (uBits >>> 32);
+                hu = highBits(uBits);
                 k = (hu >> 20) - 1023;
                 c = (k > 0) ? 1.0 - (u - x) : x - (u - 1.0);/* correction term */
                 c /= u;
             } else {
                 uBits = Double.doubleToRawLongBits(x);
-                hu = (int) (uBits >>> 32);
+                hu = highBits(uBits);
                 k = (hu >> 20) - 1023;
                 c = 0;
             }
@@ -1603,7 +1745,7 @@ public final class StrictMath {
         int ix, jx;
         final long bits = Double.doubleToRawLongBits(x);
 
-        jx = (int) (bits >>> 32);
+        jx = highBits(bits);
         ix = jx & 0x7fffffff;
 
         /* x is INF or NaN */
@@ -1720,7 +1862,7 @@ public final class StrictMath {
 
         final long bits = Double.doubleToRawLongBits(x);
         /* High word of |x|. */
-        jx = (int) (bits >>> 32);
+        jx = highBits(bits);
         ix = jx & 0x7fffffff;
 
         /* x is INF or NaN */
@@ -2090,5 +2232,15 @@ public final class StrictMath {
             return ((bits >> absDigits) + 1);
         }
         return 0;
+    }
+
+    // Returns the high word of the argument as an int.
+    private static int highBits(long bits) {
+        return (int) (bits >>> 32);
+    }
+
+    // Returns the low word of the argument as an int.
+    private static int lowBits(long bits) {
+        return (int) bits;
     }
 }
