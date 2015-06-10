@@ -86,6 +86,8 @@ public class OldDateFormatTest extends junit.framework.TestCase {
      */
     public void test_formatLjava_util_Date() {
         try {
+            // This test assumes a default DateFormat.is24Hour setting.
+            DateFormat.is24Hour = null;
             DateFormat format = DateFormat.getDateTimeInstance(
                     DateFormat.SHORT, DateFormat.SHORT, Locale.US);
             Date current = new Date();
@@ -104,6 +106,8 @@ public class OldDateFormatTest extends junit.framework.TestCase {
      */
     public void test_formatLjava_lang_ObjectLjava_lang_StringBufferLjava_text_FieldPosition() {
         try {
+            // This test assumes a default DateFormat.is24Hour setting.
+            DateFormat.is24Hour = null;
             DateFormat format = DateFormat.getDateTimeInstance(
                     DateFormat.SHORT, DateFormat.SHORT, Locale.US);
             Date current = new Date();
@@ -204,6 +208,8 @@ public class OldDateFormatTest extends junit.framework.TestCase {
      * java.text.DateFormat#parse(String)
      */
     public void test_parseLString() throws Exception {
+        // This test assumes a default DateFormat.is24Hour setting.
+        DateFormat.is24Hour = null;
         DateFormat format = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, Locale.US);
 
         try {
