@@ -39,6 +39,7 @@ import java.security.Principal;
 import java.security.Provider;
 import java.security.PublicKey;
 import java.security.Security;
+import java.security.Signature;
 import java.security.SignatureException;
 import java.security.Provider.Service;
 import java.security.cert.CertificateFactory;
@@ -763,16 +764,16 @@ public class X509CertificateTest extends TestCase {
         }
         Security.addProvider(myProvider);
 
-        Provider[] providers = Security.getProviders("Signature.MD5withRSA");
-        if (providers == null || providers.length == 0) {
-            fail("no Provider for Signature.MD5withRSA");
-            return;
-        }
+        // Find the Provider which offers MD5withRSA for the certificate's
+        // public key.
+        Signature signature = Signature.getInstance("MD5withRSA");
+        signature.initVerify(javaxSSCert.getPublicKey());
+        Provider provider = signature.getProvider();
 
         // self signed cert: should verify with provider
         try {
             javaxSSCert.verify(javaxSSCert.getPublicKey(),
-                    providers[0].getName());
+                    provider.getName());
         } catch (SignatureException e) {
             fail("blu");
         }
