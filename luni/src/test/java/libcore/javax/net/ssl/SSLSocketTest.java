@@ -420,6 +420,37 @@ public class SSLSocketTest extends TestCase {
         c.close();
     }
 
+    public void test_SSLSocket_NoEnabledCipherSuites_Failure() throws Exception {
+        TestSSLContext c = TestSSLContext.create(null, null, null, null, null, null, null, null,
+                SSLContext.getDefault(), SSLContext.getDefault());
+        SSLSocket client = (SSLSocket) c.clientContext.getSocketFactory().createSocket(c.host,
+                c.port);
+        client.setEnabledCipherSuites(new String[0]);
+        final SSLSocket server = (SSLSocket) c.serverSocket.accept();
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Future<Void> future = executor.submit(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                try {
+                    server.startHandshake();
+                    fail();
+                } catch (SSLHandshakeException expected) {
+                }
+                return null;
+            }
+        });
+        executor.shutdown();
+        try {
+            client.startHandshake();
+            fail();
+        } catch (SSLHandshakeException expected) {
+        }
+        future.get();
+        server.close();
+        client.close();
+        c.close();
+    }
+
     public void test_SSLSocket_startHandshake_noKeyStore() throws Exception {
         TestSSLContext c = TestSSLContext.create(null, null, null, null, null, null, null, null,
                                                  SSLContext.getDefault(), SSLContext.getDefault());
