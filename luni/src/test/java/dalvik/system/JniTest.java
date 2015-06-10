@@ -361,8 +361,6 @@ public final class JniTest extends TestCase {
         assertEquals(Object.class, envGetSuperclass(String.class));
         assertEquals(null, envGetSuperclass(Object.class));
         assertEquals(null, envGetSuperclass(int.class));
-
-        // incorrect! the spec says this should be null. http://b/5652725
-        assertEquals(Object.class, envGetSuperclass(Runnable.class));
+        assertEquals(null, envGetSuperclass(Runnable.class));
     }
 }
