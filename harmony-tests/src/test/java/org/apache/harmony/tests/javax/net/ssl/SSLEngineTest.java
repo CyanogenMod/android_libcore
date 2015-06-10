@@ -36,6 +36,7 @@ import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLEngineResult.HandshakeStatus;
 import junit.framework.TestCase;
 import libcore.java.security.StandardNames;
+import libcore.javax.net.ssl.TestSSLContext;
 
 /**
  * Tests for SSLEngine class
@@ -1042,21 +1043,12 @@ public class SSLEngineTest extends TestCase {
 
         private ByteBuffer writeBuffer;
 
-        HandshakeHandler(boolean clientMode, SourceChannel in, SinkChannel out) throws Exception {
+        HandshakeHandler(SSLContext context, boolean clientMode, SourceChannel in, SinkChannel out)
+                throws Exception {
             this.in = in;
             this.out = out;
-            engine = getEngine();
+            engine = context.createSSLEngine();
             engine.setUseClientMode(clientMode);
-            String[] cipherSuites = engine.getSupportedCipherSuites();
-            Set<String> enabledSuites = new HashSet<String>();
-            for (String cipherSuite : cipherSuites) {
-                if (cipherSuite.contains("anon")) {
-                    enabledSuites.add(cipherSuite);
-                }
-            }
-            engine.setEnabledCipherSuites((String[]) enabledSuites.toArray(
-                    new String[enabledSuites.size()]));
-
             engine.beginHandshake();
             status = engine.getHandshakeStatus();
 
@@ -1179,8 +1171,9 @@ public class SSLEngineTest extends TestCase {
         SinkChannel serverSink = serverSendPipe.sink();
         SourceChannel clientSource = serverSendPipe.source();
 
-        clientEngine = new HandshakeHandler(true, clientSource, clientSink);
-        serverEngine = new HandshakeHandler(false, serverSource, serverSink);
+        TestSSLContext context = TestSSLContext.create();
+        clientEngine = new HandshakeHandler(context.clientContext, true, clientSource, clientSink);
+        serverEngine = new HandshakeHandler(context.serverContext, false, serverSource, serverSink);
     }
 
     boolean doHandshake() throws InterruptedException {
