@@ -2481,10 +2481,6 @@ public final class CipherTest extends TestCase {
             (byte) 0x19, (byte) 0x35,
     };
 
-    private static final byte[][] AES_KEYS = new byte[][] {
-            AES_128_KEY, AES_192_KEY, AES_256_KEY,
-    };
-
     private static final String[] AES_MODES = new String[] {
             "AES/ECB",
             "AES/CBC",
@@ -2600,7 +2596,42 @@ public final class CipherTest extends TestCase {
     /*
      * Test key generation:
      * openssl rand -hex 16
-     * echo 'ceaa31952dfd3d0f5af4b2042ba06094' | sed 's/\(..\)/(byte) 0x\1, /g'
+     * echo '787bdeecf05556eac5d3d865e435f6d9' | sed 's/\(..\)/(byte) 0x\1, /g'
+     */
+    private static final byte[] AES_192_CTR_NoPadding_TestVector_1_IV = new byte[] {
+            (byte) 0x78, (byte) 0x7b, (byte) 0xde, (byte) 0xec, (byte) 0xf0, (byte) 0x55,
+            (byte) 0x56, (byte) 0xea, (byte) 0xc5, (byte) 0xd3, (byte) 0xd8, (byte) 0x65,
+            (byte) 0xe4, (byte) 0x35, (byte) 0xf6, (byte) 0xd9,
+
+    };
+
+    /*
+     * Test vector generation:
+     * echo -n 'AES-192 is a silly option' | recode ../x1 | sed 's/0x/(byte) 0x/g'
+     */
+    private static final byte[] AES_192_CTR_NoPadding_TestVector_1_Plaintext = new byte[] {
+            (byte) 0x41, (byte) 0x45, (byte) 0x53, (byte) 0x2D, (byte) 0x31, (byte) 0x39,
+            (byte) 0x32, (byte) 0x20, (byte) 0x69, (byte) 0x73, (byte) 0x20, (byte) 0x61,
+            (byte) 0x20, (byte) 0x73, (byte) 0x69, (byte) 0x6C, (byte) 0x6C, (byte) 0x79,
+            (byte) 0x20, (byte) 0x6F, (byte) 0x70, (byte) 0x74, (byte) 0x69, (byte) 0x6F,
+            (byte) 0x6E
+    };
+
+    /*
+     * Test vector generation:
+     * echo -n 'AES-192 is a silly option' | openssl enc -aes-192-ctr -K 5a7a3d7e40b64ed996f7afa15f97fd595e27db6af428e342 -iv 787bdeecf05556eac5d3d865e435f6d9 | recode ../x1 | sed 's/0x/(byte) 0x/g'
+     */
+    private static final byte[] AES_192_CTR_NoPadding_TestVector_1_Ciphertext = new byte[] {
+            (byte) 0xE9, (byte) 0xC6, (byte) 0xA0, (byte) 0x40, (byte) 0xC2, (byte) 0x6A,
+            (byte) 0xB5, (byte) 0x20, (byte) 0xFE, (byte) 0x9E, (byte) 0x65, (byte) 0xB7,
+            (byte) 0x7C, (byte) 0x5E, (byte) 0xFE, (byte) 0x1F, (byte) 0xF1, (byte) 0x6F,
+            (byte) 0x20, (byte) 0xAC, (byte) 0x37, (byte) 0xE9, (byte) 0x75, (byte) 0xE3,
+            (byte) 0x52
+    };
+
+    /*
+     * Test key generation: openssl rand -hex 16 echo
+     * 'ceaa31952dfd3d0f5af4b2042ba06094' | sed 's/\(..\)/(byte) 0x\1, /g'
      */
     private static final byte[] AES_256_CBC_PKCS5Padding_TestVector_1_IV = new byte[] {
             (byte) 0xce, (byte) 0xaa, (byte) 0x31, (byte) 0x95, (byte) 0x2d, (byte) 0xfd,
@@ -2709,6 +2740,12 @@ public final class CipherTest extends TestCase {
                 AES_128_GCM_TestVector_1_Plaintext,
                 AES_128_GCM_TestVector_1_Encrypted));
         if (IS_UNLIMITED) {
+            CIPHER_TEST_PARAMS.add(new CipherTestParam("AES/CTR/NoPadding", AES_192_KEY,
+                    AES_192_CTR_NoPadding_TestVector_1_IV,
+                    null,
+                    AES_192_CTR_NoPadding_TestVector_1_Plaintext,
+                    AES_192_CTR_NoPadding_TestVector_1_Plaintext,
+                    AES_192_CTR_NoPadding_TestVector_1_Ciphertext));
             CIPHER_TEST_PARAMS.add(new CipherTestParam("AES/CBC/PKCS5Padding", AES_256_KEY,
                     AES_256_CBC_PKCS5Padding_TestVector_1_IV,
                     null,
@@ -2799,7 +2836,8 @@ public final class CipherTest extends TestCase {
         // empty decrypt
         {
             if (!isAEAD(p.transformation)
-                    && (StandardNames.IS_RI || provider.equals("AndroidOpenSSL"))) {
+                    && (StandardNames.IS_RI || provider.equals("AndroidOpenSSL") ||
+                            (provider.equals("BC") && p.transformation.contains("/CTR/")))) {
                 assertEquals(Arrays.toString(new byte[0]),
                              Arrays.toString(c.doFinal()));
 
@@ -2809,7 +2847,7 @@ public final class CipherTest extends TestCase {
             } else if (provider.equals("BC") || isAEAD(p.transformation)) {
                 try {
                     c.doFinal();
-                    fail();
+                    fail(p.transformation + " " + provider);
                 } catch (IllegalBlockSizeException maybe) {
                     if (isAEAD(p.transformation)) {
                         throw maybe;
@@ -2822,7 +2860,7 @@ public final class CipherTest extends TestCase {
                 try {
                     c.update(new byte[0]);
                     c.doFinal();
-                    fail();
+                    fail(p.transformation + " " + provider);
                 } catch (IllegalBlockSizeException maybe) {
                     if (isAEAD(p.transformation)) {
                         throw maybe;
