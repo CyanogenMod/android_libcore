@@ -16,6 +16,8 @@
 
 package java.lang;
 
+import android.system.Os;
+import android.system.OsConstants;
 import dalvik.system.VMRuntime;
 import java.lang.ref.FinalizerReference;
 import java.lang.ref.Reference;
@@ -295,6 +297,14 @@ public final class Daemons {
             // We use the stack from where finalize() was running to show where it was stuck.
             syntheticException.setStackTrace(FinalizerDaemon.INSTANCE.getStackTrace());
             Thread.UncaughtExceptionHandler h = Thread.getDefaultUncaughtExceptionHandler();
+            // Send SIGQUIT to get native stack traces.
+            try {
+                Os.kill(Os.getpid(), OsConstants.SIGQUIT);
+                // Sleep a few seconds to let the stack traces print.
+                Thread.sleep(5000);
+            } catch (Exception e) {
+                System.logE("failed to send SIGQUIT", e);
+            }
             if (h == null) {
                 // If we have no handler, log and exit.
                 System.logE(message, syntheticException);
