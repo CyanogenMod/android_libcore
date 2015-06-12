@@ -175,6 +175,7 @@ ifeq ($(LIBCORE_SKIP_TESTS),)
     LOCAL_MODULE := libjavacoretests
     LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/NativeCode.mk
     LOCAL_SHARED_LIBRARIES := libcrypto-host
+    LOCAL_MULTILIB := both
     LOCAL_CXX_STL := libc++
     include $(BUILD_HOST_SHARED_LIBRARY)
 endif # LIBCORE_SKIP_TESTS
