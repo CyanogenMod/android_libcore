@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.zip.ZipEntry;
 import libcore.io.IoUtils;
 import libcore.io.Libcore;
 import libcore.io.ClassPathURLStreamHandler;
@@ -48,12 +49,10 @@ import static android.system.OsConstants.S_ISDIR;
  */
 /*package*/ final class DexPathList {
     private static final String DEX_SUFFIX = ".dex";
+    private static final String zipSeparator = "!/";
 
     /** class definition context */
     private final ClassLoader definingContext;
-
-    /** List of dexfiles. */
-    private final List<File> dexFiles;
 
     /**
      * List of dex/resource (class path) elements.
@@ -62,8 +61,14 @@ import static android.system.OsConstants.S_ISDIR;
      */
     private final Element[] dexElements;
 
-    /** List of native library directories. */
+    /** List of native library path elements. */
+    private final Element[] nativeLibraryPathElements;
+
+    /** List of application native library directories. */
     private final List<File> nativeLibraryDirectories;
+
+    /** List of system native library directories. */
+    private final List<File> systemNativeLibraryDirectories;
 
     /**
      * Exceptions thrown during creation of the dexElements list.
@@ -85,6 +90,7 @@ import static android.system.OsConstants.S_ISDIR;
      */
     public DexPathList(ClassLoader definingContext, String dexPath,
             String libraryPath, File optimizedDirectory) {
+
         if (definingContext == null) {
             throw new NullPointerException("definingContext == null");
         }
@@ -109,23 +115,46 @@ import static android.system.OsConstants.S_ISDIR;
         }
 
         this.definingContext = definingContext;
+
         ArrayList<IOException> suppressedExceptions = new ArrayList<IOException>();
         // save dexPath for BaseDexClassLoader
-        this.dexFiles = splitDexPath(dexPath);
-        this.dexElements = makeDexElements(dexFiles, optimizedDirectory,
+        this.dexElements = makeDexElements(splitDexPath(dexPath), optimizedDirectory,
                                            suppressedExceptions);
+
+        // Native libraries may exist in both the system and
+        // application library paths, and we use this search order:
+        //
+        //   1. This class loader's library path for application libraries (libraryPath):
+        //   1.1. Native library directories
+        //   1.2. Path to libraries in apk-files
+        //   2. The VM's library path from the system property for system libraries
+        //      also known as java.library.path
+        //
+        // This order was reversed prior to Gingerbread; see http://b/2933456.
+        this.nativeLibraryDirectories = splitPaths(libraryPath, false);
+        this.systemNativeLibraryDirectories =
+                splitPaths(System.getProperty("java.library.path"), true);
+        List<File> allNativeLibraryDirectories = new ArrayList<>(nativeLibraryDirectories);
+        allNativeLibraryDirectories.addAll(systemNativeLibraryDirectories);
+
+        this.nativeLibraryPathElements = makePathElements(allNativeLibraryDirectories,
+                                                          suppressedExceptions);
+
         if (suppressedExceptions.size() > 0) {
             this.dexElementsSuppressedExceptions =
                 suppressedExceptions.toArray(new IOException[suppressedExceptions.size()]);
         } else {
             dexElementsSuppressedExceptions = null;
         }
-        this.nativeLibraryDirectories = splitLibraryPath(libraryPath);
     }
 
     @Override public String toString() {
+        List<File> allNativeLibraryDirectories = new ArrayList<>(nativeLibraryDirectories);
+        allNativeLibraryDirectories.addAll(systemNativeLibraryDirectories);
+
         File[] nativeLibraryDirectoriesArray =
-                nativeLibraryDirectories.toArray(new File[nativeLibraryDirectories.size()]);
+                allNativeLibraryDirectories.toArray(
+                    new File[allNativeLibraryDirectories.size()]);
 
         return "DexPathList[" + Arrays.toString(dexElements) +
             ",nativeLibraryDirectories=" + Arrays.toString(nativeLibraryDirectoriesArray) + "]";
@@ -139,38 +168,12 @@ import static android.system.OsConstants.S_ISDIR;
     }
 
     /**
-     * For BaseDexClassLoader.getDexPath.
-     */
-    public List<File> getDexFiles() {
-        return dexFiles;
-    }
-
-    /**
      * Splits the given dex path string into elements using the path
      * separator, pruning out any elements that do not refer to existing
-     * and readable files. (That is, directories are not included in the
-     * result.)
+     * and readable files.
      */
     private static List<File> splitDexPath(String path) {
-        return splitPaths(path, null, false);
-    }
-
-    /**
-     * Splits the given library directory path string into elements
-     * using the path separator ({@code File.pathSeparator}, which
-     * defaults to {@code ":"} on Android, appending on the elements
-     * from the system library path, and pruning out any elements that
-     * do not refer to existing and readable directories.
-     */
-    private static List<File> splitLibraryPath(String path) {
-        // Native libraries may exist in both the system and
-        // application library paths, and we use this search order:
-        //
-        //   1. this class loader's library path for application libraries
-        //   2. the VM's library path from the system property for system libraries
-        //
-        // This order was reversed prior to Gingerbread; see http://b/2933456.
-        return splitPaths(path, System.getProperty("java.library.path"), true);
+        return splitPaths(path, false);
     }
 
     /**
@@ -182,32 +185,26 @@ import static android.system.OsConstants.S_ISDIR;
      * are empty or {@code null}, or all elements get pruned out, then
      * this returns a zero-element list.
      */
-    private static List<File> splitPaths(String path1, String path2, boolean wantDirectories) {
-        List<File> result = new ArrayList<File>();
+    private static List<File> splitPaths(String searchPath, boolean directoriesOnly) {
+        List<File> result = new ArrayList<>();
 
-        splitAndAdd(path1, wantDirectories, result);
-        splitAndAdd(path2, wantDirectories, result);
-        return result;
-    }
-
-    /**
-     * Helper for {@link #splitPaths}, which does the actual splitting
-     * and filtering and adding to a result.
-     */
-    private static void splitAndAdd(String searchPath, boolean directoriesOnly,
-            List<File> resultList) {
-        if (searchPath == null) {
-            return;
-        }
-        for (String path : searchPath.split(":")) {
-            try {
-                StructStat sb = Libcore.os.stat(path);
-                if (!directoriesOnly || S_ISDIR(sb.st_mode)) {
-                    resultList.add(new File(path));
+        if (searchPath != null) {
+            for (String path : searchPath.split(File.pathSeparator)) {
+                if (directoriesOnly) {
+                    try {
+                        StructStat sb = Libcore.os.stat(path);
+                        if (!S_ISDIR(sb.st_mode)) {
+                            continue;
+                        }
+                    } catch (ErrnoException ignored) {
+                        continue;
+                    }
                 }
-            } catch (ErrnoException ignored) {
+                result.add(new File(path));
             }
         }
+
+        return result;
     }
 
     /**
@@ -216,22 +213,42 @@ import static android.system.OsConstants.S_ISDIR;
      */
     private static Element[] makeDexElements(List<File> files, File optimizedDirectory,
                                              List<IOException> suppressedExceptions) {
-        ArrayList<Element> elements = new ArrayList<Element>();
+        return makeElements(files, optimizedDirectory, suppressedExceptions, false);
+    }
+
+    /**
+     * Makes an array of directory/zip path elements, one per element of the given array.
+     */
+    private static Element[] makePathElements(List<File> files,
+                                              List<IOException> suppressedExceptions) {
+        return makeElements(files, null, suppressedExceptions, true);
+    }
+
+    private static Element[] makeElements(List<File> files, File optimizedDirectory,
+                                          List<IOException> suppressedExceptions,
+                                          boolean ignoreDexFiles) {
+        List<Element> elements = new ArrayList<>();
         /*
          * Open all files and load the (direct or contained) dex files
          * up front.
          */
         for (File file : files) {
             File zip = null;
+            File dir = new File("");
             DexFile dex = null;
+            String path = file.getPath();
             String name = file.getName();
 
-            if (file.isDirectory()) {
-                // We support directories for looking up resources.
-                // This is only useful for running libcore tests.
+            if (path.contains(zipSeparator)) {
+                String split[] = path.split(zipSeparator, 2);
+                zip = new File(split[0]);
+                dir = new File(split[1]);
+            } else if (file.isDirectory()) {
+                // We support directories for looking up resources and native libraries.
+                // Looking up resources in directories is useful for running libcore tests.
                 elements.add(new Element(file, true, null, null));
-            } else if (file.isFile()){
-                if (name.endsWith(DEX_SUFFIX)) {
+            } else if (file.isFile()) {
+                if (!ignoreDexFiles && name.endsWith(DEX_SUFFIX)) {
                     // Raw dex file (not inside a zip/jar).
                     try {
                         dex = loadDexFile(file, optimizedDirectory);
@@ -241,17 +258,19 @@ import static android.system.OsConstants.S_ISDIR;
                 } else {
                     zip = file;
 
-                    try {
-                        dex = loadDexFile(file, optimizedDirectory);
-                    } catch (IOException suppressed) {
-                        /*
-                         * IOException might get thrown "legitimately" by the DexFile constructor if
-                         * the zip file turns out to be resource-only (that is, no classes.dex file
-                         * in it).
-                         * Let dex == null and hang on to the exception to add to the tea-leaves for
-                         * when findClass returns null.
-                         */
-                        suppressedExceptions.add(suppressed);
+                    if (!ignoreDexFiles) {
+                        try {
+                            dex = loadDexFile(file, optimizedDirectory);
+                        } catch (IOException suppressed) {
+                            /*
+                             * IOException might get thrown "legitimately" by the DexFile constructor if
+                             * the zip file turns out to be resource-only (that is, no classes.dex file
+                             * in it).
+                             * Let dex == null and hang on to the exception to add to the tea-leaves for
+                             * when findClass returns null.
+                             */
+                            suppressedExceptions.add(suppressed);
+                        }
                     }
                 }
             } else {
@@ -259,7 +278,7 @@ import static android.system.OsConstants.S_ISDIR;
             }
 
             if ((zip != null) || (dex != null)) {
-                elements.add(new Element(file, false, zip, dex));
+                elements.add(new Element(dir, false, zip, dex));
             }
         }
 
@@ -392,20 +411,23 @@ import static android.system.OsConstants.S_ISDIR;
      */
     public String findLibrary(String libraryName) {
         String fileName = System.mapLibraryName(libraryName);
-        for (File directory : nativeLibraryDirectories) {
-            String path = new File(directory, fileName).getPath();
-            if (IoUtils.canOpenReadOnly(path)) {
+
+        for (Element element : nativeLibraryPathElements) {
+            String path = element.findNativeLibrary(fileName);
+
+            if (path != null) {
                 return path;
             }
         }
+
         return null;
     }
 
     /**
-     * Element of the dex/resource file path
+     * Element of the dex/resource/native library path
      */
     /*package*/ static class Element {
-        private final File file;
+        private final File dir;
         private final boolean isDirectory;
         private final File zip;
         private final DexFile dexFile;
@@ -413,8 +435,8 @@ import static android.system.OsConstants.S_ISDIR;
         private ClassPathURLStreamHandler urlHandler;
         private boolean initialized;
 
-        public Element(File file, boolean isDirectory, File zip, DexFile dexFile) {
-            this.file = file;
+        public Element(File dir, boolean isDirectory, File zip, DexFile dexFile) {
+            this.dir = dir;
             this.isDirectory = isDirectory;
             this.zip = zip;
             this.dexFile = dexFile;
@@ -422,9 +444,10 @@ import static android.system.OsConstants.S_ISDIR;
 
         @Override public String toString() {
             if (isDirectory) {
-                return "directory \"" + file + "\"";
+                return "directory \"" + dir + "\"";
             } else if (zip != null) {
-                return "zip file \"" + zip + "\"";
+                return "zip file \"" + zip + "\"" +
+                       (dir != null && !dir.getPath().isEmpty() ? ", dir \"" + dir + "\"" : "");
             } else {
                 return "dex file \"" + dexFile + "\"";
             }
@@ -450,8 +473,31 @@ import static android.system.OsConstants.S_ISDIR;
                  * (e.g. if the file isn't actually a zip/jar
                  * file).
                  */
-                System.logE("Unable to open zip file: " + file, ioe);
+                System.logE("Unable to open zip file: " + zip, ioe);
+                urlHandler = null;
             }
+        }
+
+        public String findNativeLibrary(String name) {
+            maybeInit();
+
+            if (isDirectory) {
+                String path = new File(dir, name).getPath();
+                if (IoUtils.canOpenReadOnly(path)) {
+                    return path;
+                }
+            } else if (urlHandler != null) {
+                // Having a urlHandler means the element has a zip file.
+                // In this case Android supports loading the library iff
+                // it is stored in the zip uncompressed.
+
+                String entryName = new File(dir, name).getPath();
+                if (urlHandler.isEntryStored(entryName)) {
+                  return zip.getPath() + zipSeparator + entryName;
+                }
+            }
+
+            return null;
         }
 
         public URL findResource(String name) {
@@ -460,7 +506,7 @@ import static android.system.OsConstants.S_ISDIR;
             // We support directories so we can run tests and/or legacy code
             // that uses Class.getResource.
             if (isDirectory) {
-                File resourceFile = new File(file, name);
+                File resourceFile = new File(dir, name);
                 if (resourceFile.exists()) {
                     try {
                         return resourceFile.toURI().toURL();
