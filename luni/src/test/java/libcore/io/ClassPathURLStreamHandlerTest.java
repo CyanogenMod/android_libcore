@@ -37,6 +37,7 @@ public class ClassPathURLStreamHandlerTest extends TestCase {
     private static final String JAR = "ClassPathURLStreamHandlerTest.jar";
     private static final String ENTRY_IN_ROOT = "root.txt";
     private static final String ENTRY_IN_SUBDIR = "foo/bar/baz.txt";
+    private static final String ENTRY_STORED = "stored_file.txt";
     private static final String ENTRY_WITH_SPACES_ENCODED = "file%20with%20spaces.txt";
     private static final String ENTRY_WITH_SPACES_UNENCODED = "file with spaces.txt";
     private static final String ENTRY_THAT_NEEDS_ESCAPING = "file_with_percent20_%20.txt";
@@ -80,6 +81,16 @@ public class ClassPathURLStreamHandlerTest extends TestCase {
         assertNull(streamHandler.getEntryUrlOrNull(ENTRY_WITH_SPACES_ENCODED));
         assertNull(streamHandler.getEntryUrlOrNull(ENTRY_WITH_RELATIVE_PATH));
         streamHandler.close();
+    }
+
+    public void testIsEntryStored() throws IOException {
+        String fileName = jarFile.getCanonicalPath();
+        ClassPathURLStreamHandler streamHandler = new ClassPathURLStreamHandler(fileName);
+
+        assertFalse(streamHandler.isEntryStored("this/file/does/not/exist.txt"));
+        // This one is compressed
+        assertFalse(streamHandler.isEntryStored(ENTRY_IN_SUBDIR));
+        assertTrue(streamHandler.isEntryStored(ENTRY_STORED));
     }
 
     public void testOpenConnection() throws Exception {

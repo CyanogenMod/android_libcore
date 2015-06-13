@@ -54,7 +54,7 @@ public class ClassPathURLStreamHandler extends JarHandler {
 
   /**
    * Returns a URL backed by this stream handler for the named resource, or {@code null} if the
-   * resource cannot be found under the exact name presented.
+   * entry cannot be found under the exact name presented.
    */
   public URL getEntryUrlOrNull(String entryName) {
     if (jarFile.findEntry(entryName) != null) {
@@ -67,6 +67,15 @@ public class ClassPathURLStreamHandler extends JarHandler {
       }
     }
     return null;
+  }
+
+  /**
+   * Returns true if entry with specified name exists and stored (not compressed),
+   * and false otherwise.
+   */
+  public boolean isEntryStored(String entryName) {
+    ZipEntry entry = jarFile.findEntry(entryName);
+    return entry != null && entry.getMethod() == ZipEntry.STORED;
   }
 
   @Override

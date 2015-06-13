@@ -358,11 +358,14 @@ public class Runtime {
      */
     void loadLibrary(String libraryName, ClassLoader loader) {
         if (loader != null) {
-            // TODO: We shouldn't assume that we know default linker search logic.
             String filename = loader.findLibrary(libraryName);
             if (filename == null) {
-                // The dynamic linker might still find the library by name.
-                filename = System.mapLibraryName(libraryName);
+                // It's not necessarily true that the ClassLoader used
+                // System.mapLibraryName, but the default setup does, and it's
+                // misleading to say we didn't find "libMyLibrary.so" when we
+                // actually searched for "liblibMyLibrary.so.so".
+                throw new UnsatisfiedLinkError(loader + " couldn't find \"" +
+                                               System.mapLibraryName(libraryName) + "\"");
             }
             String error = doLoad(filename, loader);
             if (error != null) {
@@ -424,19 +427,18 @@ public class Runtime {
         } else if (loader instanceof BaseDexClassLoader) {
             BaseDexClassLoader dexClassLoader = (BaseDexClassLoader) loader;
             ldLibraryPath = dexClassLoader.getLdLibraryPath();
-            dexPath = dexClassLoader.getDexPath();
         }
         // nativeLoad should be synchronized so there's only one LD_LIBRARY_PATH in use regardless
         // of how many ClassLoaders are in the system, but dalvik doesn't support synchronized
         // internal natives.
         synchronized (this) {
-            return nativeLoad(name, loader, ldLibraryPath, dexPath);
+            return nativeLoad(name, loader, ldLibraryPath);
         }
     }
 
     // TODO: should be synchronized, but dalvik doesn't support synchronized internal natives.
     private static native String nativeLoad(String filename, ClassLoader loader,
-            String ldLibraryPath, String dexPath);
+            String ldLibraryPath);
 
     /**
      * Provides a hint to the runtime that it would be useful to attempt
