@@ -401,11 +401,6 @@ public class CertBlacklistTest extends TestCase {
         assertEquals(bl, getCurrentSerialBlacklist());
     }
 
-    public void testTurkTrustIntermediate1SerialBlacklist() throws Exception {
-        CertBlacklist bl = new CertBlacklist();
-        assertEquals(bl.isSerialNumberBlackListed(createSerialNumber(TURKTRUST_1)), true);
-    }
-
     public void testTurkTrustIntermediate1PubkeyBlacklist() throws Exception {
         // build the public key
         PublicKey pk = createPublicKey(TURKTRUST_1);
@@ -417,11 +412,6 @@ public class CertBlacklistTest extends TestCase {
         assertEquals(bl.isPublicKeyBlackListed(pk), true);
     }
 
-    public void testTurkTrustIntermediate2SerialBlacklist() throws Exception {
-        CertBlacklist bl = new CertBlacklist();
-        assertEquals(bl.isSerialNumberBlackListed(createSerialNumber(TURKTRUST_2)), true);
-    }
-
     public void testTurkTrustIntermediate2PubkeyBlacklist() throws Exception {
         // build the public key
         PublicKey pk = createPublicKey(TURKTRUST_2);
@@ -429,11 +419,6 @@ public class CertBlacklistTest extends TestCase {
         CertBlacklist bl = new CertBlacklist();
         // check to make sure it isn't blacklisted
         assertEquals(bl.isPublicKeyBlackListed(pk), true);
-    }
-
-    public void testANSSISerialBlacklist() throws Exception {
-        CertBlacklist bl = new CertBlacklist();
-        assertEquals(bl.isSerialNumberBlackListed(createSerialNumber(ANSSI)), true);
     }
 
     public void testANSSIIntermediatePubkeyBlacklist() throws Exception {
