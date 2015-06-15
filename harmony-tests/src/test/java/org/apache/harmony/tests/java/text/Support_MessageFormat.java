@@ -44,6 +44,8 @@ public class Support_MessageFormat extends Support_Format {
 	}
 
 	public void t_format_with_FieldPosition() {
+		// This test assumes a default DateFormat.is24Hour setting.
+		DateFormat.is24Hour = null;
 
 		String pattern = "On {4,date} at {3,time}, he ate {2,number, integer} hamburger{2,choice,1#|1<s} and drank {1, number} liters of coke. That was {0,choice,1#just enough|1<more than enough} food!";
 		MessageFormat format = new MessageFormat(pattern, Locale.US);
@@ -71,6 +73,9 @@ public class Support_MessageFormat extends Support_Format {
 	}
 
 	public void t_formatToCharacterIterator() {
+		// This test assumes a default DateFormat.is24Hour setting.
+		DateFormat.is24Hour = null;
+
 		String pattern = "On {4,date} at {3,time}, he ate {2,number, integer} hamburger{2,choice,1#|1<s} and drank {1, number} liters of coke. That was {0,choice,1#just enough|1<more than enough} food!";
 		MessageFormat format = new MessageFormat(pattern, Locale.US);
 
