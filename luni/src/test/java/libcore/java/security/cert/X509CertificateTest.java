@@ -339,6 +339,13 @@ public class X509CertificateTest extends TestCase {
 
         Provider[] providers = Security.getProviders("Signature." + c.getSigAlgName());
         for (Provider p : providers) {
+            // Do not test AndroidKeyStore Provider. It does not accept vanilla public keys for
+            // signature verification. It's OKish not to test here because it's tested by
+            // cts/tests/tests/keystore.
+            if (p.getName().startsWith("AndroidKeyStore")) {
+                continue;
+            }
+
             c.verify(signer, p.getName());
 
             try {
