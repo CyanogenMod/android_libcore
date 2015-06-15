@@ -300,17 +300,10 @@ public class MyModifiablePublicKey implements PublicKey {
 
     private Certificate cert;
 
-    private Provider wrongProvider;
-
-    private Provider usefulProvider;
-
     public void setUp() throws Exception {
         super.setUp();
         TestUtils.initCertPathSSCertChain();
         cert = TestUtils.rootCertificateSS;
-        CertificateFactory cf = CertificateFactory.getInstance("X.509");
-        wrongProvider = cf.getProvider();
-        usefulProvider = Signature.getInstance("SHA1WithRSA").getProvider();
     }
 
     /**
@@ -326,8 +319,11 @@ public class MyModifiablePublicKey implements PublicKey {
             CertificateException, NoSuchAlgorithmException,
             NoSuchProviderException, SignatureException {
 
+        final Signature sig = Signature.getInstance("SHA1WithRSA");
+        sig.initVerify(cert.getPublicKey());
+        final Provider provider = sig.getProvider();
         // real test
-        cert.verify(cert.getPublicKey(), usefulProvider.getName());
+        cert.verify(cert.getPublicKey(), provider.getName());
 
         // Exception tests
 
@@ -341,6 +337,9 @@ public class MyModifiablePublicKey implements PublicKey {
         // on in the same vm instance. Maybe a better way would be to first add
         // a new provider, test if it works, then remove it and test if the
         // exception is thrown.
+        //
+        // CertificateFactory cf = CertificateFactory.getInstance("X.509");
+        // Provider wrongProvider = cf.getProvider();
         //
         // Security.removeProvider(wrongProvider.getName());
         //
