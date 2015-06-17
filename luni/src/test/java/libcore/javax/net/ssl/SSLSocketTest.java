@@ -1709,13 +1709,6 @@ public class SSLSocketTest extends TestCase {
                         return null;
                     } finally {
                         IoUtils.closeQuietly(client);
-
-                        // Cancel the reading task. If this task succeeded, then the reading task
-                        // is done and this will have no effect. If this task failed prematurely,
-                        // then the reading task might get unblocked (we're interrupting the thread
-                        // it's running on), will fail early, and we'll thus save some time in this
-                        // test.
-                        readFirstReceivedChunkFuture.cancel(true);
                     }
                 }
             });
