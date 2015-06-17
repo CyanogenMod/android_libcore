@@ -1679,12 +1679,10 @@ public class X500PrincipalTest extends TestCase {
      * compares with expected value of name - "\nB"
      */
     public void testNameSpecialChars_RFC1779_01() throws Exception {
-        //FIXME see testNameSpecialChars_RFC2253_01
-        //        String dn = "CN=\\\nB";
-        //        X500Principal principal = new X500Principal(dn);
-        //        String s = principal.getName(X500Principal.RFC1779);
-        //        assertEquals("CN=\"\nB\"", s);
-
+        String dn = "CN=\\\nB";
+        X500Principal principal = new X500Principal(dn);
+        String s = principal.getName(X500Principal.RFC1779);
+        assertEquals("CN=\"\nB\"", s);
     }
 
     /**
@@ -1693,14 +1691,8 @@ public class X500PrincipalTest extends TestCase {
      * compares with expected value of name - \\nB
      */
     public void testNameSpecialChars_RFC2253_01() throws Exception {
-
-        try {
-            // compatibility issue:
-            // don't accept escaped \n because it is not a special char
-            new X500Principal("CN=\\\nB");
-            fail("No expected IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-        }
+        X500Principal p = new X500Principal("CN=\\\nB");
+        assertEquals("CN=\nB", p.getName(X500Principal.RFC2253));
     }
 
     /**
@@ -2208,7 +2200,15 @@ public class X500PrincipalTest extends TestCase {
         String dn = "CN=A\nB";
         X500Principal principal = new X500Principal(dn);
         String s = principal.getName(X500Principal.RFC1779);
-        assertEquals("CN=A\nB", s);
+        assertEquals("CN=\"A\nB\"", s);
+    }
+
+
+    public void testNamePlus_RFC1779() throws Exception {
+        String dn = "CN=A\\+B";
+        X500Principal principal = new X500Principal(dn);
+        String s = principal.getName(X500Principal.RFC1779);
+        assertEquals("CN=\"A+B\"", s);
     }
 
     /**
