@@ -2222,7 +2222,13 @@ public final class Locale implements Cloneable, Serializable {
             }
         }
 
-        final String languageCode = Builder.normalizeAndValidateLanguage(subtags[0], strict);
+        // The BCP-47 language tag "und" is mapped to the Locale languageCode "" here in
+        // forLanguageTag() for compatibility with JDK behaviour.
+        String languageCode = Builder.normalizeAndValidateLanguage(subtags[0], strict);
+        if (UNDETERMINED_LANGUAGE.equals(languageCode)) {
+          languageCode = "";
+        }
+
         String scriptCode = "";
         int nextSubtag = 1;
         if (lastSubtag > nextSubtag) {
