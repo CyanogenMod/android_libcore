@@ -251,9 +251,10 @@ public final class AttributeTypeAndValue {
             sb.append('=');
             if (value.escapedString == value.getHexString()) {
                 sb.append(value.getHexString().toUpperCase(Locale.US));
-            } else if (value.escapedString.length() != value.rawString.length()) {
+            } else if (value.escapedString.length() != value.rawString.length()
+                    || value.hasQEN) {
                 // was escaped
-                value.appendQEString(sb);
+                value.appendQuotedString(sb);
             } else {
                 sb.append(value.escapedString);
             }

@@ -50,8 +50,8 @@ public final class DNParser {
     /** distinguished name chars */
     private final char[] chars;
 
-    /** raw string contains '"' or '\' */
-    private boolean hasQE;
+    /** raw string contains '"', '\' or '\n' */
+    private boolean hasQEN;
 
     /** DER encoding of currently parsed item */
     private byte[] encoded;
@@ -67,7 +67,7 @@ public final class DNParser {
      * Returns the next attribute type: (ALPHA 1*keychar) / oid
      */
     private String nextAT() throws IOException {
-        hasQE = false; // reset
+        hasQEN = false; // reset
 
         // skip preceding space chars, they can present after
         // comma or semicolon (compatibility with RFC 1779)
@@ -271,7 +271,11 @@ public final class DNParser {
         switch (ch) {
         case '"':
         case '\\':
-            hasQE = true;
+        // <CR> Is not a special character in RFC2253, but it is in RFC1779. The Javadoc in the RI for
+        // X500Principal says that names are according to RFC2253 but ones according to RFC1779
+        // should also be accepted.
+        case '\n':
+            hasQEN = true;
             return ch;
         case ',':
         case '=':
@@ -403,7 +407,7 @@ public final class DNParser {
 
             switch (chars[pos]) {
             case '"':
-                atav.add(new AttributeTypeAndValue(oid, new AttributeValue(quotedAV(), hasQE, oid)));
+                atav.add(new AttributeTypeAndValue(oid, new AttributeValue(quotedAV(), hasQEN, oid)));
                 break;
             case '#':
                 atav.add(new AttributeTypeAndValue(oid, new AttributeValue(hexAV(), encoded)));
@@ -416,7 +420,7 @@ public final class DNParser {
                 break;
             default:
                 atav.add(new AttributeTypeAndValue(oid,
-                                                   new AttributeValue(escapedAV(), hasQE, oid)));
+                                                   new AttributeValue(escapedAV(), hasQEN, oid)));
             }
 
             if (pos >= chars.length) {
