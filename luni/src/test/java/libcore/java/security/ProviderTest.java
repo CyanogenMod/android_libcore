@@ -218,7 +218,8 @@ public class ProviderTest extends TestCase {
                 } catch (ClassNotFoundException e) {
                     // Sun forgot their own class
                     if (!className.equals("sun.security.pkcs11.P11MAC")) {
-                        fail("Could not find class " + className + " for " + typeAndAlgorithm);
+                        fail("Could not find class " + className + " for " + typeAndAlgorithm
+                        + " [provider=" + provider.getName() + "]");
                     }
                 }
             }
@@ -227,8 +228,9 @@ public class ProviderTest extends TestCase {
             for (Entry<String,String> entry : aliases.entrySet()) {
                 String alias  = entry.getKey();
                 String actual = entry.getValue();
-                assertTrue("Could not find implementation " + actual + " for alias " + alias,
-                           implementations.containsKey(actual));
+                assertTrue("Could not find implementation " + actual + " for alias " + alias +
+                        " [provider=" + provider.getName() + "]",
+                        implementations.containsKey(actual));
             }
         }
     }
