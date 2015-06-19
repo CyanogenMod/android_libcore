@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.crypto.Cipher;
@@ -178,8 +179,8 @@ public class ProviderTest extends TestCase {
                          provider.get("Provider.id className"));
 
             // build map of all known aliases and implementations
-            Map<String,String> aliases = new HashMap<String,String>();
-            Map<String,String> implementations = new HashMap<String,String>();
+            Map<String,String> aliases = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+            Map<String,String> implementations = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
             for (Entry<Object,Object> entry : provider.entrySet()) {
                 Object k = entry.getKey();
                 Object v = entry.getValue();
