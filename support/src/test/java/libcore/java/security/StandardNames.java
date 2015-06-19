@@ -397,12 +397,23 @@ public final class StandardNames extends Assert {
             provide("Signature", "NONEwithRSA");
             provide("Cipher", "RSA/ECB/NOPADDING");
             provide("Cipher", "RSA/ECB/PKCS1PADDING");
+            provide("Cipher", "RSA/ECB/OAEPPadding");
+            provide("Cipher", "RSA/ECB/OAEPWithSHA-1AndMGF1Padding");
+            provide("Cipher", "RSA/ECB/OAEPWithSHA-224AndMGF1Padding");
+            provide("Cipher", "RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
+            provide("Cipher", "RSA/ECB/OAEPWithSHA-384AndMGF1Padding");
+            provide("Cipher", "RSA/ECB/OAEPWithSHA-512AndMGF1Padding");
             provide("SecretKeyFactory", "AES");
             provide("SecretKeyFactory", "HmacSHA1");
             provide("SecretKeyFactory", "HmacSHA224");
             provide("SecretKeyFactory", "HmacSHA256");
             provide("SecretKeyFactory", "HmacSHA384");
             provide("SecretKeyFactory", "HmacSHA512");
+            provide("Signature", "SHA1withRSA/PSS");
+            provide("Signature", "SHA224withRSA/PSS");
+            provide("Signature", "SHA256withRSA/PSS");
+            provide("Signature", "SHA384withRSA/PSS");
+            provide("Signature", "SHA512withRSA/PSS");
 
             // different names: ARCFOUR vs ARC4
             unprovide("Cipher", "ARCFOUR");
