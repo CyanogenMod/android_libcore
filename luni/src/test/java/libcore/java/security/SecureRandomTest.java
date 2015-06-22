@@ -102,7 +102,6 @@ public class SecureRandomTest extends TestCase {
 
     public void testNewConstructors_Success() throws Exception {
         SecureRandom sr1 = new SecureRandom();
-        assertNotNull(sr1);
         assertNotNull(sr1.getProvider());
         assertEquals(EXPECTED_PROVIDER, sr1.getProvider().getClass().getName());
         test_SecureRandom(sr1);
