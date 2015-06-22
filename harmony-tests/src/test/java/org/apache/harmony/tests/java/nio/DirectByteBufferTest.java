@@ -16,6 +16,10 @@
 package org.apache.harmony.tests.java.nio;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.IntBuffer;
+import java.nio.LongBuffer;
+import java.nio.ShortBuffer;
 
 public class DirectByteBufferTest extends ByteBufferTest {
 
@@ -56,5 +60,58 @@ public class DirectByteBufferTest extends ByteBufferTest {
 
     public void testIsReadOnly() {
         assertFalse(buf.isReadOnly());
+    }
+
+    // http://b/19692084
+    // http://b/21491780
+    public void testUnalignedReadsAndWrites() {
+        // We guarantee that the first byte of the buffer is 8 byte aligned.
+        ByteBuffer buf = ByteBuffer.allocateDirect(23);
+        // Native order is always little endian, so this forces swaps.
+        buf.order(ByteOrder.BIG_ENDIAN);
+
+        for (int i = 0; i < 8; ++i) {
+            buf.position(i);
+
+            // 2 byte swaps.
+            ShortBuffer shortBuf = buf.asShortBuffer();
+            short[] shortArray = new short[] { 42, 24 };
+
+            // Write.
+            shortBuf.put(shortArray);
+            // Read
+            shortBuf.flip();
+            shortBuf.get(shortArray);
+            // Assert Equality
+            assertEquals(42, shortArray[0]);
+            assertEquals(24, shortArray[1]);
+
+            buf.position(i);
+            // 4 byte swaps.
+            IntBuffer intBuf = buf.asIntBuffer();
+            int[] intArray = new int[] { 967, 1983 };
+            // Write.
+            intBuf.put(intArray);
+            // Read
+            intBuf.flip();
+            intBuf.get(intArray);
+            // Assert Equality
+            assertEquals(967, intArray[0]);
+            assertEquals(1983, intArray[1]);
+
+
+            buf.position(i);
+            // 8 byte swaps.
+            LongBuffer longBuf = buf.asLongBuffer();
+            long[] longArray = new long[] { 2147484614L, 2147485823L };
+            // Write.
+            longBuf.put(longArray);
+            // Read
+            longBuf.flip();
+            longBuf.get(longArray);
+            // Assert Equality
+            assertEquals(2147484614L, longArray[0]);
+            assertEquals(2147485823L, longArray[1]);
+        }
     }
 }
