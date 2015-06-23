@@ -117,6 +117,7 @@ LOCAL_C_INCLUDES += libcore/include
 LOCAL_MODULE_TAGS := debug
 LOCAL_MODULE := libjavacore-unit-tests
 LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/NativeCode.mk
+LOCAL_SHARED_LIBRARIES := libnativehelper
 LOCAL_CXX_STL := libc++
 include $(BUILD_NATIVE_TEST)
 
@@ -131,6 +132,7 @@ LOCAL_C_INCLUDES += libcore/include bionic/benchmarks
 LOCAL_MODULE_TAGS := debug
 LOCAL_MODULE := libjavacore-benchmarks
 LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/NativeCode.mk
+LOCAL_SHARED_LIBRARIES := libnativehelper
 LOCAL_CXX_STL := libc++
 LOCAL_MULTILIB := both
 LOCAL_MODULE_STEM_32 := $(LOCAL_MODULE)32
