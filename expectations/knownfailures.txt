@@ -1517,5 +1517,14 @@
   names: [
     "libcore.io.OsTest#test_PacketSocketAddress"
   ]
+},
+{
+  description: "Need to rewrite tests for the client-side of renegotiation",
+  bug: 21876068,
+  result: EXEC_FAILED,
+  names: [
+    "com.android.org.conscrypt.NativeCryptoTest#test_SSL_renegotiate",
+    "com.android.org.conscrypt.NativeCryptoTest#test_SSL_do_handshake_clientCertificateRequested_throws_after_renegotiate"
+  ]
 }
 ]
