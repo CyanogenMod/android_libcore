@@ -18,6 +18,9 @@ package libcore.java.util.zip;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
@@ -29,6 +32,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
@@ -81,5 +85,34 @@ public final class ZipInputStreamTest extends TestCase {
         } finally {
             in.close();
         }
+    }
+
+    // NOTE: Using octal because it's easiest to use "hexdump -b" to dump file contents.
+    private static final byte[] INCOMPLETE_ZIP = new byte[] {
+            0120, 0113, 0003, 0004, 0024, 0000, 0010, 0010, 0010, 0000, 0002, 0035, (byte) 0330,
+            0106, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0013,
+            0000, 0000, 0000, 0146, 0157, 0157, 0057, 0142, 0141, 0162, 0056, 0160, 0156, 0147 };
+
+    // http://b//21846904
+    public void testReadOnIncompleteStream() throws Exception {
+        ZipInputStream zi = new ZipInputStream(new ByteArrayInputStream(INCOMPLETE_ZIP));
+        ZipEntry ze = zi.getNextEntry();
+
+        // read() and closeEntry() must throw IOExceptions to indicate that
+        // the stream is corrupt. The bug above reported that they would loop
+        // forever.
+        try {
+            zi.read(new byte[1024], 0, 1024);
+            fail();
+        } catch (IOException expected) {
+        }
+
+        try {
+            zi.closeEntry();
+            fail();
+        } catch (IOException expected) {
+        }
+
+        zi.close();
     }
 }
