@@ -97,11 +97,11 @@ static jlong StrictJarFile_nativeStartIteration(JNIEnv* env, jobject, jlong nati
   int32_t error = 0;
   if (prefixChars.size() == 0) {
     error = StartIteration(reinterpret_cast<ZipArchiveHandle>(nativeHandle),
-                           handle->CookieAddress(), NULL);
+                           handle->CookieAddress(), NULL, NULL);
   } else {
-    ZipEntryName entry_name(prefixChars.c_str());
+    ZipString entry_name(prefixChars.c_str());
     error = StartIteration(reinterpret_cast<ZipArchiveHandle>(nativeHandle),
-                           handle->CookieAddress(), &entry_name);
+                           handle->CookieAddress(), &entry_name, NULL);
   }
 
   if (error) {
@@ -114,7 +114,7 @@ static jlong StrictJarFile_nativeStartIteration(JNIEnv* env, jobject, jlong nati
 
 static jobject StrictJarFile_nativeNextEntry(JNIEnv* env, jobject, jlong iterationHandle) {
   ZipEntry data;
-  ZipEntryName entryName;
+  ZipString entryName;
 
   IterationHandle* handle = reinterpret_cast<IterationHandle*>(iterationHandle);
   const int32_t error = Next(*handle->CookieAddress(), &data, &entryName);
@@ -140,7 +140,7 @@ static jobject StrictJarFile_nativeFindEntry(JNIEnv* env, jobject, jlong nativeH
 
   ZipEntry data;
   const int32_t error = FindEntry(reinterpret_cast<ZipArchiveHandle>(nativeHandle),
-                                  ZipEntryName(entryNameChars.c_str()), &data);
+                                  ZipString(entryNameChars.c_str()), &data);
   if (error) {
     return NULL;
   }
