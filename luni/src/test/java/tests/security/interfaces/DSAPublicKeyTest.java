@@ -42,9 +42,7 @@ public class DSAPublicKeyTest extends TestCase {
 
         // Case 1: check with predefined p, q, g, x
         keyGen = KeyPairGenerator.getInstance("DSA");
-        keyGen.initialize(new DSAParameterSpec(Util.P, Util.Q, Util.G),
-                new SecureRandom(new MySecureRandomSpi(), null) {
-                });
+        keyGen.initialize(new DSAParameterSpec(Util.P, Util.Q, Util.G), new SecureRandom());
         keys = keyGen.generateKeyPair();
         priv = (DSAPrivateKey) keys.getPrivate();
         publ = (DSAPublicKey) keys.getPublic();
