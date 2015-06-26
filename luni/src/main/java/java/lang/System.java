@@ -845,14 +845,22 @@ public final class System {
         // On Android, each app gets its own temporary directory.
         // (See android.app.ActivityThread.) This is just a fallback default,
         // useful only on the host.
-        p.put("java.io.tmpdir", "/tmp");
+        // We check first if the property has not been set already: note that it
+        // can only be set from the command line through the '-Djava.io.tmpdir=' option.
+        if (!unchangeableSystemProperties.containsKey("java.io.tmpdir")) {
+           p.put("java.io.tmpdir", "/tmp");
+        }
 
         // Android has always had an empty "user.home" (see docs for getProperty).
         // This is not useful for normal android apps which need to use android specific
         // APIs such as {@code Context.getFilesDir} and {@code Context.getCacheDir} but
         // we make it changeable for backward compatibility, so that they can change it
         // to a writeable location if required.
-        p.put("user.home", "");
+        // We check first if the property has not been set already: note that it
+        // can only be set from the command line through the '-Duser.home=' option.
+        if (!unchangeableSystemProperties.containsKey("user.home")) {
+            p.put("user.home", "");
+        }
     }
 
     private static Properties createSystemProperties() {
