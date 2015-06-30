@@ -17,6 +17,7 @@
 package java.net;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 import static android.system.OsConstants.*;
 
@@ -63,4 +64,33 @@ public final class InetUnixAddress extends InetAddress {
   public String getHostAddress() {
       return new String(address, StandardCharsets.UTF_8);
   }
+
+  /**
+   * Compares this {@code InetUnixAddress} instance against the specified address
+   * in {@code obj}. Two addresses are equal if their address byte arrays have
+   * the same length and if the bytes in the arrays are equal.
+   *
+   * @param obj
+   *            the object to be tested for equality.
+   * @return {@code true} if both objects are equal, {@code false} otherwise.
+   */
+  @Override
+  public boolean equals(Object obj) {
+      if (obj == null ||
+          !(obj instanceof InetUnixAddress))
+        return false;
+
+      return Arrays.equals(this.address, ((InetUnixAddress) obj).address);
+  }
+
+  /**
+   * Returns a hashcode for this IP address.
+   *
+   * @return  a hash code value for this IP address.
+   */
+  @Override
+  public int hashCode() {
+    return Arrays.hashCode(address);
+  }
+  // ----- END android -----
 }
