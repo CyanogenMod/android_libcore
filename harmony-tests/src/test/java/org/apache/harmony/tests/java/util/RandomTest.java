@@ -18,12 +18,13 @@
 package org.apache.harmony.tests.java.util;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Random;
 import org.apache.harmony.testframework.serialization.SerializationTest;
 
 public class RandomTest extends junit.framework.TestCase {
 
-    Random r;
+    private Random r;
 
     /**
      * java.util.Random#Random()
@@ -43,6 +44,17 @@ public class RandomTest extends junit.framework.TestCase {
             assertTrue("Values from randoms with same seed don't match", r
                     .nextInt() == r2.nextInt());
     }
+
+    public void test_setSeed() {
+        Random r = new Random();
+        r.setSeed(1337);
+        Random r2 = new Random();
+        r2.setSeed(1337);
+        for (int i = 0; i < 100; i++)
+            assertTrue("Values from randoms with same seed don't match", r
+                    .nextInt() == r2.nextInt());
+    }
+
 
     /**
      * java.util.Random#nextBoolean()
@@ -216,38 +228,39 @@ public class RandomTest extends junit.framework.TestCase {
      */
     public void test_setSeedJ() {
         // Test for method void java.util.Random.setSeed(long)
-        long[] randomArray = new long[100];
-        boolean someDifferent = false;
-        final long firstSeed = 1000;
-        long aLong, anotherLong, yetAnotherLong;
-        Random aRandom = new Random();
-        Random anotherRandom = new Random();
-        Random yetAnotherRandom = new Random();
-        aRandom.setSeed(firstSeed);
-        anotherRandom.setSeed(firstSeed);
-        for (int counter = 0; counter < randomArray.length; counter++) {
-            aLong = aRandom.nextLong();
-            anotherLong = anotherRandom.nextLong();
-            assertTrue(
-                    "Two randoms with same seeds gave differing nextLong values",
-                    aLong == anotherLong);
-            yetAnotherLong = yetAnotherRandom.nextLong();
-            randomArray[counter] = aLong;
-            if (aLong != yetAnotherLong)
-                someDifferent = true;
+        long[] random1Values = new long[100];
+        long[] random2Values = new long[100];
+        long[] random3Values = new long[100];
+
+        Random random1 = new Random();
+        Random random2 = new Random();
+        Random random3 = new Random();
+
+        random1.setSeed(1337);
+        random2.setSeed(1337);
+        random3.setSeed(5000);
+
+        for (int i = 0; i < 100; ++i) {
+            random1Values[i] = random1.nextLong();
+            random2Values[i] = random2.nextLong();
+            random3Values[i] = random3.nextLong();
         }
-        assertTrue(
-                "Two randoms with the different seeds gave the same chain of values",
-                someDifferent);
-        aRandom.setSeed(firstSeed);
-        for (int counter = 0; counter < randomArray.length; counter++)
-            assertTrue(
-                    "Reseting a random to its old seed did not result in the same chain of values as it gave before",
-                    aRandom.nextLong() == randomArray[counter]);
+
+        assertTrue(Arrays.equals(random1Values, random2Values));
+        assertFalse(Arrays.equals(random2Values, random3Values));
+
+        // Set random3's seed to 1337 and assert it results in the same sequence of
+        // values as the first two randoms.
+        random3.setSeed(1337);
+        for (int i = 0; i < 100; ++i) {
+            random3Values[i] = random3.nextLong();
+        }
+
+        assertTrue(Arrays.equals(random1Values, random3Values));
     }
 
-    class Mock_Random extends Random {
-        boolean nextCalled = false;
+    static final class Mock_Random extends Random {
+        private boolean nextCalled = false;
 
         public boolean getFlag () {
             boolean retVal = nextCalled;
@@ -283,18 +296,12 @@ public class RandomTest extends junit.framework.TestCase {
         assertTrue(mr.getFlag());
     }
 
-    /**
-     * Sets up the fixture, for example, open a network connection. This method
-     * is called before a test is executed.
-     */
+    @Override
     protected void setUp() {
         r = new Random();
     }
 
-    /**
-     * Tears down the fixture, for example, close a network connection. This
-     * method is called after a test is executed.
-     */
+    @Override
     protected void tearDown() {
     }
 
