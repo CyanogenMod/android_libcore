@@ -17,6 +17,7 @@
 
 package org.apache.harmony.tests.java.util;
 
+import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -487,18 +488,20 @@ public class DateTest extends junit.framework.TestCase {
     public void test_toLocaleString() {
         Locale loc = Locale.getDefault();
         Locale.setDefault(Locale.US);
-    TimeZone tz = TimeZone.getDefault();
-    TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
-    try {
+        TimeZone tz = TimeZone.getDefault();
+        TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
+        // This test assumes a default DateFormat.is24Hour setting.
+        DateFormat.is24Hour = null;
+        try {
             assertEquals("Did not convert epoch to GMT string correctly", "Jan 1, 1970 12:00:00 AM",
-                new Date(0).toLocaleString());
+                    new Date(0).toLocaleString());
             assertEquals("Did not convert epoch + 1yr to GMT string correctly",
-                "Jan 1, 1971 12:00:00 AM", new Date((long)365 * 24 * 60 * 60 * 1000)
-                        .toLocaleString());
-    } finally {
+                    "Jan 1, 1971 12:00:00 AM",
+                    new Date((long)365 * 24 * 60 * 60 * 1000).toLocaleString());
+        } finally {
             Locale.setDefault(loc);
-        TimeZone.setDefault(tz);
-    }
+            TimeZone.setDefault(tz);
+        }
     }
 
     static TimeZone defaultTimeZone = TimeZone.getDefault();
