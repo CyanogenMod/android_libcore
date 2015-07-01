@@ -42,6 +42,8 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
+
 import static android.system.OsConstants.*;
 
 /**
@@ -149,7 +151,7 @@ public final class IoBridge {
         IoUtils.setBlocking(fd, false);
 
         // 2. call connect(2) non-blocking.
-        long finishTimeMs = System.currentTimeMillis() + timeoutMs;
+        long finishTimeNanos = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(timeoutMs);
         try {
             Libcore.os.connect(fd, inetAddress, port);
             IoUtils.setBlocking(fd, true); // 4. set the socket back to blocking.
@@ -164,7 +166,8 @@ public final class IoBridge {
         // 3. loop using poll(2).
         int remainingTimeoutMs;
         do {
-            remainingTimeoutMs = (int) (finishTimeMs - System.currentTimeMillis());
+            remainingTimeoutMs =
+                    (int) TimeUnit.NANOSECONDS.toMillis(finishTimeNanos - System.nanoTime());
             if (remainingTimeoutMs <= 0) {
                 throw new SocketTimeoutException(connectDetail(inetAddress, port, timeoutMs, null));
             }
