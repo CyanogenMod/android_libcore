@@ -370,7 +370,8 @@ class FileInputStream extends InputStream
          * If FileDescriptor is still in use by another stream, the finalizer
          * will not close it.
          */
-        if ((useCount <= 0) || !isRunningFinalize()) {
+        // Android change, make sure only last close closes FD.
+        if ((useCount <= 0)) //  || !isRunningFinalize()) {
             close0();
         }
     }

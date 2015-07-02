@@ -107,6 +107,7 @@ public final class FileInputStreamTest extends TestCase {
 
         // Close the second FileDescriptor and check we can't use it...
         fis2.close();
+        // TODO(pszczepaniak): Implement this funcitonality
         try {
             fis2.available();
             fail();
