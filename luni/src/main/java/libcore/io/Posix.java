@@ -90,6 +90,7 @@ public final class Posix implements Os {
     public native StructUcred getsockoptUcred(FileDescriptor fd, int level, int option) throws ErrnoException;
     public native int gettid();
     public native int getuid();
+    public native int getxattr(String path, String name, byte[] outValue) throws ErrnoException;
     public native String if_indextoname(int index);
     public native InetAddress inet_pton(int family, String address);
     public native InetAddress ioctlInetAddress(FileDescriptor fd, int cmd, String interfaceName) throws ErrnoException;
@@ -189,6 +190,7 @@ public final class Posix implements Os {
     }
     private native int recvfromBytes(FileDescriptor fd, Object buffer, int byteOffset, int byteCount, int flags, InetSocketAddress srcAddress) throws ErrnoException, SocketException;
     public native void remove(String path) throws ErrnoException;
+    public native void removexattr(String path, String name) throws ErrnoException;
     public native void rename(String oldPath, String newPath) throws ErrnoException;
     public native long sendfile(FileDescriptor outFd, FileDescriptor inFd, MutableLong inOffset, long byteCount) throws ErrnoException;
     public int sendto(FileDescriptor fd, ByteBuffer buffer, int flags, InetAddress inetAddress, int port) throws ErrnoException, SocketException {
@@ -230,6 +232,7 @@ public final class Posix implements Os {
     public native void setsockoptLinger(FileDescriptor fd, int level, int option, StructLinger value) throws ErrnoException;
     public native void setsockoptTimeval(FileDescriptor fd, int level, int option, StructTimeval value) throws ErrnoException;
     public native void setuid(int uid) throws ErrnoException;
+    public native void setxattr(String path, String name, byte[] value, int flags) throws ErrnoException;
     public native void shutdown(FileDescriptor fd, int how) throws ErrnoException;
     public native FileDescriptor socket(int domain, int type, int protocol) throws ErrnoException;
     public native void socketpair(int domain, int type, int protocol, FileDescriptor fd1, FileDescriptor fd2) throws ErrnoException;
