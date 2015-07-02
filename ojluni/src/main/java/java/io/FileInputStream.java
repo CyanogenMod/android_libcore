@@ -298,7 +298,21 @@ class FileInputStream extends InputStream
      * @exception  IOException  if n is negative, if the stream does not
      *             support seek, or if an I/O error occurs.
      */
-    public native long skip(long n) throws IOException;
+    public long skip(long n) throws IOException {
+      try {
+        return skip0(n);
+      } catch(UseManualSkipException e) {
+        return super.skip(n);
+      }
+    }
+
+    private native long skip0(long n) throws IOException, UseManualSkipException;
+
+    /*
+     * Used to force manual skip when FileInputStream operates on pipe
+     */
+    private static class UseManualSkipException extends Exception {
+    }
 
     /**
      * Returns an estimate of the number of remaining bytes that can be read (or

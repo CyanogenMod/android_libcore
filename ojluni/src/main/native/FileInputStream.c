@@ -83,7 +83,7 @@ FileInputStream_readBytes(JNIEnv *env, jobject this,
 }
 
 JNIEXPORT jlong JNICALL
-FileInputStream_skip(JNIEnv *env, jobject this, jlong toSkip) {
+FileInputStream_skip0(JNIEnv *env, jobject this, jlong toSkip) {
     jlong cur = jlong_zero;
     jlong end = jlong_zero;
     FD fd = GET_FD(this, fis_fd);
@@ -92,7 +92,11 @@ FileInputStream_skip(JNIEnv *env, jobject this, jlong toSkip) {
         return 0;
     }
     if ((cur = IO_Lseek(fd, (jlong)0, (jint)SEEK_CUR)) == -1) {
+      if (errno == ESPIPE) {
+        JNU_ThrowByName(env, "java/io/FileInputStream$UseManualSkipException", NULL);
+      } else {
         JNU_ThrowIOExceptionWithLastError(env, "Seek error");
+      }
     } else if ((end = IO_Lseek(fd, toSkip, (jint)SEEK_CUR)) == -1) {
         JNU_ThrowIOExceptionWithLastError(env, "Seek error");
     }
@@ -161,7 +165,7 @@ static JNINativeMethod gMethods[] = {
   NATIVE_METHOD(FileInputStream, open, "(Ljava/lang/String;)V"),
   NATIVE_METHOD(FileInputStream, read0, "()I"),
   NATIVE_METHOD(FileInputStream, readBytes, "([BII)I"),
-  NATIVE_METHOD(FileInputStream, skip, "(J)J"),
+  NATIVE_METHOD(FileInputStream, skip0, "(J)J"),
   NATIVE_METHOD(FileInputStream, available, "()I"),
   NATIVE_METHOD(FileInputStream, close0, "()V"),
 };

@@ -38,7 +38,7 @@ JNIEXPORT jint JNICALL Java_java_io_FileInputStream_readBytes
  * Method:    skip
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_java_io_FileInputStream_skip
+JNIEXPORT jlong JNICALL Java_java_io_FileInputStream_skip0
   (JNIEnv *, jobject, jlong);
 
 /*
