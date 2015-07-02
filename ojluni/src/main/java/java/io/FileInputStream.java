@@ -371,7 +371,7 @@ class FileInputStream extends InputStream
          * will not close it.
          */
         // Android change, make sure only last close closes FD.
-        if ((useCount <= 0)) //  || !isRunningFinalize()) {
+        if ((useCount <= 0)) { //  || !isRunningFinalize()) {
             close0();
         }
     }
