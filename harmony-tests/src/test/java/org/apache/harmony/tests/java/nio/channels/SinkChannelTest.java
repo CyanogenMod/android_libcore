@@ -463,7 +463,8 @@ public class SinkChannelTest extends TestCase {
 
     public void test_socketChannel_read_close() throws Exception {
         ServerSocketChannel ssc = ServerSocketChannel.open();
-        ssc.socket().bind(new InetSocketAddress(InetAddress.getLocalHost(),49999));
+        ssc.socket().bind(new InetSocketAddress(InetAddress.getLocalHost(), 0 /* any free port */));
+        int localPort = ssc.socket().getLocalPort();
         SocketChannel sc = SocketChannel.open();
         ByteBuffer buf = null;
         try{
@@ -472,7 +473,7 @@ public class SinkChannelTest extends TestCase {
         }catch (NullPointerException e){
             // expected
         }
-        sc.connect(new InetSocketAddress(InetAddress.getLocalHost(),49999));
+        sc.connect(new InetSocketAddress(InetAddress.getLocalHost(), localPort));
         SocketChannel sock = ssc.accept();
         ssc.close();
         sc.close();
@@ -487,9 +488,10 @@ public class SinkChannelTest extends TestCase {
 
     public void test_socketChannel_read_write() throws Exception {
         ServerSocketChannel ssc = ServerSocketChannel.open();
-        ssc.socket().bind(new InetSocketAddress(InetAddress.getLocalHost(),49999));
+        ssc.socket().bind(new InetSocketAddress(InetAddress.getLocalHost(), 0 /* any free port */));
+        int localPort = ssc.socket().getLocalPort();
         SocketChannel sc = SocketChannel.open();
-        sc.connect(new InetSocketAddress(InetAddress.getLocalHost(),49999));
+        sc.connect(new InetSocketAddress(InetAddress.getLocalHost(), localPort));
         SocketChannel sock = ssc.accept();
         ByteBuffer[] buf = {ByteBuffer.allocate(10),null};
         try {
