@@ -76,10 +76,23 @@ fileOpen(JNIEnv *env, jobject this, jstring path, jfieldID fid, int flags)
 #endif
         fd = JVM_Open(ps, flags, 0666);
         if (fd >= 0) {
+            // BEGIN android
+            // Posix open(2) fails with EISDIR only if you ask for write permission.
+            // Java disallows reading directories too.
+            struct stat stat;
+            fstat(fd, &stat);
+
+            if (S_ISDIR(stat.st_mode)) {
+              errno = EISDIR; // For Exception message
+              throwFileNotFoundException(env, path);
+              return;
+            }
+            // END android
             SET_FD(this, fd, fid);
         } else {
             throwFileNotFoundException(env, path);
         }
+
     } END_PLATFORM_STRING(env, ps);
 }
 
