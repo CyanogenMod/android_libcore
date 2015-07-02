@@ -36,6 +36,7 @@
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
+#include <sys/xattr.h>
 #include <unistd.h>
 
 #include <net/if_arp.h>
@@ -556,6 +557,8 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "WSTOPPED", WSTOPPED);
     initConstant(env, c, "WUNTRACED", WUNTRACED);
     initConstant(env, c, "W_OK", W_OK);
+    initConstant(env, c, "XATTR_CREATE", XATTR_CREATE);
+    initConstant(env, c, "XATTR_REPLACE", XATTR_REPLACE);
     initConstant(env, c, "X_OK", X_OK);
     initConstant(env, c, "_SC_2_CHAR_TERM", _SC_2_CHAR_TERM);
     initConstant(env, c, "_SC_2_C_BIND", _SC_2_C_BIND);

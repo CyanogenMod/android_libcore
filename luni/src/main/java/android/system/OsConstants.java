@@ -496,6 +496,8 @@ public final class OsConstants {
     public static final int WSTOPPED = placeholder();
     public static final int WUNTRACED = placeholder();
     public static final int W_OK = placeholder();
+    /** @hide */ public static final int XATTR_CREATE = placeholder();
+    /** @hide */ public static final int XATTR_REPLACE = placeholder();
     public static final int X_OK = placeholder();
     public static final int _SC_2_CHAR_TERM = placeholder();
     public static final int _SC_2_C_BIND = placeholder();
