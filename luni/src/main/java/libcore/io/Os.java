@@ -88,6 +88,7 @@ public interface Os {
     public StructUcred getsockoptUcred(FileDescriptor fd, int level, int option) throws ErrnoException;
     public int gettid();
     public int getuid();
+    public int getxattr(String path, String name, byte[] outValue) throws ErrnoException;
     public String if_indextoname(int index);
     public InetAddress inet_pton(int family, String address);
     public InetAddress ioctlInetAddress(FileDescriptor fd, int cmd, String interfaceName) throws ErrnoException;
@@ -124,6 +125,7 @@ public interface Os {
     public int recvfrom(FileDescriptor fd, ByteBuffer buffer, int flags, InetSocketAddress srcAddress) throws ErrnoException, SocketException;
     public int recvfrom(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, int flags, InetSocketAddress srcAddress) throws ErrnoException, SocketException;
     public void remove(String path) throws ErrnoException;
+    public void removexattr(String path, String name) throws ErrnoException;
     public void rename(String oldPath, String newPath) throws ErrnoException;
     public int sendto(FileDescriptor fd, ByteBuffer buffer, int flags, InetAddress inetAddress, int port) throws ErrnoException, SocketException;
     public int sendto(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, int flags, InetAddress inetAddress, int port) throws ErrnoException, SocketException;
@@ -146,6 +148,7 @@ public interface Os {
     public void setsockoptLinger(FileDescriptor fd, int level, int option, StructLinger value) throws ErrnoException;
     public void setsockoptTimeval(FileDescriptor fd, int level, int option, StructTimeval value) throws ErrnoException;
     public void setuid(int uid) throws ErrnoException;
+    public void setxattr(String path, String name, byte[] value, int flags) throws ErrnoException;
     public void shutdown(FileDescriptor fd, int how) throws ErrnoException;
     public FileDescriptor socket(int domain, int type, int protocol) throws ErrnoException;
     public void socketpair(int domain, int type, int protocol, FileDescriptor fd1, FileDescriptor fd2) throws ErrnoException;
