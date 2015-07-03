@@ -343,33 +343,35 @@ jint  IPv6_supported()
     SOCKADDR sa;
     socklen_t sa_len = sizeof(sa);
 
-    fd = JVM_Socket(AF_INET6, SOCK_STREAM, 0) ;
-    if (fd < 0) {
+    // This one below is problematic, will fail without proper permissions
+    // and report no ipv6 for some and ipv6 for others.
+    //fd = JVM_Socket(AF_INET6, SOCK_STREAM, 0) ;
+    //if (fd < 0) {
         /*
          *  TODO: We really cant tell since it may be an unrelated error
          *  for now we will assume that AF_INET6 is not available
          */
-        return JNI_FALSE;
-    }
+    //    return JNI_FALSE;
+    //}
 
     /*
      * If fd 0 is a socket it means we've been launched from inetd or
      * xinetd. If it's a socket then check the family - if it's an
      * IPv4 socket then we need to disable IPv6.
      */
-    if (getsockname(0, (struct sockaddr *)&sa, &sa_len) == 0) {
+    /*if (getsockname(0, (struct sockaddr *)&sa, &sa_len) == 0) {
         struct sockaddr *saP = (struct sockaddr *)&sa;
         if (saP->sa_family != AF_INET6) {
             return JNI_FALSE;
         }
-    }
+      }*/
 
     /**
      * Linux - check if any interface has an IPv6 address.
      * Don't need to parse the line - we just need an indication.
      */
 #ifdef __linux__
-    {
+    /*    {
         FILE *fP = fopen("/proc/net/if_inet6", "r");
         char buf[255];
         char *bufP;
@@ -384,7 +386,7 @@ jint  IPv6_supported()
             close(fd);
             return JNI_FALSE;
         }
-    }
+        }*/
 #endif
 
     /**
@@ -436,10 +438,9 @@ jint  IPv6_supported()
      *  we should also check if the APIs are available.
      */
 
-    /* Android change, s/JVM_FindLibraryEntry/dlsym */
-    ipv6_fn = dlsym(RTLD_DEFAULT, "inet_pton");
+    ipv6_fn = JVM_FindLibraryEntry(RTLD_DEFAULT, "inet_pton");
     if (ipv6_fn == NULL ) {
-        close(fd);
+        // close(fd);
         return JNI_FALSE;
     }
 
@@ -451,23 +452,23 @@ jint  IPv6_supported()
      * functions.
      */
     getaddrinfo_ptr = (getaddrinfo_f)
-        dlsym(RTLD_DEFAULT, "getaddrinfo");
+        JVM_FindLibraryEntry(RTLD_DEFAULT, "getaddrinfo");
 
     freeaddrinfo_ptr = (freeaddrinfo_f)
-        dlsym(RTLD_DEFAULT, "freeaddrinfo");
+        JVM_FindLibraryEntry(RTLD_DEFAULT, "freeaddrinfo");
 
     gai_strerror_ptr = (gai_strerror_f)
-        dlsym(RTLD_DEFAULT, "gai_strerror");
+        JVM_FindLibraryEntry(RTLD_DEFAULT, "gai_strerror");
 
     getnameinfo_ptr = (getnameinfo_f)
-        dlsym(RTLD_DEFAULT, "getnameinfo");
+        JVM_FindLibraryEntry(RTLD_DEFAULT, "getnameinfo");
 
     if (freeaddrinfo_ptr == NULL || getnameinfo_ptr == NULL) {
         /* We need all 3 of them */
         getaddrinfo_ptr = NULL;
     }
 
-    close(fd);
+    //close(fd);
     return JNI_TRUE;
 #endif /* AF_INET6 */
 }
