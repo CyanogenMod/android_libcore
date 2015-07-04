@@ -31,6 +31,20 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
     private static final TimeZone AMERICA_CHICAGO = TimeZone.getTimeZone("America/Chicago");
     private static final TimeZone AMERICA_NEW_YORK = TimeZone.getTimeZone("America/New_York");
 
+    private Locale defaultLocale;
+
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+        defaultLocale = Locale.getDefault();
+    }
+
+    @Override
+    public void tearDown() throws Exception {
+        Locale.setDefault(defaultLocale);
+        super.tearDown();
+    }
+
     /**
      * java.util.GregorianCalendar#GregorianCalendar()
      */
@@ -531,6 +545,8 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
      * java.util.GregorianCalendar#roll(int, boolean)
      */
     public void test_rollIZ() {
+        Locale.setDefault(Locale.US);
+
         // Test for method void java.util.GregorianCalendar.roll(int, boolean)
         GregorianCalendar gc = new GregorianCalendar(1972, Calendar.OCTOBER,
                 13, 19, 9, 59);

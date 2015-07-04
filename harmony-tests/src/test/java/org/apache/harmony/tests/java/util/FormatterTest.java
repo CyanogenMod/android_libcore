@@ -152,6 +152,8 @@ public class FormatterTest extends TestCase {
 
     private TimeZone defaultTimeZone;
 
+    private Locale defaultLocale;
+
     /**
      * java.util.Formatter#Formatter()
      */
@@ -4164,6 +4166,7 @@ public class FormatterTest extends TestCase {
      * test the short name for timezone whether uses DaylightTime or not
      */
     public void test_DaylightTime() {
+        Locale.setDefault(Locale.US);
         Calendar c1 = new GregorianCalendar(2007, 0, 1);
         Calendar c2 = new GregorianCalendar(2007, 7, 1);
 
@@ -4216,6 +4219,8 @@ public class FormatterTest extends TestCase {
 
         secret = File.createTempFile("secret", null);
 
+        defaultLocale = Locale.getDefault();
+
         defaultTimeZone = TimeZone.getDefault();
         TimeZone cst = TimeZone.getTimeZone("Asia/Shanghai");
         TimeZone.setDefault(cst);
@@ -4239,6 +4244,7 @@ public class FormatterTest extends TestCase {
             secret.delete();
         }
 
+        Locale.setDefault(defaultLocale);
         TimeZone.setDefault(defaultTimeZone);
     }
 }
