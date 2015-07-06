@@ -18,6 +18,7 @@ package libcore.io;
 
 import android.system.ErrnoException;
 import android.system.NetlinkSocketAddress;
+import android.system.OsConstants;
 import android.system.PacketSocketAddress;
 import android.system.StructTimeval;
 import android.system.StructUcred;
@@ -419,4 +420,59 @@ public class OsTest extends TestCase {
     checkSocketPing(fd, ipv4Loopback, packet, ICMP_ECHO, ICMP_ECHOREPLY, true);
     checkSocketPing(fd, ipv4Loopback, packet, ICMP_ECHO, ICMP_ECHOREPLY, false);
   }
+
+    private static void assertPartial(byte[] expected, byte[] actual) {
+        for (int i = 0; i < expected.length; i++) {
+            if (expected[i] != actual[i]) {
+                fail("Expected " + Arrays.toString(expected) + " but found "
+                        + Arrays.toString(actual));
+            }
+        }
+    }
+
+    public void test_xattr() throws Exception {
+        final String NAME_TEST = "user.meow";
+
+        final byte[] VALUE_CAKE = "cake cake cake".getBytes(StandardCharsets.UTF_8);
+        final byte[] VALUE_PIE = "pie".getBytes(StandardCharsets.UTF_8);
+
+        File file = File.createTempFile("xattr", "test");
+        String path = file.getAbsolutePath();
+
+        byte[] tmp = new byte[1024];
+        try {
+            try {
+                Libcore.os.getxattr(path, NAME_TEST, tmp);
+                fail("Expected ENODATA");
+            } catch (ErrnoException e) {
+                assertEquals(OsConstants.ENODATA, e.errno);
+            }
+
+            Libcore.os.setxattr(path, NAME_TEST, VALUE_CAKE, OsConstants.XATTR_CREATE);
+            assertEquals(VALUE_CAKE.length, Libcore.os.getxattr(path, NAME_TEST, tmp));
+            assertPartial(VALUE_CAKE, tmp);
+
+            try {
+                Libcore.os.setxattr(path, NAME_TEST, VALUE_PIE, OsConstants.XATTR_CREATE);
+                fail("Expected EEXIST");
+            } catch (ErrnoException e) {
+                assertEquals(OsConstants.EEXIST, e.errno);
+            }
+
+            Libcore.os.setxattr(path, NAME_TEST, VALUE_PIE, OsConstants.XATTR_REPLACE);
+            assertEquals(VALUE_PIE.length, Libcore.os.getxattr(path, NAME_TEST, tmp));
+            assertPartial(VALUE_PIE, tmp);
+
+            Libcore.os.removexattr(path, NAME_TEST);
+            try {
+                Libcore.os.getxattr(path, NAME_TEST, tmp);
+                fail("Expected ENODATA");
+            } catch (ErrnoException e) {
+                assertEquals(OsConstants.ENODATA, e.errno);
+            }
+
+        } finally {
+            file.delete();
+        }
+    }
 }

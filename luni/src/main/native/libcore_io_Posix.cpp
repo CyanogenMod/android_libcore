@@ -59,6 +59,7 @@
 #include <sys/uio.h>
 #include <sys/utsname.h>
 #include <sys/wait.h>
+#include <sys/xattr.h>
 #include <termios.h>
 #include <unistd.h>
 #include <memory>
@@ -1061,6 +1062,28 @@ static jint Posix_getuid(JNIEnv*, jobject) {
     return getuid();
 }
 
+static jint Posix_getxattr(JNIEnv* env, jobject, jstring javaPath,
+        jstring javaName, jbyteArray javaOutValue) {
+    ScopedUtfChars path(env, javaPath);
+    if (path.c_str() == NULL) {
+        return -1;
+    }
+    ScopedUtfChars name(env, javaName);
+    if (name.c_str() == NULL) {
+        return -1;
+    }
+    ScopedBytesRW outValue(env, javaOutValue);
+    if (outValue.get() == NULL) {
+        return -1;
+    }
+    size_t outValueLength = env->GetArrayLength(javaOutValue);
+    ssize_t size = getxattr(path.c_str(), name.c_str(), outValue.get(), outValueLength);
+    if (size < 0) {
+        throwErrnoException(env, "getxattr");
+    }
+    return size;
+}
+
 static jstring Posix_if_indextoname(JNIEnv* env, jobject, jint index) {
     char buf[IF_NAMESIZE];
     char* name = if_indextoname(index, buf);
@@ -1424,6 +1447,22 @@ static void Posix_remove(JNIEnv* env, jobject, jstring javaPath) {
     throwIfMinusOne(env, "remove", TEMP_FAILURE_RETRY(remove(path.c_str())));
 }
 
+static void Posix_removexattr(JNIEnv* env, jobject, jstring javaPath, jstring javaName) {
+    ScopedUtfChars path(env, javaPath);
+    if (path.c_str() == NULL) {
+        return;
+    }
+    ScopedUtfChars name(env, javaName);
+    if (name.c_str() == NULL) {
+        return;
+    }
+
+    int res = removexattr(path.c_str(), name.c_str());
+    if (res < 0) {
+        throwErrnoException(env, "removexattr");
+    }
+}
+
 static void Posix_rename(JNIEnv* env, jobject, jstring javaOldPath, jstring javaNewPath) {
     ScopedUtfChars oldPath(env, javaOldPath);
     if (oldPath.c_str() == NULL) {
@@ -1664,6 +1703,27 @@ static void Posix_setuid(JNIEnv* env, jobject, jint uid) {
     throwIfMinusOne(env, "setuid", TEMP_FAILURE_RETRY(setuid(uid)));
 }
 
+static void Posix_setxattr(JNIEnv* env, jobject, jstring javaPath, jstring javaName,
+        jbyteArray javaValue, jint flags) {
+    ScopedUtfChars path(env, javaPath);
+    if (path.c_str() == NULL) {
+        return;
+    }
+    ScopedUtfChars name(env, javaName);
+    if (name.c_str() == NULL) {
+        return;
+    }
+    ScopedBytesRO value(env, javaValue);
+    if (value.get() == NULL) {
+        return;
+    }
+    size_t valueLength = env->GetArrayLength(javaValue);
+    int res = setxattr(path.c_str(), name.c_str(), value.get(), valueLength, flags);
+    if (res < 0) {
+        throwErrnoException(env, "setxattr");
+    }
+}
+
 static void Posix_shutdown(JNIEnv* env, jobject, jobject javaFd, jint how) {
     int fd = jniGetFDFromFileDescriptor(env, javaFd);
     throwIfMinusOne(env, "shutdown", TEMP_FAILURE_RETRY(shutdown(fd, how)));
@@ -1842,6 +1902,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, getsockoptUcred, "(Ljava/io/FileDescriptor;II)Landroid/system/StructUcred;"),
     NATIVE_METHOD(Posix, gettid, "()I"),
     NATIVE_METHOD(Posix, getuid, "()I"),
+    NATIVE_METHOD(Posix, getxattr, "(Ljava/lang/String;Ljava/lang/String;[B)I"),
     NATIVE_METHOD(Posix, if_indextoname, "(I)Ljava/lang/String;"),
     NATIVE_METHOD(Posix, inet_pton, "(ILjava/lang/String;)Ljava/net/InetAddress;"),
     NATIVE_METHOD(Posix, ioctlInetAddress, "(Ljava/io/FileDescriptor;ILjava/lang/String;)Ljava/net/InetAddress;"),
@@ -1873,6 +1934,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, readv, "(Ljava/io/FileDescriptor;[Ljava/lang/Object;[I[I)I"),
     NATIVE_METHOD(Posix, recvfromBytes, "(Ljava/io/FileDescriptor;Ljava/lang/Object;IIILjava/net/InetSocketAddress;)I"),
     NATIVE_METHOD(Posix, remove, "(Ljava/lang/String;)V"),
+    NATIVE_METHOD(Posix, removexattr, "(Ljava/lang/String;Ljava/lang/String;)V"),
     NATIVE_METHOD(Posix, rename, "(Ljava/lang/String;Ljava/lang/String;)V"),
     NATIVE_METHOD(Posix, sendfile, "(Ljava/io/FileDescriptor;Ljava/io/FileDescriptor;Landroid/util/MutableLong;J)J"),
     NATIVE_METHOD(Posix, sendtoBytes, "(Ljava/io/FileDescriptor;Ljava/lang/Object;IIILjava/net/InetAddress;I)I"),
@@ -1894,6 +1956,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, setsockoptLinger, "(Ljava/io/FileDescriptor;IILandroid/system/StructLinger;)V"),
     NATIVE_METHOD(Posix, setsockoptTimeval, "(Ljava/io/FileDescriptor;IILandroid/system/StructTimeval;)V"),
     NATIVE_METHOD(Posix, setuid, "(I)V"),
+    NATIVE_METHOD(Posix, setxattr, "(Ljava/lang/String;Ljava/lang/String;[BI)V"),
     NATIVE_METHOD(Posix, shutdown, "(Ljava/io/FileDescriptor;I)V"),
     NATIVE_METHOD(Posix, socket, "(III)Ljava/io/FileDescriptor;"),
     NATIVE_METHOD(Posix, socketpair, "(IIILjava/io/FileDescriptor;Ljava/io/FileDescriptor;)V"),
