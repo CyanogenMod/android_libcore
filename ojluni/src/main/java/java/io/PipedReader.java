@@ -25,6 +25,10 @@
 
 package java.io;
 
+/* ----- BEGIN android -----
+Import required for IoUtils.throwInterruptedIoException.
+----- END android -----*/
+import libcore.io.IoUtils;
 
 /**
  * Piped character-input streams.
@@ -185,7 +189,12 @@ public class PipedReader extends Reader {
             try {
                 wait(1000);
             } catch (InterruptedException ex) {
-                throw new java.io.InterruptedIOException();
+                /* ----- BEGIN android -----
+                // throw new java.io.InterruptedIOException();
+                We need to re-set the interrupt status of the thread through
+                IoUtils.throwInterruptedIoException.
+                ----- END android ----- */
+                IoUtils.throwInterruptedIoException();
             }
         }
         if (in < 0) {
@@ -256,7 +265,12 @@ public class PipedReader extends Reader {
             try {
                 wait(1000);
             } catch (InterruptedException ex) {
-                throw new java.io.InterruptedIOException();
+              /* ----- BEGIN android -----
+              // throw new java.io.InterruptedIOException();
+              We need to re-set the interrupt status of the thread through
+              IoUtils.throwInterruptedIoException.
+              ----- END android ----- */
+              IoUtils.throwInterruptedIoException();
             }
         }
         int ret = buffer[out++];
