@@ -97,16 +97,13 @@ dalvik/system/profiler/PortableThreadSampler.java
 dalvik/system/profiler/SamplingProfiler.java
 dalvik/system/profiler/ThreadSampler.java
 java/io/SerializationHandleMap.java
-java/lang/CaseMapper.java
 java/lang/Compiler.java
 java/lang/Daemons.java
 java/lang/DexCache.java
 java/lang/FindBugsSuppressWarnings.java
-java/lang/HexStringParser.java
 java/lang/IntegralToString.java
 java/lang/ProcessManager.java
 java/lang/SecurityManager.java
-java/lang/StringToReal.java
 java/lang/VMClassLoader.java
 java/lang/ref/FinalizerReference.java
 java/lang/reflect/AbstractMethod.java
