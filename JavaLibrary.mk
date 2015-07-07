@@ -38,7 +38,7 @@
 # All subdirectories are optional (hence the "2> /dev/null"s below).
 
 define nonopenjdk-main-java-files-under
-$(foreach dir,$(1),$(patsubst ./%,%,$(shell cd $(LOCAL_PATH) && (find $(dir)/src/main/java -name "*.java" 2> /dev/null) | grep -v -f openjdk_java_files)))
+$(foreach dir,$(1),$(patsubst ./%,%,$(shell cd $(LOCAL_PATH) && (find $(dir)/src/main/java -name "*.java" 2> /dev/null) | grep -f non_openjdk_java_files)))
 endef
 
 define openjdk-main-java-files-under
@@ -54,7 +54,7 @@ $(shell cd $(LOCAL_PATH) && ls -d */src/$(1)/{java,resources} 2> /dev/null)
 endef
 
 # The Java files and their associated resources.
-nojcore_src_files := $(call nonopenjdk-main-java-files-under,dalvik dex dom json luni xml)
+nojcore_src_files := $(call nonopenjdk-main-java-files-under, dalvik dex dom json luni xml)
 ojcore_src_files := $(call openjdk-main-java-files-under,ojluni)
 core_resource_dirs := $(call all-core-resource-dirs,main)
 test_resource_dirs := $(call all-core-resource-dirs,test)
