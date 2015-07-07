@@ -30,6 +30,7 @@ LOCAL_SRC_FILES := \
     InetAddressImplFactory.c \
     net_util.c \
     net_util_md.c \
+    Net.c \
     Inet6Address.c \
     Inet4Address.c \
     linux_close.c \
@@ -39,6 +40,7 @@ LOCAL_SRC_FILES := \
     DatagramPacket.c \
     Inet4AddressImpl.c \
     Inet6AddressImpl.c \
+    ServerSocketChannelImpl.c \
     SocketInputStream.c \
     SocketOutputStream.c \
     DefaultProxySelector.c \

@@ -725,6 +725,7 @@ Inet6AddressImpl_isReachable0(JNIEnv *env, jobject this,
 static JNINativeMethod gMethods[] = {
   NATIVE_METHOD(Inet6AddressImpl, isReachable0, "([BII[BII)Z"),
   NATIVE_METHOD(Inet6AddressImpl, getHostByAddr, "([B)Ljava/lang/String;"),
+  NATIVE_METHOD(Inet6AddressImpl, getLocalHostName, "()Ljava/lang/String;"),
   NATIVE_METHOD(Inet6AddressImpl, lookupAllHostAddr, "(Ljava/lang/String;)[Ljava/net/InetAddress;"),
 };
 
