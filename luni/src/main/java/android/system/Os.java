@@ -43,6 +43,12 @@ public final class Os {
   public static FileDescriptor accept(FileDescriptor fd, InetSocketAddress peerAddress) throws ErrnoException, SocketException { return Libcore.os.accept(fd, peerAddress); }
 
   /**
+   * TODO Change the public API by removing the overload above and unhiding this version.
+   * @hide
+   */
+  public static FileDescriptor accept(FileDescriptor fd, SocketAddress peerAddress) throws ErrnoException, SocketException { return Libcore.os.accept(fd, peerAddress); }
+
+  /**
    * See <a href="http://man7.org/linux/man-pages/man2/access.2.html">access(2)</a>.
    */
   public static boolean access(String path, int mode) throws ErrnoException { return Libcore.os.access(path, mode); }

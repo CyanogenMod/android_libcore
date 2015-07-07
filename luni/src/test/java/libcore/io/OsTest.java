@@ -22,6 +22,8 @@ import android.system.OsConstants;
 import android.system.PacketSocketAddress;
 import android.system.StructTimeval;
 import android.system.StructUcred;
+import android.system.UnixSocketAddress;
+
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
@@ -30,10 +32,8 @@ import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.InetUnixAddress;
 import java.net.NetworkInterface;
 import java.net.ServerSocket;
-import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -70,19 +70,25 @@ public class OsTest extends TestCase {
   public void testUnixDomainSockets_in_file_system() throws Exception {
     String path = System.getProperty("java.io.tmpdir") + "/test_unix_socket";
     new File(path).delete();
-    checkUnixDomainSocket(new InetUnixAddress(path), false);
+    checkUnixDomainSocket(UnixSocketAddress.createFileSystem(path), false);
   }
 
   public void testUnixDomainSocket_abstract_name() throws Exception {
     // Linux treats a sun_path starting with a NUL byte as an abstract name. See unix(7).
-    byte[] path = "/abstract_name_unix_socket".getBytes("UTF-8");
-    path[0] = 0;
-    checkUnixDomainSocket(new InetUnixAddress(path), true);
+    checkUnixDomainSocket(UnixSocketAddress.createAbstract("/abstract_name_unix_socket"), true);
   }
 
-  private void checkUnixDomainSocket(final InetUnixAddress address, final boolean isAbstract) throws Exception {
+  public void testUnixDomainSocket_unnamed() throws Exception {
+    final FileDescriptor fd = Libcore.os.socket(AF_UNIX, SOCK_STREAM, 0);
+    // unix(7) says an unbound socket is unnamed.
+    checkNoSockName(fd);
+    Libcore.os.close(fd);
+  }
+
+  private void checkUnixDomainSocket(final UnixSocketAddress address, final boolean isAbstract)
+          throws Exception {
     final FileDescriptor serverFd = Libcore.os.socket(AF_UNIX, SOCK_STREAM, 0);
-    Libcore.os.bind(serverFd, address, 0);
+    Libcore.os.bind(serverFd, address);
     Libcore.os.listen(serverFd, 5);
 
     checkSockName(serverFd, isAbstract, address);
@@ -90,7 +96,7 @@ public class OsTest extends TestCase {
     Thread server = new Thread(new Runnable() {
       public void run() {
         try {
-          InetSocketAddress peerAddress = new InetSocketAddress();
+          UnixSocketAddress peerAddress = UnixSocketAddress.createUnnamed();
           FileDescriptor clientFd = Libcore.os.accept(serverFd, peerAddress);
           checkSockName(clientFd, isAbstract, address);
           checkNoName(peerAddress);
@@ -119,7 +125,7 @@ public class OsTest extends TestCase {
 
     FileDescriptor clientFd = Libcore.os.socket(AF_UNIX, SOCK_STREAM, 0);
 
-    Libcore.os.connect(clientFd, address, 0);
+    Libcore.os.connect(clientFd, address);
     checkNoSockName(clientFd);
 
     String string = "hello, world!";
@@ -135,26 +141,24 @@ public class OsTest extends TestCase {
     Libcore.os.close(clientFd);
   }
 
-  private void checkSockName(FileDescriptor fd, boolean isAbstract, InetAddress address) throws Exception {
-    InetSocketAddress isa = (InetSocketAddress) Libcore.os.getsockname(fd);
+  private static void checkSockName(FileDescriptor fd, boolean isAbstract, UnixSocketAddress address) throws Exception {
+    UnixSocketAddress isa = (UnixSocketAddress) Libcore.os.getsockname(fd);
+    assertEquals(address, isa);
     if (isAbstract) {
-      checkNoName(isa);
-    } else {
-      assertEquals(address, isa.getAddress());
+      assertEquals(0, isa.getSunPath()[0]);
     }
   }
 
-  private void checkNoName(SocketAddress sa) {
-    InetSocketAddress isa = (InetSocketAddress) sa;
-    assertEquals(0, isa.getAddress().getAddress().length);
+  private void checkNoName(UnixSocketAddress usa) {
+      assertEquals(0, usa.getSunPath().length);
   }
 
   private void checkNoPeerName(FileDescriptor fd) throws Exception {
-    checkNoName(Libcore.os.getpeername(fd));
+    checkNoName((UnixSocketAddress) Libcore.os.getpeername(fd));
   }
 
   private void checkNoSockName(FileDescriptor fd) throws Exception {
-    checkNoName(Libcore.os.getsockname(fd));
+    checkNoName((UnixSocketAddress) Libcore.os.getsockname(fd));
   }
 
   public void test_strsignal() throws Exception {
