@@ -15,8 +15,6 @@
  */
 package org.apache.harmony.crypto.tests.javax.crypto.func;
 
-import dalvik.annotation.AndroidOnly;
-
 import junit.framework.TestCase;
 
 public class CipherPBETest extends TestCase {
@@ -32,7 +30,6 @@ public class CipherPBETest extends TestCase {
                 .getTotalFailuresNumber());
     }
 
-    @AndroidOnly("Not supported by RI (maybe with a different name)")
     public void test_PBEWithSHAand3KeyTripleDES() throws Exception {
         CipherPBEThread PBEWITHSHAAND3KEYTRIPLEDESCBC = new CipherPBEThread(
                 "PBEWITHSHAAND3-KEYTRIPLEDES-CBC", new int[] {112, 168},

@@ -15,7 +15,6 @@
  */
 package org.apache.harmony.tests.javax.net.ssl;
 
-import dalvik.annotation.AndroidOnly;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -223,7 +222,7 @@ public class SSLSocketTest extends TestCase {
     /**
      * javax.net.ssl.SSLSocket#addHandshakeCompletedListener(HandshakeCompletedListener listener)
      */
-    @AndroidOnly("RI doesn't throw the specified IAE")
+    // AndroidOnly("RI doesn't throw the specified IAE")
     public void test_addHandshakeCompletedListener() throws IOException {
         SSLSocket ssl = getSSLSocket();
         HandshakeCompletedListener ls = new HandshakeCL();

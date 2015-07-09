@@ -17,7 +17,6 @@
 
 package org.apache.harmony.tests.javax.net.ssl;
 
-import dalvik.annotation.AndroidOnly;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -334,7 +333,6 @@ public class HandshakeCompletedEventTest extends TestCase {
      * because our self-signed test certificates are not valid.)
      */
 
-    @AndroidOnly("Uses bks key store. Change useBKS to false to run on the RI")
     public void testClientAuth() throws Exception {
 
         boolean useBKS = true;

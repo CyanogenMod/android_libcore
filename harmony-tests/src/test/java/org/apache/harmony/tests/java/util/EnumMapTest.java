@@ -16,8 +16,6 @@
 
 package org.apache.harmony.tests.java.util;
 
-import dalvik.annotation.AndroidOnly;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumMap;
@@ -333,7 +331,7 @@ public class EnumMapTest extends TestCase {
     /**
      * java.util.EnumMap#entrySet()
      */
-    @AndroidOnly("Map.Entry is indirectly modified on RI when Iterator.next() is invoked")
+    // AndroidOnly("Map.Entry is indirectly modified on RI when Iterator.next() is invoked")
     @SuppressWarnings({ "unchecked", "boxing" })
     public void test_entrySet() {
         EnumMap enumSizeMap = new EnumMap(Size.class);

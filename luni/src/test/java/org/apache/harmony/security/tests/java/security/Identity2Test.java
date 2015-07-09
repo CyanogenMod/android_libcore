@@ -17,7 +17,6 @@
 
 package org.apache.harmony.security.tests.java.security;
 
-import dalvik.annotation.AndroidOnly;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -259,8 +258,8 @@ public class Identity2Test extends junit.framework.TestCase {
     /**
      * java.security.Identity#removeCertificate(java.security.Certificate)
      */
-    @AndroidOnly("Spec says: Removing unknown certificates throw an exception. "
-            + "The RI ignores unknown certificates.")
+    // AndroidOnly("Spec says: Removing unknown certificates throw an exception. "
+    //        + "The RI ignores unknown certificates.")
     public void test_removeCertificateLjava_security_Certificate() throws Exception {
         IdentitySubclass sub = new IdentitySubclass("test",
                 new IdentityScopeSubclass());
