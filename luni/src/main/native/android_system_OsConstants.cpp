@@ -35,6 +35,7 @@
 #endif
 #include <sys/socket.h>
 #include <sys/stat.h>
+#include <sys/un.h>
 #include <sys/wait.h>
 #include <sys/xattr.h>
 #include <unistd.h>
@@ -551,6 +552,8 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "S_IXUSR", S_IXUSR);
     initConstant(env, c, "TCP_NODELAY", TCP_NODELAY);
     initConstant(env, c, "TIOCOUTQ", TIOCOUTQ);
+    // UNIX_PATH_MAX is mentioned in some versions of unix(7), but not actually declared.
+    initConstant(env, c, "UNIX_PATH_MAX", sizeof(sockaddr_un::sun_path));
     initConstant(env, c, "WCONTINUED", WCONTINUED);
     initConstant(env, c, "WEXITED", WEXITED);
     initConstant(env, c, "WNOHANG", WNOHANG);

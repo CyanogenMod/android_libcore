@@ -61,10 +61,6 @@ jobject sockaddrToInetAddress(JNIEnv* env, const sockaddr_storage& ss, jint* por
         addressLength = 16;
         sin_port = ntohs(sin6.sin6_port);
         scope_id = sin6.sin6_scope_id;
-    } else if (ss.ss_family == AF_UNIX) {
-        const sockaddr_un& sun = reinterpret_cast<const sockaddr_un&>(ss);
-        rawAddress = &sun.sun_path;
-        addressLength = strlen(sun.sun_path);
     } else {
         // We can't throw SocketException. We aren't meant to see bad addresses, so seeing one
         // really does imply an internal error.
@@ -82,14 +78,6 @@ jobject sockaddrToInetAddress(JNIEnv* env, const sockaddr_storage& ss, jint* por
     }
     env->SetByteArrayRegion(byteArray.get(), 0, addressLength,
             reinterpret_cast<const jbyte*>(rawAddress));
-
-    if (ss.ss_family == AF_UNIX) {
-        // Note that we get here for AF_UNIX sockets on accept(2). The unix(7) man page claims
-        // that the peer's sun_path will contain the path, but in practice it doesn't, and the
-        // peer length is returned as 2 (meaning only the sun_family field was set).
-        static jmethodID ctor = env->GetMethodID(JniConstants::inetUnixAddressClass, "<init>", "([B)V");
-        return env->NewObject(JniConstants::inetUnixAddressClass, ctor, byteArray.get());
-    }
 
     static jmethodID getByAddressMethod = env->GetStaticMethodID(JniConstants::inetAddressClass,
             "getByAddress", "(Ljava/lang/String;[BI)Ljava/net/InetAddress;");
@@ -118,7 +106,7 @@ static bool inetAddressToSockaddr(JNIEnv* env, jobject inetAddress, int port, so
     }
 
     // Check this is an address family we support.
-    if (ss.ss_family != AF_INET && ss.ss_family != AF_INET6 && ss.ss_family != AF_UNIX) {
+    if (ss.ss_family != AF_INET && ss.ss_family != AF_INET6) {
         jniThrowExceptionFmt(env, "java/lang/IllegalArgumentException",
                 "inetAddressToSockaddr bad family: %i", ss.ss_family);
         return false;
@@ -130,25 +118,6 @@ static bool inetAddressToSockaddr(JNIEnv* env, jobject inetAddress, int port, so
     if (addressBytes.get() == NULL) {
         jniThrowNullPointerException(env, NULL);
         return false;
-    }
-
-    // Handle the AF_UNIX special case.
-    if (ss.ss_family == AF_UNIX) {
-        sockaddr_un& sun = reinterpret_cast<sockaddr_un&>(ss);
-
-        size_t path_length = env->GetArrayLength(addressBytes.get());
-        if (path_length >= sizeof(sun.sun_path)) {
-            jniThrowExceptionFmt(env, "java/lang/IllegalArgumentException",
-                                 "inetAddressToSockaddr path too long for AF_UNIX: %i", path_length);
-            return false;
-        }
-
-        // Copy the bytes...
-        jbyte* dst = reinterpret_cast<jbyte*>(&sun.sun_path);
-        memset(dst, 0, sizeof(sun.sun_path));
-        env->GetByteArrayRegion(addressBytes.get(), 0, path_length, dst);
-        sa_len = sizeof(sun.sun_path);
-        return true;
     }
 
     // TODO: bionic's getnameinfo(3) seems to want its length parameter to be exactly
