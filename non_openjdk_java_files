@@ -97,6 +97,7 @@ dalvik/system/profiler/PortableThreadSampler.java
 dalvik/system/profiler/SamplingProfiler.java
 dalvik/system/profiler/ThreadSampler.java
 java/io/SerializationHandleMap.java
+java/lang/CaseMapper.java
 java/lang/Compiler.java
 java/lang/Daemons.java
 java/lang/DexCache.java
