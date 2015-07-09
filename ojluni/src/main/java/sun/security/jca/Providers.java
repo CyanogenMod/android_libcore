@@ -92,7 +92,6 @@ public class Providers {
         "sun.security.ec.SunEC",*/
         "com.android.org.conscrypt.OpenSSLProvider",
         "com.android.org.bouncycastle.jce.provider.BouncyCastleProvider",
-        "org.apache.harmony.security.provider.crypto.CryptoProvider",
         "com.android.org.conscrypt.JSSEProvider",
         // ----- END android -----
         BACKUP_PROVIDER_CLASSNAME,

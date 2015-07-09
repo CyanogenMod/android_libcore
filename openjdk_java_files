@@ -1156,13 +1156,6 @@ javax/sql/StatementEvent.java
 javax/sql/StatementEventListener.java
 libcore/icu/NativeDecimalFormat.java
 libcore/io/HeapBufferIterator.java
-org/apache/harmony/security/fortress/Engine.java
-org/apache/harmony/security/fortress/SecurityAccess.java
-org/apache/harmony/security/fortress/Services.java
-org/apache/harmony/security/utils/JarUtils.java
-org/apache/harmony/security/x509/tsp/TimeStampReq.java
-org/apache/harmony/security/x509/tsp/TimeStampResp.java
-org/apache/harmony/security/x509/tsp/TSTInfo.java
 sun/misc/ASCIICaseInsensitiveComparator.java
 sun/misc/BASE64Decoder.java
 sun/misc/BASE64Encoder.java

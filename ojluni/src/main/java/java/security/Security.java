@@ -224,8 +224,7 @@ public final class Security {
         props.put("security.provider.6", "com.sun.security.sasl.Provider"); */
         props.put("security.provider.1", "com.android.org.conscrypt.OpenSSLProvider");
         props.put("security.provider.2", "com.android.org.bouncycastle.jce.provider.BouncyCastleProvider");
-        props.put("security.provider.3", "org.apache.harmony.security.provider.crypto.CryptoProvider");
-        props.put("security.provider.4", "com.android.org.conscrypt.JSSEProvider");
+        props.put("security.provider.3", "com.android.org.conscrypt.JSSEProvider");
         // ----- END android -----
     }
 

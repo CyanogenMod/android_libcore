@@ -25,6 +25,8 @@
 
 package sun.security.pkcs;
 
+import java.io.InputStream;
+import java.io.ByteArrayInputStream;
 import java.io.OutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -291,26 +293,36 @@ public class SignerInfo implements DerEncoder {
     }
 
 
-    /* Returns null if verify fails, this signerInfo if
-       verify succeeds. */
     SignerInfo verify(PKCS7 block, byte[] data)
     throws NoSuchAlgorithmException, SignatureException {
+      try {
+        return verify(block, new ByteArrayInputStream(data));
+      } catch (IOException e) {
+        // Ignore
+        return null;
+      }
+    }
 
-        try {
+    /* Returns null if verify fails, this signerInfo if
+       verify succeeds. */
+    SignerInfo verify(PKCS7 block, InputStream inputStream)
+    throws NoSuchAlgorithmException, SignatureException, IOException {
+
+       try {
 
             ContentInfo content = block.getContentInfo();
-            if (data == null) {
-                data = content.getContentBytes();
+            if (inputStream == null) {
+                inputStream = new ByteArrayInputStream(content.getContentBytes());
             }
 
             String digestAlgname = getDigestAlgorithmId().getName();
 
-            byte[] dataSigned;
+            InputStream dataSigned;
 
             // if there are authenticate attributes, get the message
             // digest and compare it with the digest of data
             if (authenticatedAttributes == null) {
-                dataSigned = data;
+                dataSigned = inputStream;
             } else {
 
                 // first, check content type
@@ -331,7 +343,13 @@ public class SignerInfo implements DerEncoder {
 
                 MessageDigest md = MessageDigest.getInstance(
                         convertToStandardName(digestAlgname));
-                byte[] computedMessageDigest = md.digest(data);
+
+                byte[] buffer = new byte[4096];
+                int read = 0;
+                while ((read = inputStream.read(buffer)) != -1) {
+                  md.update(buffer, 0 , read);
+                }
+                byte[] computedMessageDigest = md.digest();
 
                 if (messageDigest.length != computedMessageDigest.length)
                     return null;
@@ -346,7 +364,7 @@ public class SignerInfo implements DerEncoder {
                 // the data actually signed is the DER encoding of
                 // the authenticated attributes (tagged with
                 // the "SET OF" tag, not 0xA0).
-                dataSigned = authenticatedAttributes.getDerEncoding();
+                dataSigned = new ByteArrayInputStream(authenticatedAttributes.getDerEncoding());
             }
 
             // put together digest algorithm and encryption algorithm
@@ -406,8 +424,11 @@ public class SignerInfo implements DerEncoder {
             PublicKey key = cert.getPublicKey();
             sig.initVerify(key);
 
-            sig.update(dataSigned);
-
+            byte[] buffer = new byte[4096];
+            int read = 0;
+            while ((read = dataSigned.read(buffer)) != -1) {
+              sig.update(buffer, 0 , read);
+            }
             if (sig.verify(encryptedDigest)) {
                 return this;
             }
@@ -426,7 +447,7 @@ public class SignerInfo implements DerEncoder {
     /* Verify the content of the pkcs7 block. */
     SignerInfo verify(PKCS7 block)
     throws NoSuchAlgorithmException, SignatureException {
-        return verify(block, null);
+      return verify(block, (byte[])null);
     }
 
 

@@ -555,6 +555,20 @@ public class PKCS7 {
     }
 
     /**
+     * This verifies a given SignerInfo.
+     *
+     * @param info the signer information.
+     * @param dataInputStream the DER encoded content information.
+     *
+     * @exception NoSuchAlgorithmException on unrecognized algorithms.
+     * @exception SignatureException on signature handling errors.
+     */
+    public SignerInfo verify(SignerInfo info, InputStream dataInputStream)
+    throws NoSuchAlgorithmException, SignatureException, IOException {
+        return info.verify(this, dataInputStream);
+    }
+
+    /**
      * Returns all signerInfos which self-verify.
      *
      * @param bytes the DER encoded content information.
