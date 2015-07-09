@@ -25,7 +25,7 @@ import java.security.Key;
 public class MockKey implements Key {
     @Override
     public String getAlgorithm() {
-        throw new UnsupportedOperationException("not implemented");
+        return "MOCK";
     }
 
     @Override
