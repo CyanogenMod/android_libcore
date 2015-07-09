@@ -212,6 +212,7 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "ETIME", ETIME);
     initConstant(env, c, "ETIMEDOUT", ETIMEDOUT);
     initConstant(env, c, "ETXTBSY", ETXTBSY);
+    initConstant(env, c, "EUSERS", EUSERS);
 #if EWOULDBLOCK != EAGAIN
 #error EWOULDBLOCK != EAGAIN
 #endif
