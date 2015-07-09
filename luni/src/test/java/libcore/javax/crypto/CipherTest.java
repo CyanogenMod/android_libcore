@@ -27,6 +27,7 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.KeyFactory;
+import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.Provider;
@@ -3387,5 +3388,64 @@ public final class CipherTest extends TestCase {
             int bytesProduced = cipher.doFinal(buffer, 0, buffer.length, buffer);
             assertEquals("", new String(buffer, 0, bytesProduced, StandardCharsets.US_ASCII));
         }
+    }
+
+    /**
+     * If a provider rejects a key for "Cipher/Mode/Padding"", there might be another that
+     * accepts the key for "Cipher". Don't throw InvalidKeyException when trying the first one.
+     * http://b/22208820
+     */
+    public void testCipher_init_tryAllCombinationsBeforeThrowingInvalidKey()
+            throws Exception {
+        Provider mockProvider = new MockProvider("MockProvider") {
+            public void setup() {
+                put("Cipher.FOO/FOO/FOO", MockCipherSpi.AllKeyTypes.class.getName());
+                put("Cipher.FOO/FOO/FOO SupportedKeyClasses", "none");
+            }
+        };
+
+        Provider mockProvider2 = new MockProvider("MockProvider2") {
+            public void setup() {
+                put("Cipher.FOO", MockCipherSpi.AllKeyTypes.class.getName());
+            }
+        };
+
+        Security.addProvider(mockProvider);
+
+        try {
+            try {
+                // The provider installed doesn't accept the key.
+                Cipher c = Cipher.getInstance("FOO/FOO/FOO");
+                c.init(Cipher.DECRYPT_MODE, new MockKey());
+                fail("Expected InvalidKeyException");
+            } catch (InvalidKeyException expected) {
+            }
+
+            Security.addProvider(mockProvider2);
+
+            try {
+                // The new provider accepts "FOO" with this key. Use it despite the other provider
+                // accepts "FOO/FOO/FOO" but doesn't accept the key.
+                Cipher c = Cipher.getInstance("FOO/FOO/FOO");
+                c.init(Cipher.DECRYPT_MODE, new MockKey());
+                assertEquals("MockProvider2", c.getProvider().getName());
+            } finally {
+                Security.removeProvider(mockProvider2.getName());
+            }
+        } finally {
+            Security.removeProvider(mockProvider.getName());
+        }
+    }
+
+    /**
+     * Check that RSA with OAEPPadding is supported.
+     * http://b/22208820
+     */
+    public void test_RSA_OAEPPadding() throws Exception {
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+        keyGen.initialize(1024, SecureRandom.getInstance("SHA1PRNG"));
+        Cipher cipher = Cipher.getInstance("RSA/NONE/OAEPPadding");
+        cipher.init(Cipher.ENCRYPT_MODE, keyGen.generateKeyPair().getPublic());
+        cipher.doFinal(new byte[] {1,2,3,4});
     }
 }
