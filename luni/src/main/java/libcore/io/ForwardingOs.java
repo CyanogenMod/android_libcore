@@ -169,6 +169,7 @@ public class ForwardingOs implements Os {
     public void tcsendbreak(FileDescriptor fd, int duration) throws ErrnoException { os.tcsendbreak(fd, duration); }
     public int umask(int mask) { return os.umask(mask); }
     public StructUtsname uname() { return os.uname(); }
+    public void unlink(String pathname) throws ErrnoException { os.unlink(pathname); }
     public void unsetenv(String name) throws ErrnoException { os.unsetenv(name); }
     public int waitpid(int pid, MutableInt status, int options) throws ErrnoException { return os.waitpid(pid, status, options); }
     public int write(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException, InterruptedIOException { return os.write(fd, buffer); }
