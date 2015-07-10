@@ -31,7 +31,7 @@
 #include <memory>
 
 #include <string.h>
-#include <libexpat/expat.h>
+#include <expat.h>
 
 #define BUCKET_COUNT 128
 
