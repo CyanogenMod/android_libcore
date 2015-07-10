@@ -178,11 +178,14 @@ public class StringTest extends TestCase {
      * correct even if this test fails, many applications may suffer
      * significant performance degradation.
      */
+    /* ----- BEGIN android -----
+    // Un-fixable in OpenJdk's String implementation : Strings implementation never share backing array.
     public void testSubstringSharesBackingArray() throws IllegalAccessException {
         String abcdefghij = "ABCDEFGHIJ";
         String cdefg = abcdefghij.substring(2, 7);
         assertSame(getBackingArray(abcdefghij), getBackingArray(cdefg));
     }
+    */
 
     /**
      * Tests a widely assumed performance characteristic of string's copy
@@ -190,6 +193,8 @@ public class StringTest extends TestCase {
      * string. Although behavior should be correct even if this test fails,
      * many applications may suffer significant performance degradation.
      */
+    /* ----- BEGIN android -----
+    // Un-fixable in OpenJdk's String implementation : Strings implementation never share backing array.
     public void testStringCopiesAvoidHeapRetention() throws IllegalAccessException {
         String abcdefghij = "ABCDEFGHIJ";
         assertSame(getBackingArray(abcdefghij), getBackingArray(new String(abcdefghij)));
@@ -198,6 +203,7 @@ public class StringTest extends TestCase {
         assertSame(getBackingArray(abcdefghij), getBackingArray(cdefg));
         assertEquals(5, getBackingArray(new String(cdefg)).length);
     }
+    */
 
     /**
      * Uses reflection to return the char[] backing the given string. This
