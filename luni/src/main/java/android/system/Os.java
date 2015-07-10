@@ -546,6 +546,11 @@ public final class Os {
   public static StructUtsname uname() { return Libcore.os.uname(); }
 
   /**
+   * @hide See <a href="http://man7.org/linux/man-pages/man2/unlink.2.html">unlink(2)</a>.
+   */
+  public static void unlink(String pathname) throws ErrnoException { Libcore.os.unlink(pathname); }
+
+  /**
    * See <a href="http://man7.org/linux/man-pages/man3/unsetenv.3.html">unsetenv(3)</a>.
    */
   public static void unsetenv(String name) throws ErrnoException { Libcore.os.unsetenv(name); }
