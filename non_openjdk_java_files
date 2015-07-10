@@ -102,7 +102,6 @@ java/lang/Daemons.java
 java/lang/DexCache.java
 java/lang/FindBugsSuppressWarnings.java
 java/lang/IntegralToString.java
-java/lang/ProcessManager.java
 java/lang/SecurityManager.java
 java/lang/VMClassLoader.java
 java/lang/ref/FinalizerReference.java
