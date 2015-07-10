@@ -1015,6 +1015,7 @@ java/util/zip/InflaterInputStream.java
 java/util/zip/Inflater.java
 java/util/zip/InflaterOutputStream.java
 java/util/zip/ZipCoder.java
+java/util/zip/ZipConstants.java
 java/util/zip/ZipConstants64.java
 java/util/zip/ZipEntry.java
 java/util/zip/ZipError.java

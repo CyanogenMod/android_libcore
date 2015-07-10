@@ -234,7 +234,6 @@ java/util/prefs/NodeSet.java
 java/util/prefs/XMLParser.java
 java/util/regex/MatchResultImpl.java
 java/util/regex/Splitter.java
-java/util/zip/ZipConstants.java
 javax/net/ssl/DefaultHostnameVerifier.java
 javax/net/ssl/DistinguishedNameParser.java
 javax/net/ssl/X509ExtendedKeyManager.java
