@@ -252,6 +252,7 @@ public final class Posix implements Os {
     }
     private native int umaskImpl(int mask);
     public native StructUtsname uname();
+    public native void unlink(String pathname) throws ErrnoException;
     public native void unsetenv(String name) throws ErrnoException;
     public native int waitpid(int pid, MutableInt status, int options) throws ErrnoException;
     public int write(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException, InterruptedIOException {

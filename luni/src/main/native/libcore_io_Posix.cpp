@@ -1938,6 +1938,14 @@ static jobject Posix_uname(JNIEnv* env, jobject) {
     return makeStructUtsname(env, buf);
 }
 
+static void Posix_unlink(JNIEnv* env, jobject, jstring javaPathname) {
+    ScopedUtfChars pathname(env, javaPathname);
+    if (pathname.c_str() == NULL) {
+        return;
+    }
+    throwIfMinusOne(env, "unlink", unlink(pathname.c_str()));
+}
+
 static void Posix_unsetenv(JNIEnv* env, jobject, jstring javaName) {
     ScopedUtfChars name(env, javaName);
     if (name.c_str() == NULL) {
@@ -2090,6 +2098,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, tcsendbreak, "(Ljava/io/FileDescriptor;I)V"),
     NATIVE_METHOD(Posix, umaskImpl, "(I)I"),
     NATIVE_METHOD(Posix, uname, "()Landroid/system/StructUtsname;"),
+    NATIVE_METHOD(Posix, unlink, "(Ljava/lang/String;)V"),
     NATIVE_METHOD(Posix, unsetenv, "(Ljava/lang/String;)V"),
     NATIVE_METHOD(Posix, waitpid, "(ILandroid/util/MutableInt;I)I"),
     NATIVE_METHOD(Posix, writeBytes, "(Ljava/io/FileDescriptor;Ljava/lang/Object;II)I"),
