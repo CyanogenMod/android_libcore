@@ -73,7 +73,13 @@ class StringCoding {
     // Trim the given byte array to the given length
     //
     private static byte[] safeTrim(byte[] ba, int len, Charset cs, boolean isTrusted) {
+
+        /* ----- BEGIN android -----
         if (len == ba.length && (isTrusted || System.getSecurityManager() == null))
+        // Libcore tests expect a defensive copy in pretty much all cases.
+        // + System.getSecurityManager() == null is always true on android
+        */
+        if (len == ba.length && (isTrusted))
             return ba;
         else
             return Arrays.copyOf(ba, len);
@@ -83,7 +89,12 @@ class StringCoding {
     //
     private static char[] safeTrim(char[] ca, int len,
                                    Charset cs, boolean isTrusted) {
+        /* ----- BEGIN android -----
         if (len == ca.length && (isTrusted || System.getSecurityManager() == null))
+        // Libcore tests expect a defensive copy in pretty much all cases.
+        // + System.getSecurityManager() == null is always true on android
+        */
+        if (len == ca.length && (isTrusted))
             return ca;
         else
             return Arrays.copyOf(ca, len);
@@ -308,7 +319,10 @@ class StringCoding {
                 ByteBuffer bb = ByteBuffer.wrap(ba);
                 CharBuffer cb = CharBuffer.wrap(ca, off, len);
                 try {
+                    /* ----- BEGIN android -----
                     CoderResult cr = ce.encode(cb, bb, true);
+                    Pass read-only buffer, so the encoder can't alter it */
+                    CoderResult cr = ce.encode(cb.asReadOnlyBuffer(), bb, true);
                     if (!cr.isUnderflow())
                         cr.throwException();
                     cr = ce.flush(bb);
@@ -367,7 +381,10 @@ class StringCoding {
             ByteBuffer bb = ByteBuffer.wrap(ba);
             CharBuffer cb = CharBuffer.wrap(ca, off, len);
             try {
-                CoderResult cr = ce.encode(cb, bb, true);
+                /* ----- BEGIN android -----
+                   CoderResult cr = ce.encode(cb, bb, true);
+                   Pass read-only buffer, so the encoder can't alter it */
+                CoderResult cr = ce.encode(cb.asReadOnlyBuffer(), bb, true);
                 if (!cr.isUnderflow())
                     cr.throwException();
                 cr = ce.flush(bb);
