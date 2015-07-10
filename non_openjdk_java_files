@@ -120,16 +120,9 @@ java/math/Multiplication.java
 java/math/NativeBN.java
 java/math/Primality.java
 java/math/RoundingMode.java
-java/net/AddressCache.java
-java/net/CookieStoreImpl.java
 java/net/InetUnixAddress.java
-java/net/PlainServerSocketImpl.java
-java/net/Socks4Message.java
-java/nio/FileDescriptorChannel.java
 java/nio/NIOAccess.java
 java/nio/NioUtils.java
-java/nio/SelectionKeyImpl.java
-java/nio/SelectorImpl.java
 java/nio/charset/CharsetDecoderICU.java
 java/nio/charset/CharsetEncoderICU.java
 java/nio/charset/CharsetICU.java
@@ -139,7 +132,6 @@ java/security/AccessControlContext.java
 java/security/AccessController.java
 java/security/Policy.java
 java/security/cert/CRLReason.java
-java/util/UnsafeArrayList.java
 java/util/concurrent/AbstractExecutorService.java
 java/util/concurrent/ArrayBlockingQueue.java
 java/util/concurrent/BlockingDeque.java
