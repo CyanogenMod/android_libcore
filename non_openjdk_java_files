@@ -96,7 +96,6 @@ dalvik/system/profiler/MalformedHprofException.java
 dalvik/system/profiler/PortableThreadSampler.java
 dalvik/system/profiler/SamplingProfiler.java
 dalvik/system/profiler/ThreadSampler.java
-java/io/SerializationHandleMap.java
 java/lang/CaseMapper.java
 java/lang/Compiler.java
 java/lang/Daemons.java
@@ -124,10 +123,8 @@ java/math/Primality.java
 java/math/RoundingMode.java
 java/net/AddressCache.java
 java/net/CookieStoreImpl.java
-java/net/DefaultFileNameMap.java
 java/net/InetUnixAddress.java
 java/net/PlainServerSocketImpl.java
-java/net/ProxySelectorImpl.java
 java/net/Socks4Message.java
 java/nio/FileDescriptorChannel.java
 java/nio/NIOAccess.java
