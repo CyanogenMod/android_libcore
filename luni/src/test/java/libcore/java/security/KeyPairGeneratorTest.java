@@ -56,13 +56,32 @@ import junit.framework.TestCase;
 
 public class KeyPairGeneratorTest extends TestCase {
 
-    public void test_providerCount() {
+    private List<Provider> providers = new ArrayList<Provider>();
+
+    @Override
+    public void setUp() {
         Provider[] providers = Security.getProviders();
+        for (Provider p : providers) {
+            // Do not test AndroidKeyStore Provider. It does not accept vanilla public keys for
+            // signature verification. It's OKish not to test here because it's tested by
+            // cts/tests/tests/keystore.
+            if (!p.getName().startsWith("AndroidKeyStore")) {
+                this.providers.add(p);
+            }
+        }
+    }
+
+    @Override
+    public void tearDown() {
+        providers.clear();
+    }
+
+    public void test_providerCount() {
         // We expect there to be at least one provider.
-        assertTrue(providers.length > 0);
+        assertTrue(providers.size() > 0);
         // If this fails remember to add _provider methods below. This test is sharded because it
         // takes a long time to execute.
-        assertTrue(providers.length < 10);
+        assertTrue(providers.size() < 10);
     }
 
     public void test_getInstance_provider0() throws Exception {
@@ -106,14 +125,14 @@ public class KeyPairGeneratorTest extends TestCase {
     }
 
     private void test_getInstance(int providerIndex) throws Exception {
-        Provider[] providers = Security.getProviders();
-        if (providerIndex >= providers.length) {
+        if (providerIndex >= providers.size()) {
             // Providers can be added by vendors and other tests. We do not
             // specify a fixed number and silenty pass if the provider at the
             // specified index does not exist.
             return;
         }
-        Provider provider = providers[providerIndex];
+
+        Provider provider = providers.get(providerIndex);
         Set<Provider.Service> services = provider.getServices();
         for (Provider.Service service : services) {
             String type = service.getType();
@@ -121,15 +140,6 @@ public class KeyPairGeneratorTest extends TestCase {
                 continue;
             }
             String algorithm = service.getAlgorithm();
-
-            // Do not test AndroidKeyStore's KeyPairGenerator. It cannot be initialized without
-            // providing AndroidKeyStore-specific algorithm parameters.
-            // It's OKish not to test AndroidKeyStore's KeyPairGenerator here because it's tested
-            // by cts/tests/test/keystore.
-            if ("AndroidKeyStore".equals(provider.getName())) {
-                continue;
-            }
-
             AlgorithmParameterSpec params = null;
 
             if ("DH".equals(algorithm)) {
@@ -306,8 +316,6 @@ public class KeyPairGeneratorTest extends TestCase {
         byte[] encoded = k.getEncoded();
 
         String keyAlgo = k.getAlgorithm();
-
-        Provider[] providers = Security.getProviders();
         for (Provider p : providers) {
             Set<Provider.Service> services = p.getServices();
             for (Provider.Service service : services) {
