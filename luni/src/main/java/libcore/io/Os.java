@@ -162,6 +162,7 @@ public interface Os {
     public void tcsendbreak(FileDescriptor fd, int duration) throws ErrnoException;
     public int umask(int mask);
     public StructUtsname uname();
+    public void unlink(String pathname) throws ErrnoException;
     public void unsetenv(String name) throws ErrnoException;
     public int waitpid(int pid, MutableInt status, int options) throws ErrnoException;
     public int write(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException, InterruptedIOException;
