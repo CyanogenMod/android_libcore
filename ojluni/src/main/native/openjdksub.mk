@@ -9,6 +9,7 @@ LOCAL_SRC_FILES := \
     java_util_zip_Inflater.c \
     java_util_zip_Deflater.c \
     java_util_zip_CRC32.c \
+    Adler32.c \
     zip_util.c \
     jni_util.c \
     jni_util_md.c \

@@ -65,7 +65,7 @@ extern void register_sun_nio_ch_IOUtil(JNIEnv*);
 extern void register_sun_nio_ch_NativeThread(JNIEnv*);
 extern void register_sun_nio_ch_Net(JNIEnv*);
 extern void register_sun_nio_ch_ServerSocketChannelImpl(JNIEnv* env);
-
+extern void register_java_util_zip_Adler32(JNIEnv* env);
 extern jint net_JNI_OnLoad(JavaVM*, void*);
 
 }
@@ -82,6 +82,7 @@ jint JNI_OnLoad(JavaVM* vm, void*) { JNIEnv* env;
     register_java_util_zip_Inflater(env);
     register_java_util_zip_Deflater(env);
     register_java_util_zip_CRC32(env);
+    register_java_util_zip_Adler32(env);
     register_java_io_FileSystem(env);
     register_sun_nio_ch_IOUtil(env);
     register_sun_nio_ch_FileChannelImpl(env);

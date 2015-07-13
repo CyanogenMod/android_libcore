@@ -27,11 +27,16 @@
  * Native method support for java.util.zip.Adler32
  */
 
+#include "JNIHelp.h"
 #include "jni.h"
 #include "jni_util.h"
 #include <zlib.h>
 
 #include "java_util_zip_Adler32.h"
+
+
+#define NATIVE_METHOD(className, functionName, signature) \
+{ #functionName, signature, (void*)(Java_java_util_zip_ ## className ## _ ## functionName) }
 
 JNIEXPORT jint JNICALL
 Java_java_util_zip_Adler32_update(JNIEnv *env, jclass cls, jint adler, jint b)
@@ -63,4 +68,14 @@ Java_java_util_zip_Adler32_updateByteBuffer(JNIEnv *env, jclass cls, jint adler,
         adler = adler32(adler, buf + off, len);
     }
     return adler;
+}
+
+static JNINativeMethod gMethods[] = {
+  NATIVE_METHOD(Adler32, update, "(II)I"),
+  NATIVE_METHOD(Adler32, updateBytes, "(I[BII)I"),
+  NATIVE_METHOD(Adler32, updateByteBuffer, "(IJII)I"),
+};
+
+void register_java_util_zip_Adler32(JNIEnv* env) {
+  jniRegisterNativeMethods(env, "java/util/zip/Adler32", gMethods, NELEM(gMethods));
 }
