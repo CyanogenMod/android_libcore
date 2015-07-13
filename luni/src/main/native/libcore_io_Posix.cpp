@@ -319,30 +319,35 @@ private:
 };
 
 /**
- * Returns the address and length of sockaddr_un.sun_path in ss. As per unix(7) sa_len should be
- * the length of ss as returned by getsockname(2), getpeername(2), or accept(2). After the call path
- * will point to sun_path and pathLength will contain the sun_path length. If pathLength is 0 then
- * the sockaddr_un refers to is an unnamed socket. See unix(7) for more information.
+ * Returns a jbyteArray containing the sockaddr_un.sun_path from ss. As per unix(7) sa_len should be
+ * the length of ss as returned by getsockname(2), getpeername(2), or accept(2).
+ * If the returned array is of length 0 the sockaddr_un refers to an unnamed socket.
+ * A null pointer is returned in the event of an error. See unix(7) for more information.
  */
-static bool getUnixSocketPath(JNIEnv* env, const sockaddr_storage& ss, const socklen_t& sa_len,
-        const void*& path, size_t& pathLength) {
-
+static jbyteArray getUnixSocketPath(JNIEnv* env, const sockaddr_storage& ss,
+        const socklen_t& sa_len) {
     if (ss.ss_family != AF_UNIX) {
         jniThrowExceptionFmt(env, "java/lang/IllegalArgumentException",
                 "getUnixSocketPath unsupported ss_family: %i", ss.ss_family);
-        return false;
+        return NULL;
     }
+
     const struct sockaddr_un* un_addr = reinterpret_cast<const struct sockaddr_un*>(&ss);
-    path = &un_addr->sun_path;
-    // See unix(7) for details.
-    if (sa_len == sizeof(sa_family_t)) {
-      // unnamed
-      pathLength = 0;
-    } else {
-      // pathname or abstract. We just return the fixed array length here.
-      pathLength = sizeof(sockaddr_un::sun_path);
+    // The length of sun_path is sa_len minus the length of the overhead (ss_family).
+    // See unix(7) for details. This calculation must match that of socket_make_sockaddr_un() in
+    // socket_local_client.c and javaUnixSocketAddressToSockaddr() to interoperate.
+    size_t pathLength = sa_len - offsetof(struct sockaddr_un, sun_path);
+
+    jbyteArray javaSunPath = env->NewByteArray(pathLength);
+    if (javaSunPath == NULL) {
+        return NULL;
     }
-    return true;
+
+    if (pathLength > 0) {
+        env->SetByteArrayRegion(javaSunPath, 0, pathLength,
+                reinterpret_cast<const jbyte*>(&un_addr->sun_path));
+    }
+    return javaSunPath;
 }
 
 static jobject makeSocketAddress(JNIEnv* env, const sockaddr_storage& ss, const socklen_t sa_len) {
@@ -359,19 +364,11 @@ static jobject makeSocketAddress(JNIEnv* env, const sockaddr_storage& ss, const 
         static jmethodID ctor = env->GetMethodID(JniConstants::unixSocketAddressClass,
                 "<init>", "([B)V");
 
-        const void* pathAddress;
-        size_t pathLength;
-        if (!getUnixSocketPath(env, ss, sa_len, pathAddress, pathLength)) {
+        jbyteArray javaSunPath = getUnixSocketPath(env, ss, sa_len);
+        if (!javaSunPath) {
             return NULL;
         }
-
-        ScopedLocalRef<jbyteArray> byteArray(env, env->NewByteArray(pathLength));
-        if (byteArray.get() == NULL) {
-            return NULL;
-        }
-        env->SetByteArrayRegion(byteArray.get(), 0, pathLength,
-                reinterpret_cast<const jbyte*>(pathAddress));
-        return env->NewObject(JniConstants::unixSocketAddressClass, ctor, byteArray.get());
+        return env->NewObject(JniConstants::unixSocketAddressClass, ctor, javaSunPath);
     } else if (ss.ss_family == AF_NETLINK) {
         const struct sockaddr_nl* nl_addr = reinterpret_cast<const struct sockaddr_nl*>(&ss);
         static jmethodID ctor = env->GetMethodID(JniConstants::netlinkSocketAddressClass,
@@ -498,23 +495,14 @@ static bool fillUnixSocketAddress(JNIEnv* env, jobject javaUnixSocketAddress,
     if (javaUnixSocketAddress == NULL) {
         return true;
     }
-    const void* pathAddress;
-    size_t pathLength;
-    if (!getUnixSocketPath(env, ss, sa_len, pathAddress, pathLength)) {
+    jbyteArray javaSunPath = getUnixSocketPath(env, ss, sa_len);
+    if (!javaSunPath) {
         return false;
     }
 
     static jfieldID sunPathFid =
             env->GetFieldID(JniConstants::unixSocketAddressClass, "sun_path", "[B");
-    ScopedLocalRef<jbyteArray> byteArray(env, env->NewByteArray(pathLength));
-    if (byteArray.get() == NULL) {
-        return false;
-    }
-    if (pathLength > 0) {
-        env->SetByteArrayRegion(byteArray.get(), 0, pathLength,
-                reinterpret_cast<const jbyte*>(pathAddress));
-    }
-    env->SetObjectField(javaUnixSocketAddress, sunPathFid, byteArray.get());
+    env->SetObjectField(javaUnixSocketAddress, sunPathFid, javaSunPath);
     return true;
 }
 
@@ -591,24 +579,22 @@ static bool javaUnixSocketAddressToSockaddr(
             JniConstants::unixSocketAddressClass, "sun_path", "[B");
 
     struct sockaddr_un* un_addr = reinterpret_cast<struct sockaddr_un*>(&ss);
+    memset (un_addr, 0, sizeof(sockaddr_un));
     un_addr->sun_family = AF_UNIX;
 
     jbyteArray javaSunPath = (jbyteArray) env->GetObjectField(javaUnixSocketAddress, sunPathFid);
     jsize pathLength = env->GetArrayLength(javaSunPath);
-    if (pathLength == 0) {
-        sa_len = sizeof(sa_family_t);
-    } else {
-        const size_t sun_path_length = sizeof(sockaddr_un::sun_path);
-        if ((size_t) pathLength != sun_path_length) {
-            jniThrowExceptionFmt(env, "java/lang/IllegalArgumentException",
-                    "sun_path incorrect size: expected=%i, was=%i",
-                    sun_path_length, pathLength);
-            return false;
-        }
-        memset(&un_addr->sun_path, 0, sun_path_length);
-        env->GetByteArrayRegion(javaSunPath, 0, pathLength, (jbyte*) un_addr->sun_path);
-        sa_len = sizeof(sockaddr_un);
+    if ((size_t) pathLength > sizeof(sockaddr_un::sun_path)) {
+        jniThrowExceptionFmt(env, "java/lang/IllegalArgumentException",
+                "sun_path too long: max=%i, is=%i",
+                sizeof(sockaddr_un::sun_path), pathLength);
+        return false;
     }
+    env->GetByteArrayRegion(javaSunPath, 0, pathLength, (jbyte*) un_addr->sun_path);
+    // sa_len is sun_path plus the length of the overhead (ss_family_t). See unix(7) for
+    // details. This calculation must match that of socket_make_sockaddr_un() in
+    // socket_local_client.c and getUnixSocketPath() to interoperate.
+    sa_len = offsetof(struct sockaddr_un, sun_path) + pathLength;
     return true;
 }
 
