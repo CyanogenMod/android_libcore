@@ -58,6 +58,7 @@ extern void register_java_util_zip_ZipFile(JNIEnv*);
 extern void register_sun_misc_NativeSignalHandler(JNIEnv*);
 extern void register_sun_misc_Signal(JNIEnv*);
 extern void register_sun_net_spi_DefaultProxySelector(JNIEnv*);
+extern void register_sun_nio_ch_DatagramChannelImpl(JNIEnv*);
 extern void register_sun_nio_ch_FileChannelImpl(JNIEnv*);
 extern void register_sun_nio_ch_FileDispatcherImpl(JNIEnv*);
 extern void register_sun_nio_ch_FileKey(JNIEnv*);
@@ -119,6 +120,7 @@ jint JNI_OnLoad(JavaVM* vm, void*) { JNIEnv* env;
     register_java_lang_UNIXProcess(env);
     register_sun_nio_ch_ServerSocketChannelImpl(env);
     register_sun_nio_ch_Net(env);
+    register_sun_nio_ch_DatagramChannelImpl(env);
     net_JNI_OnLoad(vm, NULL);
     return JNI_VERSION_1_6;
 }

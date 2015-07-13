@@ -16,6 +16,7 @@ LOCAL_SRC_FILES := \
     io_util.c \
     canonicalize_md.c \
     FileDescriptor_md.c \
+    DatagramChannelImpl.c \
     IOUtil.c \
     FileChannelImpl.c \
     FileDispatcherImpl.c \
