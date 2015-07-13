@@ -131,7 +131,6 @@ java/nio/charset/ModifiedUtf8.java
 java/security/AccessControlContext.java
 java/security/AccessController.java
 java/security/Policy.java
-java/security/cert/CRLReason.java
 java/util/concurrent/AbstractExecutorService.java
 java/util/concurrent/ArrayBlockingQueue.java
 java/util/concurrent/BlockingDeque.java
@@ -224,7 +223,6 @@ java/util/regex/MatchResultImpl.java
 java/util/regex/Splitter.java
 javax/net/ssl/DefaultHostnameVerifier.java
 javax/net/ssl/DistinguishedNameParser.java
-javax/net/ssl/X509ExtendedKeyManager.java
 javax/xml/XMLConstants.java
 javax/xml/datatype/DatatypeConfigurationException.java
 javax/xml/datatype/DatatypeConstants.java

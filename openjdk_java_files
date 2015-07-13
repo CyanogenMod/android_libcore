@@ -636,6 +636,7 @@ java/security/cert/CollectionCertStoreParameters.java
 java/security/cert/CRLException.java
 java/security/cert/CRL.java
 java/security/cert/CRLSelector.java
+java/security/cert/CRLReason.java
 java/security/cert/Extension.java
 java/security/Certificate.java
 java/security/cert/LDAPCertStoreParameters.java
@@ -1114,6 +1115,7 @@ javax/net/ssl/SSLSocket.java
 javax/net/ssl/TrustManagerFactory.java
 javax/net/ssl/TrustManagerFactorySpi.java
 javax/net/ssl/TrustManager.java
+javax/net/ssl/X509ExtendedKeyManager.java
 javax/net/ssl/X509ExtendedTrustManager.java
 javax/net/ssl/X509KeyManager.java
 javax/net/ssl/X509TrustManager.java
