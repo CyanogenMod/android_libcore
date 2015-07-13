@@ -298,14 +298,7 @@ public class Cipher {
 
         String[] transformParts = checkTransformation(transformation);
 
-        boolean providerSupportsAlgorithm;
-        try {
-            providerSupportsAlgorithm =
-                    tryCombinations(null /* key */, provider, transformParts) != null;
-        } catch (InvalidKeyException e) {
-            throw new IllegalStateException("InvalidKeyException thrown when key == null", e);
-        }
-        if (!providerSupportsAlgorithm) {
+        if (tryCombinations(null /* key */, provider, transformParts) == null) {
             if (provider == null) {
                 throw new NoSuchAlgorithmException("No provider found for " + transformation);
             } else {
@@ -349,6 +342,9 @@ public class Cipher {
     /**
      * Makes sure a CipherSpi that matches this type is selected.
      *
+     * If {@code key != null} then it assumes that a suitable provider exists for this instance
+     * (used by {@link #init}.
+     *
      * @throws InvalidKeyException if the specified key cannot be used to
      *             initialize this cipher.
      */
@@ -358,14 +354,26 @@ public class Cipher {
         }
 
         synchronized (initLock) {
+            // This is not only a matter of performance. Many methods like update, doFinal, etc.
+            // call {@code #getSpi()} (ie, {@code #getSpi(null /* key */)}) and without this
+            // shortcut they would override an spi that was chosen using the key.
             if (spiImpl != null && key == null) {
                 return spiImpl;
             }
 
             final Engine.SpiAndProvider sap = tryCombinations(
                     key, specifiedProvider, transformParts);
+
             if (sap == null) {
-                throw new ProviderException("No provider for " + transformation);
+                if (key == null) {
+                    throw new ProviderException("No provider for " + transformation);
+                }
+                // Since the key is not null, a suitable provider exists,
+                // and it is an InvalidKeyException.
+                throw new InvalidKeyException(
+                        "No provider offers " + transformation + " for " + key.getAlgorithm()
+                                + " key of class " + key.getClass().getName()
+                                + " and export format " + key.getFormat());
             }
 
             spiImpl = (CipherSpi) sap.spi;
@@ -411,12 +419,9 @@ public class Cipher {
      *   [cipher]//[padding]
      *   [cipher]
      * </pre>
-     *
-     * @throws InvalidKeyException if the specified key cannot be used to
-     *             initialize any provider.
      */
     private static Engine.SpiAndProvider tryCombinations(Key key, Provider provider,
-            String[] transformParts) throws InvalidKeyException {
+            String[] transformParts) {
         Engine.SpiAndProvider sap = null;
 
         if (transformParts[1] != null && transformParts[2] != null) {
@@ -446,12 +451,8 @@ public class Cipher {
         return tryTransform(key, provider, transformParts[0], transformParts, NeedToSet.BOTH);
     }
 
-    /**
-     * @throws InvalidKeyException if the specified key cannot be used to
-     *             initialize this cipher.
-     */
     private static Engine.SpiAndProvider tryTransform(Key key, Provider provider, String transform,
-            String[] transformParts, NeedToSet type) throws InvalidKeyException {
+            String[] transformParts, NeedToSet type) {
         if (provider != null) {
             Provider.Service service = provider.getService(SERVICE, transform);
             if (service == null) {
@@ -463,18 +464,13 @@ public class Cipher {
         if (services == null || services.isEmpty()) {
             return null;
         }
-        boolean keySupported = false;
         for (Provider.Service service : services) {
             if (key == null || service.supportsParameter(key)) {
-                keySupported = true;
                 Engine.SpiAndProvider sap = tryTransformWithProvider(transformParts, type, service);
                 if (sap != null) {
                     return sap;
                 }
             }
-        }
-        if (!keySupported) {
-            throw new InvalidKeyException("No provider supports the provided key");
         }
         return null;
     }
