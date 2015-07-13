@@ -703,6 +703,7 @@ java/security/PermissionCollection.java
 java/security/Permission.java
 java/security/PermissionsHash.java
 java/security/Permissions.java
+java/security/Policy.java
 java/security/PolicySpi.java
 java/security/Principal.java
 java/security/PrivateKey.java

@@ -130,7 +130,6 @@ java/nio/charset/Charsets.java
 java/nio/charset/ModifiedUtf8.java
 java/security/AccessControlContext.java
 java/security/AccessController.java
-java/security/Policy.java
 java/util/concurrent/AbstractExecutorService.java
 java/util/concurrent/ArrayBlockingQueue.java
 java/util/concurrent/BlockingDeque.java
