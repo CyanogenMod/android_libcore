@@ -86,7 +86,7 @@ public class OsTest extends TestCase {
   }
 
   private void checkUnixDomainSocket(final UnixSocketAddress address, final boolean isAbstract)
-          throws Exception {
+      throws Exception {
     final FileDescriptor serverFd = Libcore.os.socket(AF_UNIX, SOCK_STREAM, 0);
     Libcore.os.bind(serverFd, address);
     Libcore.os.listen(serverFd, 5);
@@ -141,7 +141,8 @@ public class OsTest extends TestCase {
     Libcore.os.close(clientFd);
   }
 
-  private static void checkSockName(FileDescriptor fd, boolean isAbstract, UnixSocketAddress address) throws Exception {
+  private static void checkSockName(FileDescriptor fd, boolean isAbstract,
+      UnixSocketAddress address) throws Exception {
     UnixSocketAddress isa = (UnixSocketAddress) Libcore.os.getsockname(fd);
     assertEquals(address, isa);
     if (isAbstract) {
@@ -150,7 +151,7 @@ public class OsTest extends TestCase {
   }
 
   private void checkNoName(UnixSocketAddress usa) {
-      assertEquals(0, usa.getSunPath().length);
+    assertEquals(0, usa.getSunPath().length);
   }
 
   private void checkNoPeerName(FileDescriptor fd) throws Exception {
@@ -224,7 +225,7 @@ public class OsTest extends TestCase {
   }
 
   static void checkByteBufferPositions_sendto_recvfrom(
-          int family, InetAddress loopback) throws Exception {
+      int family, InetAddress loopback) throws Exception {
     final FileDescriptor serverFd = Libcore.os.socket(family, SOCK_STREAM, 0);
     Libcore.os.bind(serverFd, loopback, 0);
     Libcore.os.listen(serverFd, 5);
@@ -257,13 +258,13 @@ public class OsTest extends TestCase {
       }
     });
 
-
     server.start();
 
     FileDescriptor clientFd = Libcore.os.socket(family, SOCK_STREAM, 0);
     Libcore.os.connect(clientFd, address.getAddress(), address.getPort());
 
-    final byte[] bytes = "good bye, cruel black hole with fancy distortion".getBytes(StandardCharsets.US_ASCII);
+    final byte[] bytes = "good bye, cruel black hole with fancy distortion"
+        .getBytes(StandardCharsets.US_ASCII);
     assertTrue(bytes.length > 24);
 
     ByteBuffer input = ByteBuffer.wrap(bytes);
@@ -345,11 +346,11 @@ public class OsTest extends TestCase {
   }
 
   public void test_sendtoSocketAddress_af_inet() throws Exception {
-      checkSendToSocketAddress(AF_INET, InetAddress.getByName("127.0.0.1"));
+    checkSendToSocketAddress(AF_INET, InetAddress.getByName("127.0.0.1"));
   }
 
   public void test_sendtoSocketAddress_af_inet6() throws Exception {
-      checkSendToSocketAddress(AF_INET6, InetAddress.getByName("::1"));
+    checkSendToSocketAddress(AF_INET6, InetAddress.getByName("::1"));
   }
 
   public void test_socketFamilies() throws Exception {
@@ -377,11 +378,11 @@ public class OsTest extends TestCase {
 
   private static void assertArrayEquals(byte[] expected, byte[] actual) {
     assertTrue("Expected=" + Arrays.toString(expected) + ", actual=" + Arrays.toString(actual),
-               Arrays.equals(expected, actual));
+        Arrays.equals(expected, actual));
   }
 
   private static void checkSocketPing(FileDescriptor fd, InetAddress to, byte[] packet,
-          byte type, byte responseType, boolean useSendto) throws Exception {
+      byte type, byte responseType, boolean useSendto) throws Exception {
     int len = packet.length;
     packet[0] = type;
     if (useSendto) {
@@ -411,8 +412,8 @@ public class OsTest extends TestCase {
     final byte ICMP_ECHO = 8, ICMP_ECHOREPLY = 0;
     final byte ICMPV6_ECHO_REQUEST = (byte) 128, ICMPV6_ECHO_REPLY = (byte) 129;
     final byte[] packet = ("\000\000\000\000" +  // ICMP type, code.
-                           "\000\000\000\003" +  // ICMP ID (== port), sequence number.
-                           "Hello myself").getBytes(StandardCharsets.US_ASCII);
+        "\000\000\000\003" +  // ICMP ID (== port), sequence number.
+        "Hello myself").getBytes(StandardCharsets.US_ASCII);
 
     FileDescriptor fd = Libcore.os.socket(AF_INET6, SOCK_DGRAM, IPPROTO_ICMPV6);
     InetAddress ipv6Loopback = InetAddress.getByName("::1");
@@ -425,58 +426,72 @@ public class OsTest extends TestCase {
     checkSocketPing(fd, ipv4Loopback, packet, ICMP_ECHO, ICMP_ECHOREPLY, false);
   }
 
-    private static void assertPartial(byte[] expected, byte[] actual) {
-        for (int i = 0; i < expected.length; i++) {
-            if (expected[i] != actual[i]) {
-                fail("Expected " + Arrays.toString(expected) + " but found "
-                        + Arrays.toString(actual));
-            }
-        }
+  public void test_unlink() throws Exception {
+    File f = File.createTempFile("OsTest", "tst");
+    assertTrue(f.exists());
+    Libcore.os.unlink(f.getAbsolutePath());
+    assertFalse(f.exists());
+
+    try {
+      Libcore.os.unlink(f.getAbsolutePath());
+      fail();
+    } catch (ErrnoException e) {
+      assertEquals(OsConstants.ENOENT, e.errno);
     }
+  }
 
-    public void test_xattr() throws Exception {
-        final String NAME_TEST = "user.meow";
+  public void test_xattr() throws Exception {
+    final String NAME_TEST = "user.meow";
 
-        final byte[] VALUE_CAKE = "cake cake cake".getBytes(StandardCharsets.UTF_8);
-        final byte[] VALUE_PIE = "pie".getBytes(StandardCharsets.UTF_8);
+    final byte[] VALUE_CAKE = "cake cake cake".getBytes(StandardCharsets.UTF_8);
+    final byte[] VALUE_PIE = "pie".getBytes(StandardCharsets.UTF_8);
 
-        File file = File.createTempFile("xattr", "test");
-        String path = file.getAbsolutePath();
+    File file = File.createTempFile("xattr", "test");
+    String path = file.getAbsolutePath();
 
-        byte[] tmp = new byte[1024];
-        try {
-            try {
-                Libcore.os.getxattr(path, NAME_TEST, tmp);
-                fail("Expected ENODATA");
-            } catch (ErrnoException e) {
-                assertEquals(OsConstants.ENODATA, e.errno);
-            }
+    byte[] tmp = new byte[1024];
+    try {
+      try {
+        Libcore.os.getxattr(path, NAME_TEST, tmp);
+        fail("Expected ENODATA");
+      } catch (ErrnoException e) {
+        assertEquals(OsConstants.ENODATA, e.errno);
+      }
 
-            Libcore.os.setxattr(path, NAME_TEST, VALUE_CAKE, OsConstants.XATTR_CREATE);
-            assertEquals(VALUE_CAKE.length, Libcore.os.getxattr(path, NAME_TEST, tmp));
-            assertPartial(VALUE_CAKE, tmp);
+      Libcore.os.setxattr(path, NAME_TEST, VALUE_CAKE, OsConstants.XATTR_CREATE);
+      assertEquals(VALUE_CAKE.length, Libcore.os.getxattr(path, NAME_TEST, tmp));
+      assertStartsWith(VALUE_CAKE, tmp);
 
-            try {
-                Libcore.os.setxattr(path, NAME_TEST, VALUE_PIE, OsConstants.XATTR_CREATE);
-                fail("Expected EEXIST");
-            } catch (ErrnoException e) {
-                assertEquals(OsConstants.EEXIST, e.errno);
-            }
+      try {
+        Libcore.os.setxattr(path, NAME_TEST, VALUE_PIE, OsConstants.XATTR_CREATE);
+        fail("Expected EEXIST");
+      } catch (ErrnoException e) {
+        assertEquals(OsConstants.EEXIST, e.errno);
+      }
 
-            Libcore.os.setxattr(path, NAME_TEST, VALUE_PIE, OsConstants.XATTR_REPLACE);
-            assertEquals(VALUE_PIE.length, Libcore.os.getxattr(path, NAME_TEST, tmp));
-            assertPartial(VALUE_PIE, tmp);
+      Libcore.os.setxattr(path, NAME_TEST, VALUE_PIE, OsConstants.XATTR_REPLACE);
+      assertEquals(VALUE_PIE.length, Libcore.os.getxattr(path, NAME_TEST, tmp));
+      assertStartsWith(VALUE_PIE, tmp);
 
-            Libcore.os.removexattr(path, NAME_TEST);
-            try {
-                Libcore.os.getxattr(path, NAME_TEST, tmp);
-                fail("Expected ENODATA");
-            } catch (ErrnoException e) {
-                assertEquals(OsConstants.ENODATA, e.errno);
-            }
+      Libcore.os.removexattr(path, NAME_TEST);
+      try {
+        Libcore.os.getxattr(path, NAME_TEST, tmp);
+        fail("Expected ENODATA");
+      } catch (ErrnoException e) {
+        assertEquals(OsConstants.ENODATA, e.errno);
+      }
 
-        } finally {
-            file.delete();
-        }
+    } finally {
+      file.delete();
     }
+  }
+
+  private static void assertStartsWith(byte[] expectedContents, byte[] container) {
+    for (int i = 0; i < expectedContents.length; i++) {
+      if (expectedContents[i] != container[i]) {
+        fail("Expected " + Arrays.toString(expectedContents) + " but found "
+            + Arrays.toString(expectedContents));
+      }
+    }
+  }
 }
