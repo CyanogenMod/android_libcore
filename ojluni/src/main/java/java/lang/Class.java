@@ -2405,7 +2405,11 @@ public final
         if (clazz.isAssignableFrom(this))
             return (Class<? extends U>) this;
         else
-            throw new ClassCastException(this.toString());
+            /* ----- BEGIN android -----
+            // Add more context
+            throw new ClassCastException(this.toString());*/
+            throw new ClassCastException(this.toString() +
+                " cannot be cast to " + clazz.getName());
     }
 
     /**
