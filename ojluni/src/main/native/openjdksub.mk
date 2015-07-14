@@ -18,6 +18,9 @@ LOCAL_SRC_FILES := \
     FileDescriptor_md.c \
     DatagramChannelImpl.c \
     IOUtil.c \
+    EPollArrayWrapper.c \
+    InheritedChannel.c \
+    SocketChannelImpl.c \
     FileChannelImpl.c \
     FileDispatcherImpl.c \
     FileOutputStream_md.c \

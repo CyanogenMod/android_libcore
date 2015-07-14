@@ -51,6 +51,7 @@ extern void register_java_net_PlainDatagramSocketImpl(JNIEnv*);
 extern void register_java_net_PlainSocketImpl(JNIEnv*);
 extern void register_java_net_SocketInputStream(JNIEnv*);
 extern void register_java_net_SocketOutputStream(JNIEnv*);
+extern void register_java_util_zip_Adler32(JNIEnv* env);
 extern void register_java_util_zip_CRC32(JNIEnv*);
 extern void register_java_util_zip_Deflater(JNIEnv*);
 extern void register_java_util_zip_Inflater(JNIEnv*);
@@ -66,7 +67,9 @@ extern void register_sun_nio_ch_IOUtil(JNIEnv*);
 extern void register_sun_nio_ch_NativeThread(JNIEnv*);
 extern void register_sun_nio_ch_Net(JNIEnv*);
 extern void register_sun_nio_ch_ServerSocketChannelImpl(JNIEnv* env);
-extern void register_java_util_zip_Adler32(JNIEnv* env);
+extern void register_sun_nio_ch_SocketChannelImpl(JNIEnv* env);
+extern void register_sun_nio_ch_InheritedChannel(JNIEnv* env);
+extern void register_sun_nio_ch_EPollArrayWrapper(JNIEnv* env);
 extern jint net_JNI_OnLoad(JavaVM*, void*);
 
 }
@@ -119,8 +122,11 @@ jint JNI_OnLoad(JavaVM* vm, void*) { JNIEnv* env;
     register_java_lang_Shutdown(env);
     register_java_lang_UNIXProcess(env);
     register_sun_nio_ch_ServerSocketChannelImpl(env);
+    register_sun_nio_ch_SocketChannelImpl(env);
+    register_sun_nio_ch_InheritedChannel(env);
     register_sun_nio_ch_Net(env);
     register_sun_nio_ch_DatagramChannelImpl(env);
+    register_sun_nio_ch_EPollArrayWrapper(env);
     net_JNI_OnLoad(vm, NULL);
     return JNI_VERSION_1_6;
 }
