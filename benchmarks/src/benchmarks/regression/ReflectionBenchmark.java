@@ -163,6 +163,14 @@ public class ReflectionBenchmark extends SimpleBenchmark {
         }
     }
 
+    public void timeClass_isInstance(int reps) throws Exception {
+        D d = new D();
+        Class<?> klass = IC.class;
+        for (int rep = 0; rep < reps; ++rep) {
+            klass.isInstance(d);
+        }
+    }
+
     public void timeGetInstanceField(int reps) throws Exception {
         for (int rep = 0; rep < reps; ++rep) {
             // The field here (and in timeGetStaticField) were chosen to be
@@ -181,7 +189,6 @@ public class ReflectionBenchmark extends SimpleBenchmark {
             R.class.getField("weekNumberColor");
         }
     }
-
 
     public static class C {
         public static int sf = 0;
@@ -205,5 +212,17 @@ public class ReflectionBenchmark extends SimpleBenchmark {
         public static void setStaticField(int value) {
             sf = value;
         }
+    }
+
+    interface IA {
+    }
+
+    interface IB extends IA {
+    }
+
+    interface IC extends IB {
+    }
+
+    class D implements IC {
     }
 }
