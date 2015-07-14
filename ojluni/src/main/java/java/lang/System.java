@@ -570,9 +570,9 @@ public final class System {
         p.put("user.language", "en");
         p.put("user.region", "US");
 
+        StructPasswd passwd = null;
         try {
-            StructPasswd passwd = Libcore.os.getpwuid(Libcore.os.getuid());
-            p.put("user.home", passwd.pw_dir);
+            passwd = Libcore.os.getpwuid(Libcore.os.getuid());
             p.put("user.name", passwd.pw_name);
         } catch (ErrnoException exception) {
             throw new AssertionError(exception);
@@ -598,6 +598,14 @@ public final class System {
         // (See android.app.ActivityThread.) This is just a fallback default,
         // useful only on the host.
         result.put("java.io.tmpdir", "/tmp");
+
+        // Android has always had an empty "user.home" (see docs for getProperty).
+        // This is not useful for normal android apps which need to use android specific
+        // APIs such as {@code Context.getFilesDir} and {@code Context.getCacheDir} but
+        // we make it changeable for backward compatibility, so that they can change it
+        // to a writeable location if required.
+        result.put("user.home", passwd.pw_dir);
+
         return result;
     }
 
