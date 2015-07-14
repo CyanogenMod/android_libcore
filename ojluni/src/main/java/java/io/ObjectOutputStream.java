@@ -368,6 +368,12 @@ public class ObjectOutputStream
      * @since 1.2
      */
     protected void writeObjectOverride(Object obj) throws IOException {
+        /* ----- BEGIN android ----- */
+        if (!enableOverride) {
+            // Subclasses must override.
+            throw new IOException();
+        }
+        /* ----- END android ----- */
     }
 
     /**
