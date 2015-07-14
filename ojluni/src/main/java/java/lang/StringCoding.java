@@ -308,32 +308,26 @@ class StringCoding {
 
         byte[] encode(char[] ca, int off, int len) {
             int en = scale(len, ce.maxBytesPerChar());
-            byte[] ba = new byte[en];
             if (len == 0)
-                return ba;
+                return new byte[0];
             if (ce instanceof ArrayEncoder) {
+                byte[] ba = new byte[en];
                 int blen = ((ArrayEncoder)ce).encode(ca, off, len, ba);
                 return safeTrim(ba, blen, cs, isTrusted);
             } else {
                 ce.reset();
-                ByteBuffer bb = ByteBuffer.wrap(ba);
                 CharBuffer cb = CharBuffer.wrap(ca, off, len);
                 try {
                     /* ----- BEGIN android -----
                     CoderResult cr = ce.encode(cb, bb, true);
                     Pass read-only buffer, so the encoder can't alter it */
-                    CoderResult cr = ce.encode(cb.asReadOnlyBuffer(), bb, true);
-                    if (!cr.isUnderflow())
-                        cr.throwException();
-                    cr = ce.flush(bb);
-                    if (!cr.isUnderflow())
-                        cr.throwException();
+                    ByteBuffer bb = ce.encode(cb.asReadOnlyBuffer());
+                    return safeTrim(bb.array(), bb.limit(), cs, isTrusted);
                 } catch (CharacterCodingException x) {
                     // Substitution is always enabled,
                     // so this shouldn't happen
                     throw new Error(x);
                 }
-                return safeTrim(ba, bb.position(), cs, isTrusted);
             }
         }
     }
