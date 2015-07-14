@@ -1283,8 +1283,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
             Object[] iftable = c.ifTable;
             if (iftable != null) {
                 for (int i = 0; i < iftable.length; i += 2) {
-                    Class<?> ifc = (Class<?>) iftable[i];
-                    if (ifc == this) {
+                    if (iftable[i] == this) {
                         return true;
                     }
                 }
