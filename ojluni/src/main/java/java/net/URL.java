@@ -1163,9 +1163,12 @@ public final class URL implements java.io.Serializable {
                     packagePrefixList += "|";
                 }
 
+                /* ----- BEGIN android -----
+                sun.net.www.protocol is not a default handlers package.
+
                 // REMIND: decide whether to allow the "null" class prefix
                 // or not.
-                packagePrefixList += JDK_PACKAGE_PREFIX;
+                packagePrefixList += JDK_PACKAGE_PREFIX;*/
 
                 StringTokenizer packagePrefixIter =
                     new StringTokenizer(packagePrefixList, "|");
@@ -1204,6 +1207,34 @@ public final class URL implements java.io.Serializable {
                     }
                 }
             }
+
+            /* ----- BEGIN android -----
+            // Fallback to built-in stream handler.
+            // Makes okhttp the default http/https handler.
+            */
+            if (handler == null) {
+                try {
+                    if (protocol.equals("file")) {
+                        handler = (URLStreamHandler)Class.
+                            forName("sun.net.www.protocol.file.Handler").newInstance();
+                    } else if (protocol.equals("ftp")) {
+                        handler = (URLStreamHandler)Class.
+                            forName("sun.net.www.protocol.ftp.Handler").newInstance();
+                    } else if (protocol.equals("jar")) {
+                        handler = (URLStreamHandler)Class.
+                            forName("sun.net.www.protocol.jar.Handler").newInstance();
+                    } else if (protocol.equals("http")) {
+                        handler = (URLStreamHandler)Class.
+                            forName("com.android.okhttp.HttpHandler").newInstance();
+                    } else if (protocol.equals("https")) {
+                        handler = (URLStreamHandler)Class.
+                            forName("com.android.okhttp.HttpsHandler").newInstance();
+                    }
+                } catch (Exception e) {
+                    throw new AssertionError(e);
+                }
+            }
+            /* ----- END android -----*/
 
             synchronized (streamHandlerLock) {
 
