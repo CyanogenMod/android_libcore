@@ -48,11 +48,10 @@ public class IPAddressUtil {
         long val;
         try {
             switch(s.length) {
+            /* ----- BEGIN android -----
             case 1:
-                /*
-                 * When only one part is given, the value is stored directly in
-                 * the network address without any byte rearrangement.
-                 */
+                // When only one part is given, the value is stored directly in
+                // the network address without any byte rearrangement.
 
                 val = Long.parseLong(s[0]);
                 if (val < 0 || val > 0xffffffffL)
@@ -63,13 +62,11 @@ public class IPAddressUtil {
                 res[3] = (byte) (val & 0xff);
                 break;
             case 2:
-                /*
-                 * When a two part address is supplied, the last part is
-                 * interpreted as a 24-bit quantity and placed in the right
-                 * most three bytes of the network address. This makes the
-                 * two part address format convenient for specifying Class A
-                 * network addresses as net.host.
-                 */
+                // When a two part address is supplied, the last part is
+                // interpreted as a 24-bit quantity and placed in the right
+                // most three bytes of the network address. This makes the
+                // two part address format convenient for specifying Class A
+                // network addresses as net.host.
 
                 val = Integer.parseInt(s[0]);
                 if (val < 0 || val > 0xff)
@@ -83,13 +80,12 @@ public class IPAddressUtil {
                 res[3] = (byte) (val & 0xff);
                 break;
             case 3:
-                /*
-                 * When a three part address is specified, the last part is
-                 * interpreted as a 16-bit quantity and placed in the right
-                 * most two bytes of the network address. This makes the
-                 * three part address format convenient for specifying
-                 * Class B net- work addresses as 128.net.host.
-                 */
+                //
+                // When a three part address is specified, the last part is
+                // interpreted as a 16-bit quantity and placed in the right
+                // most two bytes of the network address. This makes the
+                // three part address format convenient for specifying
+                // Class B net- work addresses as 128.net.host.
                 for (int i = 0; i < 2; i++) {
                     val = Integer.parseInt(s[i]);
                     if (val < 0 || val > 0xff)
@@ -101,7 +97,7 @@ public class IPAddressUtil {
                     return null;
                 res[2] = (byte) ((val >> 8) & 0xff);
                 res[3] = (byte) (val & 0xff);
-                break;
+                break; */
             case 4:
                 /*
                  * When four parts are specified, each is interpreted as a
