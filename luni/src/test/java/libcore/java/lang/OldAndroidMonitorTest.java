@@ -18,6 +18,8 @@ package libcore.java.lang;
 
 import junit.framework.TestCase;
 
+import java.util.concurrent.CountDownLatch;
+
 public class OldAndroidMonitorTest extends TestCase {
 
     public void testWaitArgumentsTest() throws Exception {
@@ -102,193 +104,69 @@ public class OldAndroidMonitorTest extends TestCase {
             }
     }
 
-    private class Interrupter extends Thread {
-            private final Waiter waiter;
+    /**
+     * A thread that blocks forever on {@code wait()} until it's interrupted.
+     */
+    static class Waiter extends Thread {
+        private final Object lock;
+        private final CountDownLatch cdl;
+        private boolean wasInterrupted;
 
-            Interrupter(String name, Waiter waiter) {
-                super(name);
-                this.waiter = waiter;
-            }
+        public Waiter(Object lock, CountDownLatch cdl) {
+            this.lock = lock;
+            this.cdl = cdl;
+            wasInterrupted = false;
+        }
 
-            public void run() {
+        @Override
+        public void run() {
+            synchronized (lock) {
                 try {
-                    run_inner();
-                } catch (Throwable t) {
-                    OldAndroidMonitorTest.errorException = t;
-                    OldAndroidMonitorTest.testThread.interrupt();
-                }
-            }
-
-            private void run_inner() {
-                // System.out.println("InterruptTest: starting waiter");
-                waiter.start();
-
-                try {
-                    Thread.currentThread().sleep(500);
-                } catch (InterruptedException ex) {
-                    throw new RuntimeException("Test sleep interrupted.", ex);
-                }
-
-                /* Waiter is spinning, and its monitor should still be thin.
-                 */
-                // System.out.println("Test interrupting waiter");
-                waiter.interrupt();
-                waiter.spin = false;
-
-                for (int i = 0; i < 3; i++) {
-                    /* Wait for the waiter to start waiting.
-                     */
-                    synchronized (waiter.interrupterLock) {
-                        try {
-                            waiter.interrupterLock.wait();
-                        } catch (InterruptedException ex) {
-                            throw new RuntimeException("Test wait interrupted.", ex);
-                        }
+                    cdl.countDown();
+                    while (true) {
+                        lock.wait();
                     }
-
-                    /* Before interrupting, grab the waiter lock, which
-                     * guarantees that the waiter is already sitting in wait().
-                     */
-                    synchronized (waiter) {
-                        //System.out.println("Test interrupting waiter (" + i + ")");
-                        waiter.interrupt();
-                    }
-                }
-
-                // System.out.println("Test waiting for waiter to die.");
-                try {
-                    waiter.join();
                 } catch (InterruptedException ex) {
-                    throw new RuntimeException("Test join interrupted.", ex);
+                    wasInterrupted = true;
                 }
-                // System.out.println("InterruptTest done.");
             }
         }
 
-    private class Waiter extends Thread {
-            Object interrupterLock = new Object();
-            volatile boolean spin = true;
-
-            Waiter(String name) {
-                super(name);
-            }
-
-            public void run() {
-                try {
-                    run_inner();
-                } catch (Throwable t) {
-                    OldAndroidMonitorTest.errorException = t;
-                    OldAndroidMonitorTest.testThread.interrupt();
-                }
-            }
-
-            void run_inner() {
-                // System.out.println("Waiter spinning");
-                while (spin) {
-                    // We're going to get interrupted while we spin.
-                }
-
-                if (interrupted()) {
-                    // System.out.println("Waiter done spinning; interrupted.");
-                } else {
-                    throw new RuntimeException("Thread not interrupted " +
-                                               "during spin");
-                }
-
-                synchronized (this) {
-                    boolean sawEx = false;
-
-                    try {
-                        synchronized (interrupterLock) {
-                            interrupterLock.notify();
-                        }
-                        // System.out.println("Waiter calling wait()");
-                        this.wait();
-                    } catch (InterruptedException ex) {
-                        sawEx = true;
-                        // System.out.println("wait(): Waiter caught " + ex);
-                    }
-                    // System.out.println("wait() finished");
-
-                    if (!sawEx) {
-                        throw new RuntimeException("Thread not interrupted " +
-                                                   "during wait()");
-                    }
-                }
-                synchronized (this) {
-                    boolean sawEx = false;
-
-                    try {
-                        synchronized (interrupterLock) {
-                            interrupterLock.notify();
-                        }
-                        // System.out.println("Waiter calling wait(1000)");
-                        this.wait(1000);
-                    } catch (InterruptedException ex) {
-                        sawEx = true;
-                        // System.out.println("wait(1000): Waiter caught " + ex);
-                    }
-                    // System.out.println("wait(1000) finished");
-
-                    if (!sawEx) {
-                        throw new RuntimeException("Thread not interrupted " +
-                                                   "during wait(1000)");
-                    }
-                }
-                synchronized (this) {
-                    boolean sawEx = false;
-
-                    try {
-                        synchronized (interrupterLock) {
-                            interrupterLock.notify();
-                        }
-                        // System.out.println("Waiter calling wait(1000, 5000)");
-                        this.wait(1000, 5000);
-                    } catch (InterruptedException ex) {
-                        sawEx = true;
-                        // System.out.println("wait(1000, 5000): Waiter caught " + ex);
-                    }
-                    // System.out.println("wait(1000, 5000) finished");
-
-                    if (!sawEx) {
-                        throw new RuntimeException("Thread not interrupted " +
-                                                   "during wait(1000, 5000)");
-                    }
-                }
-
-               //  System.out.println("Waiter returning");
+        public boolean wasInterrupted() {
+            synchronized (lock) {
+                return wasInterrupted;
             }
         }
+    }
 
-    private static Throwable errorException;
-    private static Thread testThread;
+    public void testInterrupt() throws Exception {
+        final Object lock = new Object();
+        final CountDownLatch cdl = new CountDownLatch(1);
+        final Waiter waiter = new Waiter(lock, cdl);
 
-    // TODO: Flaky test. Add back MediumTest annotation once fixed
-    public void testInterruptTest() throws Exception {
+        waiter.start();
 
+        // Wait for the "waiter" to start and acquire |lock| for the first time.
+        try {
+            cdl.await();
+        } catch (InterruptedException ie) {
+            fail();
+        }
 
-            testThread = Thread.currentThread();
-            errorException = null;
+        // Interrupt |waiter| after we acquire |lock|. This ensures that |waiter| is
+        // currently blocked on a call to "wait".
+        synchronized (lock) {
+            waiter.interrupt();
+        }
 
-            Waiter waiter = new Waiter("InterruptTest Waiter");
-            Interrupter interrupter =
-                    new Interrupter("InterruptTest Interrupter", waiter);
-            interrupter.start();
+        // Wait for the waiter to complete.
+        try {
+            waiter.join();
+        } catch (InterruptedException ie) {
+            fail();
+        }
 
-            try {
-                interrupter.join();
-                waiter.join();
-            } catch (InterruptedException ex) {
-                throw new RuntimeException("Test join interrupted.", ex);
-            }
-
-            if (errorException != null) {
-                throw new RuntimeException("InterruptTest failed",
-                                           errorException);
-            }
-
-
-
-
+        // Assert than an InterruptedException was thrown.
+        assertTrue(waiter.wasInterrupted());
     }
 }
