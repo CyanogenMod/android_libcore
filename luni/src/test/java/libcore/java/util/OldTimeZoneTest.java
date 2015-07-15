@@ -17,7 +17,6 @@
 
 package libcore.java.util;
 
-import dalvik.annotation.AndroidOnly;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -103,7 +102,6 @@ public class OldTimeZoneTest extends TestCase {
         assertEquals("Pacific Standard Time", tz.getDisplayName(false, TimeZone.LONG));
     }
 
-    @AndroidOnly("fail on RI. See comment below")
     public void test_getDisplayNameZILjava_util_Locale() {
         TimeZone tz = TimeZone.getTimeZone("America/Los_Angeles");
         assertEquals("Pacific Daylight Time", tz.getDisplayName(true,  TimeZone.LONG, Locale.US));
