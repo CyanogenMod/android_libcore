@@ -15,7 +15,6 @@
  */
 package tests.targets.security.cert;
 
-import dalvik.annotation.AndroidOnly;
 import java.io.ByteArrayInputStream;
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
@@ -602,7 +601,6 @@ public class CertificateTest extends TestCase {
         }
     }
 
-    @AndroidOnly("MD2 is not supported by Android")
     public void testVerifyMD2() throws Exception {
         Provider[] providers = Security.getProviders("CertificateFactory.X509");
         for (Provider provider : providers) {

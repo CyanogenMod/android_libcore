@@ -22,8 +22,6 @@
 
 package tests.security.cert;
 
-import dalvik.annotation.AndroidOnly;
-
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -270,8 +268,8 @@ public class X509CRLTest extends TestCase {
      * Check if the default implementation throws NullPointerException
      * on null input data.
      */
-    @AndroidOnly("Test filed on RI: getRevokedCertificate throws " +
-            "RuntimeException.")
+    // AndroidOnly("Test filed on RI: getRevokedCertificate throws " +
+    //        "RuntimeException.")
     public void testGetRevokedCertificate() {
         try {
             tbt_crl.getRevokedCertificate((X509Certificate) null);

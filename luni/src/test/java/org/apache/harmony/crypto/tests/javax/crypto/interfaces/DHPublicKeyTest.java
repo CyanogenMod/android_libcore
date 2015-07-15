@@ -22,8 +22,6 @@
 
 package org.apache.harmony.crypto.tests.javax.crypto.interfaces;
 
-import dalvik.annotation.BrokenTest;
-
 import junit.framework.TestCase;
 
 import java.math.BigInteger;
@@ -51,7 +49,6 @@ public class DHPublicKeyTest extends TestCase {
                 -6628103563352519193L);
     }
 
-    @BrokenTest("Too slow - disabling for now")
     public void test_getParams() throws Exception {
         KeyPairGenerator kg = KeyPairGenerator.getInstance("DH");
         kg.initialize(1024);
