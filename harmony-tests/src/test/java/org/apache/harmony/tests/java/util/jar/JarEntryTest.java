@@ -26,6 +26,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import junit.framework.TestCase;
+import libcore.io.Streams;
 import tests.support.resource.Support_Resources;
 
 public class JarEntryTest extends TestCase {
@@ -80,9 +81,6 @@ public class JarEntryTest extends TestCase {
         }
     }
 
-    /**
-     * java.util.jar.JarEntry#JarEntry(java.util.zip.ZipEntry)
-     */
     public void test_ConstructorLjava_util_zip_ZipEntry() {
         assertNotNull("Jar file is null", jarFile);
         zipEntry = jarFile.getEntry(entryName);
@@ -116,38 +114,46 @@ public class JarEntryTest extends TestCase {
         attrJar.close();
     }
 
-    /**
-     * java.util.jar.JarEntry#getCertificates()
-     */
-    public void test_getCertificates() throws Exception {
+    // http://b/1864326
+    public void testCertificatesAndCodesigners() throws Exception {
         zipEntry = jarFile.getEntry(entryName2);
         jarEntry = new JarEntry(zipEntry);
         assertNull(jarEntry.getCertificates());
 
-        // Regression Test for HARMONY-3424
+        // Regression Test for HARMONY-3424, b/1864326
         String jarFileName = "TestCodeSigners.jar";
         Support_Resources.copyFile(resources, null, jarFileName);
         File file = new File(resources, jarFileName);
         JarFile jarFile = new JarFile(file);
         JarEntry jarEntry1 = jarFile.getJarEntry("Test.class");
         JarEntry jarEntry2 = jarFile.getJarEntry("Test.class");
-        InputStream in = jarFile.getInputStream(jarEntry1);
-        byte[] buffer = new byte[1024];
-        while (in.available() > 0) {
-            assertNull("getCertificates() should be null until the entry is read",
-                    jarEntry1.getCertificates());
+
+        try (InputStream in = jarFile.getInputStream(jarEntry1)) {
+            // Code signers and certs must be {@code null} until the entry is completely
+            // read.
+            assertNull(jarEntry1.getCertificates());
             assertNull(jarEntry2.getCertificates());
-            in.read(buffer);
+            assertNull(jarEntry1.getCodeSigners());
+            assertNull(jarEntry2.getCodeSigners());
+
+            // Read a few bytes from the stream.
+            in.read(new byte[64]);
+            assertNull(jarEntry1.getCertificates());
+            assertNull(jarEntry2.getCertificates());
+            assertNull(jarEntry1.getCodeSigners());
+            assertNull(jarEntry2.getCodeSigners());
+
+            // Read the rest of the stream.
+            Streams.skipByReading(in, Long.MAX_VALUE);
+
+            assertEquals(-1, in.read());
+            assertNotNull(jarEntry1.getCodeSigners());
+            assertNotNull(jarEntry2.getCodeSigners());
+            assertNotNull(jarEntry1.getCertificates());
+            assertNotNull(jarEntry2.getCertificates());
         }
-        assertEquals("the file is fully read", -1, in.read());
-        assertNotNull(jarEntry1.getCertificates());
-        assertNotNull(jarEntry2.getCertificates());
-        in.close();
     }
 
-    /**
-     * java.util.jar.JarEntry#getCodeSigners()
-     */
     public void test_getCodeSigners() throws IOException {
         String jarFileName = "TestCodeSigners.jar";
         Support_Resources.copyFile(resources, null, jarFileName);
