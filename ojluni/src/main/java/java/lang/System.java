@@ -570,9 +570,8 @@ public final class System {
         p.put("user.language", "en");
         p.put("user.region", "US");
 
-        StructPasswd passwd = null;
         try {
-            passwd = Libcore.os.getpwuid(Libcore.os.getuid());
+            StructPasswd passwd = Libcore.os.getpwuid(Libcore.os.getuid());
             p.put("user.name", passwd.pw_name);
         } catch (ErrnoException exception) {
             throw new AssertionError(exception);
@@ -593,18 +592,24 @@ public final class System {
         // Override built-in properties with settings from the command line.
         parsePropertyAssignments(p, runtime.properties());
 
+        // Save user.home and java.io.tmpdir
+        String userHome = (String)p.remove("user.home");
+        String javaIoTmpdir = (String)p.remove("java.io.tmpdir");
+
         Properties result = new PropertiesWithNonOverrideableDefaults(p);
         // On Android, each app gets its own temporary directory.
         // (See android.app.ActivityThread.) This is just a fallback default,
         // useful only on the host.
-        result.put("java.io.tmpdir", "/tmp");
+        result.put("java.io.tmpdir",
+            (javaIoTmpdir == null || javaIoTmpdir.isEmpty()) ? "/tmp" : javaIoTmpdir);
 
         // Android has always had an empty "user.home" (see docs for getProperty).
         // This is not useful for normal android apps which need to use android specific
         // APIs such as {@code Context.getFilesDir} and {@code Context.getCacheDir} but
         // we make it changeable for backward compatibility, so that they can change it
         // to a writeable location if required.
-        result.put("user.home", passwd.pw_dir);
+        result.put("user.home",
+            (userHome == null || userHome.isEmpty()) ? "" : userHome);
 
         return result;
     }
