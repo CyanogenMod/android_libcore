@@ -17,8 +17,6 @@
 
 package org.apache.harmony.tests.java.lang;
 
-import dalvik.annotation.AndroidOnly;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -35,7 +33,6 @@ public class Process2Test extends junit.framework.TestCase {
      *        java.lang.Process#getOutputStream()
      * Tests if these methods return buffered streams.
      */
-    @AndroidOnly("dalvikvm specific")
     public void test_streams()
             throws IOException, InterruptedException {
         Process p = javaProcessBuilder().start();

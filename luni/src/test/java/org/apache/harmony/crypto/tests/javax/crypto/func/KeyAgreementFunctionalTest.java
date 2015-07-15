@@ -15,12 +15,9 @@
  */
 package org.apache.harmony.crypto.tests.javax.crypto.func;
 
-import dalvik.annotation.BrokenTest;
-
 import junit.framework.TestCase;
 
 public class KeyAgreementFunctionalTest extends TestCase {
-    @BrokenTest("Too slow - disabling for now")
     public void test_KeyAgreement() throws Exception {
         String[] algArray = {"DES", "DESede"};
 
