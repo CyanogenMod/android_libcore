@@ -192,7 +192,14 @@ class InMemoryCookieStore implements CookieStore {
         boolean modified = false;
         lock.lock();
         try {
-            modified = cookieJar.remove(ck);
+            /* ----- BEGIN android -----
+               Added uri check */
+            if (uri != null && uriIndex.get(uri) == null) {
+                modified = false;
+            } else {
+              /* ----- END android ----- */
+                modified = cookieJar.remove(ck);
+            }
         } finally {
             lock.unlock();
         }
@@ -206,7 +213,12 @@ class InMemoryCookieStore implements CookieStore {
      */
     public boolean removeAll() {
         lock.lock();
+        /* ----- BEGIN android -----
+        // Added result var */
+        boolean result = false;
+
         try {
+            result = !cookieJar.isEmpty();
             cookieJar.clear();
             domainIndex.clear();
             uriIndex.clear();
@@ -214,7 +226,7 @@ class InMemoryCookieStore implements CookieStore {
             lock.unlock();
         }
 
-        return true;
+        return result;
     }
 
 

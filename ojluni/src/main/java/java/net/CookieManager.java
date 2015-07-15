@@ -303,7 +303,15 @@ public class CookieManager extends CookieHandler
                                 }
                             }
                             cookie.setPath(path);
+                        /* ----- BEGIN android -----
+                           Added path validation code */
+                        } else {
+                            // Validate existing path
+                            if (!pathMatches(uri.getPath(), cookie.getPath())) {
+                                continue;
+                            }
                         }
+                        /* ----- END android ----- */
 
                         // As per RFC 2965, section 3.3.1:
                         // Domain  Defaults to the effective request-host.  (Note that because
