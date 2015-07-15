@@ -1,6 +1,5 @@
 package org.apache.harmony.tests.java.lang.reflect;
 
-import dalvik.annotation.AndroidOnly;
 import dalvik.system.DexFile;
 
 import junit.framework.TestCase;
@@ -31,8 +30,6 @@ public class GenericSignatureFormatErrorTest extends TestCase{
     }
 
 
-    @AndroidOnly("Uses Android specific class dalvik.system.DexFile " +
-            "for loading classes.")
     // SideEffect: strange issue (exception: 'could not open dex file', 
     //  dalvikvm: 'waitpid failed' log msg  - only occurs when @SideEffect is removed 
     // and this test is run via running tests.luni.AllTestsLang TestSuite
