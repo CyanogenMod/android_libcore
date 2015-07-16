@@ -1514,5 +1514,14 @@
   names: [
     "libcore.java.text.DecimalFormatSymbolsTest#test_getInstance_unknown_or_invalid_locale"
   ]
+},
+{
+  description: "Failures in OldSHA1PRNGSecureRandomTest",
+  result: EXEC_FAILED,
+  names: [
+    "org.apache.harmony.tests.javax.security.OldSHA1PRNGSecureRandomTest#testNextBytesbyteArray02",
+    "org.apache.harmony.tests.javax.security.OldSHA1PRNGSecureRandomTest#testNextBytesbyteArray04",
+    "org.apache.harmony.tests.javax.security.OldSHA1PRNGSecureRandomTest#testSetSeedbyteArray03"
+  ]
 }
 ]
