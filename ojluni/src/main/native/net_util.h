@@ -36,8 +36,8 @@
 
 #define MAX_PACKET_LEN 65536
 
-#define IPv4 1
-#define IPv6 2
+#define IPv4 AF_INET
+#define IPv6 AF_INET6
 
 #define NET_ERROR(env, ex, msg) \
 { if (!(*env)->ExceptionOccurred(env)) JNU_ThrowByName(env, ex, msg) }
