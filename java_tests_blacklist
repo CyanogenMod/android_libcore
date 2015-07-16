@@ -85,3 +85,4 @@ support/src/test/java/org/apache/harmony/security/tests/support/MyProvider.java
 support/src/test/java/org/apache/harmony/security/tests/support/TestKeyStoreSpi.java
 support/src/test/java/org/apache/harmony/xnet/tests/support/mySSLSession.java
 harmony-tests/src/test/java/org/apache/harmony/tests/java/net/ServerSocketTest.java
+luni/src/test/java/libcore/net/url/UrlUtilsTest.java

@@ -321,14 +321,6 @@ libcore/net/UriCodec.java
 libcore/net/event/NetworkEventDispatcher.java
 libcore/net/event/NetworkEventListener.java
 libcore/net/http/HttpDate.java
-libcore/net/url/FileHandler.java
-libcore/net/url/FileURLConnection.java
-libcore/net/url/FtpHandler.java
-libcore/net/url/FtpURLConnection.java
-libcore/net/url/FtpURLInputStream.java
-libcore/net/url/JarHandler.java
-libcore/net/url/JarURLConnectionImpl.java
-libcore/net/url/UrlUtils.java
 libcore/reflect/AnnotationAccess.java
 libcore/reflect/AnnotationFactory.java
 libcore/reflect/AnnotationMember.java
