@@ -29,6 +29,8 @@ import java.io.ObjectInputStream;
 import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.util.Enumeration;
+import libcore.io.Libcore;
+import static android.system.OsConstants.*;
 
 /**
  * This class represents an Internet Protocol version 6 (IPv6) address.
@@ -224,7 +226,7 @@ class Inet6Address extends InetAddress {
         super();
         holder().hostName = null;
         ipaddress = new byte[INADDRSZ];
-        holder().family = IPv6;
+        holder().family = AF_INET6;
     }
 
     /* checking of value for scope_id should be done by caller
@@ -233,10 +235,11 @@ class Inet6Address extends InetAddress {
     Inet6Address(String hostName, byte addr[], int scope_id) {
         holder().hostName = hostName;
         if (addr.length == INADDRSZ) { // normal IPv6 address
-            holder().family = IPv6;
+            holder().family = AF_INET6;
             ipaddress = addr.clone();
         }
-        if (scope_id >= 0) {
+        // Android change, was >= 0.
+        if (scope_id > 0) {
             this.scope_id = scope_id;
             scope_id_set = true;
         }
@@ -336,7 +339,7 @@ class Inet6Address extends InetAddress {
     private void initif(String hostName, byte addr[],NetworkInterface nif) throws UnknownHostException {
         holder().hostName = hostName;
         if (addr.length == INADDRSZ) { // normal IPv6 address
-            holder().family = IPv6;
+            holder().family = AF_INET6;
             ipaddress = addr.clone();
         }
         if (nif != null) {
@@ -459,7 +462,7 @@ class Inet6Address extends InetAddress {
                                              ipaddress.length);
         }
 
-        if (holder().getFamily() != IPv6) {
+        if (holder().getFamily() != AF_INET6) {
             throw new InvalidObjectException("invalid address family type");
         }
     }
@@ -654,13 +657,19 @@ class Inet6Address extends InetAddress {
      */
     @Override
     public String getHostAddress() {
+
+        /* ----- BEGIN android -----
+           getnameinfo returns smarter representations
         String s = numericToTextFormat(ipaddress);
-        if (scope_ifname_set) { /* must check this first */
+        if (scope_ifname_set) {
             s = s + "%" + scope_ifname.getName();
         } else if (scope_id_set) {
             s = s + "%" + scope_id;
         }
-        return s;
+        return s;*/
+
+        return Libcore.os.getnameinfo(this, NI_NUMERICHOST); // Can't throw.
+        // ----- END android -----
     }
 
     /**
@@ -759,6 +768,7 @@ class Inet6Address extends InetAddress {
         for (int i = 0; i < (INADDRSZ / INT16SZ); i++) {
             sb.append(Integer.toHexString(((src[i<<1]<<8) & 0xff00)
                                           | (src[(i<<1)+1] & 0xff)));
+
             if (i < (INADDRSZ / INT16SZ) -1 ) {
                sb.append(":");
             }

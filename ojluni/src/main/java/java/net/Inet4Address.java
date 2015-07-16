@@ -28,6 +28,7 @@ package java.net;
 import java.security.AccessController;
 import java.io.ObjectStreamException;
 import sun.security.action.*;
+import static android.system.OsConstants.*;
 
 /**
  * This class represents an Internet Protocol version 4 (IPv4) address.
@@ -115,12 +116,12 @@ class Inet4Address extends InetAddress {
         super();
         holder().hostName = null;
         holder().address = 0;
-        holder().family = IPv4;
+        holder().family = AF_INET;
     }
 
     Inet4Address(String hostName, byte addr[]) {
         holder().hostName = hostName;
-        holder().family = IPv4;
+        holder().family = AF_INET;
         if (addr != null) {
             if (addr.length == INADDRSZ) {
                 int address  = addr[3] & 0xFF;
@@ -133,7 +134,7 @@ class Inet4Address extends InetAddress {
     }
     Inet4Address(String hostName, int address) {
         holder().hostName = hostName;
-        holder().family = IPv4;
+        holder().family = AF_INET;
         holder().address = address;
     }
 

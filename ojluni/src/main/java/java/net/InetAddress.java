@@ -194,17 +194,20 @@ import static android.system.OsConstants.*;
  */
 public
 class InetAddress implements java.io.Serializable {
-    /**
-     * Specify the address family: Internet Protocol, Version 4
-     * @since 1.4
-     */
+    /* ----- BEGIN android -----
+    Use AF_INET for IPv4 and AF_INET6 for IPv6 (and AF_UNIX for unix sockets)
+    //
+    // Specify the address family: Internet Protocol, Version 4
+    // @since 1.4
+    //
     static final int IPv4 = 1;
 
-    /**
-     * Specify the address family: Internet Protocol, Version 6
-     * @since 1.4
-     */
+    //
+    // Specify the address family: Internet Protocol, Version 6
+    // @since 1.4
+    //
     static final int IPv6 = 2;
+    ----- END android ----- */
 
     /* Specify address family preference */
     static transient boolean preferIPv6Address = false;
@@ -235,8 +238,8 @@ class InetAddress implements java.io.Serializable {
         }
 
         /**
-         * Specifies the address family type, for instance, '1' for IPv4
-         * addresses, and '2' for IPv6 addresses.
+         * Specifies the address family type, for instance, AF_INET for IPv4
+         * addresses, and AF_INET6 for IPv6 addresses.
          */
         int family;
 
