@@ -15,10 +15,8 @@
  *  limitations under the License.
  */
 
-package org.apache.harmony.security.tests.provider.crypto;
+package org.apache.harmony.tests.javax.security;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
@@ -29,15 +27,13 @@ import junit.framework.TestCase;
  * Tests against methods in SecureRandom class object using
  * SHA1PRNG_SecureRandomImpl.
  */
-public class SHA1PRNG_SecureRandomTest extends TestCase {
+public class OldSHA1PRNGSecureRandomTest extends TestCase {
 
     private static final int LENGTH = 20; // constant defining loop limit
 
     private static final int INCR = 2; // constant defining loop increment
 
     private static final String algorithm = "SHA1PRNG"; // algorithm's name
-
-    private static final String provider = "Crypto"; // provider's name
 
     private static SecureRandom sr; // fields used by tests
 
@@ -48,8 +44,8 @@ public class SHA1PRNG_SecureRandomTest extends TestCase {
      */
     protected void setUp() throws Exception {
         super.setUp();
-        sr = SecureRandom.getInstance(algorithm, provider);
-        sr2 = SecureRandom.getInstance(algorithm, provider);
+        sr = SecureRandom.getInstance(algorithm);
+        sr2 = SecureRandom.getInstance(algorithm);
     }
 
     /**
@@ -189,8 +185,8 @@ public class SHA1PRNG_SecureRandomTest extends TestCase {
         byte[] myBytes2;
 
         for (int i = 1; i < LENGTH / 2; i += INCR) {
-            sr1 = SecureRandom.getInstance(algorithm, provider);
-            sr2 = SecureRandom.getInstance(algorithm, provider);
+            sr1 = SecureRandom.getInstance(algorithm);
+            sr2 = SecureRandom.getInstance(algorithm);
 
             boolean flag = true;
 
@@ -245,8 +241,8 @@ public class SHA1PRNG_SecureRandomTest extends TestCase {
 
         // case 1:
         for (int i = 1; i < LENGTH / 2; i += INCR) {
-            sr1 = SecureRandom.getInstance(algorithm, provider);
-            sr2 = SecureRandom.getInstance(algorithm, provider);
+            sr1 = SecureRandom.getInstance(algorithm);
+            sr2 = SecureRandom.getInstance(algorithm);
 
             sr1.nextBytes(new byte[0]);
             sr2.nextBytes(new byte[0]);
@@ -286,8 +282,8 @@ public class SHA1PRNG_SecureRandomTest extends TestCase {
             byte[][] bytes1 = new byte[2][n];
             byte[][] bytes2 = new byte[2][n];
 
-            sr1 = SecureRandom.getInstance(algorithm, provider);
-            sr2 = SecureRandom.getInstance(algorithm, provider);
+            sr1 = SecureRandom.getInstance(algorithm);
+            sr2 = SecureRandom.getInstance(algorithm);
 
             sr1.setSeed(myBytes);
             sr2.setSeed(myBytes);
@@ -401,32 +397,5 @@ public class SHA1PRNG_SecureRandomTest extends TestCase {
             }
             assertFalse("sequences are equal i=" + i, b);
         }
-    }
-
-    public void testSeedIsFullLength() throws Exception {
-        Class<?> srClass = Class.forName(
-                "org.apache.harmony.security.provider.crypto.SHA1PRNG_SecureRandomImpl");
-        Field seedField = srClass.getDeclaredField("seed");
-        seedField.setAccessible(true);
-
-        Method nextBytesMethod = srClass.getDeclaredMethod("engineNextBytes", byte[].class);
-        nextBytesMethod.setAccessible(true);
-
-        byte[] bytes = new byte[1];
-
-        // Iterate 8 times to make sure the probability of a false positive is
-        // extremely rare.
-        for (int i = 0; i < 8; i++) {
-            Object sr = srClass.newInstance();
-            nextBytesMethod.invoke(sr, bytes);
-            int[] seed = (int[]) seedField.get(sr);
-
-            // If the first integer is not zero, it is fixed.
-            if (seed[0] != 0) {
-                return; // Success
-            }
-        }
-
-        fail("Fallback SHA1PRNG_SecureRandomImpl should not clobber seed internally");
     }
 }
