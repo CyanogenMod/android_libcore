@@ -583,7 +583,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      *            {@code (Class[]) null} is equivalent to the empty array.
      * @return the method described by {@code name} and {@code parameterTypes}.
      * @throws NoSuchMethodException
-     *             if the requested constructor cannot be found.
+     *             if the requested method cannot be found.
      * @throws NullPointerException
      *             if {@code name} is {@code null}.
      * @see #getMethod(String, Class[])
