@@ -1243,12 +1243,19 @@ public abstract class URLConnection {
      * @param connection the connection to use.
      */
     synchronized ContentHandler getContentHandler()
-    throws UnknownServiceException
+        throws IOException
     {
         String contentType = stripOffParameters(getContentType());
         ContentHandler handler = null;
-        if (contentType == null)
-            throw new UnknownServiceException("no content-type");
+        if (contentType == null) {
+            if ((contentType = guessContentTypeFromName(url.getFile())) == null) {
+                contentType = guessContentTypeFromStream(getInputStream());
+            }
+        }
+
+        if (contentType == null) {
+            return UnknownContentHandler.INSTANCE;
+        }
         try {
             handler = (ContentHandler) handlers.get(contentType);
             if (handler != null)
