@@ -67,10 +67,14 @@ public class NumberFormatTest extends junit.framework.TestCase {
     }
 
     public void test_getIntegerInstance_ar() throws Exception {
+        // Previous versions of android use just the positive format string (ICU4C) although now we
+        // use '<positive_format>;<negative_format>' because of ICU4J denormalization.
         NumberFormat numberFormat = NumberFormat.getNumberInstance(new Locale("ar"));
-        assertEquals("#,##0.###", ((DecimalFormat) numberFormat).toPattern());
+        String patternNI = ((DecimalFormat) numberFormat).toPattern();
+        assertTrue("#,##0.###;-#,##0.###".equals(patternNI) || "#,##0.###".equals(patternNI));
         NumberFormat integerFormat = NumberFormat.getIntegerInstance(new Locale("ar"));
-        assertEquals("#,##0", ((DecimalFormat) integerFormat).toPattern());
+        String patternII = ((DecimalFormat) integerFormat).toPattern();
+        assertTrue("#,##0;-#,##0".equals(patternII) || "#,##0".equals(patternII));
     }
 
     public void test_numberLocalization() throws Exception {
@@ -146,27 +150,112 @@ public class NumberFormatTest extends junit.framework.TestCase {
         } catch (NullPointerException expected) {}
     }
 
-    // https://code.google.com/p/android/issues/detail?id=79925
-    public void test_setCurrency() throws Exception {
+    // https://code.google.com/p/android/issues/detail?id=79925\
+    // When switching currency after having initialised a DecimalFormat instance to a currency,
+    // the symbols are missing.
+    public void test_issue79925() {
         NumberFormat nf = NumberFormat.getCurrencyInstance(Locale.US);
-        nf.setCurrency(Currency.getInstance("AMD"));
-        assertEquals("AMD50.00", nf.format(50.0));
+        nf.setCurrency(Currency.getInstance("EUR"));
+        assertEquals("€50.00", nf.format(50.0));
 
         DecimalFormatSymbols decimalFormatSymbols = ((DecimalFormat) nf).getDecimalFormatSymbols();
         decimalFormatSymbols.setCurrencySymbol("");
         ((DecimalFormat) nf).setDecimalFormatSymbols(decimalFormatSymbols);
         assertEquals("50.00", nf.format(50.0));
 
-        nf.setCurrency(Currency.getInstance("AMD"));
-        assertEquals("AMD50.00", nf.format(50.0));
+        nf.setCurrency(Currency.getInstance("SGD"));
+        assertEquals("SGD50.00", nf.format(50.0));
 
-        nf.setCurrency(Currency.getInstance("AMD"));
-        assertEquals("AMD50.00", nf.format(50.0));
+        nf.setCurrency(Currency.getInstance("SGD"));
+        assertEquals("SGD50.00", nf.format(50.00));
 
         nf.setCurrency(Currency.getInstance("USD"));
         assertEquals("$50.00", nf.format(50.0));
 
-        nf.setCurrency(Currency.getInstance("AMD"));
-        assertEquals("AMD50.00", nf.format(50.0));
+        nf.setCurrency(Currency.getInstance("SGD"));
+        assertEquals("SGD50.00", nf.format(50.0));
     }
+
+    // Test to ensure explicitly setting a currency symbol will overwrite the defaults.
+    public void test_customCurrencySymbol() {
+        NumberFormat nf = NumberFormat.getCurrencyInstance(Locale.US);
+        DecimalFormatSymbols dfs = ((DecimalFormat) nf).getDecimalFormatSymbols();
+        dfs.setCurrencySymbol("SPECIAL");
+        ((DecimalFormat) nf).setDecimalFormatSymbols(dfs);
+        assertEquals("SPECIAL3.14", nf.format(3.14));
+
+        // Setting the currency again should reset the symbols.
+        nf.setCurrency(Currency.getInstance("USD"));
+        assertEquals("$3.14", nf.format(3.14));
+
+        // Setting it back again should work.
+        dfs.setCurrencySymbol("NEW");
+        ((DecimalFormat) nf).setDecimalFormatSymbols(dfs);
+        assertEquals("NEW3.14", nf.format(3.14));
+    }
+
+    // Test to ensure currency formatting from specified locale works.
+    public void test_currencyFromLocale() {
+        // French locale formats with "," as separator and Euro symbol after a non-breaking space.
+        NumberFormat nf = NumberFormat.getCurrencyInstance(Locale.FRANCE);
+        assertEquals("50,00\u00a0€", nf.format(50));
+
+        // British locale uses pound sign with no spacing.
+        nf = NumberFormat.getCurrencyInstance(Locale.UK);
+        assertEquals("£50.00", nf.format(50));
+
+        // Chinese locale uses Yuan with a non-breaking space after the symbol.
+        nf = NumberFormat.getCurrencyInstance(Locale.CHINA);
+        assertEquals("￥\u00a050.00", nf.format(50));
+    }
+
+    // Test the currency symbol is correctly taken from ICU. Verifies that the fractional digits
+    // are not updated because DecimalFormat.setCurrency agrees not to change it.
+    public void test_setCurrency() throws Exception {
+        NumberFormat nf = NumberFormat.getCurrencyInstance(Locale.US);
+
+        // The Armenian Dram is a special case where the fractional digits are 0.
+        Currency amd = Currency.getInstance("AMD");
+        assertEquals(0, amd.getDefaultFractionDigits());
+
+        // Armenian Dram ISO 4217 code.
+        nf.setCurrency(amd);
+        assertEquals(2, nf.getMinimumFractionDigits());  // Check DecimalFormat has not taken the
+        assertEquals(2, nf.getMaximumFractionDigits());  // currency specific fractional digits.
+        assertEquals("AMD50.00", nf.format(50.00));
+
+        // Try and explicitly request fractional digits for the specified currency.
+        nf.setMaximumFractionDigits(amd.getDefaultFractionDigits());
+        assertEquals("AMD50", nf.format(50.00));
+
+        nf = NumberFormat.getCurrencyInstance(Locale.US);
+
+        // Euro sign.
+        nf.setCurrency(Currency.getInstance("EUR"));
+        assertEquals("€50.00", nf.format(50.00));
+
+        // Japanese Yen symbol.
+        nf.setCurrency(Currency.getInstance("JPY"));
+        assertEquals("¥50.00", nf.format(50.00));
+
+        // Swiss Franc ISO 4217 code.
+        nf.setCurrency(Currency.getInstance("CHF"));
+        assertEquals("CHF50.00", nf.format(50.00));
+    }
+
+    // Test the setting of locale specific patterns which have different fractional digits.
+    public void test_currencyWithPatternDigits() throws Exception {
+        // Japanese Yen 0 fractional digits.
+        NumberFormat nf = NumberFormat.getCurrencyInstance(Locale.JAPAN);
+        assertEquals("￥50", nf.format(50.00));
+
+        // Armenian Dram 0 fractional digits.
+        nf = NumberFormat.getCurrencyInstance(Locale.forLanguageTag("hy-AM"));
+        assertEquals("50\u00a0֏", nf.format(50.00));
+
+        // Swiss Francs 2 fractional digits.
+        nf = NumberFormat.getCurrencyInstance(Locale.forLanguageTag("de-CH"));
+        assertEquals("CHF\u00a050.00", nf.format(50.00));
+    }
+
 }
