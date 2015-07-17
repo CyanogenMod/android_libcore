@@ -121,6 +121,7 @@ java/math/NativeBN.java
 java/math/Primality.java
 java/math/RoundingMode.java
 java/net/InetUnixAddress.java
+java/net/DefaultFileNameMap.java
 java/nio/NIOAccess.java
 java/nio/NioUtils.java
 java/nio/charset/CharsetDecoderICU.java

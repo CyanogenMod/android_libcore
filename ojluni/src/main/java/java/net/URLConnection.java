@@ -313,6 +313,7 @@ public abstract class URLConnection {
      * @see #setFileNameMap(java.net.FileNameMap)
      */
     public static synchronized FileNameMap getFileNameMap() {
+        /* ----- BEGIN android -----
         if ((fileNameMap == null) && !fileNameMapLoaded) {
             fileNameMap = sun.net.www.MimeTable.loadTable();
             fileNameMapLoaded = true;
@@ -324,6 +325,13 @@ public abstract class URLConnection {
                 return map.getContentTypeFor(fileName);
             }
         };
+        ----- END android -----*/
+
+        if ((fileNameMap == null) && !fileNameMapLoaded) {
+            fileNameMap = new DefaultFileNameMap();
+            fileNameMapLoaded = true;
+        }
+        return fileNameMap;
     }
 
     /**
