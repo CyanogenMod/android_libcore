@@ -171,7 +171,7 @@ public class InetSocketAddress
      * range of valid port values.
      */
     public InetSocketAddress(int port) {
-        this(InetAddress.anyLocalAddress(), port);
+      this((InetAddress)null, port);
     }
 
     /**
