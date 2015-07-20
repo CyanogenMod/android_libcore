@@ -25,6 +25,7 @@ import java.security.SecureRandom;
 import java.security.spec.AlgorithmParameterSpec;
 
 import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
 import javax.crypto.CipherSpi;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
@@ -54,6 +55,71 @@ public class MockCipherSpi extends CipherSpi {
     }
 
     public static class AllKeyTypes extends MockCipherSpi {
+    }
+
+    public static class MustInitWithAlgorithmParameterSpec_RejectsAll extends MockCipherSpi {
+        @Override
+        protected void engineInit(int opmode, Key key, SecureRandom random)
+                throws InvalidKeyException {
+            throw new AssertionError("Must have AlgorithmParameterSpec");
+        }
+
+        @Override
+        protected void engineInit(int opmode, Key key, AlgorithmParameterSpec params,
+                SecureRandom random) throws InvalidKeyException, InvalidAlgorithmParameterException {
+            throw new InvalidAlgorithmParameterException("expected rejection");
+        }
+
+        @Override
+        protected void engineInit(int opmode, Key key, AlgorithmParameters params,
+                SecureRandom random) throws InvalidKeyException, InvalidAlgorithmParameterException {
+            throw new AssertionError("Must have AlgorithmParameterSpec");
+        }
+    }
+
+    public static class MustInitWithAlgorithmParameters_RejectsAll extends MockCipherSpi {
+        @Override
+        protected void engineInit(int opmode, Key key, SecureRandom random)
+                throws InvalidKeyException {
+        }
+
+        @Override
+        protected void engineInit(int opmode, Key key, AlgorithmParameterSpec params,
+                SecureRandom random) throws InvalidKeyException, InvalidAlgorithmParameterException {
+            throw new AssertionError("Must have AlgorithmParameterSpec");
+        }
+
+        @Override
+        protected void engineInit(int opmode, Key key, AlgorithmParameters params,
+                SecureRandom random) throws InvalidKeyException, InvalidAlgorithmParameterException {
+            throw new InvalidAlgorithmParameterException("expected rejection");
+        }
+    }
+
+    public static class MustInitForEncryptModeOrRejects extends MockCipherSpi {
+        @Override
+        protected void engineInit(int opmode, Key key, SecureRandom random)
+                throws InvalidKeyException {
+            if (opmode != Cipher.ENCRYPT_MODE) {
+                throw new InvalidKeyException("expected rejection");
+            }
+        }
+
+        @Override
+        protected void engineInit(int opmode, Key key, AlgorithmParameterSpec params,
+                SecureRandom random) throws InvalidKeyException, InvalidAlgorithmParameterException {
+            if (opmode != Cipher.ENCRYPT_MODE) {
+                throw new InvalidKeyException("expected rejection");
+            }
+        }
+
+        @Override
+        protected void engineInit(int opmode, Key key, AlgorithmParameters params,
+                SecureRandom random) throws InvalidKeyException, InvalidAlgorithmParameterException {
+            if (opmode != Cipher.ENCRYPT_MODE) {
+                throw new InvalidKeyException("expected rejection");
+            }
+        }
     }
 
     public void checkKeyType(Key key) throws InvalidKeyException {
