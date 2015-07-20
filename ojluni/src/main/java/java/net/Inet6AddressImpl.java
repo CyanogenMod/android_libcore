@@ -79,7 +79,10 @@ class Inet6AddressImpl implements InetAddressImpl {
 
     public synchronized InetAddress anyLocalAddress() {
         if (anyLocalAddress == null) {
-            if (InetAddress.preferIPv6Address) {
+            // ----- BEGIN android -----
+            //if (InetAddress.preferIPv6Address) {
+            if (true) {
+            // ----- END android -----
                 anyLocalAddress = new Inet6Address();
                 anyLocalAddress.holder().hostName = "::";
             } else {

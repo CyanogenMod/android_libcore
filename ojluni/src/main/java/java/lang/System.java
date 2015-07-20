@@ -564,7 +564,7 @@ public final class System {
         p.put("java.runtime.version", "0.9");
         p.put("java.vm.vendor.url", projectUrl);
 
-        p.put("java.net.preferIPv6Addresses", "True");
+        p.put("java.net.preferIPv6Addresses", "false");
 
         p.put("file.encoding", "UTF-8");
         p.put("user.language", "en");

@@ -582,8 +582,8 @@ public class OldSocketTest extends OldSocketTestCase {
         int sport = startServer("SServer toString");
         s = new Socket(InetAddress.getLocalHost().getHostName(), sport,
                 InetAddress.getLocalHost(), 0);
-        assertEquals("Socket[address=" + InetAddress.getLocalHost() + ",port=" + s.getPort()
-                + ",localPort=" + s.getLocalPort() + "]", s.toString());
+        assertEquals("Socket[addr=" + InetAddress.getLocalHost() + ",port=" + s.getPort()
+                + ",localport=" + s.getLocalPort() + "]", s.toString());
     }
 
     // AndroidOnly: RI returns wrong value for EOF
