@@ -687,13 +687,29 @@ public abstract class Signature extends SignatureSpi {
         }
 
         @Override
+        protected int engineSign(byte[] outbuf, int offset, int len) throws SignatureException {
+            return getSpi().engineSign(outbuf, offset, len);
+        }
+
+        @Override
         protected void engineUpdate(byte arg0) throws SignatureException {
             getSpi().engineUpdate(arg0);
         }
 
         @Override
+        protected void engineUpdate(ByteBuffer input) {
+            getSpi().engineUpdate(input);
+        }
+
+        @Override
         protected boolean engineVerify(byte[] arg0) throws SignatureException {
             return getSpi().engineVerify(arg0);
+        }
+
+        @Override
+        protected boolean engineVerify(byte[] sigBytes, int offset, int length)
+                throws SignatureException {
+            return getSpi().engineVerify(sigBytes, offset, length);
         }
 
         @Override
@@ -707,6 +723,12 @@ public abstract class Signature extends SignatureSpi {
         }
 
         @Override
+        protected void engineInitSign(PrivateKey arg0, SecureRandom arg1)
+                throws InvalidKeyException {
+            getSpi(arg0).engineInitSign(arg0, arg1);
+        }
+
+        @Override
         protected void engineInitVerify(PublicKey arg0) throws InvalidKeyException {
             getSpi(arg0).engineInitVerify(arg0);
         }
@@ -714,6 +736,11 @@ public abstract class Signature extends SignatureSpi {
         @Override
         protected Object engineGetParameter(String arg0) throws InvalidParameterException {
             return getSpi().engineGetParameter(arg0);
+        }
+
+        @Override
+        protected AlgorithmParameters engineGetParameters() {
+            return getSpi().engineGetParameters();
         }
 
         @Override
