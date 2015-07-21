@@ -16,8 +16,6 @@
 
 package java.text;
 
-import libcore.icu.NativeNormalizer;
-
 /**
  * Provides normalization functions according to
  * <a href="http://www.unicode.org/unicode/reports/tr15/tr15-23.html">Unicode Standard Annex #15:
@@ -36,22 +34,32 @@ public final class Normalizer {
         /**
          * Normalization Form D - Canonical Decomposition.
          */
-        NFD,
+        NFD(com.ibm.icu.text.Normalizer.NFD),
 
         /**
          * Normalization Form C - Canonical Decomposition, followed by Canonical Composition.
          */
-        NFC,
+        NFC(com.ibm.icu.text.Normalizer.NFC),
 
         /**
          * Normalization Form KD - Compatibility Decomposition.
          */
-        NFKD,
+        NFKD(com.ibm.icu.text.Normalizer.NFKD),
 
         /**
          * Normalization Form KC - Compatibility Decomposition, followed by Canonical Composition.
          */
-        NFKC;
+        NFKC(com.ibm.icu.text.Normalizer.NFKC);
+
+        private final com.ibm.icu.text.Normalizer.Mode icuForm;
+
+        Form(com.ibm.icu.text.Normalizer.Mode icuForm) {
+            this.icuForm = icuForm;
+        }
+
+        com.ibm.icu.text.Normalizer.Mode getIcuForm() {
+            return icuForm;
+        }
     }
 
     /**
@@ -63,7 +71,7 @@ public final class Normalizer {
      * @return true if normalized according to <code>form</code>
      */
     public static boolean isNormalized(CharSequence src, Form form) {
-        return NativeNormalizer.isNormalized(src, form);
+        return com.ibm.icu.text.Normalizer.isNormalized(src.toString(), form.getIcuForm(), 0);
     }
 
     /**
@@ -75,7 +83,7 @@ public final class Normalizer {
      * @return string normalized according to <code>form</code>
      */
     public static String normalize(CharSequence src, Form form) {
-        return NativeNormalizer.normalize(src, form);
+        return com.ibm.icu.text.Normalizer.normalize(src.toString(), form.getIcuForm());
     }
 
     private Normalizer() {}
