@@ -216,7 +216,10 @@ public final class URL implements java.io.Serializable {
     /* Our hash code.
      * @serial
      */
-    private int hashCode = -1;
+    // ----- BEGIN android -----
+    //private int hashCode = -1;
+    private transient int hashCode = -1;
+    // ----- END android -----
 
     /**
      * Creates a <code>URL</code> object from the specified
@@ -395,7 +398,7 @@ public final class URL implements java.io.Serializable {
             authority = (port == -1) ? host : host + ":" + port;
         }
 
-        Parts parts = new Parts(file);
+        Parts parts = new Parts(file, host);
         path = parts.getPath();
         query = parts.getQuery();
 
@@ -1334,6 +1337,7 @@ public final class URL implements java.io.Serializable {
             } else
                 path = file;
         }
+        hashCode = -1;
     }
 
     public URI toURILenient() throws URISyntaxException {
@@ -1348,7 +1352,7 @@ public final class URL implements java.io.Serializable {
 class Parts {
     String path, query, ref;
 
-    Parts(String file) {
+    Parts(String file, String host) {
         int ind = file.indexOf('#');
         ref = ind < 0 ? null: file.substring(ind + 1);
         file = ind < 0 ? file: file.substring(0, ind);
@@ -1359,7 +1363,8 @@ class Parts {
         } else {
             path = file;
         }
-        if (path.charAt(0) != '/') {
+        if (path != null && path.length() > 0 && path.charAt(0) != '/' &&
+            host != null && !host.isEmpty()) {
             path = '/' + path;
         }
     }

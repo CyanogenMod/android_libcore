@@ -137,8 +137,11 @@ public abstract class URLStreamHandler {
 
         boolean isRelPath = false;
         boolean queryOnly = false;
+        // ----- BEGIN android -----
+        boolean querySet = false;
+        // ----- END android -----
 
-// FIX: should not assume query if opaque
+        // FIX: should not assume query if opaque
         // Strip off the query part
         if (start < limit) {
             int queryStart = spec.indexOf('?');
@@ -148,16 +151,22 @@ public abstract class URLStreamHandler {
                 if (limit > queryStart)
                     limit = queryStart;
                 spec = spec.substring(0, queryStart);
+                // ----- BEGIN android -----
+                querySet = true;
+                // ----- END android -----
             }
         }
 
         int i = 0;
         // Parse the authority part if any
-        boolean isUNCName = (start <= limit - 4) &&
-                        (spec.charAt(start) == '/') &&
-                        (spec.charAt(start + 1) == '/') &&
-                        (spec.charAt(start + 2) == '/') &&
-                        (spec.charAt(start + 3) == '/');
+        // ----- BEGIN android -----
+        // boolean isUNCName = (start <= limit - 4) &&
+        //                 (spec.charAt(start) == '/') &&
+        //                 (spec.charAt(start + 1) == '/') &&
+        //                 (spec.charAt(start + 2) == '/') &&
+        //                 (spec.charAt(start + 3) == '/');
+        boolean isUNCName = false;
+        // ----- END android -----
         if (!isUNCName && (start <= limit - 2) && (spec.charAt(start) == '/') &&
             (spec.charAt(start + 1) == '/')) {
             start += 2;
@@ -214,7 +223,16 @@ public abstract class URLStreamHandler {
                     if (ind >= 0) {
                         // port can be null according to RFC2396
                         if (host.length() > (ind + 1)) {
-                            port = Integer.parseInt(host.substring(ind + 1));
+                            // ----- BEGIN android -----
+                            // port = Integer.parseInt(host.substring(ind + 1));
+                            char firstPortChar = host.charAt(ind+1);
+                            if (firstPortChar >= '0' && firstPortChar <= '9') {
+                                port = Integer.parseInt(host.substring(ind + 1));
+                            } else {
+                                throw new IllegalArgumentException("invalid port: " +
+                                                                   host.substring(ind + 1));
+                            }
+                            // ----- END android -----
                         }
                         host = host.substring(0, ind);
                     }
@@ -226,10 +244,17 @@ public abstract class URLStreamHandler {
                 throw new IllegalArgumentException("Invalid port number :" +
                                                    port);
             start = i;
+
+            // ----- BEGIN android -----
             // If the authority is defined then the path is defined by the
             // spec only; See RFC 2396 Section 5.2.4.
-            if (authority != null && authority.length() > 0)
-                path = "";
+            // if (authority != null && authority.length() > 0)
+            //   path = "";
+            path = null;
+            if (!querySet) {
+                query = null;
+            }
+            // ----- END android -----
         }
 
         if (host == null) {
@@ -467,13 +492,18 @@ public abstract class URLStreamHandler {
      * @since 1.3
      */
     protected boolean hostsEqual(URL u1, URL u2) {
-        InetAddress a1 = getHostAddress(u1);
-        InetAddress a2 = getHostAddress(u2);
-        // if we have internet address for both, compare them
-        if (a1 != null && a2 != null) {
-            return a1.equals(a2);
-        // else, if both have host names, compare them
-        } else if (u1.getHost() != null && u2.getHost() != null)
+        // ----- BEGIN android -----
+        // Stop doing host lookups in URL#equals, it's silly.
+        //
+        // InetAddress a1 = getHostAddress(u1);
+        // InetAddress a2 = getHostAddress(u2);
+        // // if we have internet address for both, compare them
+        // if (a1 != null && a2 != null) {
+        //     return a1.equals(a2);
+        // // else, if both have host names, compare them
+        // } else if (u1.getHost() != null && u2.getHost() != null)
+        if (u1.getHost() != null && u2.getHost() != null)
+        // ----- END android -----
             return u1.getHost().equalsIgnoreCase(u2.getHost());
          else
             return u1.getHost() == null && u2.getHost() == null;
@@ -507,12 +537,12 @@ public abstract class URLStreamHandler {
         StringBuilder result = new StringBuilder(len);
         result.append(u.getProtocol());
         result.append(":");
-        if (u.getAuthority() != null && u.getAuthority().length() > 0) {
+        if (u.getAuthority() != null) {// ANDROID: && u.getAuthority().length() > 0) {
             result.append("//");
             if (escapeIllegalCharacters) {
-              URI.AUTHORITY_ENCODER.appendPartiallyEncoded(result, u.getAuthority());
+                URI.AUTHORITY_ENCODER.appendPartiallyEncoded(result, u.getAuthority());
             } else {
-              result.append(u.getAuthority());
+                result.append(u.getAuthority());
             }
         }
         String fileAndQuery = u.getFile();
