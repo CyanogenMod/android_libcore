@@ -253,12 +253,15 @@ public abstract class URLStreamHandler {
                 String seperator = (authority != null) ? "/" : "";
                 path = seperator + spec.substring(start, limit);
             }
-        } else if (queryOnly && path != null) {
-            int ind = path.lastIndexOf('/');
-            if (ind < 0)
-                ind = 0;
-            path = path.substring(0, ind) + "/";
         }
+        // ----- BEGIN android -----
+        //else if (queryOnly && path != null) {
+        //    int ind = path.lastIndexOf('/');
+        //    if (ind < 0)
+        //        ind = 0;
+        //    path = path.substring(0, ind) + "/";
+        //}
+        // ----- END android -----
         if (path == null)
             path = "";
 
@@ -273,13 +276,21 @@ public abstract class URLStreamHandler {
             // Remove embedded /../ if possible
             i = 0;
             while ((i = path.indexOf("/../", i)) >= 0) {
+                // ----- BEGIN android -----
+                /*
+                 * Trailing /../
+                 */
+                if (i == 0) {
+                    path = path.substring(i + 3);
+                    i = 0;
+                // ----- END android -----
                 /*
                  * A "/../" will cancel the previous segment and itself,
                  * unless that segment is a "/../" itself
                  * i.e. "/a/b/../c" becomes "/a/c"
                  * but "/../../a" should stay unchanged
                  */
-                if (i > 0 && (limit = path.lastIndexOf('/', i - 1)) >= 0 &&
+                } else if (i > 0 && (limit = path.lastIndexOf('/', i - 1)) >= 0 &&
                     (path.indexOf("/../", limit) != 0)) {
                     path = path.substring(0, limit) + path.substring(i + 3);
                     i = 0;
