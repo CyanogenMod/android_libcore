@@ -386,6 +386,7 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "O_RDONLY", O_RDONLY);
     initConstant(env, c, "O_RDWR", O_RDWR);
     initConstant(env, c, "O_SYNC", O_SYNC);
+    initConstant(env, c, "O_DSYNC", O_DSYNC);
     initConstant(env, c, "O_TRUNC", O_TRUNC);
     initConstant(env, c, "O_WRONLY", O_WRONLY);
     initConstant(env, c, "POLLERR", POLLERR);
