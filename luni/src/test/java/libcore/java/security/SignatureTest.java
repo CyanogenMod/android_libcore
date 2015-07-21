@@ -16,7 +16,9 @@
 
 package libcore.java.security;
 
+import java.lang.reflect.Method;
 import java.math.BigInteger;
+import java.security.AlgorithmParameters;
 import java.security.InvalidKeyException;
 import java.security.InvalidParameterException;
 import java.security.KeyFactory;
@@ -29,6 +31,7 @@ import java.security.PublicKey;
 import java.security.Security;
 import java.security.Signature;
 import java.security.SignatureException;
+import java.security.SignatureSpi;
 import java.security.spec.DSAPrivateKeySpec;
 import java.security.spec.DSAPublicKeySpec;
 import java.security.spec.ECFieldFp;
@@ -41,8 +44,11 @@ import java.security.spec.RSAPrivateCrtKeySpec;
 import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.RSAPublicKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -1743,5 +1749,107 @@ public class SignatureTest extends TestCase {
         ecdsaVerify.update("Not Satoshi Nakamoto".getBytes("UTF-8"));
         result = ecdsaVerify.verify(SIGNATURE);
         assertEquals(false, result);
+    }
+
+    /**
+     * When an instance of a Signature is obtained, it's actually wrapped in an
+     * implementation that makes sure the correct SPI is selected and then calls
+     * through to the underlying SPI. We need to make sure that all methods on
+     * the delegate are wrapped and don't call directly into
+     * {@link SignatureSpi}.
+     */
+    public void testSignatureDelegateOverridesAllMethods() throws Exception {
+        Signature sig = Signature.getInstance("SHA1withRSA");
+
+        /*
+         * Make sure we're dealing with a delegate and not an actual instance of
+         * Signature.
+         */
+        Class<?> sigClass = sig.getClass();
+        assertFalse(sigClass.equals(SignatureSpi.class));
+        assertFalse(sigClass.equals(Signature.class));
+
+        List<String> methodsNotOverridden = new ArrayList<String>();
+
+        for (Method spiMethod : SignatureSpi.class.getDeclaredMethods()) {
+            try {
+                sigClass.getDeclaredMethod(spiMethod.getName(), spiMethod.getParameterTypes());
+            } catch (NoSuchMethodException e) {
+                methodsNotOverridden.add(spiMethod.toString());
+            }
+        }
+
+        assertEquals(Collections.EMPTY_LIST, methodsNotOverridden);
+    }
+
+    public void testGetParameters_IsCalled() throws Exception {
+        Signature sig = Signature.getInstance(FakeProviderForGetParametersTest.ALGORITHM,
+                new FakeProviderForGetParametersTest());
+
+        boolean[] getParametersCalled = new boolean[1];
+        sig.setParameter(FakeProviderForGetParametersTest.CALLBACK_PARAM_NAME, getParametersCalled);
+
+        assertFalse(getParametersCalled[0]);
+        sig.getParameters();
+        assertTrue(getParametersCalled[0]);
+    }
+
+    private static class FakeProviderForGetParametersTest extends Provider {
+        public static final String ALGORITHM = "FAKEFORGETPARAMETERS";
+        public static final String CALLBACK_PARAM_NAME = "callback";
+
+        protected FakeProviderForGetParametersTest() {
+            super("FakeProviderForGetParametersTest", 1.0, "For testing only");
+            put("Signature." + ALGORITHM, FakeSignatureWithGetParameters.class.getName());
+        }
+
+        public static class FakeSignatureWithGetParameters extends SignatureSpi {
+            private boolean[] callback;
+
+            @Override
+            protected void engineInitVerify(PublicKey publicKey) throws InvalidKeyException {
+            }
+
+            @Override
+            protected void engineInitSign(PrivateKey privateKey) throws InvalidKeyException {
+            }
+
+            @Override
+            protected void engineUpdate(byte b) throws SignatureException {
+            }
+
+            @Override
+            protected void engineUpdate(byte[] b, int off, int len) throws SignatureException {
+            }
+
+            @Override
+            protected byte[] engineSign() throws SignatureException {
+                return null;
+            }
+
+            @Override
+            protected boolean engineVerify(byte[] sigBytes) throws SignatureException {
+                return false;
+            }
+
+            @Override
+            protected void engineSetParameter(String param, Object value)
+                    throws InvalidParameterException {
+                if (CALLBACK_PARAM_NAME.equals(param)) {
+                    callback = (boolean[]) value;
+                }
+            }
+
+            @Override
+            protected Object engineGetParameter(String param) throws InvalidParameterException {
+                return null;
+            }
+
+            @Override
+            protected AlgorithmParameters engineGetParameters() {
+                callback[0] = true;
+                return null;
+            }
+        }
     }
 }
