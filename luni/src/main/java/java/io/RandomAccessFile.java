@@ -44,8 +44,6 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      */
     private FileDescriptor fd;
 
-    private boolean syncMetadata = false;
-
     // The unique file channel associated with this FileInputStream (lazily
     // initialized).
     private FileChannel channel;
@@ -104,11 +102,11 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
         } else if (mode.equals("rw") || mode.equals("rws") || mode.equals("rwd")) {
             flags = O_RDWR | O_CREAT;
             if (mode.equals("rws")) {
-                // Sync file and metadata with every write
-                syncMetadata = true;
-            } else if (mode.equals("rwd")) {
-                // Sync file, but not necessarily metadata
+                // Sync data and metadata with every write
                 flags |= O_SYNC;
+            } else if (mode.equals("rwd")) {
+                // Sync data, but not necessarily metadata
+                flags |= O_DSYNC;
             }
         } else {
             throw new IllegalArgumentException("Invalid mode: " + mode);
@@ -116,14 +114,6 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
         this.mode = flags;
         this.fd = IoBridge.open(file.getPath(), flags);
 
-        // if we are in "rws" mode, attempt to sync file+metadata
-        if (syncMetadata) {
-            try {
-                fd.sync();
-            } catch (IOException e) {
-                // Ignored
-            }
-        }
         guard.open("close");
     }
 
@@ -635,10 +625,6 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
             seek(newLength);
         }
 
-        // if we are in "rws" mode, attempt to sync file+metadata
-        if (syncMetadata) {
-            fd.sync();
-        }
     }
 
     /**
@@ -689,10 +675,6 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      */
     public void write(byte[] buffer, int byteOffset, int byteCount) throws IOException {
         IoBridge.write(fd, buffer, byteOffset, byteCount);
-        // if we are in "rws" mode, attempt to sync file+metadata
-        if (syncMetadata) {
-            fd.sync();
-        }
     }
 
     /**

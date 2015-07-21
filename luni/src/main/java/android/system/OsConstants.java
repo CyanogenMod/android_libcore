@@ -350,6 +350,7 @@ public final class OsConstants {
     public static final int O_RDONLY = placeholder();
     public static final int O_RDWR = placeholder();
     public static final int O_SYNC = placeholder();
+    /** @hide */ public static final int O_DSYNC = placeholder();
     public static final int O_TRUNC = placeholder();
     public static final int O_WRONLY = placeholder();
     public static final int POLLERR = placeholder();
