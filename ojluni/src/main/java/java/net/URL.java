@@ -1359,6 +1359,9 @@ class Parts {
         } else {
             path = file;
         }
+        if (path.charAt(0) != '/') {
+            path = '/' + path;
+        }
     }
 
     String getPath() {

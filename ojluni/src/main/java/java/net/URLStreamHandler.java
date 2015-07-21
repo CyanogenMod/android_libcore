@@ -262,7 +262,10 @@ public abstract class URLStreamHandler {
         if (path == null)
             path = "";
 
-        if (isRelPath) {
+        // ----- BEGIN android -----
+        //if (isRelPath) {
+        if (true) {
+        // ----- END android -----
             // Remove embedded /./
             while ((i = path.indexOf("/./")) >= 0) {
                 path = path.substring(0, i) + path.substring(i + 2);
