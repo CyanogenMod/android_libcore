@@ -1007,6 +1007,94 @@ public final class CipherTest extends TestCase {
         }
     }
 
+    public void testCipher_init_CallsInitWithParams_AlgorithmParameterSpec() throws Exception {
+        Provider mockProviderRejects = new MockProvider("MockProviderRejects") {
+            public void setup() {
+                put("Cipher.FOO",
+                        MockCipherSpi.MustInitWithAlgorithmParameterSpec_RejectsAll.class.getName());
+                put("Cipher.FOO SupportedKeyClasses", MockKey.class.getName());
+            }
+        };
+        Provider mockProviderAccepts = new MockProvider("MockProviderAccepts") {
+            public void setup() {
+                put("Cipher.FOO", MockCipherSpi.AllKeyTypes.class.getName());
+                put("Cipher.FOO SupportedKeyClasses", MockKey.class.getName());
+            }
+        };
+
+        Security.addProvider(mockProviderRejects);
+        Security.addProvider(mockProviderAccepts);
+        try {
+            Cipher c = Cipher.getInstance("FOO");
+            c.init(Cipher.ENCRYPT_MODE, new MockKey(), new IvParameterSpec(new byte[12]));
+            assertEquals(mockProviderAccepts, c.getProvider());
+        } finally {
+            Security.removeProvider(mockProviderRejects.getName());
+            Security.removeProvider(mockProviderAccepts.getName());
+        }
+    }
+
+    public void testCipher_init_CallsInitWithParams_AlgorithmParameters() throws Exception {
+        Provider mockProviderRejects = new MockProvider("MockProviderRejects") {
+            public void setup() {
+                put("Cipher.FOO",
+                        MockCipherSpi.MustInitWithAlgorithmParameters_RejectsAll.class.getName());
+                put("Cipher.FOO SupportedKeyClasses", MockKey.class.getName());
+            }
+        };
+        Provider mockProviderAccepts = new MockProvider("MockProviderAccepts") {
+            public void setup() {
+                put("Cipher.FOO", MockCipherSpi.AllKeyTypes.class.getName());
+                put("Cipher.FOO SupportedKeyClasses", MockKey.class.getName());
+            }
+        };
+
+        Security.addProvider(mockProviderRejects);
+        Security.addProvider(mockProviderAccepts);
+        try {
+            Cipher c = Cipher.getInstance("FOO");
+            c.init(Cipher.ENCRYPT_MODE, new MockKey(), AlgorithmParameters.getInstance("AES"));
+            assertEquals(mockProviderAccepts, c.getProvider());
+        } finally {
+            Security.removeProvider(mockProviderRejects.getName());
+            Security.removeProvider(mockProviderAccepts.getName());
+        }
+    }
+
+    public void testCipher_init_CallsInitWithMode() throws Exception {
+        Provider mockProviderOnlyEncrypt = new MockProvider("MockProviderOnlyEncrypt") {
+            public void setup() {
+                put("Cipher.FOO", MockCipherSpi.MustInitForEncryptModeOrRejects.class.getName());
+                put("Cipher.FOO SupportedKeyClasses", MockKey.class.getName());
+            }
+        };
+        Provider mockProviderAcceptsAll = new MockProvider("MockProviderAcceptsAll") {
+            public void setup() {
+                put("Cipher.FOO", MockCipherSpi.AllKeyTypes.class.getName());
+                put("Cipher.FOO SupportedKeyClasses", MockKey.class.getName());
+            }
+        };
+
+        Security.addProvider(mockProviderOnlyEncrypt);
+        Security.addProvider(mockProviderAcceptsAll);
+        try {
+            {
+                Cipher c = Cipher.getInstance("FOO");
+                c.init(Cipher.DECRYPT_MODE, new MockKey(), AlgorithmParameters.getInstance("AES"));
+                assertEquals(mockProviderAcceptsAll, c.getProvider());
+            }
+
+            {
+                Cipher c = Cipher.getInstance("FOO");
+                c.init(Cipher.ENCRYPT_MODE, new MockKey(), AlgorithmParameters.getInstance("AES"));
+                assertEquals(mockProviderOnlyEncrypt, c.getProvider());
+            }
+        } finally {
+            Security.removeProvider(mockProviderOnlyEncrypt.getName());
+            Security.removeProvider(mockProviderAcceptsAll.getName());
+        }
+    }
+
     public void test_getInstance() throws Exception {
         final ByteArrayOutputStream errBuffer = new ByteArrayOutputStream();
         PrintStream out = new PrintStream(errBuffer);
