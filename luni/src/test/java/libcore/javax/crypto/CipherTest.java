@@ -1050,6 +1050,33 @@ public final class CipherTest extends TestCase {
         }
     }
 
+    public void testCipher_init_CallsInitIgnoresRuntimeException() throws Exception {
+        Provider mockProviderRejects = new MockProvider("MockProviderRejects") {
+            public void setup() {
+                put("Cipher.FOO",
+                        MockCipherSpi.MustInitWithAlgorithmParameters_ThrowsNull.class.getName());
+                put("Cipher.FOO SupportedKeyClasses", MockKey.class.getName());
+            }
+        };
+        Provider mockProviderAccepts = new MockProvider("MockProviderAccepts") {
+            public void setup() {
+                put("Cipher.FOO", MockCipherSpi.AllKeyTypes.class.getName());
+                put("Cipher.FOO SupportedKeyClasses", MockKey.class.getName());
+            }
+        };
+
+        Security.addProvider(mockProviderRejects);
+        Security.addProvider(mockProviderAccepts);
+        try {
+            Cipher c = Cipher.getInstance("FOO");
+            c.init(Cipher.ENCRYPT_MODE, new MockKey(), AlgorithmParameters.getInstance("AES"));
+            assertEquals(mockProviderAccepts, c.getProvider());
+        } finally {
+            Security.removeProvider(mockProviderRejects.getName());
+            Security.removeProvider(mockProviderAccepts.getName());
+        }
+    }
+
     public void testCipher_init_CallsInitWithMode() throws Exception {
         Provider mockProviderOnlyEncrypt = new MockProvider("MockProviderOnlyEncrypt") {
             public void setup() {
