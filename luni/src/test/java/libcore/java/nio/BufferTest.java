@@ -619,7 +619,7 @@ public class BufferTest extends TestCase {
     // http://b/16449607
     public void testDirectByteBufferAlignment() throws Exception {
         ByteBuffer b = ByteBuffer.allocateDirect(10);
-        Field addressField = Buffer.class.getDeclaredField("effectiveDirectAddress");
+        Field addressField = Buffer.class.getDeclaredField("address");
         assertTrue(addressField != null);
         addressField.setAccessible(true);
         long address = addressField.getLong(b);
@@ -889,7 +889,7 @@ public class BufferTest extends TestCase {
         ByteBuffer b2 = b1.duplicate();
         NioUtils.freeDirectBuffer(b1);
         for (ByteBuffer b: new ByteBuffer[] { b1, b2 }) {
-            assertFalse(b.isAccessible());
+          //assertFalse(b.isAccessible());
             try {
                 b.compact();
                 fail();
@@ -907,6 +907,7 @@ public class BufferTest extends TestCase {
         }
     }
 
+    /* setAccessible is not available in OpenJdk's buffers.
     public void testAccess() {
         ByteBuffer b1 = ByteBuffer.allocate(1);
         ByteBuffer b2 = b1.duplicate();
@@ -990,7 +991,7 @@ public class BufferTest extends TestCase {
             testAsMethods(b);
             testGetMethods(b);
         }
-    }
+        }*/
 
     private void testPutMethods(ByteBuffer b) {
         b.position(0);

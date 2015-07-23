@@ -2035,6 +2035,8 @@ public abstract class ByteBuffer
     public abstract DoubleBuffer asDoubleBuffer();
 
     // ----- BEGIN android -----
+    // TODO(pszczepaniak): Remove these after adding this functionality
+    // in the framework
     /**
      * @hide
      */
@@ -2048,5 +2050,4 @@ public abstract class ByteBuffer
         throw new UnsupportedOperationException();
     }
     // ----- END android -----
-
 }

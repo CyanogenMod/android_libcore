@@ -37,6 +37,11 @@ import sun.misc.Cleaner;
 import sun.misc.IoTrace;
 import sun.security.action.GetPropertyAction;
 
+// ----- BEGIN android -----
+import android.system.ErrnoException;
+import libcore.io.Libcore;
+// ----- END android -----
+
 public class FileChannelImpl
     extends FileChannel
 {
@@ -848,13 +853,33 @@ public class FileChannelImpl
             if (!isOpen())
                 return null;
             if (size() < position + size) { // Extend file size
+                /* ----- BEGIN android -----
                 if (!writable) {
                     throw new IOException("Channel not open for writing " +
                         "- cannot extend file to required size");
                 }
-                int rv;
+                ----- END android ----- */
+                int rv = 0;
                 do {
-                    rv = nd.truncate(fd, position + size);
+                    // ----- BEGIN android -----
+                    //int rv = nd.truncate(fd, position + size);
+                    try {
+                        rv = nd.truncate(fd, position + size);
+                    } catch (IOException r) {
+                        try {
+                            // If we're dealing with non-regular files, for example,
+                            // character devices such as /dev/zero. In those
+                            // cases, we ignore the failed truncation and continue
+                            // on.
+                            if (android.system.OsConstants.S_ISREG(Libcore.os.fstat(fd).st_mode)) {
+                                throw r;
+                            }
+                        } catch (ErrnoException e) {
+                            e.rethrowAsIOException();
+                        }
+                        break;
+                    }
+                    // ----- END android -----
                 } while ((rv == IOStatus.INTERRUPTED) && isOpen());
             }
             if (size == 0) {

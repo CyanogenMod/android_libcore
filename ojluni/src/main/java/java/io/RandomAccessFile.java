@@ -30,7 +30,6 @@ import sun.nio.ch.FileChannelImpl;
 import sun.misc.IoTrace;
 import android.system.ErrnoException;
 import dalvik.system.CloseGuard;
-import java.nio.NioUtils;
 import libcore.io.IoBridge;
 import libcore.io.Libcore;
 import static android.system.OsConstants.*;
@@ -289,7 +288,17 @@ public class RandomAccessFile implements DataOutput, DataInput, Closeable {
     public final FileChannel getChannel() {
         synchronized (this) {
             if (channel == null) {
-                channel = NioUtils.newFileChannel(this, fd, mode);
+                channel = FileChannelImpl.open(fd, path, true, rw, this);
+                /*
+                 * FileDescriptor could be shared by FileInputStream or
+                 * FileOutputStream.
+                 * Ensure that FD is GC'ed only when all the streams/channels
+                 * are done using it.
+                 * Increment fd's use count. Invoking the channel's close()
+                 * method will result in decrementing the use count set for
+                 * the channel.
+                 */
+                // fd.incrementAndGetUseCount();
             }
             return channel;
         }

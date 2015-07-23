@@ -36,6 +36,7 @@ LOCAL_SRC_FILES := \
     net_util.c \
     net_util_md.c \
     Net.c \
+    MappedByteBuffer.c \
     Inet6Address.c \
     Inet4Address.c \
     linux_close.c \

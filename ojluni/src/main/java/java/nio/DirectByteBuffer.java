@@ -105,9 +105,6 @@ class DirectByteBuffer
             unsafe.freeMemory(address);
             address = 0;
             Bits.unreserveMemory(size, capacity);
-            // ----- BEGIN android -----
-            DirectByteBuffer.this.freed = true;
-            // ----- END android -----
         }
 
     }
@@ -1035,6 +1032,8 @@ class DirectByteBuffer
     }
 
     // ----- BEGIN android -----
+    // TODO(pszczepaniak): Remove these after adding this functionality
+    // in the framework
     private boolean accessible = true;
     private boolean freed = false;
     /**
@@ -1050,5 +1049,4 @@ class DirectByteBuffer
         return accessible && !freed;
     }
     // ----- END android -----
-
 }
