@@ -16,6 +16,8 @@
 
 package libcore.java.security.cert;
 
+import org.apache.harmony.security.utils.AlgNameMapper;
+
 import tests.support.resource.Support_Resources;
 
 import java.io.BufferedInputStream;
@@ -294,6 +296,8 @@ public class X509CertificateTest extends TestCase {
                 generateCertificates_PKCS7_PEM_TrailingData(f);
                 generateCertificates_PKCS7_DER_TrailingData(f);
                 test_Serialization(f);
+                test_UnknownUnmappedKeyOID(f);
+                test_UnknownMappedKeyOID(f);
             } catch (Throwable e) {
                 out.append("Error encountered checking " + p.getName() + "\n");
                 e.printStackTrace(out);
@@ -1174,7 +1178,7 @@ public class X509CertificateTest extends TestCase {
             Collection<? extends X509Certificate> certs = (Collection<? extends X509Certificate>)
                     f.generateCertificates(bais);
             if (StandardNames.IS_RI) {
-                fail("RI fails on this test.");
+                return;
             }
         } catch (CertificateParsingException e) {
             if (StandardNames.IS_RI) {
@@ -1204,7 +1208,7 @@ public class X509CertificateTest extends TestCase {
             Collection<? extends X509Certificate> certs = (Collection<? extends X509Certificate>)
                     f.generateCertificates(bais);
             if (StandardNames.IS_RI) {
-                fail("RI fails on this test.");
+                return;
             }
         } catch (CertificateParsingException e) {
             if (StandardNames.IS_RI) {
@@ -1249,12 +1253,7 @@ public class X509CertificateTest extends TestCase {
         Collection<? extends X509Certificate> certs = (Collection<? extends X509Certificate>)
                 f.generateCertificates(bais);
 
-        // RI is broken
-        if (StandardNames.IS_RI) {
-            assertEquals(0, bais.available());
-        } else {
-            assertEquals(4096, bais.available());
-        }
+        assertEquals(4096, bais.available());
     }
 
     private void test_Serialization(CertificateFactory f) throws Exception {
@@ -1282,6 +1281,89 @@ public class X509CertificateTest extends TestCase {
                 bais.close();
             }
         }
+    }
+
+    private void test_UnknownUnmappedKeyOID(CertificateFactory f) throws Exception {
+        byte[] certBytes = generateFakeOidCertificate();
+
+        {
+            X509Certificate cert = (X509Certificate) f
+                    .generateCertificate(new ByteArrayInputStream(certBytes));
+            assertEquals(FakeOidProvider.SIGALG_OID, cert.getSigAlgOID());
+            assertEquals(FakeOidProvider.SIGALG_OID, cert.getSigAlgName());
+        }
+    }
+
+    private void test_UnknownMappedKeyOID(CertificateFactory f) throws Exception {
+        AlgNameMapper.addMapping(FakeOidProvider.SIGALG_OID, FakeOidProvider.SIGALG_OID_NAME);
+
+        Security.addProvider(new FakeOidProvider());
+        try {
+            byte[] certBytes = generateFakeOidCertificate();
+
+            // Make sure the certificate is outputting something.
+            X509Certificate cert = (X509Certificate) f
+                    .generateCertificate(new ByteArrayInputStream(certBytes));
+            assertEquals(FakeOidProvider.SIGALG_OID, cert.getSigAlgOID());
+            if ("AndroidOpenSSL".equals(f.getProvider().getName())) {
+                // AndroidOpenSSL provider has a connection to AlgNameMapper, so
+                // we expect it to get our special name.
+                assertEquals(FakeOidProvider.SIGALG_OID_NAME, cert.getSigAlgName());
+            } else {
+                assertNotNull(cert.getSigAlgName());
+            }
+
+            cert.verify(cert.getPublicKey());
+        } finally {
+            AlgNameMapper
+                    .removeMapping(FakeOidProvider.SIGALG_OID, FakeOidProvider.SIGALG_OID_NAME);
+            Security.removeProvider(FakeOidProvider.PROVIDER_NAME);
+        }
+    }
+
+    private byte[] generateFakeOidCertificate() throws IOException {
+        byte[] certBytes;
+
+        // Read in the original cert.
+        {
+            InputStream is = null;
+            try {
+                is = Support_Resources.getStream(CERT_RSA);
+
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                byte[] buffer = new byte[2048];
+                int numRead;
+                while ((numRead = is.read(buffer, 0, buffer.length)) != -1) {
+                    baos.write(buffer, 0, numRead);
+                }
+                certBytes = baos.toByteArray();
+            } finally {
+                if (is != null) {
+                    try {
+                        is.close();
+                    } catch (IOException ignored) {
+                    }
+                }
+            }
+        }
+
+        // Fix the OID for the certificate.
+        {
+            int numFixed = 0;
+            for (int i = 0; i < certBytes.length - 5; i++) {
+                if (certBytes[i] == (byte) 0x2A && certBytes[i + 1] == (byte) 0x86
+                        && certBytes[i + 2] == (byte) 0x48 && certBytes[i + 3] == (byte) 0x86
+                        && certBytes[i + 4] == (byte) 0xF7) {
+                    certBytes[i + 1] = (byte) 0xFF;
+                    certBytes[i + 2] = (byte) 0xFF;
+                    certBytes[i + 3] = (byte) 0xFF;
+                    i += 4;
+                    numFixed++;
+                }
+            }
+            assertEquals(3, numFixed);
+        }
+        return certBytes;
     }
 
     @Override
