@@ -16,6 +16,11 @@
 
 package libcore.java.security;
 
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+
 import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.security.AlgorithmParameters;
@@ -1777,73 +1782,71 @@ public class SignatureTest extends TestCase {
     }
 
     public void testGetParameters_IsCalled() throws Exception {
-        Signature sig = Signature.getInstance(FakeProviderForGetParametersTest.ALGORITHM,
-                new FakeProviderForGetParametersTest());
+        Provider provider = spy(new MockableProvider());
+        Provider.Service service = spy(new Provider.Service(provider, "Signature",
+                "FAKEFORGETPARAMETERS", "fake", null, null));
+        MockableSignatureSpi signatureSpi = mock(MockableSignatureSpi.class);
 
-        boolean[] getParametersCalled = new boolean[1];
-        sig.setParameter(FakeProviderForGetParametersTest.CALLBACK_PARAM_NAME, getParametersCalled);
+        // Since these are spies, we want to use the doReturn(...) syntax to
+        // avoid calling the real methods.
+        doReturn(service).when(provider).getService(service.getType(), service.getAlgorithm());
+        doReturn(signatureSpi).when(service).newInstance(null);
 
-        assertFalse(getParametersCalled[0]);
+        Signature sig = Signature.getInstance(service.getAlgorithm(), provider);
         sig.getParameters();
-        assertTrue(getParametersCalled[0]);
+        verify(signatureSpi).engineGetParameters();
     }
 
-    private static class FakeProviderForGetParametersTest extends Provider {
-        public static final String ALGORITHM = "FAKEFORGETPARAMETERS";
-        public static final String CALLBACK_PARAM_NAME = "callback";
+    public static class MockableProvider extends Provider {
+        protected MockableProvider() {
+            super("MockableProvider", 1.0, "Used by Mockito");
+        }
+    }
 
-        protected FakeProviderForGetParametersTest() {
-            super("FakeProviderForGetParametersTest", 1.0, "For testing only");
-            put("Signature." + ALGORITHM, FakeSignatureWithGetParameters.class.getName());
+    public static class MockableSignatureSpi extends SignatureSpi {
+        @Override
+        public void engineInitVerify(PublicKey publicKey) throws InvalidKeyException {
+            throw new UnsupportedOperationException();
         }
 
-        public static class FakeSignatureWithGetParameters extends SignatureSpi {
-            private boolean[] callback;
+        @Override
+        public void engineInitSign(PrivateKey privateKey) throws InvalidKeyException {
+            throw new UnsupportedOperationException();
+        }
 
-            @Override
-            protected void engineInitVerify(PublicKey publicKey) throws InvalidKeyException {
-            }
+        @Override
+        public void engineUpdate(byte b) throws SignatureException {
+            throw new UnsupportedOperationException();
+        }
 
-            @Override
-            protected void engineInitSign(PrivateKey privateKey) throws InvalidKeyException {
-            }
+        @Override
+        public void engineUpdate(byte[] b, int off, int len) throws SignatureException {
+            throw new UnsupportedOperationException();
+        }
 
-            @Override
-            protected void engineUpdate(byte b) throws SignatureException {
-            }
+        @Override
+        public byte[] engineSign() throws SignatureException {
+            throw new UnsupportedOperationException();
+        }
 
-            @Override
-            protected void engineUpdate(byte[] b, int off, int len) throws SignatureException {
-            }
+        @Override
+        public boolean engineVerify(byte[] sigBytes) throws SignatureException {
+            throw new UnsupportedOperationException();
+        }
 
-            @Override
-            protected byte[] engineSign() throws SignatureException {
-                return null;
-            }
+        @Override
+        public void engineSetParameter(String param, Object value) throws InvalidParameterException {
+            throw new UnsupportedOperationException();
+        }
 
-            @Override
-            protected boolean engineVerify(byte[] sigBytes) throws SignatureException {
-                return false;
-            }
+        @Override
+        public Object engineGetParameter(String param) throws InvalidParameterException {
+            throw new UnsupportedOperationException();
+        }
 
-            @Override
-            protected void engineSetParameter(String param, Object value)
-                    throws InvalidParameterException {
-                if (CALLBACK_PARAM_NAME.equals(param)) {
-                    callback = (boolean[]) value;
-                }
-            }
-
-            @Override
-            protected Object engineGetParameter(String param) throws InvalidParameterException {
-                return null;
-            }
-
-            @Override
-            protected AlgorithmParameters engineGetParameters() {
-                callback[0] = true;
-                return null;
-            }
+        @Override
+        public AlgorithmParameters engineGetParameters() {
+            throw new UnsupportedOperationException();
         }
     }
 }
