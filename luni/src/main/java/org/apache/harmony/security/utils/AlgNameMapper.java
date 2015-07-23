@@ -87,12 +87,31 @@ public class AlgNameMapper {
 
     static {
         for (String[] element : knownAlgMappings) {
-            String algUC = element[1].toUpperCase(Locale.US);
-            alg2OidMap.put(algUC, element[0]);
-            oid2AlgMap.put(element[0], algUC);
-            // map upper case alg name to its original name
-            algAliasesMap.put(algUC, element[1]);
+            addMapping(element[0], element[1]);
         }
+    }
+
+    /**
+     * Adds a mapping to the internal table. Will overwrite any entry already
+     * present. Visible for testing.
+     */
+    public static void addMapping(String oid, String name) {
+        String nameUC = name.toUpperCase(Locale.ROOT);
+        alg2OidMap.put(nameUC, oid);
+        oid2AlgMap.put(oid, nameUC);
+        // map upper case alg name to its original name
+        algAliasesMap.put(nameUC, name);
+    }
+
+    /**
+     * Removes a mapping from the internal table. Visible for testing.
+     */
+    public static void removeMapping(String oid, String name) {
+        String nameUC = name.toUpperCase(Locale.ROOT);
+        alg2OidMap.remove(nameUC);
+        oid2AlgMap.remove(oid);
+        // map upper case alg name to its original name
+        algAliasesMap.remove(nameUC);
     }
 
     // No instances
@@ -126,7 +145,7 @@ public class AlgNameMapper {
         checkCacheVersion();
 
         // alg2OidMap map contains upper case keys
-        String result = alg2OidMap.get(algName.toUpperCase(Locale.US));
+        String result = alg2OidMap.get(algName.toUpperCase(Locale.ROOT));
         if (result != null) {
             return result;
         }
@@ -144,7 +163,7 @@ public class AlgNameMapper {
      * Returns algName for OID
      *
      * @param oid OID to be mapped
-     * @return algorithm name
+     * @return algorithm name or {@code null} if not found.
      */
     public static String map2AlgName(String oid) {
         checkCacheVersion();
@@ -172,7 +191,7 @@ public class AlgNameMapper {
      * @return algorithm name
      */
     public static String getStandardName(String algName) {
-        return algAliasesMap.get(algName.toUpperCase(Locale.US));
+        return algAliasesMap.get(algName.toUpperCase(Locale.ROOT));
     }
 
     // Searches given provider for mappings like
@@ -185,11 +204,11 @@ public class AlgNameMapper {
         for (String service : serviceName) {
             String keyPrfix2find = "Alg.Alias." + service + ".";
             for (Entry<Object, Object> me : entrySet) {
-                String key = (String)me.getKey();
+                String key = (String) me.getKey();
                 if (key.startsWith(keyPrfix2find)) {
                     String alias = key.substring(keyPrfix2find.length());
-                    String alg = (String)me.getValue();
-                    String algUC = alg.toUpperCase(Locale.US);
+                    String alg = (String) me.getValue();
+                    String algUC = alg.toUpperCase(Locale.ROOT);
                     if (isOID(alias)) {
                         if (alias.startsWith("OID.")) {
                             alias = alias.substring(4);
@@ -207,9 +226,9 @@ public class AlgNameMapper {
                             // map upper case alg name to its original name
                             algAliasesMap.put(algUC, alg);
                         }
-                           // Do not override known standard names
-                    } else if (!algAliasesMap.containsKey(alias.toUpperCase(Locale.US))) {
-                        algAliasesMap.put(alias.toUpperCase(Locale.US), alg);
+                    // Do not override known standard names
+                    } else if (!algAliasesMap.containsKey(alias.toUpperCase(Locale.ROOT))) {
+                        algAliasesMap.put(alias.toUpperCase(Locale.ROOT), alg);
                     }
                 }
             }
