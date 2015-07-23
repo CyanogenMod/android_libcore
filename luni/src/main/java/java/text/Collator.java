@@ -20,7 +20,6 @@ package java.text;
 import java.util.Comparator;
 import java.util.Locale;
 import libcore.icu.ICU;
-import libcore.icu.RuleBasedCollatorICU;
 
 /**
  * Performs locale-sensitive string comparison. A concrete subclass,
@@ -143,11 +142,12 @@ public abstract class Collator implements Comparator<Object>, Cloneable {
     /**
      * Constant used to specify the collation strength.
      */
+    // Note that this differs from the ICU equivalent and must be mapped.
     public static final int IDENTICAL = 3;
 
-    RuleBasedCollatorICU icuColl;
+    com.ibm.icu.text.Collator icuColl;
 
-    Collator(RuleBasedCollatorICU icuColl) {
+    Collator(com.ibm.icu.text.Collator icuColl) {
         this.icuColl = icuColl;
     }
 
@@ -155,7 +155,8 @@ public abstract class Collator implements Comparator<Object>, Cloneable {
      * Constructs a new {@code Collator} instance.
      */
     protected Collator() {
-        icuColl = new RuleBasedCollatorICU(Locale.getDefault());
+        icuColl = (com.ibm.icu.text.RuleBasedCollator)
+                com.ibm.icu.text.RuleBasedCollator.getInstance(Locale.getDefault());
     }
 
     /**
@@ -169,7 +170,7 @@ public abstract class Collator implements Comparator<Object>, Cloneable {
     public Object clone() {
         try {
             Collator clone = (Collator) super.clone();
-            clone.icuColl = (RuleBasedCollatorICU) icuColl.clone();
+            clone.icuColl = (com.ibm.icu.text.Collator) icuColl.clone();
             return clone;
         } catch (CloneNotSupportedException e) {
             throw new AssertionError(e);
@@ -288,7 +289,8 @@ public abstract class Collator implements Comparator<Object>, Cloneable {
         if (locale == null) {
             throw new NullPointerException("locale == null");
         }
-        return new RuleBasedCollator(new RuleBasedCollatorICU(locale));
+        return new RuleBasedCollator((com.ibm.icu.text.RuleBasedCollator)
+                com.ibm.icu.text.Collator.getInstance(locale));
     }
 
     /**
@@ -298,7 +300,9 @@ public abstract class Collator implements Comparator<Object>, Cloneable {
      *         IDENTICAL.
      */
     public int getStrength() {
-        return strength_ICU_Java(icuColl.getStrength());
+        // The value for IDENTICAL in ICU differs from that used in this class.
+        int value = icuColl.getStrength();
+        return (value == com.ibm.icu.text.Collator.IDENTICAL) ? IDENTICAL : value;
     }
 
     @Override
@@ -329,15 +333,19 @@ public abstract class Collator implements Comparator<Object>, Cloneable {
      *            if the provided strength value is not valid.
      */
     public void setStrength(int value) {
-        icuColl.setStrength(strength_Java_ICU(value));
+        // The ICU value for IDENTICAL differs from that defined in this class.
+        if (value == IDENTICAL) {
+            value = com.ibm.icu.text.Collator.IDENTICAL;
+        }
+        icuColl.setStrength(value);
     }
 
     private int decompositionMode_Java_ICU(int mode) {
         switch (mode) {
         case Collator.CANONICAL_DECOMPOSITION:
-            return RuleBasedCollatorICU.VALUE_ON;
+            return com.ibm.icu.text.Collator.CANONICAL_DECOMPOSITION;
         case Collator.NO_DECOMPOSITION:
-            return RuleBasedCollatorICU.VALUE_OFF;
+            return com.ibm.icu.text.Collator.NO_DECOMPOSITION;
         }
         throw new IllegalArgumentException("Bad mode: " + mode);
     }
@@ -345,46 +353,13 @@ public abstract class Collator implements Comparator<Object>, Cloneable {
     private int decompositionMode_ICU_Java(int mode) {
         int javaMode = mode;
         switch (mode) {
-        case RuleBasedCollatorICU.VALUE_OFF:
+        case com.ibm.icu.text.Collator.NO_DECOMPOSITION:
             javaMode = Collator.NO_DECOMPOSITION;
             break;
-        case RuleBasedCollatorICU.VALUE_ON:
+        case com.ibm.icu.text.Collator.CANONICAL_DECOMPOSITION:
             javaMode = Collator.CANONICAL_DECOMPOSITION;
             break;
         }
         return javaMode;
-    }
-
-    private int strength_Java_ICU(int value) {
-        switch (value) {
-        case Collator.PRIMARY:
-            return RuleBasedCollatorICU.VALUE_PRIMARY;
-        case Collator.SECONDARY:
-            return RuleBasedCollatorICU.VALUE_SECONDARY;
-        case Collator.TERTIARY:
-            return RuleBasedCollatorICU.VALUE_TERTIARY;
-        case Collator.IDENTICAL:
-            return RuleBasedCollatorICU.VALUE_IDENTICAL;
-        }
-        throw new IllegalArgumentException("Bad strength: " + value);
-    }
-
-    private int strength_ICU_Java(int value) {
-        int javaValue = value;
-        switch (value) {
-        case RuleBasedCollatorICU.VALUE_PRIMARY:
-            javaValue = Collator.PRIMARY;
-            break;
-        case RuleBasedCollatorICU.VALUE_SECONDARY:
-            javaValue = Collator.SECONDARY;
-            break;
-        case RuleBasedCollatorICU.VALUE_TERTIARY:
-            javaValue = Collator.TERTIARY;
-            break;
-        case RuleBasedCollatorICU.VALUE_IDENTICAL:
-            javaValue = Collator.IDENTICAL;
-            break;
-        }
-        return javaValue;
     }
 }
