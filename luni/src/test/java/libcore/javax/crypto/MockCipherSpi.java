@@ -81,6 +81,7 @@ public class MockCipherSpi extends CipherSpi {
         @Override
         protected void engineInit(int opmode, Key key, SecureRandom random)
                 throws InvalidKeyException {
+            throw new AssertionError("Must have AlgorithmParameterSpec");
         }
 
         @Override
@@ -93,6 +94,26 @@ public class MockCipherSpi extends CipherSpi {
         protected void engineInit(int opmode, Key key, AlgorithmParameters params,
                 SecureRandom random) throws InvalidKeyException, InvalidAlgorithmParameterException {
             throw new InvalidAlgorithmParameterException("expected rejection");
+        }
+    }
+
+    public static class MustInitWithAlgorithmParameters_ThrowsNull extends MockCipherSpi {
+        @Override
+        protected void engineInit(int opmode, Key key, SecureRandom random)
+                throws InvalidKeyException {
+            throw new NullPointerException("expected rejection");
+        }
+
+        @Override
+        protected void engineInit(int opmode, Key key, AlgorithmParameterSpec params,
+                SecureRandom random) throws InvalidKeyException, InvalidAlgorithmParameterException {
+            throw new NullPointerException("expected rejection");
+        }
+
+        @Override
+        protected void engineInit(int opmode, Key key, AlgorithmParameters params,
+                SecureRandom random) throws InvalidKeyException, InvalidAlgorithmParameterException {
+            throw new NullPointerException("expected rejection");
         }
     }
 
