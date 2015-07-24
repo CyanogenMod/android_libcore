@@ -1,4 +1,4 @@
-non_openjdk_java_files := \
+non_openjdk_javadoc_files := \
   luni/src/main/java/android/system/ErrnoException.java \
   luni/src/main/java/android/system/GaiException.java \
   luni/src/main/java/android/system/Os.java \
@@ -23,31 +23,6 @@ non_openjdk_java_files := \
   luni/src/main/java/android/util/MutableInt.java \
   luni/src/main/java/android/util/MutableLong.java \
   luni/src/main/java/android/util/MutableShort.java \
-  dex/src/main/java/com/android/dex/Annotation.java \
-  dex/src/main/java/com/android/dex/ClassData.java \
-  dex/src/main/java/com/android/dex/ClassDef.java \
-  dex/src/main/java/com/android/dex/Code.java \
-  dex/src/main/java/com/android/dex/Dex.java \
-  dex/src/main/java/com/android/dex/DexException.java \
-  dex/src/main/java/com/android/dex/DexFormat.java \
-  dex/src/main/java/com/android/dex/DexIndexOverflowException.java \
-  dex/src/main/java/com/android/dex/EncodedValue.java \
-  dex/src/main/java/com/android/dex/EncodedValueCodec.java \
-  dex/src/main/java/com/android/dex/EncodedValueReader.java \
-  dex/src/main/java/com/android/dex/FieldId.java \
-  dex/src/main/java/com/android/dex/Leb128.java \
-  dex/src/main/java/com/android/dex/MethodId.java \
-  dex/src/main/java/com/android/dex/Mutf8.java \
-  dex/src/main/java/com/android/dex/ProtoId.java \
-  dex/src/main/java/com/android/dex/SizeOf.java \
-  dex/src/main/java/com/android/dex/TableOfContents.java \
-  dex/src/main/java/com/android/dex/TypeList.java \
-  dex/src/main/java/com/android/dex/util/ByteArrayByteInput.java \
-  dex/src/main/java/com/android/dex/util/ByteInput.java \
-  dex/src/main/java/com/android/dex/util/ByteOutput.java \
-  dex/src/main/java/com/android/dex/util/ExceptionWithContext.java \
-  dex/src/main/java/com/android/dex/util/FileUtils.java \
-  dex/src/main/java/com/android/dex/util/Unsigned.java \
   dalvik/src/main/java/dalvik/annotation/AndroidOnly.java \
   dalvik/src/main/java/dalvik/annotation/AnnotationDefault.java \
   dalvik/src/main/java/dalvik/annotation/BrokenTest.java \
@@ -86,17 +61,6 @@ non_openjdk_java_files := \
   libart/src/main/java/dalvik/system/VMRuntime.java \
   libart/src/main/java/dalvik/system/VMStack.java \
   dalvik/src/main/java/dalvik/system/ZygoteHooks.java \
-  dalvik/src/main/java/dalvik/system/profiler/AsciiHprofWriter.java \
-  dalvik/src/main/java/dalvik/system/profiler/BinaryHprof.java \
-  dalvik/src/main/java/dalvik/system/profiler/BinaryHprofReader.java \
-  dalvik/src/main/java/dalvik/system/profiler/BinaryHprofWriter.java \
-  dalvik/src/main/java/dalvik/system/profiler/DalvikThreadSampler.java \
-  dalvik/src/main/java/dalvik/system/profiler/HprofBinaryToAscii.java \
-  dalvik/src/main/java/dalvik/system/profiler/HprofData.java \
-  dalvik/src/main/java/dalvik/system/profiler/MalformedHprofException.java \
-  dalvik/src/main/java/dalvik/system/profiler/PortableThreadSampler.java \
-  dalvik/src/main/java/dalvik/system/profiler/SamplingProfiler.java \
-  dalvik/src/main/java/dalvik/system/profiler/ThreadSampler.java \
   luni/src/main/java/java/lang/CaseMapper.java \
   luni/src/main/java/java/lang/Compiler.java \
   libart/src/main/java/java/lang/Daemons.java \
@@ -282,6 +246,130 @@ non_openjdk_java_files := \
   luni/src/main/java/javax/xml/xpath/XPathFunctionException.java \
   luni/src/main/java/javax/xml/xpath/XPathFunctionResolver.java \
   luni/src/main/java/javax/xml/xpath/XPathVariableResolver.java \
+  json/src/main/java/org/json/JSON.java \
+  json/src/main/java/org/json/JSONArray.java \
+  json/src/main/java/org/json/JSONException.java \
+  json/src/main/java/org/json/JSONObject.java \
+  json/src/main/java/org/json/JSONStringer.java \
+  json/src/main/java/org/json/JSONTokener.java \
+  luni/src/main/java/org/w3c/dom/Attr.java \
+  luni/src/main/java/org/w3c/dom/CDATASection.java \
+  luni/src/main/java/org/w3c/dom/CharacterData.java \
+  luni/src/main/java/org/w3c/dom/Comment.java \
+  luni/src/main/java/org/w3c/dom/DOMConfiguration.java \
+  luni/src/main/java/org/w3c/dom/DOMError.java \
+  luni/src/main/java/org/w3c/dom/DOMErrorHandler.java \
+  luni/src/main/java/org/w3c/dom/DOMException.java \
+  luni/src/main/java/org/w3c/dom/DOMImplementation.java \
+  luni/src/main/java/org/w3c/dom/DOMImplementationList.java \
+  luni/src/main/java/org/w3c/dom/DOMImplementationSource.java \
+  luni/src/main/java/org/w3c/dom/DOMLocator.java \
+  luni/src/main/java/org/w3c/dom/DOMStringList.java \
+  luni/src/main/java/org/w3c/dom/Document.java \
+  luni/src/main/java/org/w3c/dom/DocumentFragment.java \
+  luni/src/main/java/org/w3c/dom/DocumentType.java \
+  luni/src/main/java/org/w3c/dom/Element.java \
+  luni/src/main/java/org/w3c/dom/Entity.java \
+  luni/src/main/java/org/w3c/dom/EntityReference.java \
+  luni/src/main/java/org/w3c/dom/NameList.java \
+  luni/src/main/java/org/w3c/dom/NamedNodeMap.java \
+  luni/src/main/java/org/w3c/dom/Node.java \
+  luni/src/main/java/org/w3c/dom/NodeList.java \
+  luni/src/main/java/org/w3c/dom/Notation.java \
+  luni/src/main/java/org/w3c/dom/ProcessingInstruction.java \
+  luni/src/main/java/org/w3c/dom/Text.java \
+  luni/src/main/java/org/w3c/dom/TypeInfo.java \
+  luni/src/main/java/org/w3c/dom/UserDataHandler.java \
+  luni/src/main/java/org/w3c/dom/ls/DOMImplementationLS.java \
+  luni/src/main/java/org/w3c/dom/ls/LSException.java \
+  luni/src/main/java/org/w3c/dom/ls/LSInput.java \
+  luni/src/main/java/org/w3c/dom/ls/LSOutput.java \
+  luni/src/main/java/org/w3c/dom/ls/LSParser.java \
+  luni/src/main/java/org/w3c/dom/ls/LSParserFilter.java \
+  luni/src/main/java/org/w3c/dom/ls/LSResourceResolver.java \
+  luni/src/main/java/org/w3c/dom/ls/LSSerializer.java \
+  luni/src/main/java/org/w3c/dom/ls/LSSerializerFilter.java \
+  luni/src/main/java/org/w3c/dom/traversal/NodeFilter.java \
+  luni/src/main/java/org/w3c/dom/traversal/NodeIterator.java \
+  luni/src/main/java/org/xml/sax/AttributeList.java \
+  luni/src/main/java/org/xml/sax/Attributes.java \
+  luni/src/main/java/org/xml/sax/ContentHandler.java \
+  luni/src/main/java/org/xml/sax/DTDHandler.java \
+  luni/src/main/java/org/xml/sax/DocumentHandler.java \
+  luni/src/main/java/org/xml/sax/EntityResolver.java \
+  luni/src/main/java/org/xml/sax/ErrorHandler.java \
+  luni/src/main/java/org/xml/sax/HandlerBase.java \
+  luni/src/main/java/org/xml/sax/InputSource.java \
+  luni/src/main/java/org/xml/sax/Locator.java \
+  luni/src/main/java/org/xml/sax/Parser.java \
+  luni/src/main/java/org/xml/sax/SAXException.java \
+  luni/src/main/java/org/xml/sax/SAXNotRecognizedException.java \
+  luni/src/main/java/org/xml/sax/SAXNotSupportedException.java \
+  luni/src/main/java/org/xml/sax/SAXParseException.java \
+  luni/src/main/java/org/xml/sax/XMLFilter.java \
+  luni/src/main/java/org/xml/sax/XMLReader.java \
+  luni/src/main/java/org/xml/sax/ext/Attributes2.java \
+  luni/src/main/java/org/xml/sax/ext/Attributes2Impl.java \
+  luni/src/main/java/org/xml/sax/ext/DeclHandler.java \
+  luni/src/main/java/org/xml/sax/ext/DefaultHandler2.java \
+  luni/src/main/java/org/xml/sax/ext/EntityResolver2.java \
+  luni/src/main/java/org/xml/sax/ext/LexicalHandler.java \
+  luni/src/main/java/org/xml/sax/ext/Locator2.java \
+  luni/src/main/java/org/xml/sax/ext/Locator2Impl.java \
+  luni/src/main/java/org/xml/sax/helpers/AttributeListImpl.java \
+  luni/src/main/java/org/xml/sax/helpers/AttributesImpl.java \
+  luni/src/main/java/org/xml/sax/helpers/DefaultHandler.java \
+  luni/src/main/java/org/xml/sax/helpers/LocatorImpl.java \
+  luni/src/main/java/org/xml/sax/helpers/NamespaceSupport.java \
+  luni/src/main/java/org/xml/sax/helpers/NewInstance.java \
+  luni/src/main/java/org/xml/sax/helpers/ParserAdapter.java \
+  luni/src/main/java/org/xml/sax/helpers/ParserFactory.java \
+  luni/src/main/java/org/xml/sax/helpers/XMLFilterImpl.java \
+  luni/src/main/java/org/xml/sax/helpers/XMLReaderAdapter.java \
+  luni/src/main/java/org/xml/sax/helpers/XMLReaderFactory.java \
+  xml/src/main/java/org/xmlpull/v1/XmlPullParser.java \
+  xml/src/main/java/org/xmlpull/v1/XmlPullParserException.java \
+  xml/src/main/java/org/xmlpull/v1/XmlPullParserFactory.java \
+  xml/src/main/java/org/xmlpull/v1/XmlSerializer.java \
+  xml/src/main/java/org/xmlpull/v1/sax2/Driver.java \
+
+non_openjdk_java_files := \
+  dex/src/main/java/com/android/dex/Annotation.java \
+  dex/src/main/java/com/android/dex/ClassData.java \
+  dex/src/main/java/com/android/dex/ClassDef.java \
+  dex/src/main/java/com/android/dex/Code.java \
+  dex/src/main/java/com/android/dex/Dex.java \
+  dex/src/main/java/com/android/dex/DexException.java \
+  dex/src/main/java/com/android/dex/DexFormat.java \
+  dex/src/main/java/com/android/dex/DexIndexOverflowException.java \
+  dex/src/main/java/com/android/dex/EncodedValue.java \
+  dex/src/main/java/com/android/dex/EncodedValueCodec.java \
+  dex/src/main/java/com/android/dex/EncodedValueReader.java \
+  dex/src/main/java/com/android/dex/FieldId.java \
+  dex/src/main/java/com/android/dex/Leb128.java \
+  dex/src/main/java/com/android/dex/MethodId.java \
+  dex/src/main/java/com/android/dex/Mutf8.java \
+  dex/src/main/java/com/android/dex/ProtoId.java \
+  dex/src/main/java/com/android/dex/SizeOf.java \
+  dex/src/main/java/com/android/dex/TableOfContents.java \
+  dex/src/main/java/com/android/dex/TypeList.java \
+  dex/src/main/java/com/android/dex/util/ByteArrayByteInput.java \
+  dex/src/main/java/com/android/dex/util/ByteInput.java \
+  dex/src/main/java/com/android/dex/util/ByteOutput.java \
+  dex/src/main/java/com/android/dex/util/ExceptionWithContext.java \
+  dex/src/main/java/com/android/dex/util/FileUtils.java \
+  dex/src/main/java/com/android/dex/util/Unsigned.java \
+  dalvik/src/main/java/dalvik/system/profiler/AsciiHprofWriter.java \
+  dalvik/src/main/java/dalvik/system/profiler/BinaryHprof.java \
+  dalvik/src/main/java/dalvik/system/profiler/BinaryHprofReader.java \
+  dalvik/src/main/java/dalvik/system/profiler/BinaryHprofWriter.java \
+  dalvik/src/main/java/dalvik/system/profiler/DalvikThreadSampler.java \
+  dalvik/src/main/java/dalvik/system/profiler/HprofBinaryToAscii.java \
+  dalvik/src/main/java/dalvik/system/profiler/HprofData.java \
+  dalvik/src/main/java/dalvik/system/profiler/MalformedHprofException.java \
+  dalvik/src/main/java/dalvik/system/profiler/PortableThreadSampler.java \
+  dalvik/src/main/java/dalvik/system/profiler/SamplingProfiler.java \
+  dalvik/src/main/java/dalvik/system/profiler/ThreadSampler.java \
   luni/src/main/java/libcore/icu/AlphabeticIndex.java \
   luni/src/main/java/libcore/icu/CollationElementIteratorICU.java \
   luni/src/main/java/libcore/icu/CollationKeyICU.java \
@@ -377,93 +465,7 @@ non_openjdk_java_files := \
   luni/src/main/java/org/apache/harmony/xml/parsers/DocumentBuilderImpl.java \
   luni/src/main/java/org/apache/harmony/xml/parsers/SAXParserFactoryImpl.java \
   luni/src/main/java/org/apache/harmony/xml/parsers/SAXParserImpl.java \
-  json/src/main/java/org/json/JSON.java \
-  json/src/main/java/org/json/JSONArray.java \
-  json/src/main/java/org/json/JSONException.java \
-  json/src/main/java/org/json/JSONObject.java \
-  json/src/main/java/org/json/JSONStringer.java \
-  json/src/main/java/org/json/JSONTokener.java \
+  libart/src/main/java/sun/misc/Unsafe.java \
   xml/src/main/java/org/kxml2/io/KXmlParser.java \
   xml/src/main/java/org/kxml2/io/KXmlSerializer.java \
-  luni/src/main/java/org/w3c/dom/Attr.java \
-  luni/src/main/java/org/w3c/dom/CDATASection.java \
-  luni/src/main/java/org/w3c/dom/CharacterData.java \
-  luni/src/main/java/org/w3c/dom/Comment.java \
-  luni/src/main/java/org/w3c/dom/DOMConfiguration.java \
-  luni/src/main/java/org/w3c/dom/DOMError.java \
-  luni/src/main/java/org/w3c/dom/DOMErrorHandler.java \
-  luni/src/main/java/org/w3c/dom/DOMException.java \
-  luni/src/main/java/org/w3c/dom/DOMImplementation.java \
-  luni/src/main/java/org/w3c/dom/DOMImplementationList.java \
-  luni/src/main/java/org/w3c/dom/DOMImplementationSource.java \
-  luni/src/main/java/org/w3c/dom/DOMLocator.java \
-  luni/src/main/java/org/w3c/dom/DOMStringList.java \
-  luni/src/main/java/org/w3c/dom/Document.java \
-  luni/src/main/java/org/w3c/dom/DocumentFragment.java \
-  luni/src/main/java/org/w3c/dom/DocumentType.java \
-  luni/src/main/java/org/w3c/dom/Element.java \
-  luni/src/main/java/org/w3c/dom/Entity.java \
-  luni/src/main/java/org/w3c/dom/EntityReference.java \
-  luni/src/main/java/org/w3c/dom/NameList.java \
-  luni/src/main/java/org/w3c/dom/NamedNodeMap.java \
-  luni/src/main/java/org/w3c/dom/Node.java \
-  luni/src/main/java/org/w3c/dom/NodeList.java \
-  luni/src/main/java/org/w3c/dom/Notation.java \
-  luni/src/main/java/org/w3c/dom/ProcessingInstruction.java \
-  luni/src/main/java/org/w3c/dom/Text.java \
-  luni/src/main/java/org/w3c/dom/TypeInfo.java \
-  luni/src/main/java/org/w3c/dom/UserDataHandler.java \
-  luni/src/main/java/org/w3c/dom/ls/DOMImplementationLS.java \
-  luni/src/main/java/org/w3c/dom/ls/LSException.java \
-  luni/src/main/java/org/w3c/dom/ls/LSInput.java \
-  luni/src/main/java/org/w3c/dom/ls/LSOutput.java \
-  luni/src/main/java/org/w3c/dom/ls/LSParser.java \
-  luni/src/main/java/org/w3c/dom/ls/LSParserFilter.java \
-  luni/src/main/java/org/w3c/dom/ls/LSResourceResolver.java \
-  luni/src/main/java/org/w3c/dom/ls/LSSerializer.java \
-  luni/src/main/java/org/w3c/dom/ls/LSSerializerFilter.java \
-  luni/src/main/java/org/w3c/dom/traversal/NodeFilter.java \
-  luni/src/main/java/org/w3c/dom/traversal/NodeIterator.java \
-  luni/src/main/java/org/xml/sax/AttributeList.java \
-  luni/src/main/java/org/xml/sax/Attributes.java \
-  luni/src/main/java/org/xml/sax/ContentHandler.java \
-  luni/src/main/java/org/xml/sax/DTDHandler.java \
-  luni/src/main/java/org/xml/sax/DocumentHandler.java \
-  luni/src/main/java/org/xml/sax/EntityResolver.java \
-  luni/src/main/java/org/xml/sax/ErrorHandler.java \
-  luni/src/main/java/org/xml/sax/HandlerBase.java \
-  luni/src/main/java/org/xml/sax/InputSource.java \
-  luni/src/main/java/org/xml/sax/Locator.java \
-  luni/src/main/java/org/xml/sax/Parser.java \
-  luni/src/main/java/org/xml/sax/SAXException.java \
-  luni/src/main/java/org/xml/sax/SAXNotRecognizedException.java \
-  luni/src/main/java/org/xml/sax/SAXNotSupportedException.java \
-  luni/src/main/java/org/xml/sax/SAXParseException.java \
-  luni/src/main/java/org/xml/sax/XMLFilter.java \
-  luni/src/main/java/org/xml/sax/XMLReader.java \
-  luni/src/main/java/org/xml/sax/ext/Attributes2.java \
-  luni/src/main/java/org/xml/sax/ext/Attributes2Impl.java \
-  luni/src/main/java/org/xml/sax/ext/DeclHandler.java \
-  luni/src/main/java/org/xml/sax/ext/DefaultHandler2.java \
-  luni/src/main/java/org/xml/sax/ext/EntityResolver2.java \
-  luni/src/main/java/org/xml/sax/ext/LexicalHandler.java \
-  luni/src/main/java/org/xml/sax/ext/Locator2.java \
-  luni/src/main/java/org/xml/sax/ext/Locator2Impl.java \
-  luni/src/main/java/org/xml/sax/helpers/AttributeListImpl.java \
-  luni/src/main/java/org/xml/sax/helpers/AttributesImpl.java \
-  luni/src/main/java/org/xml/sax/helpers/DefaultHandler.java \
-  luni/src/main/java/org/xml/sax/helpers/LocatorImpl.java \
-  luni/src/main/java/org/xml/sax/helpers/NamespaceSupport.java \
-  luni/src/main/java/org/xml/sax/helpers/NewInstance.java \
-  luni/src/main/java/org/xml/sax/helpers/ParserAdapter.java \
-  luni/src/main/java/org/xml/sax/helpers/ParserFactory.java \
-  luni/src/main/java/org/xml/sax/helpers/XMLFilterImpl.java \
-  luni/src/main/java/org/xml/sax/helpers/XMLReaderAdapter.java \
-  luni/src/main/java/org/xml/sax/helpers/XMLReaderFactory.java \
-  xml/src/main/java/org/xmlpull/v1/XmlPullParser.java \
-  xml/src/main/java/org/xmlpull/v1/XmlPullParserException.java \
-  xml/src/main/java/org/xmlpull/v1/XmlPullParserFactory.java \
-  xml/src/main/java/org/xmlpull/v1/XmlSerializer.java \
-  xml/src/main/java/org/xmlpull/v1/sax2/Driver.java \
-  libart/src/main/java/sun/misc/Unsafe.java \
-  
+  $(non_openjdk_javadoc_files)

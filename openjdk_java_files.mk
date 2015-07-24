@@ -1,36 +1,6 @@
-openjdk_java_files := \
-    ojluni/src/main/java/com/sun/java/util/jar/pack/AdaptiveCoding.java \
-    ojluni/src/main/java/com/sun/java/util/jar/pack/Attribute.java \
-    ojluni/src/main/java/com/sun/java/util/jar/pack/BandStructure.java \
-    ojluni/src/main/java/com/sun/java/util/jar/pack/ClassReader.java \
-    ojluni/src/main/java/com/sun/java/util/jar/pack/ClassWriter.java \
-    ojluni/src/main/java/com/sun/java/util/jar/pack/Code.java \
-    ojluni/src/main/java/com/sun/java/util/jar/pack/CodingChooser.java \
-    ojluni/src/main/java/com/sun/java/util/jar/pack/Coding.java \
-    ojluni/src/main/java/com/sun/java/util/jar/pack/CodingMethod.java \
-    ojluni/src/main/java/com/sun/java/util/jar/pack/ConstantPool.java \
-    ojluni/src/main/java/com/sun/java/util/jar/pack/Constants.java \
-    ojluni/src/main/java/com/sun/java/util/jar/pack/FixedList.java \
-    ojluni/src/main/java/com/sun/java/util/jar/pack/Fixups.java \
-    ojluni/src/main/java/com/sun/java/util/jar/pack/Histogram.java \
-    ojluni/src/main/java/com/sun/java/util/jar/pack/Instruction.java \
-    ojluni/src/main/java/com/sun/java/util/jar/pack/NativeUnpack.java \
-    ojluni/src/main/java/com/sun/java/util/jar/pack/Package.java \
-    ojluni/src/main/java/com/sun/java/util/jar/pack/PackageReader.java \
-    ojluni/src/main/java/com/sun/java/util/jar/pack/PackageWriter.java \
-    ojluni/src/main/java/com/sun/java/util/jar/pack/PackerImpl.java \
-    ojluni/src/main/java/com/sun/java/util/jar/pack/PopulationCoding.java \
-    ojluni/src/main/java/com/sun/java/util/jar/pack/PropMap.java \
-    ojluni/src/main/java/com/sun/java/util/jar/pack/TLGlobals.java \
-    ojluni/src/main/java/com/sun/java/util/jar/pack/UnpackerImpl.java \
-    ojluni/src/main/java/com/sun/java/util/jar/pack/Utils.java \
-    ojluni/src/main/java/com/sun/net/ssl/internal/ssl/Provider.java \
-    ojluni/src/main/java/com/sun/net/ssl/internal/ssl/X509ExtendedTrustManager.java \
-    ojluni/src/main/java/com/sun/nio/file/ExtendedCopyOption.java \
-    ojluni/src/main/java/com/sun/security/cert/internal/x509/X509V1CertImpl.java \
+openjdk_javadoc_files := \
     ojluni/src/main/java/java/awt/font/NumericShaper.java \
     ojluni/src/main/java/java/awt/font/TextAttribute.java \
-    ojluni/src/main/java/java/beans/ChangeListenerMap.java \
     ojluni/src/main/java/java/beans/IndexedPropertyChangeEvent.java \
     ojluni/src/main/java/java/beans/PropertyChangeEvent.java \
     ojluni/src/main/java/java/beans/PropertyChangeListener.java \
@@ -1124,6 +1094,39 @@ openjdk_java_files := \
     ojluni/src/main/java/javax/sql/RowSetWriter.java \
     ojluni/src/main/java/javax/sql/StatementEvent.java \
     ojluni/src/main/java/javax/sql/StatementEventListener.java \
+    ojluni/src/main/java/sun/reflect/CallerSensitive.java \
+
+openjdk_java_files := \
+    ojluni/src/main/java/com/sun/java/util/jar/pack/AdaptiveCoding.java \
+    ojluni/src/main/java/com/sun/java/util/jar/pack/Attribute.java \
+    ojluni/src/main/java/com/sun/java/util/jar/pack/BandStructure.java \
+    ojluni/src/main/java/com/sun/java/util/jar/pack/ClassReader.java \
+    ojluni/src/main/java/com/sun/java/util/jar/pack/ClassWriter.java \
+    ojluni/src/main/java/com/sun/java/util/jar/pack/Code.java \
+    ojluni/src/main/java/com/sun/java/util/jar/pack/CodingChooser.java \
+    ojluni/src/main/java/com/sun/java/util/jar/pack/Coding.java \
+    ojluni/src/main/java/com/sun/java/util/jar/pack/CodingMethod.java \
+    ojluni/src/main/java/com/sun/java/util/jar/pack/ConstantPool.java \
+    ojluni/src/main/java/com/sun/java/util/jar/pack/Constants.java \
+    ojluni/src/main/java/com/sun/java/util/jar/pack/FixedList.java \
+    ojluni/src/main/java/com/sun/java/util/jar/pack/Fixups.java \
+    ojluni/src/main/java/com/sun/java/util/jar/pack/Histogram.java \
+    ojluni/src/main/java/com/sun/java/util/jar/pack/Instruction.java \
+    ojluni/src/main/java/com/sun/java/util/jar/pack/NativeUnpack.java \
+    ojluni/src/main/java/com/sun/java/util/jar/pack/Package.java \
+    ojluni/src/main/java/com/sun/java/util/jar/pack/PackageReader.java \
+    ojluni/src/main/java/com/sun/java/util/jar/pack/PackageWriter.java \
+    ojluni/src/main/java/com/sun/java/util/jar/pack/PackerImpl.java \
+    ojluni/src/main/java/com/sun/java/util/jar/pack/PopulationCoding.java \
+    ojluni/src/main/java/com/sun/java/util/jar/pack/PropMap.java \
+    ojluni/src/main/java/com/sun/java/util/jar/pack/TLGlobals.java \
+    ojluni/src/main/java/com/sun/java/util/jar/pack/UnpackerImpl.java \
+    ojluni/src/main/java/com/sun/java/util/jar/pack/Utils.java \
+    ojluni/src/main/java/com/sun/net/ssl/internal/ssl/Provider.java \
+    ojluni/src/main/java/com/sun/net/ssl/internal/ssl/X509ExtendedTrustManager.java \
+    ojluni/src/main/java/com/sun/nio/file/ExtendedCopyOption.java \
+    ojluni/src/main/java/com/sun/security/cert/internal/x509/X509V1CertImpl.java \
+    ojluni/src/main/java/java/beans/ChangeListenerMap.java \
     ojluni/src/main/java/sun/misc/ASCIICaseInsensitiveComparator.java \
     ojluni/src/main/java/sun/misc/BASE64Decoder.java \
     ojluni/src/main/java/sun/misc/BASE64Encoder.java \
@@ -1400,7 +1403,6 @@ openjdk_java_files := \
     ojluni/src/main/java/sun/nio/fs/UnixUserPrincipals.java \
     ojluni/src/main/java/sun/nio/fs/Util.java \
     ojluni/src/main/java/sun/reflect/annotation/AnnotationType.java \
-    ojluni/src/main/java/sun/reflect/CallerSensitive.java \
     ojluni/src/main/java/sun/reflect/ConstructorAccessor.java \
     ojluni/src/main/java/sun/reflect/misc/ReflectUtil.java \
     ojluni/src/main/java/sun/reflect/Reflection.java \
@@ -1685,5 +1687,5 @@ openjdk_java_files := \
     ojluni/src/main/java/sun/util/PreHashedMap.java \
     ojluni/src/main/java/sun/util/ResourceBundleEnumeration.java \
     ojluni/src/main/java/sun/util/resources/OpenListResourceBundle.java \
-     \
+    $(openjdk_javadoc_files)
   
