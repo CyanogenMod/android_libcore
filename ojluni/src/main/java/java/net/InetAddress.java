@@ -831,6 +831,15 @@ class InetAddress implements java.io.Serializable {
 
             return entry;
         }
+
+        //  ----- BEGIN android -----
+        /**
+         * Purge the cache
+         */
+        public void clear() {
+            cache.clear();
+        }
+        //  ----- END android -----
     }
 
     /*
@@ -1693,9 +1702,16 @@ class InetAddress implements java.io.Serializable {
         return result;
     }
 
-    /* @hide */
+    /**
+     * Removes all entries from the VM's DNS cache. This does not affect the C library's DNS
+     * cache, nor any caching DNS servers between you and the canonical server.
+     * @hide
+     */
     public static void clearDnsCache() {
-        System.logW("OJ: DNS cache clear requested, not implemented");
+        synchronized (addressCache) {
+            addressCache.clear();
+            negativeCache.clear();
+        }
     }
 
     /**

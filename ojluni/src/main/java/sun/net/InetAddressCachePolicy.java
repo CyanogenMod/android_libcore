@@ -45,7 +45,11 @@ public final class InetAddressCachePolicy {
     public static final int NEVER = 0;
 
     /* default value for positive lookups */
-    public static final int DEFAULT_POSITIVE = 30;
+    //  ----- BEGIN android -----
+    //public static final int DEFAULT_POSITIVE = 30;
+    // The TTL for the android Java-level cache is short, just 2s.
+    public static final int DEFAULT_POSITIVE = 2;
+    //  ----- END android -----
 
     /* The Java-level namelookup cache policy for successful lookups:
      *
