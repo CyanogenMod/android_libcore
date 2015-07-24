@@ -60,7 +60,6 @@ jint JNI_OnLoad(JavaVM* vm, void*) {
     REGISTER(register_libcore_icu_NativeCollation);
     REGISTER(register_libcore_icu_NativeConverter);
     REGISTER(register_libcore_icu_NativeDecimalFormat);
-    REGISTER(register_libcore_icu_NativeIDN);
     REGISTER(register_libcore_icu_TimeZoneNames);
     REGISTER(register_libcore_icu_Transliterator);
     REGISTER(register_libcore_io_AsynchronousCloseMonitor);
