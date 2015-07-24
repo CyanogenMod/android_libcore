@@ -37,13 +37,8 @@
 #
 # All subdirectories are optional (hence the "2> /dev/null"s below).
 
-define nonopenjdk-main-java-files-under
-$(foreach dir,$(1),$(patsubst ./%,%,$(shell cd $(LOCAL_PATH) && (find $(dir)/src/main/java -name "*.java" 2> /dev/null) | grep -f non_openjdk_java_files)))
-endef
-
-define openjdk-main-java-files-under
-$(foreach dir,$(1),$(patsubst ./%,%,$(shell cd $(LOCAL_PATH) && (find $(dir)/src/main/java -name "*.java" 2> /dev/null) | grep -f openjdk_java_files)))
-endef
+include $(LOCAL_PATH)/openjdk_java_files.mk
+include $(LOCAL_PATH)/non_openjdk_java_files.mk
 
 define all-test-java-files-under
 $(foreach dir,$(1),$(patsubst ./%,%,$(shell cd $(LOCAL_PATH) && (find $(dir)/src/test/java -name "*.java" 2> /dev/null) | grep -v -f java_tests_blacklist)))
@@ -54,8 +49,6 @@ $(shell cd $(LOCAL_PATH) && ls -d */src/$(1)/{java,resources} 2> /dev/null)
 endef
 
 # The Java files and their associated resources.
-nojcore_src_files := $(call nonopenjdk-main-java-files-under, dalvik dex dom json luni xml)
-ojcore_src_files := $(call openjdk-main-java-files-under,ojluni)
 core_resource_dirs := $(call all-core-resource-dirs,main)
 test_resource_dirs := $(call all-core-resource-dirs,test)
 test_src_files := $(call all-test-java-files-under,dalvik dom harmony-tests json luni xml)
@@ -67,8 +60,6 @@ ifneq ($(EMMA_INSTRUMENT_STATIC),true)
 endif
 endif
 
-libart_core_src_files := $(call nonopenjdk-main-java-files-under,libart)
-
 local_javac_flags=-encoding UTF-8
 #local_javac_flags+=-Xlint:all -Xlint:-serial,-deprecation,-unchecked
 local_javac_flags+=-Xmaxwarns 9999999
@@ -78,7 +69,7 @@ local_javac_flags+=-Xmaxwarns 9999999
 #
 
 include $(CLEAR_VARS)
-LOCAL_SRC_FILES := $(ojcore_src_files) $(nojcore_src_files) $(libart_core_src_files)
+LOCAL_SRC_FILES := $(openjdk_java_files) $(non_openjdk_java_files)
 LOCAL_JAVA_RESOURCE_DIRS := $(core_resource_dirs)
 LOCAL_NO_STANDARD_LIBRARIES := true
 LOCAL_JAVACFLAGS := $(local_javac_flags)
@@ -91,7 +82,7 @@ LOCAL_CORE_LIBRARY := true
 include $(BUILD_JAVA_LIBRARY)
 
 include $(CLEAR_VARS)
-LOCAL_SRC_FILES := $(ojcore_src_files)
+LOCAL_SRC_FILES := $(openjdk_java_files)
 LOCAL_JAVA_RESOURCE_DIRS := $(core_resource_dirs)
 LOCAL_NO_STANDARD_LIBRARIES := true
 LOCAL_JAVACFLAGS := $(local_javac_flags)
@@ -107,7 +98,7 @@ include $(BUILD_JAVA_LIBRARY)
 
 # Definitions to make the core library.
 include $(CLEAR_VARS)
-LOCAL_SRC_FILES := $(libart_core_src_files) $(nojcore_src_files)
+LOCAL_SRC_FILES := $(non_openjdk_java_files)
 LOCAL_JAVA_RESOURCE_DIRS := $(core_resource_dirs)
 LOCAL_NO_STANDARD_LIBRARIES := true
 LOCAL_JAVACFLAGS := $(local_javac_flags)
@@ -179,13 +170,13 @@ $(LOCAL_INTERMEDIATE_TARGETS): $(TMP_RESOURCE_DIR)$(TMP_RESOURCE_FILE)
 #
 
 include $(CLEAR_VARS)
-LOCAL_SRC_FILES := $(call nonopenjdk-main-java-files-under, dex)
+LOCAL_SRC_FILES := $(call all-java-files-under, dex/src/main)
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := dex-host
 include $(BUILD_HOST_JAVA_LIBRARY)
 
 include $(CLEAR_VARS)
-LOCAL_SRC_FILES := $(ojcore_src_files) $(nojcore_src_files) $(libart_core_src_files)
+LOCAL_SRC_FILES := $(non_openjdk_java_files) $(openjdk_java_files)
 LOCAL_JAVA_RESOURCE_DIRS := $(core_resource_dirs)
 LOCAL_NO_STANDARD_LIBRARIES := true
 LOCAL_JAVACFLAGS := $(local_javac_flags)
@@ -198,7 +189,7 @@ LOCAL_CORE_LIBRARY := true
 include $(BUILD_HOST_DALVIK_JAVA_LIBRARY)
 
 include $(CLEAR_VARS)
-LOCAL_SRC_FILES := $(ojcore_src_files)
+LOCAL_SRC_FILES := $(openjdk_java_files)
 LOCAL_JAVA_RESOURCE_DIRS := $(core_resource_dirs)
 LOCAL_NO_STANDARD_LIBRARIES := true
 LOCAL_JAVACFLAGS := $(local_javac_flags)
@@ -214,7 +205,7 @@ include $(BUILD_HOST_DALVIK_JAVA_LIBRARY)
 
 # Definitions to make the core library.
 include $(CLEAR_VARS)
-LOCAL_SRC_FILES := $(nojcore_src_files) $(libart_core_src_files)
+LOCAL_SRC_FILES := $(non_openjdk_java_files)
 LOCAL_JAVA_RESOURCE_DIRS := $(core_resource_dirs)
 LOCAL_NO_STANDARD_LIBRARIES := true
 LOCAL_JAVACFLAGS := $(local_javac_flags)
@@ -298,3 +289,6 @@ LOCAL_DROIDDOC_OPTIONS := \
 LOCAL_DROIDDOC_CUSTOM_TEMPLATE_DIR:=build/tools/droiddoc/templates-sdk
 
 include $(BUILD_DROIDDOC)
+
+openjdk_java_files :=
+non_openjdk_java_files :=
