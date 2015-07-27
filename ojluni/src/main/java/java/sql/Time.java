@@ -144,93 +144,92 @@ public class Time extends java.util.Date {
     // Override all the date operations inherited from java.util.Date;
 
    /**
-    * This method is deprecated and should not be used because SQL <code>TIME</code>
+    * @deprecated This method is deprecated and should not be used because SQL <code>TIME</code>
     * values do not have a year component.
     *
-    * @deprecated
     * @exception java.lang.IllegalArgumentException if this
     *           method is invoked
     * @see #setYear
     */
+    // Android-changed javadoc, @deprecated tag now has a reason.
     @Deprecated
     public int getYear() {
         throw new java.lang.IllegalArgumentException();
     }
 
    /**
-    * This method is deprecated and should not be used because SQL <code>TIME</code>
+    * @deprecated This method is deprecated and should not be used because SQL <code>TIME</code>
     * values do not have a month component.
     *
-    * @deprecated
     * @exception java.lang.IllegalArgumentException if this
     *           method is invoked
     * @see #setMonth
     */
+    // Android-changed javadoc, @deprecated tag now has a reason.
     @Deprecated
     public int getMonth() {
         throw new java.lang.IllegalArgumentException();
     }
 
    /**
-    * This method is deprecated and should not be used because SQL <code>TIME</code>
+    * @deprecated This method is deprecated and should not be used because SQL <code>TIME</code>
     * values do not have a day component.
     *
-    * @deprecated
     * @exception java.lang.IllegalArgumentException if this
     *           method is invoked
     */
+    // Android-changed javadoc, @deprecated tag now has a reason.
     @Deprecated
     public int getDay() {
         throw new java.lang.IllegalArgumentException();
     }
 
    /**
-    * This method is deprecated and should not be used because SQL <code>TIME</code>
+    * @deprecated This method is deprecated and should not be used because SQL <code>TIME</code>
     * values do not have a date component.
     *
-    * @deprecated
     * @exception java.lang.IllegalArgumentException if this
     *           method is invoked
     * @see #setDate
     */
+    // Android-changed javadoc, @deprecated tag now has a reason.
     @Deprecated
     public int getDate() {
         throw new java.lang.IllegalArgumentException();
     }
 
    /**
-    * This method is deprecated and should not be used because SQL <code>TIME</code>
+    * @deprecated This method is deprecated and should not be used because SQL <code>TIME</code>
     * values do not have a year component.
     *
-    * @deprecated
     * @exception java.lang.IllegalArgumentException if this
     *           method is invoked
     * @see #getYear
     */
+    // Android-changed javadoc, @deprecated tag now has a reason.
     @Deprecated
     public void setYear(int i) {
         throw new java.lang.IllegalArgumentException();
     }
 
    /**
-    * This method is deprecated and should not be used because SQL <code>TIME</code>
+    * @deprecated This method is deprecated and should not be used because SQL <code>TIME</code>
     * values do not have a month component.
     *
-    * @deprecated
     * @exception java.lang.IllegalArgumentException if this
     *           method is invoked
     * @see #getMonth
     */
+    // Android-changed javadoc, @deprecated tag now has a reason.
     @Deprecated
     public void setMonth(int i) {
         throw new java.lang.IllegalArgumentException();
     }
 
    /**
-    * This method is deprecated and should not be used because SQL <code>TIME</code>
+    * @deprecated This method is deprecated and should not be used because SQL <code>TIME</code>
     * values do not have a date component.
     *
-    * @deprecated
     * @exception java.lang.IllegalArgumentException if this
     *           method is invoked
     * @see #getDate

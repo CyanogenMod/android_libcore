@@ -37,7 +37,7 @@ import sun.reflect.CallerSensitive;
 
 /**
  * <P>The basic service for managing a set of JDBC drivers.<br>
- * <B>NOTE:</B> The {@link <code>DataSource</code>} interface, new in the
+ * <B>NOTE:</B> The {@code DataSource} interface, new in the
  * JDBC 2.0 API, provides another way to connect to a data source.
  * The use of a <code>DataSource</code> object is the preferred means of
  * connecting to a data source.
@@ -79,6 +79,7 @@ import sun.reflect.CallerSensitive;
  * @see Driver
  * @see Connection
  */
+// Android-changed line 2 of the javadoc to "{@code DataSource}"
 public class DriverManager {
 
 
@@ -399,13 +400,14 @@ public class DriverManager {
      * method throws a <code>java.lang.SecurityException</code>.
      *
      * @param out the new logging/tracing PrintStream; to disable, set to <code>null</code>
-     * @deprecated
+     * @deprecated Use {@code setLogWriter} instead.
      * @throws SecurityException if a security manager exists and its
      *    <code>checkPermission</code> method denies setting the log stream
      *
      * @see SecurityManager#checkPermission
      * @see #getLogStream
      */
+    @Deprecated // Android-added, also changed deprecation comment to include a reason.
     public static void setLogStream(java.io.PrintStream out) {
 
         SecurityManager sec = System.getSecurityManager();
@@ -425,9 +427,10 @@ public class DriverManager {
      * and all drivers.
      *
      * @return the logging/tracing PrintStream; if disabled, is <code>null</code>
-     * @deprecated
+     * @deprecated Use {@code getLogWriter} instead.
      * @see #setLogStream
      */
+    @Deprecated // Android-added, also changed deprecation comment to include a reason.
     public static java.io.PrintStream getLogStream() {
         return logStream;
     }

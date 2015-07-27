@@ -51,6 +51,7 @@ public class Date extends java.util.Date {
      * @param day 1 to 31
      * @deprecated instead use the constructor <code>Date(long date)</code>
      */
+    @Deprecated // Android added
     public Date(int year, int month, int day) {
         super(year, month, day);
     }
@@ -171,73 +172,73 @@ public class Date extends java.util.Date {
     // Override all the time operations inherited from java.util.Date;
 
    /**
-    * This method is deprecated and should not be used because SQL Date
+    * @deprecated This method is deprecated and should not be used because SQL Date
     * values do not have a time component.
     *
-    * @deprecated
     * @exception java.lang.IllegalArgumentException if this method is invoked
     * @see #setHours
     */
+    @Deprecated // Android added - changed javadoc to include deprecation note.
     public int getHours() {
         throw new java.lang.IllegalArgumentException();
     }
 
    /**
-    * This method is deprecated and should not be used because SQL Date
+    * @deprecated This method is deprecated and should not be used because SQL Date
     * values do not have a time component.
     *
-    * @deprecated
     * @exception java.lang.IllegalArgumentException if this method is invoked
     * @see #setMinutes
     */
+    @Deprecated // Android added - changed javadoc to include deprecation note.
     public int getMinutes() {
         throw new java.lang.IllegalArgumentException();
     }
 
    /**
-    * This method is deprecated and should not be used because SQL Date
+    * @deprecated This method is deprecated and should not be used because SQL Date
     * values do not have a time component.
     *
-    * @deprecated
     * @exception java.lang.IllegalArgumentException if this method is invoked
     * @see #setSeconds
     */
+    @Deprecated // Android added - changed javadoc to include deprecation note.
     public int getSeconds() {
         throw new java.lang.IllegalArgumentException();
     }
 
    /**
-    * This method is deprecated and should not be used because SQL Date
+    * @deprecated This method is deprecated and should not be used because SQL Date
     * values do not have a time component.
     *
-    * @deprecated
     * @exception java.lang.IllegalArgumentException if this method is invoked
     * @see #getHours
     */
+    @Deprecated // Android added - changed javadoc to include deprecation note.
     public void setHours(int i) {
         throw new java.lang.IllegalArgumentException();
     }
 
    /**
-    * This method is deprecated and should not be used because SQL Date
+    * @deprecated This method is deprecated and should not be used because SQL Date
     * values do not have a time component.
     *
-    * @deprecated
     * @exception java.lang.IllegalArgumentException if this method is invoked
     * @see #getMinutes
     */
+    @Deprecated // Android added - changed javadoc to include deprecation note.
     public void setMinutes(int i) {
         throw new java.lang.IllegalArgumentException();
     }
 
    /**
-    * This method is deprecated and should not be used because SQL Date
+    * @deprecated This method is deprecated and should not be used because SQL Date
     * values do not have a time component.
     *
-    * @deprecated
     * @exception java.lang.IllegalArgumentException if this method is invoked
     * @see #getSeconds
     */
+    @Deprecated // Android added - changed javadoc to include deprecation note.
     public void setSeconds(int i) {
         throw new java.lang.IllegalArgumentException();
     }

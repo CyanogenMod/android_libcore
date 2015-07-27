@@ -356,8 +356,9 @@ public interface ResultSet extends Wrapper, AutoCloseable {
      *            called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @deprecated
+     * @deprecated Deprecated
      */
+    @Deprecated // Android-added - also changed deprecated tag to contain text.
     BigDecimal getBigDecimal(int columnIndex, int scale) throws SQLException;
 
     /**
@@ -641,8 +642,9 @@ public interface ResultSet extends Wrapper, AutoCloseable {
      *            called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @deprecated
+     * @deprecated Deprecated
      */
+    @Deprecated // Android-added - also changed deprecated tag to contain text.
     BigDecimal getBigDecimal(String columnLabel, int scale) throws SQLException;
 
     /**
