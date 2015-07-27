@@ -34,7 +34,10 @@ import static java.lang.annotation.ElementType.*;
  * or via some equivalent.
  *
  * @author John R. Rose
+ *
+ * @hide
  */
+// Android-added @hide
 @Retention(RetentionPolicy.RUNTIME)
 @Target({METHOD})
 public @interface CallerSensitive {
