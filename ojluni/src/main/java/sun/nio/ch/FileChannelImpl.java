@@ -325,8 +325,11 @@ public class FileChannelImpl
         ensureOpen();
         if (size < 0)
             throw new IllegalArgumentException();
-        if (size > size())
-            return this;
+        // ----- BEGIN android -----
+        // This code may forget to update position.
+        //if (size > size())
+        //    return this;
+        // ----- END android -----
         if (!writable)
             throw new NonWritableChannelException();
         synchronized (positionLock) {
@@ -348,12 +351,17 @@ public class FileChannelImpl
                 assert p >= 0;
 
                 // truncate file
-                do {
-                    rv = nd.truncate(fd, size);
-                } while ((rv == IOStatus.INTERRUPTED) && isOpen());
-                if (!isOpen())
-                    return null;
-
+                // ----- BEGIN android -----
+                if (size > size()) {
+                // ----- END android -----
+                    do {
+                        rv = nd.truncate(fd, size);
+                    } while ((rv == IOStatus.INTERRUPTED) && isOpen());
+                    if (!isOpen())
+                        return null;
+                // ----- BEGIN android -----
+                }
+                // ----- END android -----
                 // set position to size if greater than size
                 if (p > size)
                     p = size;
