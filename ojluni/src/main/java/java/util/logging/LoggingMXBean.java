@@ -27,37 +27,44 @@ package java.util.logging;
 
 
 /**
- * The management interface for the logging facility. It is recommended
- * to use the {@link java.lang.management.PlatformLoggingMXBean} management
- * interface that implements all attributes defined in this
- * {@code LoggingMXBean}.  The
- * {@link java.lang.management.ManagementFactory#getPlatformMXBean(Class)
- * ManagementFactory.getPlatformMXBean} method can be used to obtain
- * the {@code PlatformLoggingMXBean} object representing the management
- * interface for logging.
+ * The management interface for the logging facility.
  *
  * <p>There is a single global instance of the <tt>LoggingMXBean</tt>.
- * This instance is an {@link javax.management.MXBean MXBean} that
- * can be obtained by calling the {@link LogManager#getLoggingMXBean}
- * method or from the
- * {@linkplain java.lang.management.ManagementFactory#getPlatformMBeanServer
- * platform <tt>MBeanServer</tt>}.
- * <p>
- * The {@link javax.management.ObjectName ObjectName} that uniquely identifies
+ *
+ * The {@code javax.management.ObjectName ObjectName} that uniquely identifies
  * the management interface for logging within the {@code MBeanServer} is:
  * <pre>
  *    {@link LogManager#LOGGING_MXBEAN_NAME java.util.logging:type=Logging}
  * </pre>
  * <p>
- * The instance registered in the platform {@code MBeanServer}
- * is also a {@link java.lang.management.PlatformLoggingMXBean}.
  *
  * @author  Ron Mann
  * @author  Mandy Chung
  * @since   1.5
  *
- * @see java.lang.management.PlatformLoggingMXBean
  */
+
+// Android-removed : References to java.lang.management.
+//
+// It is recommended
+// to use the {@link java.lang.management.PlatformLoggingMXBean} management
+// interface that implements all attributes defined in this
+// {@code LoggingMXBean}.  The
+// {@link java.lang.management.ManagementFactory#getPlatformMXBean(Class)
+// ManagementFactory.getPlatformMXBean} method can be used to obtain
+// the {@code PlatformLoggingMXBean} object representing the management
+// interface for logging.
+//
+// This instance is an {@link javax.management.MXBean MXBean} that
+// can be obtained by calling the {@link LogManager#getLoggingMXBean}
+// method or from the
+// {@linkplain java.lang.management.ManagementFactory#getPlatformMBeanServer
+// platform <tt>MBeanServer</tt>}.
+//
+// The instance registered in the platform {@code MBeanServer}
+// is also a {@link java.lang.management.PlatformLoggingMXBean}.
+//
+// @see java.lang.management.PlatformLoggingMXBean
 public interface LoggingMXBean {
 
     /**

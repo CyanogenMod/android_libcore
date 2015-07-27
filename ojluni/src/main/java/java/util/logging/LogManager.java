@@ -1458,33 +1458,37 @@ public class LogManager {
     // Management Support
     private static LoggingMXBean loggingMXBean = null;
     /**
-     * String representation of the
-     * {@link javax.management.ObjectName} for the management interface
+     * String representation of the {@code ObjectName} for the management interface
      * for the logging facility.
      *
-     * @see java.lang.management.PlatformLoggingMXBean
      * @see java.util.logging.LoggingMXBean
      *
      * @since 1.5
      */
+    // Android-changed : Remove reference to java.lang.management.ObjectName.
+    //
+    //@see java.lang.management.PlatformLoggingMXBean
     public final static String LOGGING_MXBEAN_NAME
         = "java.util.logging:type=Logging";
 
     /**
      * Returns <tt>LoggingMXBean</tt> for managing loggers.
-     * An alternative way to manage loggers is through the
-     * {@link java.lang.management.PlatformLoggingMXBean} interface
-     * that can be obtained by calling:
-     * <pre>
-     *     PlatformLoggingMXBean logging = {@link java.lang.management.ManagementFactory#getPlatformMXBean(Class)
-     *         ManagementFactory.getPlatformMXBean}(PlatformLoggingMXBean.class);
-     * </pre>
      *
      * @return a {@link LoggingMXBean} object.
      *
-     * @see java.lang.management.PlatformLoggingMXBean
      * @since 1.5
      */
+    // Android-removed docs areferring to java.lang.management.
+    //
+    // An alternative way to manage loggers is through the
+    // {@link java.lang.management.PlatformLoggingMXBean} interface
+    // that can be obtained by calling:
+    // <pre>
+    //     PlatformLoggingMXBean logging = {@link java.lang.management.ManagementFactory#getPlatformMXBean(Class)
+    //        ManagementFactory.getPlatformMXBean}(PlatformLoggingMXBean.class);
+    // </pre>
+    //
+    // @see java.lang.management.PlatformLoggingMXBean
     public static synchronized LoggingMXBean getLoggingMXBean() {
         if (loggingMXBean == null) {
             loggingMXBean =  new Logging();
