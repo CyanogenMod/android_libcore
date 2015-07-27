@@ -50,12 +50,8 @@ import java.util.HashMap;
  * attribute values used for text rendering.
  * <p>
  * <code>TextAttribute</code> instances are used as attribute keys to
- * identify attributes in
- * {@link java.awt.Font Font},
- * {@link java.awt.font.TextLayout TextLayout},
- * {@link java.text.AttributedCharacterIterator AttributedCharacterIterator},
- * and other classes handling text attributes. Other constants defined
- * in this class can be used as attribute values.
+ * identify attributes in classes handling text attributes. Other
+ * constants defined in this class can be used as attribute values.
  * <p>
  * For each text attribute, the documentation provides:
  * <UL>
@@ -94,7 +90,11 @@ import java.util.HashMap;
  *
  * </UL>
  *
- * <h4>Summary of attributes</h4>
+ * @see java.text.AttributedCharacterIterator
+ */
+
+// Android-removed : Removed Summary of Attributes.
+/* <h4>Summary of attributes</h4>
  * <p>
  * <font size="-1">
  * <table align="center" border="0" cellspacing="0" cellpadding="2" width="%95"
@@ -252,8 +252,12 @@ import java.util.HashMap;
  *
  * @see java.awt.Font
  * @see java.awt.font.TextLayout
- * @see java.text.AttributedCharacterIterator
  */
+// Android-removed
+//
+// {@link java.awt.Font Font},
+// {@link java.awt.font.TextLayout TextLayout},
+// {@link java.text.AttributedCharacterIterator AttributedCharacterIterator},
 public final class TextAttribute extends Attribute {
 
     // table of all instances in this class, used by readResolve
@@ -305,12 +309,7 @@ public final class TextAttribute extends Attribute {
      * family to be used.
      *
      * <p> The <code>Font</code> class defines constants for the logical
-     * font names
-     * {@link java.awt.Font#DIALOG DIALOG},
-     * {@link java.awt.Font#DIALOG_INPUT DIALOG_INPUT},
-     * {@link java.awt.Font#SANS_SERIF SANS_SERIF},
-     * {@link java.awt.Font#SERIF SERIF}, and
-     * {@link java.awt.Font#MONOSPACED MONOSPACED}.
+     * font names.
      *
      * <p>This defines the value passed as <code>name</code> to the
      * <code>Font</code> constructor.  Both logical and physical
@@ -325,6 +324,13 @@ public final class TextAttribute extends Attribute {
      * The "Bold" in the name is part of the face name, not a separate
      * request that the font's weight be bold.</p>
      */
+    // Android-removed links to font names.
+    //
+    // {@link java.awt.Font#DIALOG DIALOG},
+    // {@link java.awt.Font#DIALOG_INPUT DIALOG_INPUT},
+    // {@link java.awt.Font#SANS_SERIF SANS_SERIF},
+    // {@link java.awt.Font#SERIF SERIF}, and
+    // {@link java.awt.Font#MONOSPACED MONOSPACED}.
     public static final TextAttribute FAMILY =
         new TextAttribute("family");
 
@@ -503,8 +509,9 @@ public final class TextAttribute extends Attribute {
      * <p>This will affect the font's italic angle as returned by
      * <code>Font.getItalicAngle</code>.
      *
-     * @see java.awt.Font#getItalicAngle()
      */
+    // Android-removed.
+    // @see java.awt.Font#getItalicAngle()
     public static final TextAttribute POSTURE =
         new TextAttribute("posture");
 
@@ -546,15 +553,6 @@ public final class TextAttribute extends Attribute {
      * instances of <b><code>TransformAttribute</code></b>.  The
      * default value is <code>TransformAttribute.IDENTITY</code>.
      *
-     * <p>The <code>TransformAttribute</code> class defines the
-     * constant {@link TransformAttribute#IDENTITY IDENTITY}.
-     *
-     * <p>This corresponds to the transform passed to
-     * <code>Font.deriveFont(AffineTransform)</code>.  Since that
-     * transform is mutable and <code>TextAttribute</code> values must
-     * not be, the <code>TransformAttribute</code> wrapper class is
-     * used.
-     *
      * <p>The primary intent is to support scaling and skewing, though
      * other effects are possible.</p>
      *
@@ -567,15 +565,24 @@ public final class TextAttribute extends Attribute {
      * So, for example, with other things being equal, text rendered
      * with a rotated TRANSFORM and an unrotated TRANSFORM will measure as
      * having the same ascent, descent, and advance.</p>
-     *
-     * <p>In styled text, the baselines for each such run are aligned
-     * one after the other to potentially create a non-linear baseline
-     * for the entire run of text. For more information, see {@link
-     * TextLayout#getLayoutPath}.</p>
-     *
-     * @see TransformAttribute
-     * @see java.awt.geom.AffineTransform
      */
+     // Android-removed
+     //
+     // <p>This corresponds to the transform passed to
+     // <code>Font.deriveFont(AffineTransform)</code>.  Since that
+     // transform is mutable and <code>TextAttribute</code> values must
+     // not be, the <code>TransformAttribute</code> wrapper class is
+     // used.
+     //
+     // <p>The <code>TransformAttribute</code> class defines the
+     // constant {@link TransformAttribute#IDENTITY IDENTITY}.
+     // @see TransformAttribute
+     // @see java.awt.geom.AffineTransform
+     //
+     // <p>In styled text, the baselines for each such run are aligned
+     // one after the other to potentially create a non-linear baseline
+     // for the entire run of text. For more information, see {@link
+     // TextLayout#getLayoutPath}.</p>
      public static final TextAttribute TRANSFORM =
         new TextAttribute("transform");
 
@@ -616,7 +623,8 @@ public final class TextAttribute extends Attribute {
 
     /**
      * Attribute key used to provide the font to use to render text.
-     * Values are instances of {@link java.awt.Font}.  The default
+     *
+     * The default
      * value is null, indicating that normal resolution of a
      * <code>Font</code> from attributes should be performed.
      *
@@ -664,16 +672,18 @@ public final class TextAttribute extends Attribute {
      * values of secondary attributes originate with the
      * <code>Font</code> but can be overridden by other values in the
      * <code>Map</code>.
-     *
-     * <p><em>Note:</em><code>Font's</code> <code>Map</code>-based
-     * constructor and <code>deriveFont</code> methods do not process
-     * the <code>FONT</code> attribute, as these are used to create
-     * new <code>Font</code> objects.  Instead, {@link
-     * java.awt.Font#getFont(Map) Font.getFont(Map)} should be used to
-     * handle the <code>FONT</code> attribute.
-     *
-     * @see java.awt.Font
      */
+    // Android-removed
+    // Values are instances of {@link java.awt.Font}.
+    //
+    // <p><em>Note:</em><code>Font's</code> <code>Map</code>-based
+    // constructor and <code>deriveFont</code> methods do not process
+    // the <code>FONT</code> attribute, as these are used to create
+    // new <code>Font</code> objects.  Instead, {@link
+    // java.awt.Font#getFont(Map) Font.getFont(Map)} should be used to
+    // handle the <code>FONT</code> attribute.
+    //
+    // @see java.awt.Font
     public static final TextAttribute FONT =
         new TextAttribute("font");
 
@@ -893,26 +903,30 @@ public final class TextAttribute extends Attribute {
     /**
      * Attribute key for input method highlight styles.
      *
-     * <p>Values are instances of {@link
-     * java.awt.im.InputMethodHighlight} or {@link
-     * java.text.Annotation}.  The default value is <code>null</code>,
+     * The default value is <code>null</code>,
      * which means that input method styles should not be applied
      * before rendering.
      *
-     * <p>If adjacent runs of text with the same
-     * <code>InputMethodHighlight</code> need to be rendered
-     * separately, the <code>InputMethodHighlights</code> should be
-     * wrapped in <code>Annotation</code> instances.
-     *
-     * <p>Input method highlights are used while text is being
-     * composed by an input method. Text editing components should
-     * retain them even if they generally only deal with unstyled
-     * text, and make them available to the drawing routines.
-     *
-     * @see java.awt.Font
-     * @see java.awt.im.InputMethodHighlight
      * @see java.text.Annotation
      */
+    // Android-removed
+    //
+    // <p>Values are instances of {@link
+    // java.awt.im.InputMethodHighlight} or {@link
+    // java.text.Annotation}.
+    // 
+    // <p>If adjacent runs of text with the same
+    // <code>InputMethodHighlight</code> need to be rendered
+    // separately, the <code>InputMethodHighlights</code> should be
+    // wrapped in <code>Annotation</code> instances.
+    //
+    // <p>Input method highlights are used while text is being
+    // composed by an input method. Text editing components should
+    // retain them even if they generally only deal with unstyled
+    // text, and make them available to the drawing routines.
+    //
+    // @see java.awt.Font
+    // @see java.awt.im.InputMethodHighlight
     public static final TextAttribute INPUT_METHOD_HIGHLIGHT =
         new TextAttribute("input method highlight");
 
