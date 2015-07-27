@@ -311,8 +311,8 @@ class Field extends AccessibleObject implements Member {
      * @exception ExceptionInInitializerError if the initialization provoked
      *              by this method fails.
      */
-    public Object get(Object object) throws IllegalAccessException, IllegalArgumentException {
-        return get(object, isAccessible());
+    public Object get(Object obj) throws IllegalAccessException, IllegalArgumentException {
+        return get(obj, isAccessible());
     }
 
     private native Object get(Object object, boolean accessible)
@@ -340,10 +340,9 @@ class Field extends AccessibleObject implements Member {
      *              by this method fails.
      * @see       Field#get
      */
-    @CallerSensitive
-    public boolean getBoolean(Object object) throws IllegalAccessException,
-                                                    IllegalArgumentException {
-        return getBoolean(object, isAccessible());
+    public boolean getBoolean(Object obj) throws IllegalAccessException,
+                                                 IllegalArgumentException {
+        return getBoolean(obj, isAccessible());
     }
 
     private native boolean getBoolean(Object object, boolean accessible)
@@ -372,8 +371,8 @@ class Field extends AccessibleObject implements Member {
      *              by this method fails.
      * @see       Field#get
      */
-    public byte getByte(Object object) throws IllegalAccessException, IllegalArgumentException {
-        return getByte(object, isAccessible());
+    public byte getByte(Object obj) throws IllegalAccessException, IllegalArgumentException {
+        return getByte(obj, isAccessible());
     }
 
     private native byte getByte(Object object, boolean accessible)
@@ -403,9 +402,9 @@ class Field extends AccessibleObject implements Member {
      *              by this method fails.
      * @see Field#get
      */
-     public char getChar(Object object) throws IllegalAccessException, IllegalArgumentException {
-         return getChar(object, isAccessible());
-     }
+    public char getChar(Object obj) throws IllegalAccessException, IllegalArgumentException {
+        return getChar(obj, isAccessible());
+    }
 
      private native char getChar(Object object, boolean accessible)
              throws IllegalAccessException, IllegalArgumentException;
@@ -434,8 +433,8 @@ class Field extends AccessibleObject implements Member {
      *              by this method fails.
      * @see       Field#get
      */
-    public short getShort(Object object) throws IllegalAccessException, IllegalArgumentException {
-        return getShort(object, isAccessible());
+    public short getShort(Object obj) throws IllegalAccessException, IllegalArgumentException {
+        return getShort(obj, isAccessible());
     }
 
     private native short getShort(Object object, boolean accessible)
@@ -465,8 +464,8 @@ class Field extends AccessibleObject implements Member {
      *              by this method fails.
      * @see       Field#get
      */
-    public int getInt(Object object) throws IllegalAccessException, IllegalArgumentException {
-        return getInt(object, isAccessible());
+    public int getInt(Object obj) throws IllegalAccessException, IllegalArgumentException {
+        return getInt(obj, isAccessible());
     }
 
     private native int getInt(Object object, boolean accessible)
@@ -496,8 +495,8 @@ class Field extends AccessibleObject implements Member {
      *              by this method fails.
      * @see       Field#get
      */
-    public long getLong(Object object) throws IllegalAccessException, IllegalArgumentException {
-        return getLong(object, isAccessible());
+    public long getLong(Object obj) throws IllegalAccessException, IllegalArgumentException {
+        return getLong(obj, isAccessible());
     }
 
     private native long getLong(Object object, boolean accessible)
@@ -527,8 +526,8 @@ class Field extends AccessibleObject implements Member {
      *              by this method fails.
      * @see Field#get
      */
-    public float getFloat(Object object) throws IllegalAccessException, IllegalArgumentException {
-        return getFloat(object, isAccessible());
+    public float getFloat(Object obj) throws IllegalAccessException, IllegalArgumentException {
+        return getFloat(obj, isAccessible());
     }
 
     private native float getFloat(Object object, boolean accessible)
@@ -558,8 +557,8 @@ class Field extends AccessibleObject implements Member {
      *              by this method fails.
      * @see       Field#get
      */
-    public double getDouble(Object object) throws IllegalAccessException, IllegalArgumentException {
-        return getDouble(object, isAccessible());
+    public double getDouble(Object obj) throws IllegalAccessException, IllegalArgumentException {
+        return getDouble(obj, isAccessible());
     }
 
     private native double getDouble(Object object, boolean accessible)
@@ -631,9 +630,9 @@ class Field extends AccessibleObject implements Member {
      * @exception ExceptionInInitializerError if the initialization provoked
      *              by this method fails.
      */
-    public void set(Object object, Object value) throws IllegalAccessException,
-                                                        IllegalArgumentException {
-        set(object, value, isAccessible());
+    public void set(Object obj, Object value) throws IllegalAccessException,
+                                                     IllegalArgumentException {
+        set(obj, value, isAccessible());
     }
 
     private native void set(Object object, Object value, boolean accessible)
@@ -647,7 +646,7 @@ class Field extends AccessibleObject implements Member {
      * {@code zObj.booleanValue() == z}.
      *
      * @param obj the object whose field should be modified
-     * @param z   the new value for the field of {@code obj}
+     * @param value   the new value for the field of {@code obj}
      * being modified
      *
      * @exception IllegalAccessException    if this {@code Field} object
@@ -663,9 +662,9 @@ class Field extends AccessibleObject implements Member {
      *              by this method fails.
      * @see       Field#set
      */
-    public void setBoolean(Object object, boolean value) throws IllegalAccessException,
-                                                                IllegalArgumentException {
-        setBoolean(object, value, isAccessible());
+    public void setBoolean(Object obj, boolean value) throws IllegalAccessException,
+                                                             IllegalArgumentException {
+        setBoolean(obj, value, isAccessible());
     }
 
     private native void setBoolean(Object object, boolean value, boolean accessible)
@@ -679,7 +678,7 @@ class Field extends AccessibleObject implements Member {
      * {@code bObj.byteValue() == b}.
      *
      * @param obj the object whose field should be modified
-     * @param b   the new value for the field of {@code obj}
+     * @param value   the new value for the field of {@code obj}
      * being modified
      *
      * @exception IllegalAccessException    if this {@code Field} object
@@ -695,9 +694,9 @@ class Field extends AccessibleObject implements Member {
      *              by this method fails.
      * @see       Field#set
      */
-    public void setByte(Object object, byte value) throws IllegalAccessException,
-                                                          IllegalArgumentException {
-        setByte(object, value, isAccessible());
+    public void setByte(Object obj, byte value) throws IllegalAccessException,
+                                                       IllegalArgumentException {
+        setByte(obj, value, isAccessible());
     }
 
     private native void setByte(Object object, byte value, boolean accessible)
@@ -711,7 +710,7 @@ class Field extends AccessibleObject implements Member {
      * {@code cObj.charValue() == c}.
      *
      * @param obj the object whose field should be modified
-     * @param c   the new value for the field of {@code obj}
+     * @param value   the new value for the field of {@code obj}
      * being modified
      *
      * @exception IllegalAccessException    if this {@code Field} object
@@ -727,9 +726,9 @@ class Field extends AccessibleObject implements Member {
      *              by this method fails.
      * @see       Field#set
      */
-    public void setChar(Object object, char value) throws IllegalAccessException,
-                                                          IllegalArgumentException {
-        setChar(object, value, isAccessible());
+    public void setChar(Object obj, char value) throws IllegalAccessException,
+                                                       IllegalArgumentException {
+        setChar(obj, value, isAccessible());
     }
 
     private native void setChar(Object object, char value, boolean accessible)
@@ -743,7 +742,7 @@ class Field extends AccessibleObject implements Member {
      * {@code sObj.shortValue() == s}.
      *
      * @param obj the object whose field should be modified
-     * @param s   the new value for the field of {@code obj}
+     * @param value   the new value for the field of {@code obj}
      * being modified
      *
      * @exception IllegalAccessException    if this {@code Field} object
@@ -759,9 +758,9 @@ class Field extends AccessibleObject implements Member {
      *              by this method fails.
      * @see       Field#set
      */
-    public void setShort(Object object, short value) throws IllegalAccessException,
-                                                            IllegalArgumentException {
-        setShort(object, value, isAccessible());
+    public void setShort(Object obj, short value) throws IllegalAccessException,
+                                                         IllegalArgumentException {
+        setShort(obj, value, isAccessible());
     }
 
     private native void setShort(Object object, short value, boolean accessible)
@@ -775,7 +774,7 @@ class Field extends AccessibleObject implements Member {
      * {@code iObj.intValue() == i}.
      *
      * @param obj the object whose field should be modified
-     * @param i   the new value for the field of {@code obj}
+     * @param value   the new value for the field of {@code obj}
      * being modified
      *
      * @exception IllegalAccessException    if this {@code Field} object
@@ -791,9 +790,9 @@ class Field extends AccessibleObject implements Member {
      *              by this method fails.
      * @see       Field#set
      */
-    public void setInt(Object object, int value) throws IllegalAccessException,
-                                                        IllegalArgumentException {
-        setInt(object, value, isAccessible());
+    public void setInt(Object obj, int value) throws IllegalAccessException,
+                                                     IllegalArgumentException {
+        setInt(obj, value, isAccessible());
     }
 
     private native void setInt(Object object, int value, boolean accessible)
@@ -807,7 +806,7 @@ class Field extends AccessibleObject implements Member {
      * {@code lObj.longValue() == l}.
      *
      * @param obj the object whose field should be modified
-     * @param l   the new value for the field of {@code obj}
+     * @param value   the new value for the field of {@code obj}
      * being modified
      *
      * @exception IllegalAccessException    if this {@code Field} object
@@ -823,9 +822,9 @@ class Field extends AccessibleObject implements Member {
      *              by this method fails.
      * @see       Field#set
      */
-    public void setLong(Object object, long value) throws IllegalAccessException,
-                                                          IllegalArgumentException {
-        setLong(object, value, isAccessible());
+    public void setLong(Object obj, long value) throws IllegalAccessException,
+                                                       IllegalArgumentException {
+        setLong(obj, value, isAccessible());
     }
 
     private native void setLong(Object object, long value, boolean accessible)
@@ -839,7 +838,7 @@ class Field extends AccessibleObject implements Member {
      * {@code fObj.floatValue() == f}.
      *
      * @param obj the object whose field should be modified
-     * @param f   the new value for the field of {@code obj}
+     * @param value   the new value for the field of {@code obj}
      * being modified
      *
      * @exception IllegalAccessException    if this {@code Field} object
@@ -855,9 +854,9 @@ class Field extends AccessibleObject implements Member {
      *              by this method fails.
      * @see       Field#set
      */
-    public void setFloat(Object object, float value) throws IllegalAccessException,
-                                                            IllegalArgumentException {
-        setFloat(object, value, isAccessible());
+    public void setFloat(Object obj, float value) throws IllegalAccessException,
+                                                         IllegalArgumentException {
+        setFloat(obj, value, isAccessible());
     }
 
     private native void setFloat(Object object, float value, boolean accessible)
@@ -871,7 +870,7 @@ class Field extends AccessibleObject implements Member {
      * {@code dObj.doubleValue() == d}.
      *
      * @param obj the object whose field should be modified
-     * @param d   the new value for the field of {@code obj}
+     * @param value   the new value for the field of {@code obj}
      * being modified
      *
      * @exception IllegalAccessException    if this {@code Field} object
@@ -887,9 +886,9 @@ class Field extends AccessibleObject implements Member {
      *              by this method fails.
      * @see       Field#set
      */
-    public void setDouble(Object object, double value) throws IllegalAccessException,
-                                                              IllegalArgumentException {
-        setDouble(object, value, isAccessible());
+    public void setDouble(Object obj, double value) throws IllegalAccessException,
+                                                           IllegalArgumentException {
+        setDouble(obj, value, isAccessible());
     }
 
     private native void setDouble(Object object, double value, boolean accessible)

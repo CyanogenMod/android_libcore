@@ -420,7 +420,7 @@ public final
      * <p>If the constructor completes normally, returns the newly
      * created and initialized instance.
      *
-     * @param initargs array of objects to be passed as arguments to
+     * @param args array of objects to be passed as arguments to
      * the constructor call; values of primitive types are wrapped in
      * a wrapper object of the appropriate type (e.g. a {@code float}
      * in a {@link java.lang.Float Float})
@@ -445,6 +445,7 @@ public final
      * @exception ExceptionInInitializerError if the initialization provoked
      *              by this method fails.
      */
+    // Android changed param name s/initargs/args
     public T newInstance(Object... args) throws InstantiationException,
             IllegalAccessException, IllegalArgumentException, InvocationTargetException {
       if (serializationClass == null) {

@@ -82,17 +82,16 @@ public class Shutdown {
      * be added to the delete on exit list by the application shutdown
      * hooks.
      *
-     * @params slot  the slot in the shutdown hook array, whose element
+     * @param slot  the slot in the shutdown hook array, whose element
      *               will be invoked in order during shutdown
-     * @params registerShutdownInProgress true to allow the hook
+     * @param registerShutdownInProgress true to allow the hook
      *               to be registered even if the shutdown is in progress.
-     * @params hook  the hook to be registered
+     * @param hook  the hook to be registered
      *
-     * @throw IllegalStateException
+     * @throws IllegalStateException
      *        if registerShutdownInProgress is false and shutdown is in progress; or
      *        if registerShutdownInProgress is true and the shutdown process
      *           already passes the given slot
-     *
      * @hide
      */
     // Android-changed: make public.

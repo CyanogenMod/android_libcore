@@ -325,9 +325,6 @@ public abstract class ClassLoader {
      * <p> Subclasses of <tt>ClassLoader</tt> are encouraged to override {@link
      * #findClass(String)}, rather than this method.  </p>
      *
-     * <p> Unless overridden, this method synchronizes on the result of
-     * {@link #getClassLoadingLock <tt>getClassLoadingLock</tt>} method
-     * during the entire class loading process.
      *
      * @param  name
      *         The <a href="#name">binary name</a> of the class
@@ -340,6 +337,11 @@ public abstract class ClassLoader {
      * @throws  ClassNotFoundException
      *          If the class could not be found
      */
+    // Android-removed : Remove references to getClassLoadingLock
+    //
+    // <p> Unless overridden, this method synchronizes on the result of
+    // {@link #getClassLoadingLock <tt>getClassLoadingLock</tt>} method
+    // during the entire class loading process.
     protected Class<?> loadClass(String name, boolean resolve)
         throws ClassNotFoundException
     {
@@ -530,7 +532,7 @@ public abstract class ClassLoader {
      * bootstrap class loader.  If <tt>name</tt> is not <tt>null</tt>, it
      * must be equal to the <a href="#name">binary name</a> of the class
      * specified by the byte array "<tt>b</tt>", otherwise a {@link
-     * <tt>NoClassDefFoundError</tt>} will be thrown.  </p>
+     * NoClassDefFoundError} will be thrown.  </p>
      *
      * @param  name
      *         The expected <a href="#name">binary name</a> of the class, or
@@ -571,6 +573,7 @@ public abstract class ClassLoader {
      *          certificates than this class, or if <tt>name</tt> begins with
      *          "<tt>java.</tt>".
      */
+    // Android-changed: Remove <tt> from link for NoClassDefFoundError
     protected final Class<?> defineClass(String name, byte[] b, int off, int len,
                                          ProtectionDomain protectionDomain)
         throws ClassFormatError

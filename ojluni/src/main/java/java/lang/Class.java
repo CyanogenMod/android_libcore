@@ -379,7 +379,7 @@ public final
      * this {@code Class} object represents a primitive type, this method
      * returns {@code false}.
      *
-     * @param   obj the object to check
+     * @param   object the object to check
      * @return  true if {@code obj} is an instance of this class
      *
      * @since JDK1.1
@@ -409,7 +409,7 @@ public final
      * or via a widening reference conversion. See <em>The Java Language
      * Specification</em>, sections 5.1.1 and 5.1.4 , for details.
      *
-     * @param cls the {@code Class} object to be checked
+     * @param c the {@code Class} object to be checked
      * @return the {@code boolean} value indicating whether objects of the
      * type {@code cls} can be assigned to objects of this class
      * @exception NullPointerException if the specified Class parameter is
@@ -1934,18 +1934,9 @@ public final
     @CallerSensitive
     public Field getDeclaredField(String name)
         throws NoSuchFieldException, SecurityException {
-<<<<<<< HEAD
-=======
-        /* ----- BEGIN android -----
-        // be very careful not to change the stack depth of this
-        // checkMemberAccess call for security reasons
-        // see java.lang.SecurityManager.checkMemberAccess
-        checkMemberAccess(Member.DECLARED, Reflection.getCallerClass(), true);
-        Field field = searchFields(privateGetDeclaredFields(false), name);*/
         if (name == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("name == null");
         }
->>>>>>> a3f122d... Throw NullPointerException from reflection
         Field field = getDeclaredFieldInternal(name);
         if (field == null) {
             throw new NoSuchFieldException(name);

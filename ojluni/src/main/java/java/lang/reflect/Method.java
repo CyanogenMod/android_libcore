@@ -509,7 +509,7 @@ public final
      * underlying method return type is void, the invocation returns
      * null.
      *
-     * @param obj  the object the underlying method is invoked from
+     * @param receiver  the object the underlying method is invoked from
      * @param args the arguments used for the method call
      * @return the result of dispatching the method represented by
      * this object on {@code obj} with parameters
@@ -535,7 +535,6 @@ public final
      * @exception ExceptionInInitializerError if the initialization
      * provoked by this method fails.
      */
-    @CallerSensitive
     public Object invoke(Object receiver, Object... args)
             throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         return invoke(receiver, args, isAccessible());

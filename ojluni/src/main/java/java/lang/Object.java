@@ -388,7 +388,7 @@ public class Object {
      * description of the ways in which a thread can become the owner of
      * a monitor.
      *
-     * @param      timeout   the maximum time to wait in milliseconds.
+     * @param      millis   the maximum time to wait in milliseconds.
      * @exception  IllegalArgumentException      if the value of timeout is
      *               negative.
      * @exception  IllegalMonitorStateException  if the current thread is not
@@ -453,7 +453,7 @@ public class Object {
      * description of the ways in which a thread can become the owner of
      * a monitor.
      *
-     * @param      timeout   the maximum time to wait in milliseconds.
+     * @param      millis   the maximum time to wait in milliseconds.
      * @param      nanos      additional time, in nanoseconds range
      *                       0-999999.
      * @exception  IllegalArgumentException      if the value of timeout is

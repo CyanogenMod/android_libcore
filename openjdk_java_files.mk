@@ -485,6 +485,8 @@ openjdk_java_files := \
     ojluni/src/main/java/java/nio/file/attribute/AttributeView.java \
     ojluni/src/main/java/java/nio/file/attribute/BasicFileAttributes.java \
     ojluni/src/main/java/java/nio/file/attribute/BasicFileAttributeView.java \
+    ojluni/src/main/java/java/nio/file/attribute/DosFileAttributes.java \
+    ojluni/src/main/java/java/nio/file/attribute/DosFileAttributeView.java \
     ojluni/src/main/java/java/nio/file/attribute/FileAttribute.java \
     ojluni/src/main/java/java/nio/file/attribute/FileAttributeView.java \
     ojluni/src/main/java/java/nio/file/attribute/FileOwnerAttributeView.java \
@@ -499,6 +501,7 @@ openjdk_java_files := \
     ojluni/src/main/java/java/nio/file/attribute/UserPrincipalLookupService.java \
     ojluni/src/main/java/java/nio/file/attribute/UserPrincipalNotFoundException.java \
     ojluni/src/main/java/java/nio/file/ClosedDirectoryStreamException.java \
+    ojluni/src/main/java/java/nio/file/ClosedFileSystemException.java \
     ojluni/src/main/java/java/nio/file/ClosedWatchServiceException.java \
     ojluni/src/main/java/java/nio/file/CopyMoveHelper.java \
     ojluni/src/main/java/java/nio/file/CopyOption.java \
@@ -530,6 +533,7 @@ openjdk_java_files := \
     ojluni/src/main/java/java/nio/file/Paths.java \
     ojluni/src/main/java/java/nio/file/ProviderMismatchException.java \
     ojluni/src/main/java/java/nio/file/ProviderNotFoundException.java \
+    ojluni/src/main/java/java/nio/file/ReadOnlyFileSystemException.java \
     ojluni/src/main/java/java/nio/file/SecureDirectoryStream.java \
     ojluni/src/main/java/java/nio/file/spi/FileSystemProvider.java \
     ojluni/src/main/java/java/nio/file/spi/FileTypeDetector.java \

@@ -533,7 +533,7 @@ abstract public class TimeZone implements Serializable, Cloneable {
     /**
      * Gets the <code>TimeZone</code> for the given ID.
      *
-     * @param ID the ID for a <code>TimeZone</code>, either an abbreviation
+     * @param id the ID for a <code>TimeZone</code>, either an abbreviation
      * such as "PST", a full name such as "America/Los_Angeles", or a custom
      * ID such as "GMT-8:00". Note that the support of abbreviations is
      * for JDK 1.1.x compatibility only and full names should be used.
@@ -541,6 +541,7 @@ abstract public class TimeZone implements Serializable, Cloneable {
      * @return the specified <code>TimeZone</code>, or the GMT zone if the given ID
      * cannot be understood.
      */
+    // Android changed param s/ID/id
     public static synchronized TimeZone getTimeZone(String id) {
         if (id == null) {
             throw new NullPointerException("id == null");
@@ -695,9 +696,10 @@ abstract public class TimeZone implements Serializable, Cloneable {
      * returned by the <code>getDefault</code> method.  If <code>zone</code>
      * is null, reset the default to the value it had originally when the
      * VM first started.
-     * @param zone the new default time zone
+     * @param timeZone the new default time zone
      * @see #getDefault
      */
+    // Android changed s/zone/timeZone
     public synchronized static void setDefault(TimeZone timeZone)
     {
         if (hasPermission()) {

@@ -871,9 +871,10 @@ public abstract class Signature extends SignatureSpi {
      *
      * @see #setParameter(String, Object)
      *
-     * @deprecated
+     * @deprecated Deprecated.
      */
     @Deprecated
+    // Android changed add "Deprecated."
     public final Object getParameter(String param)
             throws InvalidParameterException {
         return engineGetParameter(param);

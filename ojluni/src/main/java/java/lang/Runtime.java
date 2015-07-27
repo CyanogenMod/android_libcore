@@ -805,9 +805,10 @@ public class Runtime {
      * method causes the virtual machine to stop performing the
      * detailed instruction trace it is performing.
      *
-     * @param   on   <code>true</code> to enable instruction tracing;
+     * @param enable   <code>true</code> to enable instruction tracing;
      *               <code>false</code> to disable this feature.
      */
+    // Android changed - param name s/on/enable
     public void traceInstructions(boolean enable) {
     }
 
@@ -824,9 +825,10 @@ public class Runtime {
      * Calling this method with argument false suggests that the
      * virtual machine cease emitting per-call debugging information.
      *
-     * @param   on   <code>true</code> to enable instruction tracing;
+     * @param enable   <code>true</code> to enable instruction tracing;
      *               <code>false</code> to disable this feature.
      */
+    // Android changed - param name s/on/enable
     public void traceMethodCalls(boolean enable) {
         if (enable != tracingMethods) {
             if (enable) {

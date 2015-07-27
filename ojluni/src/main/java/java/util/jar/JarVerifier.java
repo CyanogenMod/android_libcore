@@ -324,8 +324,9 @@ class JarVerifier {
     /**
      * Return an array of java.security.cert.Certificate objects for
      * the given file in the jar.
-     * @deprecated
+     * @deprecated Deprecated.
      */
+    @Deprecated // Android-changed added "Deprecated."
     public java.security.cert.Certificate[] getCerts(String name)
     {
         return mapSignersToCertArray(getCodeSigners(name));

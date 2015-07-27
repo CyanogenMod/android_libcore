@@ -540,7 +540,7 @@ public class RandomAccessFile implements DataOutput, DataInput, Closeable {
      * change only by writing after the offset has been set beyond the end
      * of the file.
      *
-     * @param      pos   the offset position, measured in bytes from the
+     * @param      offset   the offset position, measured in bytes from the
      *                   beginning of the file, at which to set the file
      *                   pointer.
      * @exception  IOException  if <code>pos</code> is less than
