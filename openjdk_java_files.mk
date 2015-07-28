@@ -787,12 +787,6 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/java/text/RuleBasedCollationKey.java \
     ojluni/src/main/java/java/text/RuleBasedCollator.java \
     ojluni/src/main/java/java/text/SimpleDateFormat.java \
-    ojluni/src/main/java/java/text/spi/BreakIteratorProvider.java \
-    ojluni/src/main/java/java/text/spi/CollatorProvider.java \
-    ojluni/src/main/java/java/text/spi/DateFormatProvider.java \
-    ojluni/src/main/java/java/text/spi/DateFormatSymbolsProvider.java \
-    ojluni/src/main/java/java/text/spi/DecimalFormatSymbolsProvider.java \
-    ojluni/src/main/java/java/text/spi/NumberFormatProvider.java \
     ojluni/src/main/java/java/text/StringCharacterIterator.java \
     ojluni/src/main/java/java/util/AbstractCollection.java \
     ojluni/src/main/java/java/util/AbstractList.java \
@@ -923,10 +917,6 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/java/util/SimpleTimeZone.java \
     ojluni/src/main/java/java/util/SortedMap.java \
     ojluni/src/main/java/java/util/SortedSet.java \
-    ojluni/src/main/java/java/util/spi/CurrencyNameProvider.java \
-    ojluni/src/main/java/java/util/spi/LocaleNameProvider.java \
-    ojluni/src/main/java/java/util/spi/LocaleServiceProvider.java \
-    ojluni/src/main/java/java/util/spi/TimeZoneNameProvider.java \
     ojluni/src/main/java/java/util/Stack.java \
     ojluni/src/main/java/java/util/StringTokenizer.java \
     ojluni/src/main/java/java/util/Timer.java \
@@ -1127,6 +1117,16 @@ openjdk_java_files := \
     ojluni/src/main/java/com/sun/nio/file/ExtendedCopyOption.java \
     ojluni/src/main/java/com/sun/security/cert/internal/x509/X509V1CertImpl.java \
     ojluni/src/main/java/java/beans/ChangeListenerMap.java \
+    ojluni/src/main/java/java/text/spi/BreakIteratorProvider.java \
+    ojluni/src/main/java/java/text/spi/CollatorProvider.java \
+    ojluni/src/main/java/java/text/spi/DateFormatProvider.java \
+    ojluni/src/main/java/java/text/spi/DateFormatSymbolsProvider.java \
+    ojluni/src/main/java/java/text/spi/DecimalFormatSymbolsProvider.java \
+    ojluni/src/main/java/java/text/spi/NumberFormatProvider.java \
+    ojluni/src/main/java/java/util/spi/CurrencyNameProvider.java \
+    ojluni/src/main/java/java/util/spi/LocaleNameProvider.java \
+    ojluni/src/main/java/java/util/spi/LocaleServiceProvider.java \
+    ojluni/src/main/java/java/util/spi/TimeZoneNameProvider.java \
     ojluni/src/main/java/sun/misc/ASCIICaseInsensitiveComparator.java \
     ojluni/src/main/java/sun/misc/BASE64Decoder.java \
     ojluni/src/main/java/sun/misc/BASE64Encoder.java \
