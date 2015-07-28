@@ -797,8 +797,8 @@ public class HashMap<K,V>
         return result;
     }
 
-    // Android-changed: Make HashMap.Entry public.
-    public static class Entry<K,V> implements Map.Entry<K,V> {
+    /** @hide */  // Android added.
+    static class Entry<K,V> implements Map.Entry<K,V> {
         final K key;
         V value;
         Entry<K,V> next;

@@ -317,8 +317,7 @@ public class LinkedHashMap<K,V>
     /**
      * LinkedHashMap entry.
      */
-    // Android-changed: make public.
-    public static class Entry<K,V> extends HashMap.Entry<K,V> {
+    private static class Entry<K,V> extends HashMap.Entry<K,V> {
         // These fields comprise the doubly linked list used for iteration.
         Entry<K,V> before, after;
 
@@ -441,7 +440,7 @@ public class LinkedHashMap<K,V>
      *
      * @hide
      */
-    public Entry<K, V> eldest() {
+    public Map.Entry<K, V> eldest() {
         Entry<K, V> eldest = header.after;
         return eldest != header ? eldest : null;
     }
