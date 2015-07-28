@@ -390,7 +390,6 @@ non_openjdk_java_files := \
   luni/src/main/java/libcore/io/Base64.java \
   luni/src/main/java/libcore/io/BlockGuardOs.java \
   luni/src/main/java/libcore/io/BufferIterator.java \
-  luni/src/main/java/libcore/io/DeleteOnExit.java \
   luni/src/main/java/libcore/io/DropBox.java \
   luni/src/main/java/libcore/io/EventLogger.java \
   luni/src/main/java/libcore/io/ForwardingOs.java \
