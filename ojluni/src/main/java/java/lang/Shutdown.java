@@ -32,7 +32,6 @@ package java.lang;
  *
  * @author   Mark Reinhold
  * @since    1.3
- *
  * @hide
  */
 // Android-changed: Make class public.
@@ -92,9 +91,8 @@ public class Shutdown {
      *        if registerShutdownInProgress is false and shutdown is in progress; or
      *        if registerShutdownInProgress is true and the shutdown process
      *           already passes the given slot
-     * @hide
      */
-    // Android-changed: make public.
+    // Android changed s/@params/@param
     public static void add(int slot, boolean registerShutdownInProgress, Runnable hook) {
         synchronized (lock) {
             if (hooks[slot] != null)

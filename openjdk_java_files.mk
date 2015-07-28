@@ -211,7 +211,6 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/java/lang/SafeVarargs.java \
     ojluni/src/main/java/java/lang/SecurityException.java \
     ojluni/src/main/java/java/lang/Short.java \
-    ojluni/src/main/java/java/lang/Shutdown.java \
     ojluni/src/main/java/java/lang/StackOverflowError.java \
     ojluni/src/main/java/java/lang/StackTraceElement.java \
     ojluni/src/main/java/java/lang/StrictMath.java \
@@ -1117,6 +1116,7 @@ openjdk_java_files := \
     ojluni/src/main/java/com/sun/nio/file/ExtendedCopyOption.java \
     ojluni/src/main/java/com/sun/security/cert/internal/x509/X509V1CertImpl.java \
     ojluni/src/main/java/java/beans/ChangeListenerMap.java \
+    ojluni/src/main/java/java/lang/Shutdown.java \
     ojluni/src/main/java/java/text/spi/BreakIteratorProvider.java \
     ojluni/src/main/java/java/text/spi/CollatorProvider.java \
     ojluni/src/main/java/java/text/spi/DateFormatProvider.java \
