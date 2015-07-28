@@ -403,7 +403,6 @@ non_openjdk_java_files := \
   luni/src/main/java/libcore/io/Posix.java \
   luni/src/main/java/libcore/io/SizeOf.java \
   luni/src/main/java/libcore/io/Streams.java \
-  luni/src/main/java/libcore/io/StrictLineReader.java \
   luni/src/main/java/libcore/math/MathUtils.java \
   luni/src/main/java/libcore/net/MimeUtils.java \
   luni/src/main/java/libcore/net/UriCodec.java \
