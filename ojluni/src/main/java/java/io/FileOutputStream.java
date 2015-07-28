@@ -28,7 +28,7 @@ package java.io;
 import java.nio.channels.FileChannel;
 import sun.nio.ch.FileChannelImpl;
 import sun.misc.IoTrace;
-
+import libcore.io.IoBridge;
 
 /**
  * A file output stream is an output stream for writing data to a
@@ -279,7 +279,9 @@ class FileOutputStream extends OutputStream
      * @param   append   {@code true} if the write operation first
      *     advances the position to the end of file
      */
+    /* ----- BEGIN android -----
     private native void write(int b, boolean append) throws IOException;
+    ----- END android ----- */
 
     /**
      * Writes the specified byte to this file output stream. Implements
@@ -289,6 +291,8 @@ class FileOutputStream extends OutputStream
      * @exception  IOException  if an I/O error occurs.
      */
     public void write(int b) throws IOException {
+        write(new byte[] { (byte) b }, 0, 1);
+        /* ----- BEGIN android -----
         Object traceContext = IoTrace.fileWriteBegin(path);
         int bytesWritten = 0;
         try {
@@ -297,6 +301,7 @@ class FileOutputStream extends OutputStream
         } finally {
             IoTrace.fileWriteEnd(traceContext, bytesWritten);
         }
+        ----- END android ----- */
     }
 
     /**
@@ -308,8 +313,10 @@ class FileOutputStream extends OutputStream
      *     end of file
      * @exception IOException If an I/O error has occurred.
      */
+    /* ----- BEGIN android -----
     private native void writeBytes(byte b[], int off, int len, boolean append)
         throws IOException;
+       ----- END android ----- */
 
     /**
      * Writes <code>b.length</code> bytes from the specified byte array
@@ -319,6 +326,7 @@ class FileOutputStream extends OutputStream
      * @exception  IOException  if an I/O error occurs.
      */
     public void write(byte b[]) throws IOException {
+        /* ----- BEGIN android -----
         Object traceContext = IoTrace.fileWriteBegin(path);
         int bytesWritten = 0;
         try {
@@ -326,7 +334,8 @@ class FileOutputStream extends OutputStream
             bytesWritten = b.length;
         } finally {
             IoTrace.fileWriteEnd(traceContext, bytesWritten);
-        }
+        } ----- END android ----- */
+        write(b, 0, b.length);
     }
 
     /**
@@ -342,7 +351,7 @@ class FileOutputStream extends OutputStream
         Object traceContext = IoTrace.fileWriteBegin(path);
         int bytesWritten = 0;
         try {
-            writeBytes(b, off, len, append);
+            IoBridge.write(fd, b, off, len);
             bytesWritten = len;
         } finally {
             IoTrace.fileWriteEnd(traceContext, bytesWritten);
@@ -389,8 +398,12 @@ class FileOutputStream extends OutputStream
          * If FileDescriptor is still in use by another stream, the finalizer
          * will not close it.
          */
-        if ((useCount <= 0) || !isRunningFinalize()) {
-            close0();
+        // Android change, make sure only last close closes FD.
+        if ((useCount <= 0)) { // || !isRunningFinalize()) {
+            /* ----- BEGIN android -----
+            close0(); */
+            IoBridge.closeAndSignalBlockedThreads(fd);
+            // ----- END android -----
         }
     }
 
@@ -471,7 +484,8 @@ class FileOutputStream extends OutputStream
         }
     }
 
-    private native void close0() throws IOException;
+    /* ----- BEGIN android -----
+    private native void close0() throws IOException; */
 
     private static native void initIDs();
 

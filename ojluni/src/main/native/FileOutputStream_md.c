@@ -82,9 +82,9 @@ FileOutputStream_close0(JNIEnv *env, jobject this) {
 static JNINativeMethod gMethods[] = {
   NATIVE_METHOD(FileOutputStream, initIDs, "()V"),
   NATIVE_METHOD(FileOutputStream, open, "(Ljava/lang/String;Z)V"),
-  NATIVE_METHOD(FileOutputStream, write, "(IZ)V"),
-  NATIVE_METHOD(FileOutputStream, writeBytes, "([BIIZ)V"),
-  NATIVE_METHOD(FileOutputStream, close0, "()V"),
+  //NATIVE_METHOD(FileOutputStream, write, "(IZ)V"),
+  //NATIVE_METHOD(FileOutputStream, writeBytes, "([BIIZ)V"),
+  //NATIVE_METHOD(FileOutputStream, close0, "()V"),
 };
 
 void register_java_io_FileOutputStream(JNIEnv* env) {

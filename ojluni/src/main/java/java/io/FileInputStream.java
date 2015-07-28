@@ -28,6 +28,7 @@ package java.io;
 import java.nio.channels.FileChannel;
 import sun.nio.ch.FileChannelImpl;
 import sun.misc.IoTrace;
+import libcore.io.IoBridge;
 
 
 /**
@@ -205,16 +206,29 @@ class FileInputStream extends InputStream
      */
     public int read() throws IOException {
         Object traceContext = IoTrace.fileReadBegin(path);
+
+        /* ----- BEGIN android -----
         int b = 0;
         try {
             b = read0();
         } finally {
             IoTrace.fileReadEnd(traceContext, b == -1 ? 0 : 1);
         }
-        return b;
+        return b;*/
+        byte[] b = new byte[1];
+        int res = -1;
+        try {
+            res = read(b, 0, 1);
+        } finally {
+            IoTrace.fileReadEnd(traceContext, res);
+        }
+        return (res != -1) ? b[0] & 0xff : -1;
+        // ----- END android -----
     }
 
+    /* ----- BEGIN android -----
     private native int read0() throws IOException;
+    ----- END android -----*/
 
     /**
      * Reads a subarray as a sequence of bytes.
@@ -223,7 +237,9 @@ class FileInputStream extends InputStream
      * @param len the number of bytes that are written
      * @exception IOException If an I/O error has occurred.
      */
+    /* ----- BEGIN android -----
     private native int readBytes(byte b[], int off, int len) throws IOException;
+    ----- END android -----*/
 
     /**
      * Reads up to <code>b.length</code> bytes of data from this input
@@ -237,6 +253,7 @@ class FileInputStream extends InputStream
      * @exception  IOException  if an I/O error occurs.
      */
     public int read(byte b[]) throws IOException {
+        /* ----- BEGIN android -----
         Object traceContext = IoTrace.fileReadBegin(path);
         int bytesRead = 0;
         try {
@@ -244,7 +261,8 @@ class FileInputStream extends InputStream
         } finally {
             IoTrace.fileReadEnd(traceContext, bytesRead == -1 ? 0 : bytesRead);
         }
-        return bytesRead;
+        return bytesRead;*/
+        return read(b, 0, b.length);
     }
 
     /**
@@ -269,7 +287,10 @@ class FileInputStream extends InputStream
         Object traceContext = IoTrace.fileReadBegin(path);
         int bytesRead = 0;
         try {
-            bytesRead = readBytes(b, off, len);
+            /* ----- BEGIN android -----
+            bytesRead = readBytes(b, off, len);*/
+            bytesRead = IoBridge.read(fd, b, off, len);
+            // ----- END android -----
         } finally {
             IoTrace.fileReadEnd(traceContext, bytesRead == -1 ? 0 : bytesRead);
         }
@@ -372,7 +393,10 @@ class FileInputStream extends InputStream
          */
         // Android change, make sure only last close closes FD.
         if ((useCount <= 0)) { //  || !isRunningFinalize()) {
-            close0();
+            /* ----- BEGIN android -----
+               close0(); */
+            IoBridge.closeAndSignalBlockedThreads(fd);
+            // ----- END android -----
         }
     }
 

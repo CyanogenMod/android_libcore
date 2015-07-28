@@ -163,11 +163,11 @@ FileInputStream_close0(JNIEnv *env, jobject this) {
 static JNINativeMethod gMethods[] = {
   NATIVE_METHOD(FileInputStream, initIDs, "()V"),
   NATIVE_METHOD(FileInputStream, open, "(Ljava/lang/String;)V"),
-  NATIVE_METHOD(FileInputStream, read0, "()I"),
-  NATIVE_METHOD(FileInputStream, readBytes, "([BII)I"),
   NATIVE_METHOD(FileInputStream, skip0, "(J)J"),
   NATIVE_METHOD(FileInputStream, available, "()I"),
-  NATIVE_METHOD(FileInputStream, close0, "()V"),
+  //NATIVE_METHOD(FileInputStream, read0, "()I"),
+  //NATIVE_METHOD(FileInputStream, readBytes, "([BII)I"),
+  //NATIVE_METHOD(FileInputStream, close0, "()V"),
 };
 
 void register_java_io_FileInputStream(JNIEnv* env) {
