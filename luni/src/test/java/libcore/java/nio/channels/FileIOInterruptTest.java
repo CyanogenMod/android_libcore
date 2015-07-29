@@ -413,7 +413,7 @@ public class FileIOInterruptTest extends TestCase {
     // of bytes written, and then the FOLLOWING #write will throw ChannelClosedException because
     // file has been closed. Android is actually doing a wrong thing by always throwing the
     // AsynchronousCloseException. Client application have no idea that SOME data
-    /  was written in this case.
+    //  was written in this case.
     assertSame(AsynchronousCloseException.class, channelWriter.ioe.getClass());
     assertFalse(channelWriter.wasInterrupted);
 
