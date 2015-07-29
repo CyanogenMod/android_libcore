@@ -119,7 +119,11 @@ class Net {                                             // package-private
 
     static InetSocketAddress checkAddress(SocketAddress sa) {
         if (sa == null)
-            throw new NullPointerException();
+            // ----- BEGIN android -----
+            //throw new NullPointerException();
+            throw new IllegalArgumentException("sa == null");
+            // ----- END android -----
+
         if (!(sa instanceof InetSocketAddress))
             throw new UnsupportedAddressTypeException(); // ## needs arg
         InetSocketAddress isa = (InetSocketAddress)sa;
