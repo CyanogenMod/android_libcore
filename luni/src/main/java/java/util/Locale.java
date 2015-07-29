@@ -99,7 +99,7 @@ import libcore.icu.ICU;
  *     <td><a href="http://site.icu-project.org/download/53">ICU 53</a></td>
  *     <td><a href="http://cldr.unicode.org/index/downloads/cldr-25">CLDR 25</a></td>
  *     <td><a href="http://www.unicode.org/versions/Unicode6.3.0/">Unicode 6.3</a></td></tr>
- * <tr><td>Android "M"</td>
+ * <tr><td>Android 6.0 (Marshmallow)</td>
  *     <td><a href="http://site.icu-project.org/download/55">ICU 55.1</a></td>
  *     <td><a href="http://cldr.unicode.org/index/downloads/cldr-27">CLDR 27.0.1</a></td>
  *     <td><a href="http://www.unicode.org/versions/Unicode7.0.0/">Unicode 7.0</a></td></tr>
