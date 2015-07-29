@@ -162,12 +162,6 @@ endif
 
 ifeq ($(HOST_OS),linux)
 
-include $(CLEAR_VARS)
-LOCAL_SRC_FILES := $(call all-main-java-files-under, dex)
-LOCAL_MODULE_TAGS := optional
-LOCAL_MODULE := dex-host
-include $(BUILD_HOST_JAVA_LIBRARY)
-
 # Definitions to make the core library.
 include $(CLEAR_VARS)
 LOCAL_SRC_FILES := $(libart_core_src_files) $(icu4j_src_files)
