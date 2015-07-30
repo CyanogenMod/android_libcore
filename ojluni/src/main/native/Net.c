@@ -452,9 +452,17 @@ Java_sun_nio_ch_Net_joinOrDrop4(JNIEnv *env, jobject this, jboolean join, jobjec
         /* no IPv4 include-mode filtering for now */
         return IOS_UNAVAILABLE;
 #else
+// Begin Android changed.
+#if defined(__GLIBC__)
+        mreq_source.imr_multiaddr.s_addr = htonl(group);
+        mreq_source.imr_sourceaddr.s_addr = htonl(source);
+        mreq_source.imr_interface.s_addr = htonl(interf);
+#else
         mreq_source.imr_multiaddr = htonl(group);
         mreq_source.imr_sourceaddr = htonl(source);
         mreq_source.imr_interface = htonl(interf);
+#endif
+// End Android changed.
         opt = (join) ? IP_ADD_SOURCE_MEMBERSHIP : IP_DROP_SOURCE_MEMBERSHIP;
         optval = (void*)&mreq_source;
         optlen = sizeof(mreq_source);
@@ -482,9 +490,16 @@ Java_sun_nio_ch_Net_blockOrUnblock4(JNIEnv *env, jobject this, jboolean block, j
     int n;
     int opt = (block) ? IP_BLOCK_SOURCE : IP_UNBLOCK_SOURCE;
 
-    mreq_source.imr_multiaddr = htonl(group);
-    mreq_source.imr_sourceaddr = htonl(source);
-    mreq_source.imr_interface = htonl(interf);
+// Begin Android changed.
+#if defined(__GLIBC__)
+        mreq_source.imr_multiaddr.s_addr = htonl(group);
+        mreq_source.imr_sourceaddr.s_addr = htonl(source);
+        mreq_source.imr_interface.s_addr = htonl(interf);
+#else
+        mreq_source.imr_multiaddr = htonl(group);
+        mreq_source.imr_sourceaddr = htonl(source);
+        mreq_source.imr_interface = htonl(interf);
+#endif
 
     n = setsockopt(fdval(env,fdo), IPPROTO_IP, opt,
                    (void*)&mreq_source, sizeof(mreq_source));

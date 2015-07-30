@@ -65,11 +65,10 @@ LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/NativeCode.mk
 core_src_files :=
 openjdk_core_src_files :=
 
-#Include the sub.m in openjdk.
+#Include the sub.mk for openjdk.
 $(foreach dir, \
     ojluni/src/main/native, \
     $(eval $(call include-openjdk-native-dir,$(dir))))
-
 
 # Include the sub.mk files.
 $(foreach dir, \
@@ -162,6 +161,19 @@ LOCAL_MODULE := libjavacore
 LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/NativeCode.mk
 LOCAL_SHARED_LIBRARIES += $(core_shared_libraries) libexpat-host libicuuc-host libicui18n-host libcrypto-host libz-host
 LOCAL_STATIC_LIBRARIES += $(core_static_libraries) libziparchive-host libutils
+LOCAL_MULTILIB := both
+include $(BUILD_HOST_SHARED_LIBRARY)
+
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES := $(openjdk_core_src_files)
+LOCAL_C_INCLUDES := $(core_c_includes)
+LOCAL_CFLAGS := -D_LARGEFILE64_SOURCE -D_GNU_SOURCE -DLINUX -D__GLIBC__ # Sigh.
+LOCAL_SHARED_LIBRARIES := $(core_shared_libraries) libcrypto-host libz-host
+LOCAL_SHARED_LIBRARIES += libart libnativehelper
+LOCAL_STATIC_LIBRARIES := $(core_static_libraries) libfdlibm
+LOCAL_MODULE_TAGS := optional
+LOCAL_LDLIBS += -ldl -lpthread
+LOCAL_MODULE := libopenjdkjavacore
 LOCAL_MULTILIB := both
 include $(BUILD_HOST_SHARED_LIBRARY)
 
