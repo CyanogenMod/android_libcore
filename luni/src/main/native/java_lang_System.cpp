@@ -34,7 +34,7 @@
 #include <time.h>
 #include <unistd.h>
 
-#if defined(HAVE_ANDROID_OS)
+#if defined(__ANDROID__)
 extern "C" void android_get_LD_LIBRARY_PATH(char*, size_t);
 #endif
 
@@ -91,7 +91,7 @@ static jobjectArray System_specialProperties(JNIEnv* env, jclass) {
 #endif
 
     const char* library_path = getenv("LD_LIBRARY_PATH");
-#if defined(HAVE_ANDROID_OS)
+#if defined(__ANDROID__)
     if (library_path == NULL) {
         android_get_LD_LIBRARY_PATH(path, sizeof(path));
         library_path = path;
