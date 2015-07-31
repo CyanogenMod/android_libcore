@@ -16,18 +16,24 @@
 
 package libcore.icu;
 
+import android.icu.text.Transliterator;
+
+import java.util.Enumeration;
+
 public class TransliteratorTest extends junit.framework.TestCase {
   public void testAll() throws Exception {
-    for (String id : Transliterator.getAvailableIDs()) {
+    Enumeration<String> ids = Transliterator.getAvailableIDs();
+    while (ids.hasMoreElements()) {
+      String id = ids.nextElement();
       System.err.println(id);
-      Transliterator t = new Transliterator(id);
+      Transliterator t = Transliterator.getInstance(id);
       t.transliterate("hello");
     }
   }
 
   public void test_Unknown() throws Exception {
     try {
-      Transliterator t = new Transliterator("Unknown");
+      Transliterator t = Transliterator.getInstance("Unknown");
       fail();
     } catch (RuntimeException expected) {
     }
@@ -35,29 +41,20 @@ public class TransliteratorTest extends junit.framework.TestCase {
 
   public void test_null_id() throws Exception {
     try {
-      Transliterator t = new Transliterator(null);
-      fail();
-    } catch (NullPointerException expected) {
-    }
-  }
-
-  public void test_null_string() throws Exception {
-    try {
-      Transliterator t = new Transliterator("Any-Upper");
-      t.transliterate(null);
+      Transliterator t = Transliterator.getInstance(null);
       fail();
     } catch (NullPointerException expected) {
     }
   }
 
   public void test_Any_Upper() throws Exception {
-    Transliterator t = new Transliterator("Any-Upper");
+    Transliterator t = Transliterator.getInstance("Any-Upper");
     assertEquals("HELLO WORLD!", t.transliterate("HeLlO WoRlD!"));
     assertEquals("STRASSE", t.transliterate("Straße"));
   }
 
   public void test_Any_Lower() throws Exception {
-    Transliterator t = new Transliterator("Any-Lower");
+    Transliterator t = Transliterator.getInstance("Any-Lower");
     assertEquals("hello world!", t.transliterate("HeLlO WoRlD!"));
   }
 
@@ -65,34 +62,34 @@ public class TransliteratorTest extends junit.framework.TestCase {
     String greek = "Καλημέρα κόσμε!";
 
     // Transliterate Greek to Latin, then to plain ASCII.
-    Transliterator t = new Transliterator("Greek-Latin");
+    Transliterator t = Transliterator.getInstance("Greek-Latin");
     String latin = t.transliterate(greek);
-    t = new Transliterator("Latin-Ascii");
+    t = Transliterator.getInstance("Latin-Ascii");
     String ascii = t.transliterate(latin);
     assertEquals("Kalēméra kósme!", latin);
     assertEquals("Kalemera kosme!", ascii);
 
     // Use alternative transliteration variants.
-    t = new Transliterator("Greek-Latin/BGN");
+    t = Transliterator.getInstance("Greek-Latin/BGN");
     assertEquals("Kaliméra kósme!", t.transliterate(greek));
-    t = new Transliterator("Greek-Latin/UNGEGN");
+    t = Transliterator.getInstance("Greek-Latin/UNGEGN");
     assertEquals("Kali̱méra kósme!",t.transliterate(greek));
   }
 
   public void test_Han_Latin() throws Exception {
-    Transliterator t = new Transliterator("Han-Latin");
+    Transliterator t = Transliterator.getInstance("Han-Latin");
     assertEquals("hàn zì/hàn zì", t.transliterate("汉字/漢字"));
 
     assertEquals("chén", t.transliterate("\u6c88"));
     assertEquals("shěn", t.transliterate("\u700b"));
     assertEquals("jiǎ", t.transliterate("\u8d3e"));
 
-    t = new Transliterator("Han-Latin/Names");
+    t = Transliterator.getInstance("Han-Latin/Names");
     assertEquals("shěn", t.transliterate("\u6c88"));
     assertEquals("shěn", t.transliterate("\u700b"));
     assertEquals("jiǎ", t.transliterate("\u8d3e"));
 
-    t = new Transliterator("Han-Latin/Names; Latin-Ascii; Any-Upper");
+    t = Transliterator.getInstance("Han-Latin/Names; Latin-Ascii; Any-Upper");
     assertEquals("SHEN", t.transliterate("\u6c88"));
     assertEquals("SHEN", t.transliterate("\u700b"));
     assertEquals("JIA", t.transliterate("\u8d3e"));
