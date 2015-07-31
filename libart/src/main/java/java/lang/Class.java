@@ -137,9 +137,6 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      */
     private transient DexCache dexCache;
 
-    /** Short-cut to dexCache.strings */
-    private transient String[] dexCacheStrings;
-
     /**
      * The interface table (iftable_) contains pairs of a interface class and an array of the
      * interface methods. There is one pair per interface supported by this class.  That
@@ -179,6 +176,9 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * virtual_ methods_ for miranda methods.
      */
     private transient Object vtable;
+
+    /** Short-cut to dexCache.strings */
+    private transient long dexCacheStrings;
 
     /** access flags; low 16 bits are defined by VM spec */
     private transient int accessFlags;
