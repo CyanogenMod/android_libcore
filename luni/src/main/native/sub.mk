@@ -42,7 +42,6 @@ LOCAL_SRC_FILES := \
     libcore_icu_NativeDecimalFormat.cpp \
     libcore_icu_NativeIDN.cpp \
     libcore_icu_TimeZoneNames.cpp \
-    libcore_icu_Transliterator.cpp \
     libcore_io_AsynchronousCloseMonitor.cpp \
     libcore_io_Memory.cpp \
     libcore_io_Posix.cpp \
