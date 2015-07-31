@@ -66,7 +66,8 @@ public class ZipEntry implements ZipConstants, Cloneable {
      */
     public static final int STORED = 0;
 
-    ZipEntry(String name, String comment, long crc, long compressedSize,
+    /** @hide - for testing only */
+    public ZipEntry(String name, String comment, long crc, long compressedSize,
             long size, int compressionMethod, int time, int modDate, byte[] extra,
             long localHeaderRelOffset, long dataOffset) {
         this.name = name;
