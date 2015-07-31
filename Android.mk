@@ -52,6 +52,15 @@ LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE_PATH := $(TARGET_OUT)/usr/share
 include $(BUILD_PREBUILT)
 
+include $(CLEAR_VARS)
+LOCAL_MODULE := currency.data-host
+LOCAL_MODULE_STEM := currency.data
+LOCAL_SRC_FILES := ojluni/currency.data
+LOCAL_MODULE_CLASS := ETC
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE_PATH := $(HOST_OUT)/usr/share
+include $(BUILD_PREBUILT)
+
 #
 # Disable test modules if LIBCORE_SKIP_TESTS environment variable is set.
 #

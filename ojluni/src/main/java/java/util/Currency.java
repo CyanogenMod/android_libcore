@@ -196,8 +196,7 @@ public final class Currency implements Serializable {
                 String homeDir = System.getProperty("java.home");
                 try {
                     // Android-changed: Look for the data file in /usr/share/..
-                    String dataFile = homeDir + File.separator + "usr" + File.separator + "share" +
-                            File.separator + "currency.data";
+                    String dataFile = System.getenv("ANDROID_ROOT") + "/usr/share/currency.data";
                     DataInputStream dis = new DataInputStream(
                         new BufferedInputStream(
                         new FileInputStream(dataFile)));
