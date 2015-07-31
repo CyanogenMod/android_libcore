@@ -18,7 +18,7 @@ package java.lang;
 
 import java.util.Locale;
 import libcore.icu.ICU;
-import libcore.icu.Transliterator;
+import com.ibm.icu.text.Transliterator;
 
 /**
  * Performs case operations as described by http://unicode.org/reports/tr21/tr21-5.html.
@@ -138,7 +138,7 @@ class CaseMapper {
 
     private static final ThreadLocal<Transliterator> EL_UPPER = new ThreadLocal<Transliterator>() {
         @Override protected Transliterator initialValue() {
-            return new Transliterator("el-Upper");
+            return Transliterator.getInstance("el-Upper");
         }
     };
 
