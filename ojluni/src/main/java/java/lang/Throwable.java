@@ -202,7 +202,8 @@ public class Throwable implements Serializable {
      * @serial
      * @since 1.4
      */
-    private StackTraceElement[] stackTrace = new StackTraceElement[0];
+    // Android changed.
+    private StackTraceElement[] stackTrace = libcore.util.EmptyArray.STACK_TRACE_ELEMENT;
 
     /**
      * The list of suppressed exceptions, as returned by {@link
@@ -770,7 +771,7 @@ public class Throwable implements Serializable {
         if (stackTrace != null ||
             backtrace != null /* Out of protocol state */ ) {
             backtrace = nativeFillInStackTrace();
-            stackTrace = new StackTraceElement[0];
+            stackTrace = libcore.util.EmptyArray.STACK_TRACE_ELEMENT;
         }
         return this;
     }
@@ -808,13 +809,21 @@ public class Throwable implements Serializable {
     private synchronized StackTraceElement[] getOurStackTrace() {
         // Initialize stack trace field with information from
         // backtrace if this is the first call to this method
-        if (stackTrace.length == 0 ||
+        //
+        // Android changed - test explicitly for equality with
+        // STACK_TRACE_ELEMENT
+        if (stackTrace == libcore.util.EmptyArray.STACK_TRACE_ELEMENT ||
             (stackTrace == null && backtrace != null) /* Out of protocol state */) {
-             stackTrace = nativeGetStackTrace(backtrace);
-             backtrace = null;
-        } else if (stackTrace == null) {
-            return new StackTraceElement[0];
+            stackTrace = nativeGetStackTrace(backtrace);
+            backtrace = null;
         }
+
+        // Android changed : Return an empty element both when the stack trace
+        // isn't writeable and also when nativeGetStackTrace returns null.
+        if (stackTrace == null) {
+            return libcore.util.EmptyArray.STACK_TRACE_ELEMENT;
+        }
+
         return stackTrace;
     }
 
