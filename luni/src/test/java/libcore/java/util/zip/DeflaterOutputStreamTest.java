@@ -101,6 +101,13 @@ public class DeflaterOutputStreamTest extends TestCase {
         }
     }
 
+    static class FlushingDeflater extends Deflater {
+        @Override
+        public int deflate(byte[] buf, int offset, int byteCount) {
+            return super.deflate(buf, offset, byteCount, Deflater.SYNC_FLUSH);
+        }
+    }
+
     /**
      * Confirm that a DeflaterOutputStream constructed with Deflater
      * with flushParm == SYNC_FLUSH does not need to to be flushed.
@@ -108,11 +115,7 @@ public class DeflaterOutputStreamTest extends TestCase {
      * http://b/4005091
      */
     public void testSyncFlushDeflater() throws Exception {
-        Deflater def = new Deflater();
-        Field f = def.getClass().getDeclaredField("flushParm");
-        f.setAccessible(true);
-        f.setInt(def, Deflater.SYNC_FLUSH);
-
+        Deflater def = new FlushingDeflater();
         final int deflaterBufferSize = 512;
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         DeflaterOutputStream dos = new DeflaterOutputStream(baos, def, deflaterBufferSize);
