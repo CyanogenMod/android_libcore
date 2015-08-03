@@ -1268,6 +1268,57 @@ public final class CipherTest extends TestCase {
                     c.doFinal(new byte[1]).length);
         }
 
+        if (isPBE(algorithm)) {
+            if (algorithm.endsWith("RC4")) {
+                assertNull(cipherID + " getIV()", c.getIV());
+            } else {
+                assertNotNull(cipherID + " getIV()", c.getIV());
+            }
+        } else if (encryptSpec instanceof IvParameterSpec) {
+            assertEquals(cipherID + " getIV()",
+                    Arrays.toString(((IvParameterSpec) encryptSpec).getIV()),
+                    Arrays.toString(c.getIV()));
+        } else if (encryptSpec instanceof GCMParameterSpec) {
+            assertNotNull(c.getIV());
+            assertEquals(cipherID + " getIV()",
+                    Arrays.toString(((GCMParameterSpec) encryptSpec).getIV()),
+                    Arrays.toString(c.getIV()));
+        } else {
+            try {
+                assertNull(cipherID + " getIV()", c.getIV());
+            } catch (NullPointerException e) {
+                // Bouncycastle apparently has a bug here with AESWRAP, et al.
+                if (!("BC".equals(providerName) && isOnlyWrappingAlgorithm(algorithm))) {
+                    throw e;
+                }
+            }
+        }
+
+        AlgorithmParameters encParams = c.getParameters();
+        if (encryptSpec == null) {
+            assertNull(cipherID + " getParameters()", encParams);
+        } else if (encryptSpec instanceof GCMParameterSpec) {
+            GCMParameterSpec gcmDecryptSpec = (GCMParameterSpec) encParams
+                    .getParameterSpec(GCMParameterSpec.class);
+            assertEquals(cipherID + " getIV()",
+                    Arrays.toString(((GCMParameterSpec) encryptSpec).getIV()),
+                    Arrays.toString(gcmDecryptSpec.getIV()));
+            assertEquals(cipherID + " getTLen()", ((GCMParameterSpec) encryptSpec).getTLen(),
+                    gcmDecryptSpec.getTLen());
+        } else if (encryptSpec instanceof IvParameterSpec) {
+            IvParameterSpec ivDecryptSpec = (IvParameterSpec) encParams
+                    .getParameterSpec(IvParameterSpec.class);
+            assertEquals(cipherID + " getIV()",
+                    Arrays.toString(((IvParameterSpec) encryptSpec).getIV()),
+                    Arrays.toString(ivDecryptSpec.getIV()));
+        } else if (encryptSpec instanceof PBEParameterSpec) {
+            // Bouncycastle seems to be undecided about whether it returns this
+            // or not
+            if (!"BC".equals(providerName)) {
+                assertNotNull(cipherID + " getParameters()", encParams);
+            }
+        }
+
         final AlgorithmParameterSpec decryptSpec = getDecryptAlgorithmParameterSpec(encryptSpec, c);
         int decryptMode = getDecryptMode(algorithm);
 
@@ -1305,18 +1356,27 @@ public final class CipherTest extends TestCase {
             }
         }
 
-        AlgorithmParameters params = c.getParameters();
+        AlgorithmParameters decParams = c.getParameters();
         if (decryptSpec == null) {
-            assertNull(cipherID + " getParameters()", params);
+            assertNull(cipherID + " getParameters()", decParams);
+        } else if (decryptSpec instanceof GCMParameterSpec) {
+            GCMParameterSpec gcmDecryptSpec = (GCMParameterSpec) decParams
+                    .getParameterSpec(GCMParameterSpec.class);
+            assertEquals(cipherID + " getIV()",
+                    Arrays.toString(((GCMParameterSpec) decryptSpec).getIV()),
+                    Arrays.toString(gcmDecryptSpec.getIV()));
+            assertEquals(cipherID + " getTLen()", ((GCMParameterSpec) decryptSpec).getTLen(),
+                    gcmDecryptSpec.getTLen());
         } else if (decryptSpec instanceof IvParameterSpec) {
-            IvParameterSpec ivDecryptSpec = (IvParameterSpec) params.getParameterSpec(IvParameterSpec.class);
+            IvParameterSpec ivDecryptSpec = (IvParameterSpec) decParams
+                    .getParameterSpec(IvParameterSpec.class);
             assertEquals(cipherID + " getIV()",
                     Arrays.toString(((IvParameterSpec) decryptSpec).getIV()),
                     Arrays.toString(ivDecryptSpec.getIV()));
         } else if (decryptSpec instanceof PBEParameterSpec) {
-            // Bouncycastle seems to be schizophrenic about whther it returns this or not
+            // Bouncycastle seems to be undecided about whether it returns this or not
             if (!"BC".equals(providerName)) {
-                assertNotNull(cipherID + " getParameters()", params);
+                assertNotNull(cipherID + " getParameters()", decParams);
             }
         }
 
