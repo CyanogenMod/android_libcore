@@ -538,13 +538,17 @@ public abstract class Buffer {
      */
     final int checkIndex(int i) {                       // package-private
         if ((i < 0) || (i >= limit))
-            throw new IndexOutOfBoundsException();
+            // Android changed : Add bounds details to exception.
+            throw new IndexOutOfBoundsException(
+                "index=" + i + " out of bounds (limit=" + limit + ")");
         return i;
     }
 
     final int checkIndex(int i, int nb) {               // package-private
         if ((i < 0) || (nb > limit - i))
-            throw new IndexOutOfBoundsException();
+            // Android changed : Add bounds details to exception.
+            throw new IndexOutOfBoundsException(
+                "index=" + i + " out of bounds (limit=" + limit + ", nb=" + nb + )");
         return i;
     }
 
@@ -565,7 +569,9 @@ public abstract class Buffer {
 
     static void checkBounds(int off, int len, int size) { // package-private
         if ((off | len | (off + len) | (size - (off + len))) < 0)
-            throw new IndexOutOfBoundsException();
+            // Android changed : Add bounds details to exception.
+            throw new IndexOutOfBoundsException(
+                "off=" + off + ", len=" + len + " out of bounds (size=" + size + ")";
     }
 
 }

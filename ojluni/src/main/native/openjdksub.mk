@@ -61,6 +61,7 @@ LOCAL_SRC_FILES := \
     NativeSignalHandler.c \
     Shutdown.c \
     UNIXProcess_md.c \
+    Bits.c \
     Register.cpp \
 
 LOCAL_C_INCLUDES += \
