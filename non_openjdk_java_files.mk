@@ -184,8 +184,12 @@ non_openjdk_javadoc_files := \
   luni/src/main/java/java/util/prefs/FilePreferencesImpl.java \
   luni/src/main/java/java/util/prefs/NodeSet.java \
   luni/src/main/java/java/util/prefs/XMLParser.java \
-  luni/src/main/java/java/util/regex/MatchResultImpl.java \
+  luni/src/main/java/java/util/regex/PatternSyntaxException.java \
+  luni/src/main/java/java/util/regex/Pattern.java \
+  luni/src/main/java/java/util/regex/Matcher.java \
   luni/src/main/java/java/util/regex/Splitter.java \
+  luni/src/main/java/java/util/regex/MatchResultImpl.java \
+  luni/src/main/java/java/util/regex/MatchResult.java \
   luni/src/main/java/javax/net/ssl/DefaultHostnameVerifier.java \
   luni/src/main/java/javax/net/ssl/DistinguishedNameParser.java \
   luni/src/main/java/javax/xml/XMLConstants.java \

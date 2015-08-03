@@ -901,12 +901,6 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/java/util/Queue.java \
     ojluni/src/main/java/java/util/RandomAccess.java \
     ojluni/src/main/java/java/util/Random.java \
-    ojluni/src/main/java/java/util/regex/ASCII.java \
-    ojluni/src/main/java/java/util/regex/Matcher.java \
-    ojluni/src/main/java/java/util/regex/MatchResult.java \
-    ojluni/src/main/java/java/util/regex/Pattern.java \
-    ojluni/src/main/java/java/util/regex/PatternSyntaxException.java \
-    ojluni/src/main/java/java/util/regex/UnicodeProp.java \
     ojluni/src/main/java/java/util/RegularEnumSet.java \
     ojluni/src/main/java/java/util/ResourceBundle.java \
     ojluni/src/main/java/java/util/Scanner.java \

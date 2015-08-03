@@ -19,6 +19,8 @@ LOCAL_SRC_FILES := \
     java_nio_ByteOrder.cpp \
     java_nio_charset_Charsets.cpp \
     java_util_jar_StrictJarFile.cpp \
+    java_util_regex_Matcher.cpp \
+    java_util_regex_Pattern.cpp \
     libcore_icu_AlphabeticIndex.cpp \
     libcore_icu_DateIntervalFormat.cpp \
     libcore_icu_ICU.cpp \
