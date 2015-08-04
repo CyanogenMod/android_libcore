@@ -242,7 +242,13 @@ class SocketInputStream extends FileInputStream
      * @return the number of immediately available bytes
      */
     public int available() throws IOException {
-        return impl.available();
+        // Android changed : Bug fix, if eof == true, we must indicate that we
+        // have 0 bytes available.
+        if (eof) {
+            return 0;
+        } else {
+            return impl.available();
+        }
     }
 
     /**
