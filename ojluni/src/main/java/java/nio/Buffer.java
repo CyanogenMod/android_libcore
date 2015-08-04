@@ -548,7 +548,7 @@ public abstract class Buffer {
         if ((i < 0) || (nb > limit - i))
             // Android changed : Add bounds details to exception.
             throw new IndexOutOfBoundsException(
-                "index=" + i + " out of bounds (limit=" + limit + ", nb=" + nb + )");
+                "index=" + i + " out of bounds (limit=" + limit + ", nb=" + nb + ")");
         return i;
     }
 
@@ -571,7 +571,7 @@ public abstract class Buffer {
         if ((off | len | (off + len) | (size - (off + len))) < 0)
             // Android changed : Add bounds details to exception.
             throw new IndexOutOfBoundsException(
-                "off=" + off + ", len=" + len + " out of bounds (size=" + size + ")";
+                "off=" + off + ", len=" + len + " out of bounds (size=" + size + ")");
     }
 
 }
