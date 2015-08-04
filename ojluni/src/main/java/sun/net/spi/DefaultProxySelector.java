@@ -119,6 +119,7 @@ public class DefaultProxySelector extends ProxySelector {
         final String defaultVal;
         static NonProxyInfo ftpNonProxyInfo = new NonProxyInfo("ftp.nonProxyHosts", null, null, defStringVal);
         static NonProxyInfo httpNonProxyInfo = new NonProxyInfo("http.nonProxyHosts", null, null, defStringVal);
+        static NonProxyInfo httpsNonProxyInfo = new NonProxyInfo("https.nonProxyHosts", null, null, defStringVal);
 
         NonProxyInfo(String p, String s, RegexpPool pool, String d) {
             property = p;
@@ -178,7 +179,9 @@ public class DefaultProxySelector extends ProxySelector {
         } else if ("https".equalsIgnoreCase(protocol)) {
             // HTTPS uses the same property as HTTP, for backward
             // compatibility
-            pinfo = NonProxyInfo.httpNonProxyInfo;
+            //
+            // Android changed : Allow a different set of flags for https hosts.
+            pinfo = NonProxyInfo.httpsNonProxyInfo;
         } else if ("ftp".equalsIgnoreCase(protocol)) {
             pinfo = NonProxyInfo.ftpNonProxyInfo;
         }
