@@ -1583,13 +1583,16 @@ class InetAddress implements java.io.Serializable {
 
     private void readObjectNoData (ObjectInputStream s) throws
                          IOException, ClassNotFoundException {
-        if (getClass().getClassLoader() != null) {
+        // Android-changed : Don't use null to mean the boot classloader.
+        if (getClass().getClassLoader() != BOOT_CLASSLOADER) {
             throw new SecurityException ("invalid address type");
         }
     }
 
     private static final long FIELDS_OFFSET;
     private static final sun.misc.Unsafe UNSAFE;
+    // Android-changed : Don't use null to mean the boot classloader.
+    private static final ClassLoader BOOT_CLASSLOADER;
 
     static {
         try {
@@ -1601,11 +1604,14 @@ class InetAddress implements java.io.Serializable {
         } catch (ReflectiveOperationException e) {
             throw new Error(e);
         }
+
+        BOOT_CLASSLOADER = Class.class.getClassLoader();
     }
 
     private void readObject (ObjectInputStream s) throws
                          IOException, ClassNotFoundException {
-        if (getClass().getClassLoader() != null) {
+        // Android-changed : Don't use null to mean the boot classloader.
+        if (getClass().getClassLoader() != BOOT_CLASSLOADER) {
             throw new SecurityException ("invalid address type");
         }
         GetField gf = s.readFields();
@@ -1631,7 +1637,8 @@ class InetAddress implements java.io.Serializable {
 
     private void writeObject (ObjectOutputStream s) throws
                         IOException {
-        if (getClass().getClassLoader() != null) {
+        // Android-changed : Don't use null to mean the boot classloader.
+        if (getClass().getClassLoader() != BOOT_CLASSLOADER) {
             throw new SecurityException ("invalid address type");
         }
         PutField pf = s.putFields();

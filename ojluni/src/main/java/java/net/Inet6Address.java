@@ -425,7 +425,7 @@ class Inet6Address extends InetAddress {
         scope_ifname = null;
         scope_ifname_set = false;
 
-        if (getClass().getClassLoader() != null) {
+        if (getClass().getClassLoader() != Class.class.getClassLoader()) {
             throw new SecurityException ("invalid address type");
         }
 
