@@ -1506,10 +1506,11 @@ class Socket implements java.io.Closeable {
      */
     public String toString() {
         try {
+            // Android changed : change localport to localPort.
             if (isConnected())
                 return "Socket[addr=" + getImpl().getInetAddress() +
                     ",port=" + getImpl().getPort() +
-                    ",localport=" + getImpl().getLocalPort() + "]";
+                    ",localPort=" + getImpl().getLocalPort() + "]";
         } catch (SocketException e) {
         }
         return "Socket[unconnected]";
