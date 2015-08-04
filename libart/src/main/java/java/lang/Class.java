@@ -227,23 +227,11 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      */
     private transient volatile int dexTypeIndex;
 
-    /** Number of direct methods. */
-    private transient int numDirectMethods;
-
-    /** Number of instance fields. */
-    private transient int numInstanceFields;
-
     /** Number of instance fields that are object references. */
     private transient int numReferenceInstanceFields;
 
     /** Number of static fields that are object references. */
     private transient int numReferenceStaticFields;
-
-    /** Number of static fields. */
-    private transient int numStaticFields;
-
-    /** Number of virtual methods. */
-    private transient int numVirtualMethods;
 
     /**
      * Total object size; used when allocating storage on GC heap. For interfaces and abstract
