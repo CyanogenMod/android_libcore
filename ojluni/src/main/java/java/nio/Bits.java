@@ -564,13 +564,16 @@ class Bits {                            // package-private
 
     /* ----- BEGIN android -----
     private static final ByteOrder byteOrder;*/
-    private static ByteOrder byteOrder;
+    private static final ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
     // ----- END android -----
 
     static ByteOrder byteOrder() {
+        // Android changed : android is always little endian.
+        return byteOrder;
+
         /* ----- BEGIN android -----
         if (byteOrder == null)
-            throw new Error("Unknown byte order");*/
+            throw new Error("Unknown byte order");
         if (byteOrder == null) {
             long a = unsafe.allocateMemory(8);
             try {
@@ -585,8 +588,8 @@ class Bits {                            // package-private
                 unsafe.freeMemory(a);
             }
         }
-        // ----- END android -----
         return byteOrder;
+        */
     }
 
     /* ----- BEGIN android -----
