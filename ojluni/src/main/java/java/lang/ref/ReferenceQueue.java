@@ -40,6 +40,7 @@ public class ReferenceQueue<T> {
      */
     public ReferenceQueue() { }
 
+    /* ----- BEGIN android -----
     private static class Null extends ReferenceQueue {
         boolean enqueue(Reference r) {
             return false;
@@ -48,6 +49,7 @@ public class ReferenceQueue<T> {
 
     static ReferenceQueue NULL = new Null();
     static ReferenceQueue ENQUEUED = new Null();
+    ----- END android ----- */
 
     static private class Lock { };
     private Lock lock = new Lock();
@@ -55,28 +57,54 @@ public class ReferenceQueue<T> {
     private long queueLength = 0;
 
     boolean enqueue(Reference<? extends T> r) { /* Called only by Reference class */
+        /* ----- BEGIN android -----
         synchronized (r) {
             if (r.queue == ENQUEUED) return false;
             synchronized (lock) {
                 r.queue = ENQUEUED;
-                r.queueNext = (head == null) ? r : head;
+                r.next = (head == null) ? r : head;
                 head = r;
                 queueLength++;
+                if (r instanceof FinalReference) {
+                    sun.misc.VM.addFinalRefCount(1);
+                }
                 lock.notifyAll();
                 return true;
             }
+        }*/
+        /* Caller must hold r lock */
+        synchronized (lock) {
+            r.queueNext = (head == null) ? r : head;
+            head = r;
+            queueLength++;
+            lock.notifyAll();
+            return true;
         }
+        // ----- END android -----
     }
 
     private Reference<? extends T> reallyPoll() {       /* Must hold lock */
+        /* ----- BEGIN android -----
+        if (head != null) {
+            Reference<? extends T> r = head;
+            head = (r.next == r) ? null : r.next;
+            r.queue = NULL;
+            r.next = r;
+            queueLength--;
+            if (r instanceof FinalReference) {
+                sun.misc.VM.addFinalRefCount(-1);
+            }
+            return r;
+        }
+        */
         if (head != null) {
             Reference<? extends T> r = head;
             head = (r.queueNext == r) ? null : r.queueNext;
-            r.queue = null;
-            r.queueNext = r;
+            r.queueNext = null;
             queueLength--;
             return r;
         }
+        // ----- END android -----
         return null;
     }
 
