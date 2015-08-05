@@ -333,7 +333,11 @@ enum {
 
 jstring nativeNewStringPlatform(JNIEnv *env, const char *str);
 
-char* nativeGetStringPlatformChars(JNIEnv *env, jstring jstr, jboolean *isCopy);
+const char* nativeGetStringPlatformChars(JNIEnv *env, jstring jstr, jboolean *isCopy);
+
+// Android added : Faster method to convert strings to / from their platform
+// representation.
+void nativeReleaseStringPlatformChars(JNIEnv *env, jstring jstr, const char *chars);
 
 int getFastEncoding();
 

@@ -386,439 +386,453 @@ JNU_NewObjectByName(JNIEnv *env, const char *class_name,
     return obj;
 }
 
-/* Optimized for char set ISO_8559_1 */
-static jstring
-newString8859_1(JNIEnv *env, const char *str)
-{
-    int len = (int)strlen(str);
-    jchar buf[512];
-    jchar *str1;
-    jstring result;
-    int i;
-
-    if (len > 512) {
-        str1 = (jchar *)malloc(len * sizeof(jchar));
-        if (str1 == 0) {
-            JNU_ThrowOutOfMemoryError(env, 0);
-            return 0;
-        }
-    } else
-        str1 = buf;
-
-    for (i=0;i<len;i++)
-        str1[i] = (unsigned char)str[i];
-    result = (*env)->NewString(env, str1, len);
-    if (str1 != buf)
-        free(str1);
-    return result;
-}
-
-static const char*
-getString8859_1Chars(JNIEnv *env, jstring jstr)
-{
-    int i;
-    char *result;
-    jint len = (*env)->GetStringLength(env, jstr);
-    const jchar *str = (*env)->GetStringCritical(env, jstr, 0);
-    if (str == 0) {
-        return 0;
-    }
-
-    result = MALLOC_MIN4(len);
-    if (result == 0) {
-        (*env)->ReleaseStringCritical(env, jstr, str);
-        JNU_ThrowOutOfMemoryError(env, 0);
-        return 0;
-    }
-
-    for (i=0; i<len; i++) {
-        jchar unicode = str[i];
-        if (unicode <= 0x00ff)
-            result[i] = (char)unicode;
-        else
-            result[i] = '?';
-    }
-
-    result[len] = 0;
-    (*env)->ReleaseStringCritical(env, jstr, str);
-    return result;
-}
-
-
-/* Optimized for char set ISO646-US (us-ascii) */
-static jstring
-newString646_US(JNIEnv *env, const char *str)
-{
-    int len = strlen(str);
-    jchar buf[512];
-    jchar *str1;
-    jstring result;
-    int i;
-
-    if (len > 512) {
-        str1 = (jchar *)malloc(len * sizeof(jchar));
-        if (str1 == 0) {
-            JNU_ThrowOutOfMemoryError(env, 0);
-            return 0;
-        }
-    } else
-        str1 = buf;
-
-    for (i=0; i<len; i++) {
-        unsigned char c = (unsigned char)str[i];
-        if (c <= 0x7f)
-            str1[i] = c;
-        else
-            str1[i] = '?';
-    }
-
-    result = (*env)->NewString(env, str1, len);
-    if (str1 != buf)
-        free(str1);
-    return result;
-}
-
-static const char*
-getString646_USChars(JNIEnv *env, jstring jstr)
-{
-    int i;
-    char *result;
-    jint len = (*env)->GetStringLength(env, jstr);
-    const jchar *str = (*env)->GetStringCritical(env, jstr, 0);
-    if (str == 0) {
-        return 0;
-    }
-
-    result = MALLOC_MIN4(len);
-    if (result == 0) {
-        (*env)->ReleaseStringCritical(env, jstr, str);
-        JNU_ThrowOutOfMemoryError(env, 0);
-        return 0;
-    }
-
-    for (i=0; i<len; i++) {
-        jchar unicode = str[i];
-        if (unicode <= 0x007f )
-            result[i] = (char)unicode;
-        else
-            result[i] = '?';
-    }
-
-    result[len] = 0;
-    (*env)->ReleaseStringCritical(env, jstr, str);
-    return result;
-}
-
-/* enumeration of c1 row from Cp1252 */
-static int cp1252c1chars[32] = {
-    0x20AC,0xFFFD,0x201A,0x0192,0x201E,0x2026,0x2020,0x2021,
-    0x02C6,0x2030,0x0160,0x2039,0x0152,0xFFFD,0x017D,0xFFFD,
-    0xFFFD,0x2018,0x2019,0x201C,0x201D,0x2022,0x2013,0x2014,
-    0x02Dc,0x2122,0x0161,0x203A,0x0153,0xFFFD,0x017E,0x0178
-};
-
-/* Optimized for char set Cp1252 */
-static jstring
-newStringCp1252(JNIEnv *env, const char *str)
-{
-    int len = (int) strlen(str);
-    jchar buf[512];
-    jchar *str1;
-    jstring result;
-    int i;
-    if (len > 512) {
-        str1 = (jchar *)malloc(len * sizeof(jchar));
-        if (str1 == 0) {
-            JNU_ThrowOutOfMemoryError(env, 0);
-            return 0;
-        }
-    } else
-        str1 = buf;
-
-    for (i=0; i<len; i++) {
-        unsigned char c = (unsigned char)str[i];
-        if ((c >= 0x80) && (c <= 0x9f))
-            str1[i] = cp1252c1chars[c-128];
-        else
-            str1[i] = c;
-    }
-
-    result = (*env)->NewString(env, str1, len);
-    if (str1 != buf)
-        free(str1);
-    return result;
-}
-
-static const char*
-getStringCp1252Chars(JNIEnv *env, jstring jstr)
-{
-    int i;
-    char *result;
-    jint len = (*env)->GetStringLength(env, jstr);
-    const jchar *str = (*env)->GetStringCritical(env, jstr, 0);
-    if (str == 0) {
-        return 0;
-    }
-
-    result = MALLOC_MIN4(len);
-    if (result == 0) {
-        (*env)->ReleaseStringCritical(env, jstr, str);
-        JNU_ThrowOutOfMemoryError(env, 0);
-        return 0;
-    }
-
-    for (i=0; i<len; i++) {
-        jchar c = str[i];
-        if (c < 256)
-            result[i] = (char)c;
-        else switch(c) {
-            case 0x20AC: result[i] = (char)0x80; break;
-            case 0x201A: result[i] = (char)0x82; break;
-            case 0x0192: result[i] = (char)0x83; break;
-            case 0x201E: result[i] = (char)0x84; break;
-            case 0x2026: result[i] = (char)0x85; break;
-            case 0x2020: result[i] = (char)0x86; break;
-            case 0x2021: result[i] = (char)0x87; break;
-            case 0x02C6: result[i] = (char)0x88; break;
-            case 0x2030: result[i] = (char)0x89; break;
-            case 0x0160: result[i] = (char)0x8A; break;
-            case 0x2039: result[i] = (char)0x8B; break;
-            case 0x0152: result[i] = (char)0x8C; break;
-            case 0x017D: result[i] = (char)0x8E; break;
-            case 0x2018: result[i] = (char)0x91; break;
-            case 0x2019: result[i] = (char)0x92; break;
-            case 0x201C: result[i] = (char)0x93; break;
-            case 0x201D: result[i] = (char)0x94; break;
-            case 0x2022: result[i] = (char)0x95; break;
-            case 0x2013: result[i] = (char)0x96; break;
-            case 0x2014: result[i] = (char)0x97; break;
-            case 0x02DC: result[i] = (char)0x98; break;
-            case 0x2122: result[i] = (char)0x99; break;
-            case 0x0161: result[i] = (char)0x9A; break;
-            case 0x203A: result[i] = (char)0x9B; break;
-            case 0x0153: result[i] = (char)0x9C; break;
-            case 0x017E: result[i] = (char)0x9E; break;
-            case 0x0178: result[i] = (char)0x9F; break;
-            default:     result[i] = '?';  break;
-        }
-    }
-
-    result[len] = 0;
-    (*env)->ReleaseStringCritical(env, jstr, str);
-    return result;
-}
-
-static int fastEncoding = NO_ENCODING_YET;
-static jstring jnuEncoding = NULL;
-
-/* Cached method IDs */
-static jmethodID String_init_ID;        /* String(byte[], enc) */
-static jmethodID String_getBytes_ID;    /* String.getBytes(enc) */
-
-int getFastEncoding() {
-    return fastEncoding;
-}
-
-/* Initialize the fast encoding.  If the "sun.jnu.encoding" property
- * has not yet been set, we leave fastEncoding == NO_ENCODING_YET.
- */
-void
-initializeEncoding(JNIEnv *env)
-{
-    jstring propname = 0;
-    jstring enc = 0;
-
-    if ((*env)->EnsureLocalCapacity(env, 3) < 0)
-        return;
-
-    propname = (*env)->NewStringUTF(env, "sun.jnu.encoding");
-    if (propname) {
-        jboolean exc;
-        enc = JNU_CallStaticMethodByName
-                       (env,
-                        &exc,
-                        "java/lang/System",
-                        "getProperty",
-                        "(Ljava/lang/String;)Ljava/lang/String;",
-                        propname).l;
-        if (!exc) {
-            if (enc) {
-                const char* encname = (*env)->GetStringUTFChars(env, enc, 0);
-                if (encname) {
-           /*
-            * On Solaris with nl_langinfo() called in GetJavaProperties():
-            *
-            *   locale undefined -> NULL -> hardcoded default
-            *   "C" locale       -> "" -> hardcoded default     (on 2.6)
-            *   "C" locale       -> "ISO646-US"                 (on Sol 7/8)
-            *   "en_US" locale -> "ISO8859-1"
-            *   "en_GB" locale -> "ISO8859-1"                   (on Sol 7/8)
-            *   "en_UK" locale -> "ISO8859-1"                   (on 2.6)
-            */
-                    if ((strcmp(encname, "8859_1") == 0) ||
-                        (strcmp(encname, "ISO8859-1") == 0) ||
-                        (strcmp(encname, "ISO8859_1") == 0))
-                        fastEncoding = FAST_8859_1;
-                    else if (strcmp(encname, "ISO646-US") == 0)
-                        fastEncoding = FAST_646_US;
-                    else if (strcmp(encname, "Cp1252") == 0 ||
-                             /* This is a temporary fix until we move */
-                             /* to wide character versions of all Windows */
-                             /* calls. */
-                             strcmp(encname, "utf-16le") == 0)
-                        fastEncoding = FAST_CP1252;
-                    else {
-                        fastEncoding = NO_FAST_ENCODING;
-                        jnuEncoding = (jstring)(*env)->NewGlobalRef(env, enc);
-                    }
-                    (*env)->ReleaseStringUTFChars(env, enc, encname);
-                }
-            }
-        } else {
-            (*env)->ExceptionClear(env);
-        }
-    } else {
-        (*env)->ExceptionClear(env);
-    }
-    (*env)->DeleteLocalRef(env, propname);
-    (*env)->DeleteLocalRef(env, enc);
-
-    /* Initialize method-id cache */
-    String_getBytes_ID = (*env)->GetMethodID(env, JNU_ClassString(env),
-                                             "getBytes", "(Ljava/lang/String;)[B");
-    String_init_ID = (*env)->GetMethodID(env, JNU_ClassString(env),
-                                         "<init>", "([BLjava/lang/String;)V");
-}
-
-static jboolean isJNUEncodingSupported = JNI_FALSE;
-static jboolean jnuEncodingSupported(JNIEnv *env) {
-    jboolean exe;
-    if (isJNUEncodingSupported == JNI_TRUE) {
-        return JNI_TRUE;
-    }
-    isJNUEncodingSupported = (jboolean) JNU_CallStaticMethodByName (
-                                    env, &exe,
-                                    "java/nio/charset/Charset",
-                                    "isSupported",
-                                    "(Ljava/lang/String;)Z",
-                                    jnuEncoding).z;
-    return isJNUEncodingSupported;
-}
+// Android removed: Deal solely in UTF-8
+//
+// /* Optimized for char set ISO_8559_1 */
+// static jstring
+// newString8859_1(JNIEnv *env, const char *str)
+// {
+//     int len = (int)strlen(str);
+//     jchar buf[512];
+//     jchar *str1;
+//     jstring result;
+//     int i;
+// 
+//     if (len > 512) {
+//         str1 = (jchar *)malloc(len * sizeof(jchar));
+//         if (str1 == 0) {
+//             JNU_ThrowOutOfMemoryError(env, 0);
+//             return 0;
+//         }
+//     } else
+//         str1 = buf;
+// 
+//     for (i=0;i<len;i++)
+//         str1[i] = (unsigned char)str[i];
+//     result = (*env)->NewString(env, str1, len);
+//     if (str1 != buf)
+//         free(str1);
+//     return result;
+// }
+// 
+// static const char*
+// getString8859_1Chars(JNIEnv *env, jstring jstr)
+// {
+//     int i;
+//     char *result;
+//     jint len = (*env)->GetStringLength(env, jstr);
+//     const jchar *str = (*env)->GetStringCritical(env, jstr, 0);
+//     if (str == 0) {
+//         return 0;
+//     }
+// 
+//     result = MALLOC_MIN4(len);
+//     if (result == 0) {
+//         (*env)->ReleaseStringCritical(env, jstr, str);
+//         JNU_ThrowOutOfMemoryError(env, 0);
+//         return 0;
+//     }
+// 
+//     for (i=0; i<len; i++) {
+//         jchar unicode = str[i];
+//         if (unicode <= 0x00ff)
+//             result[i] = (char)unicode;
+//         else
+//             result[i] = '?';
+//     }
+// 
+//     result[len] = 0;
+//     (*env)->ReleaseStringCritical(env, jstr, str);
+//     return result;
+// }
+// 
+// 
+// /* Optimized for char set ISO646-US (us-ascii) */
+// static jstring
+// newString646_US(JNIEnv *env, const char *str)
+// {
+//     int len = strlen(str);
+//     jchar buf[512];
+//     jchar *str1;
+//     jstring result;
+//     int i;
+// 
+//     if (len > 512) {
+//         str1 = (jchar *)malloc(len * sizeof(jchar));
+//         if (str1 == 0) {
+//             JNU_ThrowOutOfMemoryError(env, 0);
+//             return 0;
+//         }
+//     } else
+//         str1 = buf;
+// 
+//     for (i=0; i<len; i++) {
+//         unsigned char c = (unsigned char)str[i];
+//         if (c <= 0x7f)
+//             str1[i] = c;
+//         else
+//             str1[i] = '?';
+//     }
+// 
+//     result = (*env)->NewString(env, str1, len);
+//     if (str1 != buf)
+//         free(str1);
+//     return result;
+// }
+// 
+// static const char*
+// getString646_USChars(JNIEnv *env, jstring jstr)
+// {
+//     int i;
+//     char *result;
+//     jint len = (*env)->GetStringLength(env, jstr);
+//     const jchar *str = (*env)->GetStringCritical(env, jstr, 0);
+//     if (str == 0) {
+//         return 0;
+//     }
+// 
+//     result = MALLOC_MIN4(len);
+//     if (result == 0) {
+//         (*env)->ReleaseStringCritical(env, jstr, str);
+//         JNU_ThrowOutOfMemoryError(env, 0);
+//         return 0;
+//     }
+// 
+//     for (i=0; i<len; i++) {
+//         jchar unicode = str[i];
+//         if (unicode <= 0x007f )
+//             result[i] = (char)unicode;
+//         else
+//             result[i] = '?';
+//     }
+// 
+//     result[len] = 0;
+//     (*env)->ReleaseStringCritical(env, jstr, str);
+//     return result;
+// }
+// 
+// /* enumeration of c1 row from Cp1252 */
+// static int cp1252c1chars[32] = {
+//     0x20AC,0xFFFD,0x201A,0x0192,0x201E,0x2026,0x2020,0x2021,
+//     0x02C6,0x2030,0x0160,0x2039,0x0152,0xFFFD,0x017D,0xFFFD,
+//     0xFFFD,0x2018,0x2019,0x201C,0x201D,0x2022,0x2013,0x2014,
+//     0x02Dc,0x2122,0x0161,0x203A,0x0153,0xFFFD,0x017E,0x0178
+// };
+// 
+// /* Optimized for char set Cp1252 */
+// static jstring
+// newStringCp1252(JNIEnv *env, const char *str)
+// {
+//     int len = (int) strlen(str);
+//     jchar buf[512];
+//     jchar *str1;
+//     jstring result;
+//     int i;
+//     if (len > 512) {
+//         str1 = (jchar *)malloc(len * sizeof(jchar));
+//         if (str1 == 0) {
+//             JNU_ThrowOutOfMemoryError(env, 0);
+//             return 0;
+//         }
+//     } else
+//         str1 = buf;
+// 
+//     for (i=0; i<len; i++) {
+//         unsigned char c = (unsigned char)str[i];
+//         if ((c >= 0x80) && (c <= 0x9f))
+//             str1[i] = cp1252c1chars[c-128];
+//         else
+//             str1[i] = c;
+//     }
+// 
+//     result = (*env)->NewString(env, str1, len);
+//     if (str1 != buf)
+//         free(str1);
+//     return result;
+// }
+// 
+// static const char*
+// getStringCp1252Chars(JNIEnv *env, jstring jstr)
+// {
+//     int i;
+//     char *result;
+//     jint len = (*env)->GetStringLength(env, jstr);
+//     const jchar *str = (*env)->GetStringCritical(env, jstr, 0);
+//     if (str == 0) {
+//         return 0;
+//     }
+// 
+//     result = MALLOC_MIN4(len);
+//     if (result == 0) {
+//         (*env)->ReleaseStringCritical(env, jstr, str);
+//         JNU_ThrowOutOfMemoryError(env, 0);
+//         return 0;
+//     }
+// 
+//     for (i=0; i<len; i++) {
+//         jchar c = str[i];
+//         if (c < 256)
+//             result[i] = (char)c;
+//         else switch(c) {
+//             case 0x20AC: result[i] = (char)0x80; break;
+//             case 0x201A: result[i] = (char)0x82; break;
+//             case 0x0192: result[i] = (char)0x83; break;
+//             case 0x201E: result[i] = (char)0x84; break;
+//             case 0x2026: result[i] = (char)0x85; break;
+//             case 0x2020: result[i] = (char)0x86; break;
+//             case 0x2021: result[i] = (char)0x87; break;
+//             case 0x02C6: result[i] = (char)0x88; break;
+//             case 0x2030: result[i] = (char)0x89; break;
+//             case 0x0160: result[i] = (char)0x8A; break;
+//             case 0x2039: result[i] = (char)0x8B; break;
+//             case 0x0152: result[i] = (char)0x8C; break;
+//             case 0x017D: result[i] = (char)0x8E; break;
+//             case 0x2018: result[i] = (char)0x91; break;
+//             case 0x2019: result[i] = (char)0x92; break;
+//             case 0x201C: result[i] = (char)0x93; break;
+//             case 0x201D: result[i] = (char)0x94; break;
+//             case 0x2022: result[i] = (char)0x95; break;
+//             case 0x2013: result[i] = (char)0x96; break;
+//             case 0x2014: result[i] = (char)0x97; break;
+//             case 0x02DC: result[i] = (char)0x98; break;
+//             case 0x2122: result[i] = (char)0x99; break;
+//             case 0x0161: result[i] = (char)0x9A; break;
+//             case 0x203A: result[i] = (char)0x9B; break;
+//             case 0x0153: result[i] = (char)0x9C; break;
+//             case 0x017E: result[i] = (char)0x9E; break;
+//             case 0x0178: result[i] = (char)0x9F; break;
+//             default:     result[i] = '?';  break;
+//         }
+//     }
+// 
+//     result[len] = 0;
+//     (*env)->ReleaseStringCritical(env, jstr, str);
+//     return result;
+// }
+// 
+// static int fastEncoding = NO_ENCODING_YET;
+// static jstring jnuEncoding = NULL;
+// 
+// /* Cached method IDs */
+// static jmethodID String_init_ID;        /* String(byte[], enc) */
+// static jmethodID String_getBytes_ID;    /* String.getBytes(enc) */
+// 
+// int getFastEncoding() {
+//     return fastEncoding;
+// }
+// 
+// /* Initialize the fast encoding.  If the "sun.jnu.encoding" property
+//  * has not yet been set, we leave fastEncoding == NO_ENCODING_YET.
+//  */
+// void
+// initializeEncoding(JNIEnv *env)
+// {
+//     jstring propname = 0;
+//     jstring enc = 0;
+// 
+//     if ((*env)->EnsureLocalCapacity(env, 3) < 0)
+//         return;
+// 
+//     propname = (*env)->NewStringUTF(env, "sun.jnu.encoding");
+//     if (propname) {
+//         jboolean exc;
+//         enc = JNU_CallStaticMethodByName
+//                        (env,
+//                         &exc,
+//                         "java/lang/System",
+//                         "getProperty",
+//                         "(Ljava/lang/String;)Ljava/lang/String;",
+//                         propname).l;
+//         if (!exc) {
+//             if (enc) {
+//                 const char* encname = (*env)->GetStringUTFChars(env, enc, 0);
+//                 if (encname) {
+//            /*
+//             * On Solaris with nl_langinfo() called in GetJavaProperties():
+//             *
+//             *   locale undefined -> NULL -> hardcoded default
+//             *   "C" locale       -> "" -> hardcoded default     (on 2.6)
+//             *   "C" locale       -> "ISO646-US"                 (on Sol 7/8)
+//             *   "en_US" locale -> "ISO8859-1"
+//             *   "en_GB" locale -> "ISO8859-1"                   (on Sol 7/8)
+//             *   "en_UK" locale -> "ISO8859-1"                   (on 2.6)
+//             */
+//                     if ((strcmp(encname, "8859_1") == 0) ||
+//                         (strcmp(encname, "ISO8859-1") == 0) ||
+//                         (strcmp(encname, "ISO8859_1") == 0))
+//                         fastEncoding = FAST_8859_1;
+//                     else if (strcmp(encname, "ISO646-US") == 0)
+//                         fastEncoding = FAST_646_US;
+//                     else if (strcmp(encname, "Cp1252") == 0 ||
+//                              /* This is a temporary fix until we move */
+//                              /* to wide character versions of all Windows */
+//                              /* calls. */
+//                              strcmp(encname, "utf-16le") == 0)
+//                         fastEncoding = FAST_CP1252;
+//                     else {
+//                         fastEncoding = NO_FAST_ENCODING;
+//                         jnuEncoding = (jstring)(*env)->NewGlobalRef(env, enc);
+//                     }
+//                     (*env)->ReleaseStringUTFChars(env, enc, encname);
+//                 }
+//             }
+//         } else {
+//             (*env)->ExceptionClear(env);
+//         }
+//     } else {
+//         (*env)->ExceptionClear(env);
+//     }
+//     (*env)->DeleteLocalRef(env, propname);
+//     (*env)->DeleteLocalRef(env, enc);
+// 
+//     /* Initialize method-id cache */
+//     String_getBytes_ID = (*env)->GetMethodID(env, JNU_ClassString(env),
+//                                              "getBytes", "(Ljava/lang/String;)[B");
+//     String_init_ID = (*env)->GetMethodID(env, JNU_ClassString(env),
+//                                          "<init>", "([BLjava/lang/String;)V");
+// }
+// 
+// static jboolean isJNUEncodingSupported = JNI_FALSE;
+// static jboolean jnuEncodingSupported(JNIEnv *env) {
+//     jboolean exe;
+//     if (isJNUEncodingSupported == JNI_TRUE) {
+//         return JNI_TRUE;
+//     }
+//     isJNUEncodingSupported = (jboolean) JNU_CallStaticMethodByName (
+//                                     env, &exe,
+//                                     "java/nio/charset/Charset",
+//                                     "isSupported",
+//                                     "(Ljava/lang/String;)Z",
+//                                     jnuEncoding).z;
+//     return isJNUEncodingSupported;
+// }
 
 
 JNIEXPORT jstring
-NewStringPlatform(JNIEnv *env, const char *str)
-{
-    return JNU_NewStringPlatform(env, str);
-}
-
-JNIEXPORT jstring JNICALL
 JNU_NewStringPlatform(JNIEnv *env, const char *str)
 {
-    jstring result;
-    result = nativeNewStringPlatform(env, str);
-    if (result == NULL) {
-        jbyteArray hab = 0;
-        int len;
-
-        if (fastEncoding == NO_ENCODING_YET)
-            initializeEncoding(env);
-
-        if ((fastEncoding == FAST_8859_1) || (fastEncoding == NO_ENCODING_YET))
-            return newString8859_1(env, str);
-        if (fastEncoding == FAST_646_US)
-            return newString646_US(env, str);
-        if (fastEncoding == FAST_CP1252)
-            return newStringCp1252(env, str);
-
-        if ((*env)->EnsureLocalCapacity(env, 2) < 0)
-            return NULL;
-
-        len = (int)strlen(str);
-        hab = (*env)->NewByteArray(env, len);
-        if (hab != 0) {
-            (*env)->SetByteArrayRegion(env, hab, 0, len, (jbyte *)str);
-            if (jnuEncodingSupported(env)) {
-                result = (*env)->NewObject(env, JNU_ClassString(env),
-                                           String_init_ID, hab, jnuEncoding);
-            } else {
-                /*If the encoding specified in sun.jnu.encoding is not endorsed
-                  by "Charset.isSupported" we have to fall back to use String(byte[])
-                  explicitly here without specifying the encoding name, in which the
-                  StringCoding class will pickup the iso-8859-1 as the fallback
-                  converter for us.
-                 */
-                jmethodID mid = (*env)->GetMethodID(env, JNU_ClassString(env),
-                                                    "<init>", "([B)V");
-                result = (*env)->NewObject(env, JNU_ClassString(env), mid, hab);
-            }
-            (*env)->DeleteLocalRef(env, hab);
-            return result;
-        }
-    }
-    return NULL;
+    // Android-changed: Always use nativeNewStringPlatform.
+    // return JNU_NewStringPlatform(env, str);
+    return nativeNewStringPlatform(env, str);
 }
 
 JNIEXPORT const char *
-GetStringPlatformChars(JNIEnv *env, jstring jstr, jboolean *isCopy)
-{
-    return JNU_GetStringPlatformChars(env, jstr, isCopy);
-}
-
-JNIEXPORT const char * JNICALL
 JNU_GetStringPlatformChars(JNIEnv *env, jstring jstr, jboolean *isCopy)
 {
-    char *result = nativeGetStringPlatformChars(env, jstr, isCopy);
-    if (result == NULL) {
-
-        jbyteArray hab = 0;
-
-        if (isCopy)
-            *isCopy = JNI_TRUE;
-
-        if (fastEncoding == NO_ENCODING_YET)
-            initializeEncoding(env);
-
-        if ((fastEncoding == FAST_8859_1) || (fastEncoding == NO_ENCODING_YET))
-            return getString8859_1Chars(env, jstr);
-        if (fastEncoding == FAST_646_US)
-            return getString646_USChars(env, jstr);
-        if (fastEncoding == FAST_CP1252)
-            return getStringCp1252Chars(env, jstr);
-
-        if ((*env)->EnsureLocalCapacity(env, 2) < 0)
-            return 0;
-
-        if (jnuEncodingSupported(env)) {
-            hab = (*env)->CallObjectMethod(env, jstr, String_getBytes_ID, jnuEncoding);
-        } else {
-            jmethodID mid = (*env)->GetMethodID(env, JNU_ClassString(env),
-                                                "getBytes", "()[B");
-            hab = (*env)->CallObjectMethod(env, jstr, mid);
-        }
-
-        if (!(*env)->ExceptionCheck(env)) {
-            jint len = (*env)->GetArrayLength(env, hab);
-            result = MALLOC_MIN4(len);
-            if (result == 0) {
-                JNU_ThrowOutOfMemoryError(env, 0);
-                (*env)->DeleteLocalRef(env, hab);
-                return 0;
-            }
-            (*env)->GetByteArrayRegion(env, hab, 0, len, (jbyte *)result);
-            result[len] = 0; /* NULL-terminate */
-        }
-
-        (*env)->DeleteLocalRef(env, hab);
-    }
-    return result;
+    // Android-changed: Always use nativeGetStringPlatformChars.
+    // return JNU_GetStringPlatformChars(env, jstr, isCopy);
+    return nativeGetStringPlatformChars(env, jstr, isCopy);
 }
 
 JNIEXPORT void JNICALL
 JNU_ReleaseStringPlatformChars(JNIEnv *env, jstring jstr, const char *str)
 {
-    free((void *)str);
+    // Android changed : Use the "native" code from the platform a chance
+    // to handle this first.
+    //
+    // free((void *)str);
+    nativeReleaseStringPlatformChars(env, jstr, str);
 }
+
+// Android removed: Deal solely in UTF-8
+//
+// JNIEXPORT jstring JNICALL
+// JNU_NewStringPlatform(JNIEnv *env, const char *str)
+// {
+//    jstring result;
+//    result = nativeNewStringPlatform(env, str);
+//    if (result == NULL) {
+//        jbyteArray hab = 0;
+//        int len;
+//
+//        if (fastEncoding == NO_ENCODING_YET)
+//            initializeEncoding(env);
+//
+//        if ((fastEncoding == FAST_8859_1) || (fastEncoding == NO_ENCODING_YET))
+//            return newString8859_1(env, str);
+//        if (fastEncoding == FAST_646_US)
+//            return newString646_US(env, str);
+//        if (fastEncoding == FAST_CP1252)
+//            return newStringCp1252(env, str);
+//
+//        if ((*env)->EnsureLocalCapacity(env, 2) < 0)
+//            return NULL;
+//
+//        len = (int)strlen(str);
+//        hab = (*env)->NewByteArray(env, len);
+//        if (hab != 0) {
+//            (*env)->SetByteArrayRegion(env, hab, 0, len, (jbyte *)str);
+//            if (jnuEncodingSupported(env)) {
+//                result = (*env)->NewObject(env, JNU_ClassString(env),
+//                                           String_init_ID, hab, jnuEncoding);
+//            } else {
+//                /*If the encoding specified in sun.jnu.encoding is not endorsed
+//                  by "Charset.isSupported" we have to fall back to use String(byte[])
+//                  explicitly here without specifying the encoding name, in which the
+//                  StringCoding class will pickup the iso-8859-1 as the fallback
+//                  converter for us.
+//                 */
+//                jmethodID mid = (*env)->GetMethodID(env, JNU_ClassString(env),
+//                                                    "<init>", "([B)V");
+//                result = (*env)->NewObject(env, JNU_ClassString(env), mid, hab);
+//            }
+//            (*env)->DeleteLocalRef(env, hab);
+//            return result;
+//        }
+//    }
+//    return NULL;
+//}
+//
+//
+//JNIEXPORT const char * JNICALL
+//JNU_GetStringPlatformChars(JNIEnv *env, jstring jstr, jboolean *isCopy)
+//{
+//    char *result = nativeGetStringPlatformChars(env, jstr, isCopy);
+//    if (result == NULL) {
+//
+//        jbyteArray hab = 0;
+//
+//        if (isCopy)
+//            *isCopy = JNI_TRUE;
+//
+//        if (fastEncoding == NO_ENCODING_YET)
+//            initializeEncoding(env);
+//
+//        if ((fastEncoding == FAST_8859_1) || (fastEncoding == NO_ENCODING_YET))
+//            return getString8859_1Chars(env, jstr);
+//        if (fastEncoding == FAST_646_US)
+//            return getString646_USChars(env, jstr);
+//        if (fastEncoding == FAST_CP1252)
+//            return getStringCp1252Chars(env, jstr);
+//
+//        if ((*env)->EnsureLocalCapacity(env, 2) < 0)
+//            return 0;
+//
+//        if (jnuEncodingSupported(env)) {
+//            hab = (*env)->CallObjectMethod(env, jstr, String_getBytes_ID, jnuEncoding);
+//        } else {
+//            jmethodID mid = (*env)->GetMethodID(env, JNU_ClassString(env),
+//                                                "getBytes", "()[B");
+//            hab = (*env)->CallObjectMethod(env, jstr, mid);
+//        }
+//
+//        if (!(*env)->ExceptionCheck(env)) {
+//            jint len = (*env)->GetArrayLength(env, hab);
+//            result = MALLOC_MIN4(len);
+//            if (result == 0) {
+//                JNU_ThrowOutOfMemoryError(env, 0);
+//                (*env)->DeleteLocalRef(env, hab);
+//                return 0;
+//            }
+//            (*env)->GetByteArrayRegion(env, hab, 0, len, (jbyte *)result);
+//            result[len] = 0; /* NULL-terminate */
+//        }
+//
+//        (*env)->DeleteLocalRef(env, hab);
+//    }
+//    return result;
+//}
+
 
 /*
  * Export the platform dependent path canonicalization so that

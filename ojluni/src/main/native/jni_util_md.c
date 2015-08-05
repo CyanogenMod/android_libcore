@@ -27,9 +27,13 @@
 #include "jni_util.h"
 
 jstring nativeNewStringPlatform(JNIEnv *env, const char *str) {
-    return NULL;
+    return (*env)->NewStringUTF(env, str);
 }
 
-char* nativeGetStringPlatformChars(JNIEnv *env, jstring jstr, jboolean *isCopy) {
-    return NULL;
+const char* nativeGetStringPlatformChars(JNIEnv *env, jstring jstr, jboolean *isCopy) {
+    return (*env)->GetStringUTFChars(env, jstr, isCopy);
+}
+
+void nativeReleaseStringPlatformChars(JNIEnv* env, jstring jstr, const char* chars) {
+    (*env)->ReleaseStringUTFChars(env, jstr, chars);
 }
