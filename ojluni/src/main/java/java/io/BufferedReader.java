@@ -139,7 +139,17 @@ public class BufferedReader extends Reader {
                     dst = delta;
                 } else {
                     /* Reallocate buffer to accommodate read-ahead limit */
-                    char ncb[] = new char[readAheadLimit];
+                    //
+                    // Android changed : Use the same strategy as BufferedInputStream,
+                    // i.e, double the size of the buffer on each fill. Do not directly
+                    // size the buffer to the readAheadLimit.
+                    //
+                    // char ncb[] = new char[readAheadLimit];
+                    int nlength = cb.length * 2;
+                    if (nlength > readAheadLimit) {
+                        nlength = readAheadLimit;
+                    }
+                    char ncb[] = new char[nlength];
                     System.arraycopy(cb, markedChar, ncb, 0, delta);
                     cb = ncb;
                     markedChar = 0;
