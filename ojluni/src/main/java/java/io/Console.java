@@ -529,6 +529,11 @@ public final class Console implements Flushable
     private native static boolean istty();
 
     private Console() {
+      this(new FileInputStream(FileDescriptor.in), new FileOutputStream(FileDescriptor.out));
+    }
+
+    // Constructor for tests
+    private Console(InputStream inStream, OutputStream outStream) {
         readLock = new Object();
         writeLock = new Object();
         String csname = encoding();
@@ -540,13 +545,13 @@ public final class Console implements Flushable
         if (cs == null)
             cs = Charset.defaultCharset();
         out = StreamEncoder.forOutputStreamWriter(
-                  new FileOutputStream(FileDescriptor.out),
+                  outStream,
                   writeLock,
                   cs);
         pw = new PrintWriter(out, true) { public void close() {} };
         formatter = new Formatter(out);
         reader = new LineReader(StreamDecoder.forInputStreamReader(
-                     new FileInputStream(FileDescriptor.in),
+                     inStream,
                      readLock,
                      cs));
         rcb = new char[1024];
