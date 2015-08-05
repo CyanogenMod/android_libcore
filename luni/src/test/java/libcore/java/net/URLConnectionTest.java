@@ -646,32 +646,42 @@ public final class URLConnectionTest extends AbstractResourceLeakageDetectorTest
      * Tolerate bad https proxy response when using HttpResponseCache. http://b/6754912
      */
     public void testConnectViaHttpProxyToHttpsUsingBadProxyAndHttpResponseCache() throws Exception {
+        ProxyConfig proxyConfig = ProxyConfig.PROXY_SYSTEM_PROPERTY;
+
         TestSSLContext testSSLContext = TestSSLContext.create();
 
         initResponseCache();
 
         server.useHttps(testSSLContext.serverContext.getSocketFactory(), true);
-
-        // The inclusion of a body in the response to the CONNECT is key to reproducing b/6754912.
         MockResponse badProxyResponse = new MockResponse()
                 .setSocketPolicy(SocketPolicy.UPGRADE_TO_SSL_AT_END)
                 .clearHeaders()
-                .setBody("bogus proxy connect response content");
+                .setBody("bogus proxy connect response content"); // Key to reproducing b/6754912
 
+        // We enqueue the bad response twice because the connection will
+        // be retried with TLS_MODE_COMPATIBLE after the first connection
+        // fails.
         server.enqueue(badProxyResponse);
-        server.enqueue(new MockResponse().setBody("response"));
+        server.enqueue(badProxyResponse);
 
         server.play();
 
         URL url = new URL("https://android.com/foo");
-        ProxyConfig proxyConfig = ProxyConfig.PROXY_SYSTEM_PROPERTY;
         HttpsURLConnection connection = (HttpsURLConnection) proxyConfig.connect(server, url);
         connection.setSSLSocketFactory(testSSLContext.clientContext.getSocketFactory());
-        connection.setHostnameVerifier(new RecordingHostnameVerifier());
-        assertContent("response", connection);
+
+        try {
+            connection.connect();
+            fail();
+        } catch (SSLHandshakeException expected) {
+            // Thrown when the connect causes SSLSocket.startHandshake() to throw
+            // when it sees the "bogus proxy connect response content"
+            // instead of a ServerHello handshake message.
+        }
 
         RecordedRequest connect = server.takeRequest();
-        assertEquals("CONNECT android.com:443 HTTP/1.1", connect.getRequestLine());
+        assertEquals("Connect line failure on proxy",
+                "CONNECT android.com:443 HTTP/1.1", connect.getRequestLine());
         assertContains(connect.getHeaders(), "Host: android.com");
     }
 
