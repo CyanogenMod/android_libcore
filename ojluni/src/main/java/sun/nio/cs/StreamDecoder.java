@@ -53,6 +53,7 @@ public class StreamDecoder extends Reader
     private boolean haveLeftoverChar = false;
     private char leftoverChar;
 
+    private boolean needsFlush = false;
 
     // Factories for java.io.InputStreamReader
 
@@ -312,6 +313,27 @@ public class StreamDecoder extends Reader
         // Ensure that cb[0] == cbuf[off]
         cb = cb.slice();
 
+        // Android-changed : Support flushing the buffer properly.
+        if (needsFlush) {
+            CoderResult cr = decoder.flush(cb);
+            if (cr.isOverflow()) {
+                // We've overflowed, we'll have to come back round and ask for more data.
+                return cb.position();
+            }
+
+            // By definition, we're at the end of the stream here.
+            if (cr.isUnderflow()) {
+                if (cb.position() == 0) {
+                    return -1;
+                }
+
+                return cb.position();
+            }
+
+            cr.throwException();
+            // Unreachable.
+        }
+
         boolean eof = false;
         for (;;) {
         CoderResult cr = decoder.decode(bb, cb, eof);
@@ -325,9 +347,13 @@ public class StreamDecoder extends Reader
             int n = readBytes();
             if (n < 0) {
                 eof = true;
-                if ((cb.position() == 0) && (!bb.hasRemaining()))
-                    break;
-                decoder.reset();
+                // Android-changed : We want to go 'round the loop one more time
+                // with "eof = true". We also don't want to reset the decoder here
+                // because we might potentially need to flush it later.
+                //
+                // if ((cb.position() == 0) && (!bb.hasRemaining()))
+                //     break;
+                //  decoder.reset();
             }
             continue;
         }
@@ -339,8 +365,16 @@ public class StreamDecoder extends Reader
         }
 
         if (eof) {
-        // ## Need to flush decoder
-        decoder.reset();
+            CoderResult cr = decoder.flush(cb);
+            if (cr.isOverflow()) {
+                needsFlush = true;
+                return cb.position();
+            }
+
+            decoder.reset();
+            if (!cr.isUnderflow()) {
+                cr.throwException();
+            }
         }
 
         if (cb.position() == 0) {
