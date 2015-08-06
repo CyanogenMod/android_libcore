@@ -157,11 +157,11 @@ public class ChannelsTest extends TestCase {
         readres = this.fins.read(byteArray);
 
         assertEquals(bufSize, readres);
-        assertFalse(0 == this.fins.available());
+        assertTrue(fins.available() > 0);
 
         ReadableByteChannel rbChannel = Channels.newChannel(this.fins);
         // fins still reads.
-        assertFalse(0 == this.fins.available());
+        assertTrue(fins.available() > 0);
         readres = this.fins.read(byteArray);
         assertEquals(bufSize, readres);
 
@@ -172,7 +172,11 @@ public class ChannelsTest extends TestCase {
         assertEquals(bufSize, readres);
         InputStream ins = Channels.newInputStream(rbChannel);
         assertNotNull(ins);
-        assertEquals(0, ins.available());
+        // Channels.newChannel has a special case for FileInputStream, which means
+        // they become SeekableByteChannels that can correctly predict the number of
+        // bytes they have left
+        // The file written is 31 bytes in size and we've read 30 bytes already.
+        assertEquals(1, ins.available());
     }
 
     // test if fout to change is null
@@ -470,8 +474,8 @@ public class ChannelsTest extends TestCase {
 
         assertEquals(this.fileSize, this.fins.available());
         // not ready...
-        assertFalse(testReader.ready());
-        assertFalse(testReader_s.ready());
+        assertTrue(testReader.ready());
+        assertTrue(testReader_s.ready());
         // still reads
         readres = testReader.read(charBuf);
         assertEquals(bufSize, readres);
@@ -487,7 +491,7 @@ public class ChannelsTest extends TestCase {
         readres = testReader_s.read(charBuf);
         assertEquals(0, readres);
         assertTrue(testReader.ready());
-        assertFalse(testReader_s.ready());
+        assertTrue(testReader_s.ready());
     }
 
     /*

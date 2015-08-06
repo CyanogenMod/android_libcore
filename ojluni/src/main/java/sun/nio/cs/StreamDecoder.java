@@ -271,7 +271,9 @@ public class StreamDecoder extends Reader
         try {
         if (ch != null) {
             // Read from the channel
-            int n = ch.read(bb);
+            // Android-changed : Use ChannelInputStream.read to make sure we throw
+            // the right exception for non-blocking channels.
+            int n = sun.nio.ch.ChannelInputStream.read(ch, bb);
             if (n < 0)
                 return n;
         } else {
