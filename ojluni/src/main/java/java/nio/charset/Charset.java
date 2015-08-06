@@ -324,7 +324,8 @@ public abstract class Charset
     }
 
     /* The standard set of charsets */
-    private static CharsetProvider standardProvider = new StandardCharsets();
+    // Android-Removed: We use ICU's list of standard charsets.
+    // private static CharsetProvider standardProvider = new StandardCharsets();
 
     // Cache of the most-recently-returned charsets,
     // along with the names that were used to find them
@@ -427,42 +428,44 @@ public abstract class Charset
         }
     }
 
+    // Android removed : Remove support for the extended charset provider.
+    //
     /* The extended set of charsets */
-    private static Object extendedProviderLock = new Object();
-    private static boolean extendedProviderProbed = false;
-    private static CharsetProvider extendedProvider = null;
-
-    private static void probeExtendedProvider() {
-        AccessController.doPrivileged(new PrivilegedAction<Object>() {
-                public Object run() {
-                    try {
-                        Class epc
-                            = Class.forName("sun.nio.cs.ext.ExtendedCharsets");
-                        extendedProvider = (CharsetProvider)epc.newInstance();
-                    } catch (ClassNotFoundException x) {
-                        // Extended charsets not available
-                        // (charsets.jar not present)
-                    } catch (InstantiationException x) {
-                        throw new Error(x);
-                    } catch (IllegalAccessException x) {
-                        throw new Error(x);
-                    }
-                    return null;
-                }
-            });
-    }
-
-    private static Charset lookupExtendedCharset(String charsetName) {
-        CharsetProvider ecp = null;
-        synchronized (extendedProviderLock) {
-            if (!extendedProviderProbed) {
-                probeExtendedProvider();
-                extendedProviderProbed = true;
-            }
-            ecp = extendedProvider;
-        }
-        return (ecp != null) ? ecp.charsetForName(charsetName) : null;
-    }
+    // private static Object extendedProviderLock = new Object();
+    // private static boolean extendedProviderProbed = false;
+    // private static CharsetProvider extendedProvider = null;
+    //
+    // private static void probeExtendedProvider() {
+    //     AccessController.doPrivileged(new PrivilegedAction<Object>() {
+    //            public Object run() {
+    //                 try {
+    //                     Class epc
+    //                         = Class.forName("sun.nio.cs.ext.ExtendedCharsets");
+    //                     extendedProvider = (CharsetProvider)epc.newInstance();
+    //                 } catch (ClassNotFoundException x) {
+    //                     // Extended charsets not available
+    //                     // (charsets.jar not present)
+    //                 } catch (InstantiationException x) {
+    //                     throw new Error(x);
+    //                 } catch (IllegalAccessException x) {
+    //                     throw new Error(x);
+    //                }
+    //                 return null;
+    //             }
+    //         });
+    // }
+    //
+    // private static Charset lookupExtendedCharset(String charsetName) {
+    //     CharsetProvider ecp = null;
+    //     synchronized (extendedProviderLock) {
+    //         if (!extendedProviderProbed) {
+    //             probeExtendedProvider();
+    //             extendedProviderProbed = true;
+    //         }
+    //         ecp = extendedProvider;
+    //     }
+    //     return (ecp != null) ? ecp.charsetForName(charsetName) : null;
+    // }
 
     private static Charset lookup(String charsetName) {
         if (charsetName == null)
@@ -486,9 +489,9 @@ public abstract class Charset
         }
 
         Charset cs;
+        // Android-changed: Drop support for "standard" and "extended"
+        // providers.
         if ((cs = NativeConverter.charsetForName(charsetName))  != null ||
-            (cs = standardProvider.charsetForName(charsetName)) != null ||
-            (cs = lookupExtendedCharset(charsetName))           != null ||
             (cs = lookupViaProviders(charsetName))              != null)
         {
             cache(charsetName, cs);
@@ -594,7 +597,8 @@ public abstract class Charset
                         Charset charset = NativeConverter.charsetForName(charsetName);
                         m.put(charset.name(), charset);
                     }
-                    put(standardProvider.charsets(), m);
+                    // Android-changed: No more "standard" provider.
+                    // put(standardProvider.charsets(), m);
                     for (Iterator i = providers(); i.hasNext();) {
                         CharsetProvider cp = (CharsetProvider)i.next();
                         put(cp.charsets(), m);
@@ -604,7 +608,7 @@ public abstract class Charset
             });
     }
 
-    private static volatile Charset defaultCharset;
+    private static Charset defaultCharset;
 
     /**
      * Returns the default charset of this Java virtual machine.
@@ -618,20 +622,14 @@ public abstract class Charset
      * @since 1.5
      */
     public static Charset defaultCharset() {
-        if (defaultCharset == null) {
-            synchronized (Charset.class) {
-                /* ----- BEGIN android -----
-                String csn = AccessController.doPrivileged(
-                    new GetPropertyAction("file.encoding"));
-                Charset cs = lookup(csn);
-                if (cs != null)
-                    defaultCharset = cs;
-                else
-                ----- END android ---- */
-                    defaultCharset = forName("UTF-8");
+        // Android changed : Use UTF_8 unconditionally.
+        synchronized (Charset.class) {
+            if (defaultCharset == null) {
+                defaultCharset = java.nio.charset.StandardCharsets.UTF_8;
             }
+
+            return defaultCharset;
         }
-        return defaultCharset;
     }
 
 
@@ -928,21 +926,4 @@ public abstract class Charset
     public final String toString() {
         return name();
     }
-    // ----- BEGIN android -----
-    /**
-     * Equivalent to {@code forName} but only throws {@code UnsupportedEncodingException},
-     * which is all pre-nio code claims to throw.
-     *
-     * @hide internal use only
-     */
-    public static Charset forNameUEE(String charsetName) throws UnsupportedEncodingException {
-        try {
-            return Charset.forName(charsetName);
-        } catch (Exception cause) {
-            UnsupportedEncodingException ex = new UnsupportedEncodingException(charsetName);
-            ex.initCause(cause);
-            throw ex;
-        }
-    }
-    // ----- END android -----
 }
