@@ -38,11 +38,6 @@
 static void CloseNonStandardFds(int status_pipe_fd) {
   // On Cygwin, Linux, and Solaris, the best way to close iterates over "/proc/self/fd/".
   const char* fd_path = "/proc/self/fd";
-#if defined(__APPLE__)
-  // On Mac OS, there's "/dev/fd/" which Linux seems to link to "/proc/self/fd/",
-  // but which on Solaris appears to be something quite different.
-  fd_path = "/dev/fd";
-#endif
 
   // Keep track of the system properties fd so we don't close it.
   int properties_fd = -1;

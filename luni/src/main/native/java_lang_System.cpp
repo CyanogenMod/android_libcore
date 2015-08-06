@@ -113,15 +113,9 @@ static jlong System_currentTimeMillis(JNIEnv*, jclass) {
 }
 
 static jlong System_nanoTime(JNIEnv*, jclass) {
-#if defined(__linux__)
     timespec now;
     clock_gettime(CLOCK_MONOTONIC, &now);
     return now.tv_sec * 1000000000LL + now.tv_nsec;
-#else // __APPLE__
-    timeval now;
-    gettimeofday(&now, NULL);
-    return static_cast<jlong>(now.tv_sec) * 1000000000LL + now.tv_usec * 1000LL;
-#endif
 }
 
 static JNINativeMethod gMethods[] = {
