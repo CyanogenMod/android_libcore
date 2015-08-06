@@ -113,21 +113,30 @@ public class FileUtilsTest extends TestCase {
     }
 
     public void testCreateSubFile() throws Exception {
-        File dir1 = createTempDir();
-        File subFile = FileUtils.createSubFile(dir1, "file");
-        assertFileCanonicalEquals(new File(dir1, "file"), subFile);
+        File dir1 = createTempDir().getCanonicalFile();
+
+        File actualSubFile = FileUtils.createSubFile(dir1, "file");
+        assertEquals(new File(dir1, "file"), actualSubFile);
+
+        File existingSubFile = createRegularFile(dir1, "file");
+        actualSubFile = FileUtils.createSubFile(dir1, "file");
+        assertEquals(existingSubFile, actualSubFile);
+
+        File existingSubDir = createDir(dir1, "subdir");
+        actualSubFile = FileUtils.createSubFile(dir1, "subdir");
+        assertEquals(existingSubDir, actualSubFile);
 
         assertCreateSubFileThrows(dir1, "../file");
         assertCreateSubFileThrows(dir1, "../../file");
         assertCreateSubFileThrows(dir1, "../otherdir/file");
 
-        File dir2 = createTempDir();
-        File dir2Subdir = createDir(dir2, "dir2Subdir");
-        File expectedSymlinkToDir2 = createSymlink(dir2Subdir, dir1, "symlinkToDir2");
+        File dir2 = createTempDir().getCanonicalFile();
+        createSymlink(dir2, dir1, "symlinkToDir2");
+        assertCreateSubFileThrows(dir1, "symlinkToDir2");
 
-        File actualSymlinkToDir2 = FileUtils.createSubFile(dir1, "symlinkToDir2");
-        assertEquals(expectedSymlinkToDir2, actualSymlinkToDir2);
+        assertCreateSubFileThrows(dir1, "symlinkToDir2/fileInSymlinkedDir");
 
+        createRegularFile(dir1, "symlinkToDir2/fileInSymlinkedDir");
         assertCreateSubFileThrows(dir1, "symlinkToDir2/fileInSymlinkedDir");
     }
 
@@ -293,10 +302,6 @@ public class FileUtilsTest extends TestCase {
         }
         assertTrue("Permission mask required: " + Integer.toOctalString(mask),
                 (sb.st_mode & mask) == mask);
-    }
-
-    private static void assertFileCanonicalEquals(File expected, File actual) throws IOException {
-        assertEquals(expected.getCanonicalFile(), actual.getCanonicalFile());
     }
 
     private File createTempDir() {
