@@ -1331,12 +1331,37 @@ openjdk_java_files := \
     ojluni/src/main/java/sun/nio/ch/UnixAsynchronousServerSocketChannelImpl.java \
     ojluni/src/main/java/sun/nio/ch/UnixAsynchronousSocketChannelImpl.java \
     ojluni/src/main/java/sun/nio/ch/Util.java \
+    ojluni/src/main/java/sun/nio/cs/AbstractCharsetProvider.java \
     ojluni/src/main/java/sun/nio/cs/ArrayDecoder.java \
     ojluni/src/main/java/sun/nio/cs/ArrayEncoder.java \
+    ojluni/src/main/java/sun/nio/cs/CharsetMapping.java \
+    ojluni/src/main/java/sun/nio/cs/ext/ExtendedCharsets.java \
+    ojluni/src/main/java/sun/nio/cs/FastCharsetProvider.java \
+    ojluni/src/main/java/sun/nio/cs/HistoricallyNamedCharset.java \
+    ojluni/src/main/java/sun/nio/cs/ISO_8859_15.java \
+    ojluni/src/main/java/sun/nio/cs/ISO_8859_1.java \
+    ojluni/src/main/java/sun/nio/cs/MS1252.java \
+    ojluni/src/main/java/sun/nio/cs/SingleByte.java \
+    ojluni/src/main/java/sun/nio/cs/StandardCharsets.java \
     ojluni/src/main/java/sun/nio/cs/StreamDecoder.java \
     ojluni/src/main/java/sun/nio/cs/StreamEncoder.java \
-    ojluni/src/main/java/sun/nio/cs/HistoricallyNamedCharset.java \
+    ojluni/src/main/java/sun/nio/cs/Surrogate.java \
     ojluni/src/main/java/sun/nio/cs/ThreadLocalCoders.java \
+    ojluni/src/main/java/sun/nio/cs/UnicodeDecoder.java \
+    ojluni/src/main/java/sun/nio/cs/UnicodeEncoder.java \
+    ojluni/src/main/java/sun/nio/cs/Unicode.java \
+    ojluni/src/main/java/sun/nio/cs/US_ASCII.java \
+    ojluni/src/main/java/sun/nio/cs/UTF_16BE.java \
+    ojluni/src/main/java/sun/nio/cs/UTF_16.java \
+    ojluni/src/main/java/sun/nio/cs/UTF_16LE_BOM.java \
+    ojluni/src/main/java/sun/nio/cs/UTF_16LE.java \
+    ojluni/src/main/java/sun/nio/cs/UTF_32BE_BOM.java \
+    ojluni/src/main/java/sun/nio/cs/UTF_32BE.java \
+    ojluni/src/main/java/sun/nio/cs/UTF_32Coder.java \
+    ojluni/src/main/java/sun/nio/cs/UTF_32.java \
+    ojluni/src/main/java/sun/nio/cs/UTF_32LE_BOM.java \
+    ojluni/src/main/java/sun/nio/cs/UTF_32LE.java \
+    ojluni/src/main/java/sun/nio/cs/UTF_8.java \
     ojluni/src/main/java/sun/nio/fs/AbstractBasicFileAttributeView.java \
     ojluni/src/main/java/sun/nio/fs/AbstractFileSystemProvider.java \
     ojluni/src/main/java/sun/nio/fs/AbstractFileTypeDetector.java \
