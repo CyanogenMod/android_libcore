@@ -202,7 +202,7 @@ public class DoubleBufferTest extends AbstractBufferTest {
 
         assertEquals("Failed equal comparison with NaN entry", 0, dbuffer1
                 .compareTo(dbuffer2));
-        assertEquals("Failed greater than comparison with NaN entry", 1, dbuffer3
+        assertEquals("Failed greater than comparison with NaN entry", -1, dbuffer3
                 .compareTo(dbuffer1));
         assertEquals("Failed greater than comparison with NaN entry", 1, dbuffer1
                 .compareTo(dbuffer3));

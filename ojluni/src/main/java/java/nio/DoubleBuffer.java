@@ -1165,7 +1165,9 @@ public abstract class DoubleBuffer
     public int compareTo(DoubleBuffer that) {
         int n = this.position() + Math.min(this.remaining(), that.remaining());
         for (int i = this.position(), j = that.position(); i < n; i++, j++) {
-            int cmp = compare(this.get(i), that.get(j));
+            // Android changed : Call through to Double.compare() instead of
+            // duplicating code pointlessly.
+            int cmp = Double.compare(this.get(i), that.get(j));
             if (cmp != 0)
                 return cmp;
         }
