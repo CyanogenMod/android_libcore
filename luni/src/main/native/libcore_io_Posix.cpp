@@ -45,14 +45,9 @@
 #include <stdlib.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
-#ifndef __APPLE__
 #include <sys/prctl.h>
-#endif
 #include <sys/socket.h>
 #include <sys/stat.h>
-#ifdef __APPLE__
-#include <sys/statvfs.h>
-#endif
 #include <sys/syscall.h>
 #include <sys/time.h>
 #include <sys/types.h>
@@ -423,13 +418,6 @@ static jobject makeStructStat(JNIEnv* env, const struct stat& sb) {
 }
 
 static jobject makeStructStatVfs(JNIEnv* env, const struct statvfs& sb) {
-#if defined(__APPLE__)
-    // Mac OS has no f_namelen field in struct statfs.
-    jlong max_name_length = 255; // __DARWIN_MAXNAMLEN
-#else
-    jlong max_name_length = static_cast<jlong>(sb.f_namemax);
-#endif
-
     static jmethodID ctor = env->GetMethodID(JniConstants::structStatVfsClass, "<init>",
             "(JJJJJJJJJJJ)V");
     return env->NewObject(JniConstants::structStatVfsClass, ctor,
@@ -443,7 +431,7 @@ static jobject makeStructStatVfs(JNIEnv* env, const struct statvfs& sb) {
                           static_cast<jlong>(sb.f_favail),
                           static_cast<jlong>(sb.f_fsid),
                           static_cast<jlong>(sb.f_flag),
-                          max_name_length);
+                          static_cast<jlong>(sb.f_namemax));
 }
 
 static jobject makeStructLinger(JNIEnv* env, const struct linger& l) {
@@ -458,13 +446,8 @@ static jobject makeStructTimeval(JNIEnv* env, const struct timeval& tv) {
 }
 
 static jobject makeStructUcred(JNIEnv* env, const struct ucred& u __unused) {
-#ifdef __APPLE__
-  jniThrowException(env, "java/lang/UnsupportedOperationException", "unimplemented support for ucred on a Mac");
-  return NULL;
-#else
   static jmethodID ctor = env->GetMethodID(JniConstants::structUcredClass, "<init>", "(III)V");
   return env->NewObject(JniConstants::structUcredClass, ctor, u.pid, u.uid, u.gid);
-#endif
 }
 
 static jobject makeStructUtsname(JNIEnv* env, const struct utsname& buf) {
@@ -1146,15 +1129,7 @@ static jobject Posix_getsockoptUcred(JNIEnv* env, jobject, jobject javaFd, jint 
 }
 
 static jint Posix_gettid(JNIEnv* env __unused, jobject) {
-#if defined(__APPLE__)
-  uint64_t owner;
-  int rc = pthread_threadid_np(NULL, &owner);  // Requires Mac OS 10.6
-  if (rc != 0) {
-    throwErrnoException(env, "gettid");
-    return 0;
-  }
-  return static_cast<jint>(owner);
-#elif defined(__BIONIC__)
+#if defined(__BIONIC__)
   return TEMP_FAILURE_RETRY(gettid());
 #else
   return syscall(__NR_gettid);
@@ -1346,10 +1321,6 @@ static jobject Posix_open(JNIEnv* env, jobject, jstring javaPath, jint flags, ji
 }
 
 static jobjectArray Posix_pipe2(JNIEnv* env, jobject, jint flags __unused) {
-#ifdef __APPLE__
-    jniThrowException(env, "java/lang/UnsupportedOperationException", "no pipe2 on Mac OS");
-    return NULL;
-#else
     int fds[2];
     throwIfMinusOne(env, "pipe2", TEMP_FAILURE_RETRY(pipe2(&fds[0], flags)));
     jobjectArray result = env->NewObjectArray(2, JniConstants::fileDescriptorClass, NULL);
@@ -1367,7 +1338,6 @@ static jobjectArray Posix_pipe2(JNIEnv* env, jobject, jint flags __unused) {
         }
     }
     return result;
-#endif
 }
 
 static jint Posix_poll(JNIEnv* env, jobject, jobjectArray javaStructs, jint timeoutMs) {
@@ -1453,32 +1423,22 @@ static jint Posix_poll(JNIEnv* env, jobject, jobjectArray javaStructs, jint time
 
 static void Posix_posix_fallocate(JNIEnv* env, jobject, jobject javaFd __unused,
                                   jlong offset __unused, jlong length __unused) {
-#ifdef __APPLE__
-    jniThrowException(env, "java/lang/UnsupportedOperationException",
-                      "fallocate doesn't exist on a Mac");
-#else
     int fd = jniGetFDFromFileDescriptor(env, javaFd);
     while ((errno = posix_fallocate64(fd, offset, length)) == EINTR) {
     }
     if (errno != 0) {
         throwErrnoException(env, "posix_fallocate");
     }
-#endif
 }
 
 static jint Posix_prctl(JNIEnv* env, jobject, jint option __unused, jlong arg2 __unused,
                         jlong arg3 __unused, jlong arg4 __unused, jlong arg5 __unused) {
-#ifdef __APPLE__
-    jniThrowException(env, "java/lang/UnsupportedOperationException", "prctl doesn't exist on a Mac");
-    return 0;
-#else
     int result = TEMP_FAILURE_RETRY(prctl(static_cast<int>(option),
                                           static_cast<unsigned long>(arg2),
                                           static_cast<unsigned long>(arg3),
                                           static_cast<unsigned long>(arg4),
                                           static_cast<unsigned long>(arg5)));
     return throwIfMinusOne(env, "prctl", result);
-#endif
 }
 
 static jint Posix_preadBytes(JNIEnv* env, jobject, jobject javaFd, jobject javaBytes, jint byteOffset, jint byteCount, jlong offset) {
@@ -1695,12 +1655,6 @@ static void Posix_setsockoptInt(JNIEnv* env, jobject, jobject javaFd, jint level
     throwIfMinusOne(env, "setsockopt", TEMP_FAILURE_RETRY(setsockopt(fd, level, option, &value, sizeof(value))));
 }
 
-#if defined(__APPLE__) && MAC_OS_X_VERSION_MAX_ALLOWED < 1070
-// Mac OS didn't support modern multicast APIs until 10.7.
-static void Posix_setsockoptIpMreqn(JNIEnv*, jobject, jobject, jint, jint, jint) { abort(); }
-static void Posix_setsockoptGroupReq(JNIEnv*, jobject, jobject, jint, jint, jobject) { abort(); }
-static void Posix_setsockoptGroupSourceReq(JNIEnv*, jobject, jobject, jint, jint, jobject) { abort(); }
-#else
 static void Posix_setsockoptIpMreqn(JNIEnv* env, jobject, jobject javaFd, jint level, jint option, jint value) {
     ip_mreqn req;
     memset(&req, 0, sizeof(req));
@@ -1783,7 +1737,6 @@ static void Posix_setsockoptGroupSourceReq(JNIEnv* env, jobject, jobject javaFd,
     }
     throwIfMinusOne(env, "setsockopt", rc);
 }
-#endif
 
 static void Posix_setsockoptLinger(JNIEnv* env, jobject, jobject javaFd, jint level, jint option, jobject javaLinger) {
     static jfieldID lOnoffFid = env->GetFieldID(JniConstants::structLingerClass, "l_onoff", "I");
