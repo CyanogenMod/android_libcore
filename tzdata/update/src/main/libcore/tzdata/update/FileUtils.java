@@ -37,19 +37,18 @@ public final class FileUtils {
 
     /**
      * Creates a new {@link java.io.File} from the {@code parentDir} and {@code name}, but only if
-     * the
-     * resulting file would exist beneath {@code parentDir}. Useful if {@code name} could contain
-     * "/../" or symlinks. The returned object has an absolute path.
+     * the resulting file would exist beneath {@code parentDir}. Useful if {@code name} could
+     * contain "/../" or symlinks. The returned object has a canonicalized path.
      *
-     * @throws java.io.IOException
-     *         if the file would not exist beneath {@code parentDir}
+     * @throws java.io.IOException if the file would not exist beneath {@code parentDir}
      */
     public static File createSubFile(File parentDir, String name) throws IOException {
         // The subFile must exist beneath parentDir. If name contains "/../" this may not be the
         // case so we check.
-        File subFile = canonicalizeDirPath(new File(parentDir, name));
+        File subFile = new File(parentDir, name).getCanonicalFile();
         if (!subFile.getPath().startsWith(parentDir.getCanonicalPath())) {
-            throw new IOException(name + " must exist beneath " + parentDir);
+            throw new IOException(name + " must exist beneath " + parentDir +
+                    ". Canonicalized subpath: " + subFile);
         }
         return subFile;
     }
@@ -61,8 +60,8 @@ public final class FileUtils {
      * directories explicitly created will have their permissions set; existing directories are
      * untouched.
      *
-     * @throws IOException
-     *         if the directory or one of its parents did not already exist and could not be created
+     * @throws IOException if the directory or one of its parents did not already exist and could
+     *     not be created
      */
     public static void ensureDirectoriesExist(File dir, boolean makeWorldReadable)
             throws IOException {
@@ -85,14 +84,6 @@ public final class FileUtils {
                 throw new IOException(dirToCheck + " exists but is not a directory");
             }
         }
-    }
-
-    /**
-     * Returns a file with all symlinks and relative paths such as "/../" resolved <em>except</em>
-     * for the base name (the last element of the path). Useful for detecting symlinks.
-     */
-    public static File canonicalizeDirPath(File file) throws IOException {
-        return new File(file.getParentFile().getCanonicalFile(), file.getName());
     }
 
     public static void makeDirectoryWorldAccessible(File directory) throws IOException {
@@ -150,7 +141,10 @@ public final class FileUtils {
     }
 
     public static boolean isSymlink(File file) throws IOException {
-        return !file.getCanonicalPath().equals(canonicalizeDirPath(file).getPath());
+        String baseName = file.getName();
+        String canonicalPathExceptBaseName =
+                new File(file.getParentFile().getCanonicalFile(), baseName).getPath();
+        return !file.getCanonicalPath().equals(canonicalPathExceptBaseName);
     }
 
     public static void deleteRecursive(File toDelete) throws IOException {
