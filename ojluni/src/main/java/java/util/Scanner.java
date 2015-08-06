@@ -465,12 +465,16 @@ public final class Scanner implements Iterator<String>, Closeable {
     private int SIMPLE_GROUP_INDEX = 5;
     private String buildIntegerPatternString() {
         String radixDigits = digits.substring(0, radix);
+        // Android changed : Support non-decimal starting digits. (i.e, a-z are valid radix digits).
+        String nonZeroRadixDigits = "((?i)[" + digits.substring(1, radix) + "]|(" + non0Digit + "))";
+
         // \\p{javaDigit} is not guaranteed to be appropriate
         // here but what can we do? The final authority will be
         // whatever parse method is invoked, so ultimately the
         // Scanner will do the right thing
         String digit = "((?i)["+radixDigits+"]|\\p{javaDigit})";
-        String groupedNumeral = "("+non0Digit+digit+"?"+digit+"?("+
+        // Android changed : Support non-decimal starting digits.
+        String groupedNumeral = "("+nonZeroRadixDigits+digit+"?"+digit+"?("+
                                 groupSeparator+digit+digit+digit+")+)";
         // digit++ is the possessive form which is necessary for reducing
         // backtracking that would otherwise cause unacceptable performance
@@ -681,7 +685,11 @@ public final class Scanner implements Iterator<String>, Closeable {
     }
 
     private static CharsetDecoder toDecoder(String charsetName) {
-        Objects.requireNonNull(charsetName, "charsetName");
+        // Android-changed: Throw an IAE instead of an NPE.
+        // Objects.requireNonNull(charsetName, "charsetName");
+        if (charsetName == null) {
+            throw new IllegalArgumentException("charsetName == null");
+        }
         try {
             return Charset.forName(charsetName).newDecoder();
         } catch (IllegalCharsetNameException|UnsupportedCharsetException unused) {
@@ -863,6 +871,9 @@ public final class Scanner implements Iterator<String>, Closeable {
         // Restore current position and limit for reading
         buf.limit(buf.position());
         buf.position(p);
+        // Android changed : The matcher implementation eagerly calls toString() so we'll have
+        // to update its input whenever the buffer limit, position etc. changes.
+        matcher.reset(buf);
     }
 
     // After this method is called there will either be an exception
@@ -1307,6 +1318,11 @@ public final class Scanner implements Iterator<String>, Closeable {
     // The next operation should occur in the specified radix but
     // the default is left untouched.
     private void setRadix(int radix) {
+        // Android-changed : Complain loudly if a bogus radix is being set.
+        if (radix > Character.MAX_RADIX) {
+            throw new IllegalArgumentException("radix == " + radix);
+        }
+
         if (this.radix != radix) {
             // Force rebuilding and recompilation of radix dependent patterns
             integerPattern = null;
@@ -2299,6 +2315,9 @@ public final class Scanner implements Iterator<String>, Closeable {
         if (result.equals(nanString))
             result = "NaN";
         if (result.equals(infinityString))
+            result = "Infinity";
+        // Android-changed: Match the infinity symbol.
+        if (result.equals("\u221E"))
             result = "Infinity";
         if (isNegative)
             result = "-" + result;
