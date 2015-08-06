@@ -30,9 +30,7 @@
 #include <stdlib.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
-#ifndef __APPLE__
 #include <sys/prctl.h>
-#endif
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/un.h>
@@ -44,10 +42,8 @@
 #include <linux/if_ether.h>
 
 // After the others because these are not necessarily self-contained in glibc.
-#ifndef __APPLE__
 #include <linux/if_addr.h>
 #include <linux/rtnetlink.h>
-#endif
 
 #include <net/if.h> // After <sys/socket.h> to work around a Mac header file bug.
 
@@ -417,7 +413,6 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
 // members. The best we can do (barring UAPI / kernel version checks) is
 // to hope they exist on all host linuxes we're building on. These
 // constants have been around since 2.6.35 at least, so we should be ok.
-#if !defined(__APPLE__)
     initConstant(env, c, "RT_SCOPE_HOST", RT_SCOPE_HOST);
     initConstant(env, c, "RT_SCOPE_LINK", RT_SCOPE_LINK);
     initConstant(env, c, "RT_SCOPE_NOWHERE", RT_SCOPE_NOWHERE);
@@ -436,7 +431,6 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "RTMGRP_NEIGH", RTMGRP_NEIGH);
     initConstant(env, c, "RTMGRP_NOTIFY", RTMGRP_NOTIFY);
     initConstant(env, c, "RTMGRP_TC", RTMGRP_TC);
-#endif
     initConstant(env, c, "SEEK_CUR", SEEK_CUR);
     initConstant(env, c, "SEEK_END", SEEK_END);
     initConstant(env, c, "SEEK_SET", SEEK_SET);
