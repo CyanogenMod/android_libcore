@@ -72,6 +72,8 @@ public final class ConfigBundle {
                 // Validate the entry name: make sure the unpacked file will exist beneath the
                 // targetDir.
                 String name = entry.getName();
+                // Note, we assume that nothing will quickly insert a symlink after createSubFile()
+                // that might invalidate the guarantees about name existing beneath targetDir.
                 File entryFile = FileUtils.createSubFile(targetDir, name);
 
                 if (entry.isDirectory()) {
