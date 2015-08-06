@@ -17,6 +17,7 @@ LOCAL_SRC_FILES := \
     canonicalize_md.c \
     FileDescriptor_md.c \
     DatagramChannelImpl.c \
+    DatagramDispatcher.c \
     Console_md.c \
     IOUtil.c \
     EPollArrayWrapper.c \
