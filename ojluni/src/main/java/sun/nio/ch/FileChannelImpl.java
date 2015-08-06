@@ -352,7 +352,7 @@ public class FileChannelImpl
 
                 // truncate file
                 // ----- BEGIN android -----
-                if (size > size()) {
+                if (size < size()) {
                 // ----- END android -----
                     do {
                         rv = nd.truncate(fd, size);
