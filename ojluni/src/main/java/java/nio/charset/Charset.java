@@ -45,7 +45,6 @@ import java.util.ServiceConfigurationError;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import sun.misc.ASCIICaseInsensitiveComparator;
-import sun.nio.cs.StandardCharsets;
 import sun.nio.cs.ThreadLocalCoders;
 import sun.security.action.GetPropertyAction;
 
