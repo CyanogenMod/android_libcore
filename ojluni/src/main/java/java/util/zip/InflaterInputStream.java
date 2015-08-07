@@ -160,6 +160,12 @@ class InflaterInputStream extends FilterInputStream {
                     fill();
                 }
             }
+
+            // Android changed : Eagerly set reachEOF.
+            if (inf.finished()) {
+                reachEOF = true;
+            }
+
             return n;
         } catch (DataFormatException e) {
             String s = e.getMessage();
