@@ -92,6 +92,11 @@ public abstract class ClassLoader {
     private Map<String, Package> packages = new HashMap<String, Package>();
 
     /**
+     * Pointer to the class table, only used from within the runtime.
+     */
+    private transient long classTable;
+
+    /**
      * To avoid unloading individual classes, {@link java.lang.reflect.Proxy}
      * only generates one class for each set of interfaces. This maps sets of
      * interfaces to the proxy class that implements all of them. It is declared
