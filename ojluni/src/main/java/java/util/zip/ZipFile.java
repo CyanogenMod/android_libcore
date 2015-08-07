@@ -690,6 +690,10 @@ class ZipFile implements ZipConstants, Closeable {
         }
 
         public int read(byte b[], int off, int len) throws IOException {
+            // Android-changed : Always throw an exception on read if the zipfile
+            // has already been closed.
+            ensureOpenOrZipException();
+
             if (rem == 0) {
                 return -1;
             }
@@ -700,8 +704,6 @@ class ZipFile implements ZipConstants, Closeable {
                 len = (int) rem;
             }
             synchronized (ZipFile.this) {
-                ensureOpenOrZipException();
-
                 len = ZipFile.read(ZipFile.this.jzfile, jzentry, pos, b,
                                    off, len);
             }
