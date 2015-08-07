@@ -385,8 +385,9 @@ class Inflater {
 
     private void ensureOpen () {
         assert Thread.holdsLock(zsRef);
+        // Android changed : Throw IllegalStateException instead of a NullPointerException.
         if (zsRef.address() == 0)
-            throw new NullPointerException("Inflater has been closed");
+            throw new IllegalStateException("Inflater has been closed");
     }
 
     boolean ended() {
