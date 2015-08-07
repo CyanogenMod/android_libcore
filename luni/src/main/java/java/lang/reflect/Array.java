@@ -371,7 +371,7 @@ public final class Array {
         } else if (componentType == void.class) {
             throw new IllegalArgumentException("Can't allocate an array of void");
         }
-        throw new AssertionError();
+        throw new AssertionError(componentType.toString());
     }
 
     /*
