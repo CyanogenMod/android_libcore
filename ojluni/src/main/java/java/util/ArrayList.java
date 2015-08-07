@@ -611,6 +611,13 @@ public class ArrayList<E> extends AbstractList<E>
      *          toIndex < fromIndex})
      */
     protected void removeRange(int fromIndex, int toIndex) {
+        // Android-changed : Throw an IOOBE if toIndex < fromIndex as documented.
+        // All the other cases (negative indices, or indices greater than the size
+        // will be thrown by System#arrayCopy.
+        if (toIndex < fromIndex) {
+            throw new IndexOutOfBoundsException("toIndex < fromIndex");
+        }
+
         modCount++;
         int numMoved = size - toIndex;
         System.arraycopy(elementData, toIndex, elementData, fromIndex,
