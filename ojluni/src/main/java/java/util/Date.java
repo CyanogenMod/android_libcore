@@ -1165,7 +1165,7 @@ public class Date
         int zoneOffset;
         if (cdate == null) {
             GregorianCalendar cal = new GregorianCalendar(fastTime);
-            zoneOffset = -(cal.get(Calendar.ZONE_OFFSET) + cal.get(Calendar.DST_OFFSET)) / 60000;
+            zoneOffset = (cal.get(Calendar.ZONE_OFFSET) + cal.get(Calendar.DST_OFFSET));
         } else {
             normalize();
             zoneOffset = cdate.getZoneOffset();
