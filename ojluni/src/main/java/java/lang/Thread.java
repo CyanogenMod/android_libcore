@@ -393,36 +393,72 @@ class Thread implements Runnable {
      * @param stackSize the desired stack size for the new thread, or
      *        zero to indicate that this parameter is to be ignored.
      */
-    private void init(ThreadGroup g, Runnable target, String name,
-                      long stackSize, Boolean daemon, Integer priority) {
+    private void init(ThreadGroup g, Runnable target, String name, long stackSize) {
+        // Android changed : Reimplemented.
+        /*
+        if (name == null) {
+            throw new NullPointerException("name cannot be null");
+        }
+
         Thread parent = currentThread();
+        SecurityManager security = System.getSecurityManager();
+        if (g == null) {
+            // Determine if it's an applet or not
+
+            // If there is a security manager, ask the security manager what to do.
+            if (security != null) {
+                g = security.getThreadGroup();
+            }
+
+            // If the security doesn't have a strong opinion of the matter
+            // use the parent thread group.
+            if (g == null) {
+                g = parent.getThreadGroup();
+            }
+        }
+
+        // checkAccess regardless of whether or not threadgroup is explicitly passed in.
+        g.checkAccess();
+
+        // Do we have the required permissions?
+        if (security != null) {
+            if (isCCLOverridden(getClass())) {
+                security.checkPermission(SUBCLASS_IMPLEMENTATION_PERMISSION);
+            }
+        }
         if (g == null) {
           g = parent.getThreadGroup();
         }
         g.checkAccess();
+        this.daemon = parent.isDaemon();
+        this.priority = parent.getPriority();
+        this.name = name.toCharArray();
+        if (security == null || isCCLOverridden(parent.getClass()))
+            this.contextClassLoader = parent.getContextClassLoader();
+        else
+            this.contextClassLoader = parent.contextClassLoader;
+        tid = nextThreadID();
+        */
+        // ----- END android -----
+
+        Thread parent = currentThread();
+        if (g == null) {
+            g = parent.getThreadGroup();
+        }
+
         g.addUnstarted();
         this.group = g;
 
-        this.daemon = daemon != null ? daemon : parent.isDaemon();
-        this.priority = priority != null ? priority : parent.getPriority();
-        tid = nextThreadID();
-        if (name == null) {
-          name = "Thread-" + tid;
-        }
-        this.name = name;
-        this.contextClassLoader = parent.getContextClassLoader();
-        this.inheritedAccessControlContext = AccessController.getContext();
         this.target = target;
+        this.priority = parent.getPriority();
+        this.daemon = parent.isDaemon();
+        setName(name);
 
-        if (priority == null) {
-          priority = this.priority;
-          setPriority(priority);
-        }
-        if (parent.inheritableThreadLocals != null)
-            this.inheritableThreadLocals =
-                ThreadLocal.createInheritedMap(parent.inheritableThreadLocals);
+        init2(parent);
+
         /* Stash the specified stack size in case the VM cares */
         this.stackSize = stackSize;
+        tid = nextThreadID();
     }
 
     /**
@@ -445,7 +481,7 @@ class Thread implements Runnable {
      * {@code "Thread-"+}<i>n</i>, where <i>n</i> is an integer.
      */
     public Thread() {
-        init(null, null, "Thread-" + nextThreadNum(), 0, null, null);
+        init(null, null, "Thread-" + nextThreadNum(), 0);
     }
 
     /**
@@ -461,7 +497,7 @@ class Thread implements Runnable {
      *         nothing.
      */
     public Thread(Runnable target) {
-        init(null, target, "Thread-" + nextThreadNum(), 0, null, null);
+        init(null, target, "Thread-" + nextThreadNum(), 0);
     }
 
     /**
@@ -488,7 +524,7 @@ class Thread implements Runnable {
      *          thread group
      */
     public Thread(ThreadGroup group, Runnable target) {
-        init(group, target, "Thread-" + nextThreadNum(), 0, null, null);
+        init(group, target, "Thread-" + nextThreadNum(), 0);
     }
 
     /**
@@ -500,7 +536,7 @@ class Thread implements Runnable {
      *          the name of the new thread
      */
     public Thread(String name) {
-        init(null, null, name, 0, null, null);
+        init(null, null, name, 0);
     }
 
     /**
@@ -524,12 +560,33 @@ class Thread implements Runnable {
      *          thread group
      */
     public Thread(ThreadGroup group, String name) {
-        init(group, null, name, 0, null, null);
+        init(group, null, name, 0);
     }
 
+
     /** @hide */
+    // Android added : Private constructor - used by the runtime.
     Thread(ThreadGroup group, String name, int priority, boolean daemon) {
-        init(group, null, name, 0, daemon, priority);
+        this.group = group;
+        this.group.addUnstarted();
+        // Must be tolerant of threads without a name.
+        if (name == null) {
+            name = "Thread-" + nextThreadNum();
+        }
+        setName(name);
+        this.priority = priority;
+        this.daemon = daemon;
+        init2(currentThread());
+        tid = nextThreadID();
+    }
+
+    private void init2(Thread parent) {
+        this.contextClassLoader = parent.getContextClassLoader();
+        this.inheritedAccessControlContext = AccessController.getContext();
+        if (parent.inheritableThreadLocals != null) {
+            this.inheritableThreadLocals = ThreadLocal.createInheritedMap(
+                    parent.inheritableThreadLocals);
+        }
     }
 
     /**
@@ -545,8 +602,7 @@ class Thread implements Runnable {
      *         the name of the new thread
      */
     public Thread(Runnable target, String name) {
-        init(null, target, name, 0, null, null);
-
+        init(null, target, name, 0);
     }
 
     /**
@@ -594,7 +650,7 @@ class Thread implements Runnable {
      *          thread group or cannot override the context class loader methods.
      */
     public Thread(ThreadGroup group, Runnable target, String name) {
-        init(group, target, name, 0, null, null);
+        init(group, target, name, 0);
     }
 
     /**
@@ -673,7 +729,7 @@ class Thread implements Runnable {
      */
     public Thread(ThreadGroup group, Runnable target, String name,
                   long stackSize) {
-        init(group, target, name, stackSize, null, null);
+        init(group, target, name, stackSize);
     }
 
     /**
@@ -980,7 +1036,7 @@ class Thread implements Runnable {
     public native boolean isInterrupted();
 
     /**
-     * Throws {@link NoSuchMethodError}.
+     * Throws {@link UnsupportedOperationException}.
      *
      * @deprecated This method was originally designed to destroy this
      *     thread without any cleanup. Any monitors it held would have
@@ -994,11 +1050,13 @@ class Thread implements Runnable {
      *     "frozen" processes. For more information, see
      *     <a href="{@docRoot}/../technotes/guides/concurrency/threadPrimitiveDeprecation.html">
      *     Why are Thread.stop, Thread.suspend and Thread.resume Deprecated?</a>.
-     * @throws NoSuchMethodError always
+     * @throws UnsupportedOperationException always
      */
+    // Android changed : Throw UnsupportedOperationException instead of
+    // NoSuchMethodError.
     @Deprecated
     public void destroy() {
-        throw new NoSuchMethodError();
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -1135,6 +1193,10 @@ class Thread implements Runnable {
      */
     public final void setName(String name) {
         checkAccess();
+        if (name == null) {
+            throw new NullPointerException("name == null");
+        }
+
         synchronized (this) {
             this.name = name;
             if (isAlive()) {
@@ -1161,6 +1223,10 @@ class Thread implements Runnable {
      * @return  this thread's thread group.
      */
     public final ThreadGroup getThreadGroup() {
+        // Android-changed: Return null if the thread is terminated.
+        if (getState() == Thread.State.TERMINATED) {
+            return null;
+        }
         return group;
     }
 
@@ -1492,8 +1558,8 @@ class Thread implements Runnable {
      *         the specified object.
      * @since 1.4
      */
-    public static boolean holdsLock(Object object) {
-        return currentThread().nativeHoldsLock(object);
+    public static boolean holdsLock(Object obj) {
+        return currentThread().nativeHoldsLock(obj);
     }
 
     private native boolean nativeHoldsLock(Object object);
