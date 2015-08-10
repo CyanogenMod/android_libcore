@@ -95,7 +95,13 @@ public class SocketAdaptor
             try {
 
                 if (timeout == 0) {
-                    sc.connect(remote);
+                    // Android-changed: Be consistent
+                    try {
+                        sc.connect(remote);
+                    } catch (Exception ex) {
+                        Net.translateException(ex);
+                    }
+
                     return;
                 }
 

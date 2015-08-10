@@ -159,6 +159,9 @@ class Net {                                             // package-private
             nx = new SocketException("Unsupported address type");
         else if (x instanceof UnresolvedAddressException) {
             nx = new SocketException("Unresolved address");
+        } else if (x instanceof AlreadyConnectedException) {
+            // Android added.
+            nx = new SocketException("Already connected");
         }
         if (nx != x)
             nx.initCause(x);

@@ -31,6 +31,7 @@ import java.net.SocketOption;
 import java.net.SocketException;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
+import java.nio.channels.AlreadyBoundException;
 import java.nio.channels.AlreadyConnectedException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.ConnectionPendingException;
@@ -594,8 +595,8 @@ public class SocketChannelTest extends TestCase {
 
         try {
             s.bind(localAddr2);
-            fail("Should throw AlreadyConnectedException");
-        } catch (AlreadyConnectedException e) {
+            fail("Should throw SocketException");
+        } catch (SocketException e) {
             // OK.
         }
 
@@ -645,15 +646,15 @@ public class SocketChannelTest extends TestCase {
         assertTrue(s.isConnected());
         try {
             s.connect(localAddr2);
-            fail("Should throw AlreadyConnectedException");
-        } catch (AlreadyConnectedException e) {
+            fail("Should throw SocketException");
+        } catch (SocketException e) {
             // OK.
         }
 
         try {
             s.bind(localAddr2);
-            fail("Should throw AlreadyConnectedException");
-        } catch (AlreadyConnectedException e) {
+            fail("Should throw SocketException");
+        } catch (SocketException e) {
             // OK.
         }
 
@@ -671,8 +672,8 @@ public class SocketChannelTest extends TestCase {
         if (this.channel1.isConnectionPending()) {
             try {
                 s.connect(localAddr2);
-                fail("Should throw AlreadyConnectedException");
-            } catch (AlreadyConnectedException e) {
+                fail("Should throw SocketException");
+            } catch (SocketException e) {
                 // OK.
             }
         } else {
@@ -686,8 +687,8 @@ public class SocketChannelTest extends TestCase {
 
         try {
             s.bind(localAddr2);
-            fail("Should throw AlreadyConnectedException");
-        } catch (AlreadyConnectedException e) {
+            fail("Should throw SocketException");
+        } catch (SocketException e) {
             // OK.
         }
 
@@ -2960,8 +2961,6 @@ public class SocketChannelTest extends TestCase {
         buffers[2].put(data, 6, data.length - 6);
         buffers[2].flip();
         assertTrue(buffers[2].isDirect());
-        // Android's direct buffers do have a backing array.
-        assertTrue(buffers[2].hasArray());
 
         // Write them out, read what we wrote and check it
         client.write(buffers);
