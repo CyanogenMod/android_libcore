@@ -242,8 +242,7 @@ class ThreadGroup implements Thread.UncaughtExceptionHandler {
      * <p>
      * If the <code>pri</code> argument is less than
      * {@link Thread#MIN_PRIORITY} or greater than
-     * {@link Thread#MAX_PRIORITY}, the maximum priority of the group
-     * remains unchanged.
+     * {@link Thread#MAX_PRIORITY}, it is clamped to those values.
      * <p>
      * Otherwise, the priority of this ThreadGroup object is set to the
      * smaller of the specified <code>pri</code> and the maximum permitted
@@ -261,14 +260,24 @@ class ThreadGroup implements Thread.UncaughtExceptionHandler {
      * @see        java.lang.ThreadGroup#checkAccess()
      * @since      JDK1.0
      */
+    // Android changed: We clamp the priority to the range [MIN_PRIORITY, MAX_PRIORITY]
+    // before using it.
     public final void setMaxPriority(int pri) {
         int ngroupsSnapshot;
         ThreadGroup[] groupsSnapshot;
         synchronized (this) {
             checkAccess();
-            if (pri < Thread.MIN_PRIORITY || pri > Thread.MAX_PRIORITY) {
-                return;
+            // Android changed: Clamp to MIN_PRIORITY, MAX_PRIORITY.
+            // if (pri < Thread.MIN_PRIORITY || pri > Thread.MAX_PRIORITY) {
+            //     return;
+            // }
+            if (pri < Thread.MIN_PRIORITY) {
+                pri = Thread.MIN_PRIORITY;
             }
+            if (pri > Thread.MAX_PRIORITY) {
+                pri = Thread.MAX_PRIORITY;
+            }
+
             maxPriority = (parent != null) ? Math.min(pri, parent.maxPriority) : pri;
             ngroupsSnapshot = ngroups;
             if (groups != null) {
