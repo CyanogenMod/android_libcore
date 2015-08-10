@@ -91,7 +91,10 @@ class XMLUtils {
     {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         dbf.setIgnoringElementContentWhitespace(true);
-        dbf.setValidating(true);
+        // Android-chanaged: We don't currently have a validating document builder.
+        // Revert this if the situation changes.
+        //
+        // dbf.setValidating(true);
         dbf.setCoalescing(true);
         dbf.setIgnoringComments(true);
         try {
@@ -111,6 +114,10 @@ class XMLUtils {
         int start = numEntries > 0 &&
             entries.item(0).getNodeName().equals("comment") ? 1 : 0;
         for (int i=start; i<numEntries; i++) {
+            // Android-changed: Exclude CDATA nodes and the like.
+            if (!(entries.item(i) instanceof Element)) {
+                continue;
+            }
             Element entry = (Element)entries.item(i);
             if (entry.hasAttribute("key")) {
                 Node n = entry.getFirstChild();
