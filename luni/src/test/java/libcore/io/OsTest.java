@@ -426,6 +426,23 @@ public class OsTest extends TestCase {
     checkSocketPing(fd, ipv4Loopback, packet, ICMP_ECHO, ICMP_ECHOREPLY, false);
   }
 
+  public void test_Ipv4Fallback() throws Exception {
+    // This number of iterations gives a ~60% chance of creating the conditions that caused
+    // http://b/23088314 without making test times too long. On a hammerhead running MRZ37C using
+    // vogar, this test takes about 4s.
+    final int ITERATIONS = 10000;
+    for (int i = 0; i < ITERATIONS; i++) {
+      FileDescriptor mUdpSock = Libcore.os.socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+      try {
+          Libcore.os.bind(mUdpSock, Inet4Address.ANY, 0);
+      } catch(ErrnoException e) {
+          fail("ErrnoException after " + i + " iterations: " + e);
+      } finally {
+          Libcore.os.close(mUdpSock);
+      }
+    }
+  }
+
   public void test_unlink() throws Exception {
     File f = File.createTempFile("OsTest", "tst");
     assertTrue(f.exists());
