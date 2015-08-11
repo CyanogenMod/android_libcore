@@ -16,7 +16,7 @@
 
 package java.net;
 
-import libcore.icu.NativeIDN;
+import com.ibm.icu.text.IDNA;
 
 /**
  * Converts internationalized domain names between Unicode and the ASCII Compatible Encoding
@@ -61,7 +61,11 @@ public final class IDN {
      * @throws IllegalArgumentException if {@code input} does not conform to <a href="http://www.ietf.org/rfc/rfc3490.txt">RFC 3490</a>
      */
     public static String toASCII(String input, int flags) {
-        return NativeIDN.toASCII(input, flags);
+        try {
+            return IDNA.convertIDNToASCII(input, flags).toString();
+        } catch (com.ibm.icu.text.StringPrepParseException e) {
+            throw new IllegalArgumentException("Invalid input to toASCII: " + input, e);
+        }
     }
 
     /**
@@ -91,7 +95,28 @@ public final class IDN {
      *         or {@code ALLOW_UNASSIGNED | USE_STD3_ASCII_RULES}
      */
     public static String toUnicode(String input, int flags) {
-        return NativeIDN.toUnicode(input, flags);
+        try {
+            // ICU only translates separators to ASCII for toASCII.
+            // Java expects the translation for toUnicode too.
+            return convertFullStop(IDNA.convertIDNToUnicode(input, flags)).toString();
+        } catch (com.ibm.icu.text.StringPrepParseException e) {
+            // The RI documentation explicitly states that if the conversion was unsuccessful
+            // the original string is returned.
+            return input;
+        }
+    }
+
+    private static boolean isLabelSeperator(char c) {
+        return (c == '\u3002' || c == '\uff0e' || c == '\uff61');
+    }
+
+    private static StringBuffer convertFullStop(StringBuffer input) {
+        for (int i = 0; i < input.length(); i++) {
+            if (isLabelSeperator(input.charAt(i))) {
+                input.setCharAt(i, '.');
+            }
+        }
+        return input;
     }
 
     /**
@@ -101,6 +126,6 @@ public final class IDN {
      * @return the Unicode name
      */
     public static String toUnicode(String input) {
-        return NativeIDN.toUnicode(input, 0);
+        return toUnicode(input, 0);
     }
 }
