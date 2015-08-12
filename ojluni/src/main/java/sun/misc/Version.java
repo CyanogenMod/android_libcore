@@ -29,17 +29,12 @@ import java.io.PrintStream;
 public class Version {
 
 
-    private static final String launcher_name =
-        "openjdk";
-
-    private static final String java_version =
-        "1.7.0-internal";
-
-    private static final String java_runtime_name =
-	"OpenJDK Runtime Environment";
- 
-    private static final String java_runtime_version =
-        "1.7.0-internal-haaawk_2014_09_11_09_14-b00";
+    // Android-changed : launcher_name, java_version,
+    // java_runtime_name and java_runtime_version.
+    private static final String launcher_name = "";
+    private static final String java_version = "0";
+    private static final String java_runtime_name = "Android Runtime";
+    private static final String java_runtime_version = "0.9";
 
     static {
         init();
