@@ -27,6 +27,7 @@ LOCAL_SRC_FILES := \
     FileDispatcherImpl.c \
     FileOutputStream_md.c \
     FileInputStream.c \
+    FileSystemPreferences.c \
     io_util_md.c \
     NativeThread.c \
     FileKey.c \

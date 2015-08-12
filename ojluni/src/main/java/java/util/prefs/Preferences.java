@@ -224,45 +224,21 @@ import java.lang.Double;
 public abstract class Preferences {
 
     // Android-changed: Not final for testing.
-    private static PreferencesFactory factory = factory();
+    private static PreferencesFactory factory = findPreferencesFactory();
 
-    // Android-changed: Collapse factory / factory1 into a single function, remove
-    // references to AccessController and hacks to use the context class-loader.
-    // Also remove references to the OS specific preferences implementation.
-    private static PreferencesFactory factory() {
-        // 1. Try user-specified system property
-        String factoryName = System.getProperty("java.util.prefs.PreferencesFactory");
-        if (factoryName != null) {
-            try {
-                return (PreferencesFactory)
-                    Class.forName(factoryName, false,
-                                  ClassLoader.getSystemClassLoader())
-                    .newInstance();
-            } catch (Exception ex) {
-                InternalError error = new InternalError(
-                    "Can't instantiate Preferences factory " + factoryName);
-                error.initCause(ex);
-                throw error;
-            }
+    // Android-changed: Custom implementation of findPreferencesFactory.
+    private static PreferencesFactory findPreferencesFactory() {
+        // Try the system property first...
+        PreferencesFactory result = ServiceLoader.loadFromSystemProperty(PreferencesFactory.class);
+        if (result != null) {
+            return result;
         }
-
-        // 2. Try service provider interface
-        Iterator<PreferencesFactory> itr = ServiceLoader
-            .load(PreferencesFactory.class, ClassLoader.getSystemClassLoader())
-            .iterator();
-
-        // choose first provider instance
-        while (itr.hasNext()) {
-            try {
-                return itr.next();
-            } catch (ServiceConfigurationError sce) {
-                throw sce;
-            }
+        // Then use ServiceLoader for META-INF/services/...
+        for (PreferencesFactory impl : ServiceLoader.load(PreferencesFactory.class)) {
+            return impl;
         }
-
-        // Android-changed: Remove support for OS Specific configuration options and
-        // just return a hard coded default.
-        return new FilePreferencesFactoryImpl();
+        // Finally return a default...
+        return new FileSystemPreferencesFactory();
     }
 
     /**
@@ -1219,6 +1195,6 @@ public abstract class Preferences {
     public static void importPreferences(InputStream is)
         throws IOException, InvalidPreferencesFormatException
     {
-      XMLParser.importPrefs(is);
+        XmlSupport.importPreferences(is);
     }
 }

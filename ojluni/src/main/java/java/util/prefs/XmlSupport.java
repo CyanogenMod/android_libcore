@@ -206,8 +206,17 @@ class XmlSupport {
                 " versions " + EXTERNAL_XML_VERSION + " or older. You may need" +
                 " to install a newer version of JDK.");
 
-            Element xmlRoot = (Element) doc.getDocumentElement().
-                                               getChildNodes().item(0);
+            Element xmlRoot = (Element) doc.getDocumentElement();
+
+            // Android-changed: Use a selector to skip over CDATA / DATA elements.
+            NodeList elements = xmlRoot.getElementsByTagName("root");
+            if (elements == null || elements.getLength() != 1) {
+                throw new InvalidPreferencesFormatException("invalid root node");
+            }
+
+            xmlRoot = (Element) elements.item(0);
+            // End android changes.
+
             Preferences prefsRoot =
                 (xmlRoot.getAttribute("type").equals("user") ?
                             Preferences.userRoot() : Preferences.systemRoot());
@@ -240,7 +249,8 @@ class XmlSupport {
     {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         dbf.setIgnoringElementContentWhitespace(true);
-        dbf.setValidating(true);
+        // Android changed: No validating builder implementation.
+        // dbf.setValidating(true);
         dbf.setCoalescing(true);
         dbf.setIgnoringComments(true);
         try {
@@ -270,14 +280,27 @@ class XmlSupport {
             Transformer t = tf.newTransformer();
             t.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, doc.getDoctype().getSystemId());
             t.setOutputProperty(OutputKeys.INDENT, "yes");
+
             //Transformer resets the "indent" info if the "result" is a StreamResult with
             //an OutputStream object embedded, creating a Writer object on top of that
             //OutputStream object however works.
             t.transform(new DOMSource(doc),
-                        new StreamResult(new BufferedWriter(new OutputStreamWriter(out, "UTF-8"))));
+                    new StreamResult(new BufferedWriter(new OutputStreamWriter(out, "UTF-8"))));
         } catch(TransformerException e) {
             throw new AssertionError(e);
         }
+    }
+
+    private static List<Element> getChildElements(Element node) {
+        NodeList xmlKids = node.getChildNodes();
+        ArrayList<Element> elements = new ArrayList<>(xmlKids.getLength());
+        for (int i = 0; i < xmlKids.getLength(); ++i) {
+            if (xmlKids.item(i) instanceof Element) {
+                elements.add((Element) xmlKids.item(i));
+            }
+        }
+
+        return elements;
     }
 
     /**
@@ -286,8 +309,9 @@ class XmlSupport {
      * preferences tree, as appropriate.
      */
     private static void ImportSubtree(Preferences prefsNode, Element xmlNode) {
-        NodeList xmlKids = xmlNode.getChildNodes();
-        int numXmlKids = xmlKids.getLength();
+        // Android changed: filter out non-element nodes.
+        List<Element> xmlKids = getChildElements(xmlNode);
+
         /*
          * We first lock the node, import its contents and get
          * child nodes. Then we unlock the node and go to children
@@ -302,19 +326,20 @@ class XmlSupport {
                 return;
 
             // Import any preferences at this node
-            Element firstXmlKid = (Element) xmlKids.item(0);
+            // Android
+            Element firstXmlKid = xmlKids.get(0);
             ImportPrefs(prefsNode, firstXmlKid);
-            prefsKids = new Preferences[numXmlKids - 1];
+            prefsKids = new Preferences[xmlKids.size() - 1];
 
             // Get involved children
-            for (int i=1; i < numXmlKids; i++) {
-                Element xmlKid = (Element) xmlKids.item(i);
+            for (int i=1; i < xmlKids.size(); i++) {
+                Element xmlKid = xmlKids.get(i);
                 prefsKids[i-1] = prefsNode.node(xmlKid.getAttribute("name"));
             }
         } // unlocked the node
         // import children
-        for (int i=1; i < numXmlKids; i++)
-            ImportSubtree(prefsKids[i-1], (Element)xmlKids.item(i));
+        for (int i=1; i < xmlKids.size(); i++)
+            ImportSubtree(prefsKids[i-1], xmlKids.get(i));
     }
 
     /**
@@ -323,11 +348,11 @@ class XmlSupport {
      * preferences node.
      */
     private static void ImportPrefs(Preferences prefsNode, Element map) {
-        NodeList entries = map.getChildNodes();
-        for (int i=0, numEntries = entries.getLength(); i < numEntries; i++) {
-            Element entry = (Element) entries.item(i);
-            prefsNode.put(entry.getAttribute("key"),
-                          entry.getAttribute("value"));
+        // Android changed: Use getChildElements.
+        List<Element> entries = getChildElements(map);
+        for (int i=0, numEntries = entries.size(); i < numEntries; i++) {
+            Element entry = entries.get(i);
+            prefsNode.put(entry.getAttribute("key"), entry.getAttribute("value"));
         }
     }
 

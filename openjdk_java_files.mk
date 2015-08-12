@@ -886,6 +886,8 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/java/util/prefs/AbstractPreferences.java \
     ojluni/src/main/java/java/util/prefs/BackingStoreException.java \
     ojluni/src/main/java/java/util/prefs/Base64.java \
+    ojluni/src/main/java/java/util/prefs/FileSystemPreferencesFactory.java \
+    ojluni/src/main/java/java/util/prefs/FileSystemPreferences.java \
     ojluni/src/main/java/java/util/prefs/InvalidPreferencesFormatException.java \
     ojluni/src/main/java/java/util/prefs/NodeChangeEvent.java \
     ojluni/src/main/java/java/util/prefs/NodeChangeListener.java \

@@ -180,10 +180,6 @@ non_openjdk_javadoc_files := \
   luni/src/main/java/java/util/jar/StrictJarManifest.java \
   luni/src/main/java/java/util/jar/StrictJarManifestReader.java \
   luni/src/main/java/java/util/jar/StrictJarVerifier.java \
-  luni/src/main/java/java/util/prefs/FilePreferencesFactoryImpl.java \
-  luni/src/main/java/java/util/prefs/FilePreferencesImpl.java \
-  luni/src/main/java/java/util/prefs/NodeSet.java \
-  luni/src/main/java/java/util/prefs/XMLParser.java \
   luni/src/main/java/java/util/regex/PatternSyntaxException.java \
   luni/src/main/java/java/util/regex/Pattern.java \
   luni/src/main/java/java/util/regex/Matcher.java \

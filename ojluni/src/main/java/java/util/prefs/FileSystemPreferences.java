@@ -46,8 +46,11 @@ import sun.util.logging.PlatformLogger;
  * @author  Josh Bloch
  * @see     Preferences
  * @since   1.4
+ *
+ * @hide
  */
-class FileSystemPreferences extends AbstractPreferences {
+// Android changed: @hide.
+public class FileSystemPreferences extends AbstractPreferences {
     /**
      * Sync interval in seconds.
      */
@@ -486,6 +489,29 @@ class FileSystemPreferences extends AbstractPreferences {
         dir = (user ? userRootDir: systemRootDir);
         prefsFile = new File(dir, "prefs.xml");
         tmpFile   = new File(dir, "prefs.tmp");
+    }
+
+    /** @hide for unit testing only */
+    // Android added constructor for testing.
+    public FileSystemPreferences(String path, File lockFile, boolean isUserNode) {
+        super(null, "");
+        this.isUserNode = isUserNode;
+        this.dir = new File(path);
+        prefsFile = new File(dir, "prefs.xml");
+        tmpFile = new File(dir, "prefs.tmp");
+        newNode = !dir.exists();
+        if (newNode) {
+            // These 2 things guarantee node will get wrtten at next flush/sync
+            prefsCache = new TreeMap<>();
+            nodeCreate = new NodeCreate();
+            changeLog.add(nodeCreate);
+        }
+
+        if (isUserNode) {
+            userLockFile = lockFile;
+        } else {
+            systemLockFile = lockFile;
+        }
     }
 
     /**
