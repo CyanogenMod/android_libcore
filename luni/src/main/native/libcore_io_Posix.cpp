@@ -135,9 +135,9 @@ static bool isIPv4MappedAddress(const sockaddr *sa) {
  */
 #define NET_FAILURE_RETRY(jni_env, return_type, syscall_name, java_fd, ...) ({ \
     return_type _rc = -1; \
+    int _syscallErrno; \
     do { \
         bool _wasSignaled; \
-        int _syscallErrno; \
         { \
             int _fd = jniGetFDFromFileDescriptor(jni_env, java_fd); \
             AsynchronousCloseMonitor _monitor(_fd); \
@@ -156,6 +156,10 @@ static bool isIPv4MappedAddress(const sockaddr *sa) {
             break; \
         } \
     } while (_rc == -1); /* _syscallErrno == EINTR && !_wasSignaled */ \
+    if (_rc == -1) { \
+        /* If the syscall failed, re-set errno: throwing an exception might have modified it. */ \
+        errno = _syscallErrno; \
+    } \
     _rc; })
 
 /**
@@ -170,9 +174,9 @@ static bool isIPv4MappedAddress(const sockaddr *sa) {
  */
 #define IO_FAILURE_RETRY(jni_env, return_type, syscall_name, java_fd, ...) ({ \
     return_type _rc = -1; \
+    int _syscallErrno; \
     do { \
         bool _wasSignaled; \
-        int _syscallErrno; \
         { \
             int _fd = jniGetFDFromFileDescriptor(jni_env, java_fd); \
             AsynchronousCloseMonitor _monitor(_fd); \
@@ -191,6 +195,10 @@ static bool isIPv4MappedAddress(const sockaddr *sa) {
             break; \
         } \
     } while (_rc == -1); /* && _syscallErrno == EINTR && !_wasSignaled */ \
+    if (_rc == -1) { \
+        /* If the syscall failed, re-set errno: throwing an exception might have modified it. */ \
+        errno = _syscallErrno; \
+    } \
     _rc; })
 
 #define NULL_ADDR_OK         true
