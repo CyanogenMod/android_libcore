@@ -58,10 +58,8 @@ LOCAL_SRC_FILES := \
     String.c \
     StrictMath.c \
     ProcessEnvironment_md.c \
-    Signal.c \
     System.c \
     Runtime.c \
-    NativeSignalHandler.c \
     Shutdown.c \
     UNIXProcess_md.c \
     Bits.c \

@@ -221,7 +221,6 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/java/lang/String.java \
     ojluni/src/main/java/java/lang/SuppressWarnings.java \
     ojluni/src/main/java/java/lang/System.java \
-    ojluni/src/main/java/java/lang/Terminator.java \
     ojluni/src/main/java/java/lang/ThreadDeath.java \
     ojluni/src/main/java/java/lang/ThreadGroup.java \
     ojluni/src/main/java/java/lang/Thread.java \
@@ -1148,15 +1147,12 @@ openjdk_java_files := \
     ojluni/src/main/java/sun/misc/LRUCache.java \
     ojluni/src/main/java/sun/misc/MessageUtils.java \
     ojluni/src/main/java/sun/misc/MetaIndex.java \
-    ojluni/src/main/java/sun/misc/NativeSignalHandler.java \
     ojluni/src/main/java/sun/misc/REException.java \
     ojluni/src/main/java/sun/misc/RegexpPool.java \
     ojluni/src/main/java/sun/misc/RegexpTarget.java \
     ojluni/src/main/java/sun/misc/Resource.java \
     ojluni/src/main/java/sun/misc/ServiceConfigurationError.java \
     ojluni/src/main/java/sun/misc/Service.java \
-    ojluni/src/main/java/sun/misc/SignalHandler.java \
-    ojluni/src/main/java/sun/misc/Signal.java \
     ojluni/src/main/java/sun/misc/SoftCache.java \
     ojluni/src/main/java/sun/misc/URLClassPath.java \
     ojluni/src/main/java/sun/misc/Version.java \
