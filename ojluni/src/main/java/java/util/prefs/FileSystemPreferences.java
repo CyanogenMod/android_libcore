@@ -509,8 +509,10 @@ public class FileSystemPreferences extends AbstractPreferences {
 
         if (isUserNode) {
             userLockFile = lockFile;
+            userRootModFile = new File(lockFile.getParentFile(), lockFile.getName() + ".rootmod");
         } else {
             systemLockFile = lockFile;
+            systemRootModFile = new File(lockFile.getParentFile(), lockFile.getName() + ".rootmod");
         }
     }
 

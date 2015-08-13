@@ -76,6 +76,7 @@ public final class PreferencesTest extends TestCase {
      */
     public void testPreferencesClobbersExistingFiles() throws Exception {
         final File userPrefsDir = new File(temporaryDirectory + "/user");
+        assertTrue(userPrefsDir.mkdir());
         final File userPrefs = new File(userPrefsDir, "prefs.xml");
         assertTrue(userPrefs.createNewFile());
         FileWriter writer = new FileWriter(userPrefs);
