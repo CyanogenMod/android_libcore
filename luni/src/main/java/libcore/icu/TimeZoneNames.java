@@ -135,6 +135,18 @@ public final class TimeZoneNames {
     }
 
     /**
+     * Clear the cached zone strings for {@link Locale#getDefault()}.
+     * Does nothing if it returns {@link Locale#US} or {@link Locale#ROOT}.
+     */
+    public static void clearLocaleCache() {
+        Locale locale = Locale.getDefault();
+        if (locale.equals(Locale.US) || locale.equals(Locale.ROOT)) {
+            return;
+        }
+        cachedZoneStrings.remove(locale);
+    }
+
+    /**
      * Returns an array containing the time zone ids in use in the country corresponding to
      * the given locale. This is not necessary for Java API, but is used by telephony as a
      * fallback. We retrieve these strings from zone.tab rather than icu4c because the latter

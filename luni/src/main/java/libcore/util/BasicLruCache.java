@@ -79,6 +79,13 @@ public class BasicLruCache<K, V> {
         return previous;
     }
 
+    public synchronized final V remove(K key) {
+        if (key == null) {
+            throw new NullPointerException("key == null");
+        }
+        return map.remove(key);
+    }
+
     private void trimToSize(int maxSize) {
         while (map.size() > maxSize) {
             Map.Entry<K, V> toEvict = map.eldest();
