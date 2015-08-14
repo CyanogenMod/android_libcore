@@ -70,4 +70,126 @@ public class OldBidiTest extends TestCase {
         assertEquals(1, bd.getRunStart(1));
         assertEquals(2, bd.getRunStart(2));
     }
+
+    public void testReorderVisuallyIllegalArguments() {
+        // Negative index.
+        try {
+            Bidi.reorderVisually(new byte[] {}, -1, new Object[] {}, 0, 0);
+            fail();
+        } catch (IllegalArgumentException  expected) {
+            // Expected.
+        }
+
+        try {
+            Bidi.reorderVisually(new byte[] {}, 0, new Object[] {}, -1, 0);
+            fail();
+        } catch (IllegalArgumentException  expected) {
+            // Expected.
+        }
+
+        try {
+            Bidi.reorderVisually(new byte[] {}, 0, new Object[] {}, 0, -1);
+            fail();
+        } catch (IllegalArgumentException  expected) {
+            // Expected.
+        }
+
+        // Count > levels.length.
+        try {
+            Bidi.reorderVisually(new byte[] {}, 0, new Object[] {}, 0, 1);
+            fail();
+        } catch (IllegalArgumentException  expected) {
+            // Expected.
+        }
+
+        // Count > levels.length - levelStart.
+        try {
+            Bidi.reorderVisually(new byte[] {1, 2, 3}, 2, new Object[] {}, 0, 2);
+            fail();
+        } catch (IllegalArgumentException  expected) {
+            // Expected.
+        }
+    }
+
+    public void testRequiresBidiIllegalArguments() {
+        // Negative param.
+        try {
+            Bidi.requiresBidi(new char[] {}, 0, -1);
+        } catch (IllegalArgumentException expected) {
+            // Expected.
+        }
+
+        try {
+            Bidi.requiresBidi(new char[] {}, -1, 0);
+        } catch (IllegalArgumentException expected) {
+            // Expected.
+        }
+
+        // Limit > start.
+        try {
+            Bidi.requiresBidi(new char[] {}, 1, 0);
+        } catch (IllegalArgumentException expected) {
+            // Expected.
+        }
+
+        // Limit > text.length.
+        try {
+            Bidi.requiresBidi(new char[] {'a', 'b', 'c'}, 0, 4);
+        } catch (IllegalArgumentException expected) {
+            // Expected.
+        }
+    }
+
+    public void testCreateLineBidiIllegalArguments() {
+        Bidi bidi = new Bidi("test", Bidi.DIRECTION_LEFT_TO_RIGHT);
+
+        try {
+            bidi.createLineBidi(-1, 0);
+            fail();
+        } catch (IllegalArgumentException expected) {
+            // Expected.
+        }
+
+        try {
+            bidi.createLineBidi(0, -1);
+            fail();
+        } catch (IllegalArgumentException expected) {
+            // Expected.
+        }
+
+        // Linelimit > getLength().
+        try {
+            bidi.createLineBidi(0, 5);
+            fail();
+        } catch (IllegalArgumentException expected) {
+            // Expected.
+        }
+
+        // lineStart > lineLimit.
+         try {
+            bidi.createLineBidi(2, 1);
+            fail();
+        } catch (IllegalArgumentException expected) {
+            // Expected.
+        }
+    }
+
+    public void testConstructorIllegalArguments() {
+        try {
+            new Bidi(null, Bidi.DIRECTION_LEFT_TO_RIGHT);
+            fail();
+        } catch (IllegalArgumentException expected) {
+            // Expected.
+        }
+
+        // text.length - textStart < paragraphLength.
+        try {
+            new Bidi(new char[] {'a', 'b', 'c', 'd', 'e'}, 1, new byte[] {}, 0, 5,
+                    Bidi.DIRECTION_LEFT_TO_RIGHT);
+            fail();
+        } catch (IllegalArgumentException expected) {
+            // Expected.
+        }
+    }
+
 }

@@ -17,11 +17,6 @@
 
 package java.text;
 
-import java.awt.font.NumericShaper;
-import java.awt.font.TextAttribute;
-import java.util.ArrayList;
-import java.util.Arrays;
-
 /**
  * Implements the <a href="http://unicode.org/reports/tr9/">Unicode Bidirectional Algorithm</a>.
  *
@@ -58,32 +53,27 @@ public final class Bidi {
      */
     public static final int DIRECTION_RIGHT_TO_LEFT = 1;
 
-    /**
-     * TODO: if we care about performance, we might just want to use an int[] instead of a Run[].
-     */
-    static class Run {
-        private final int start;
-        private final int limit;
-        private final int level;
-
-        public Run(int start, int limit, int level) {
-            this.start = start;
-            this.limit = limit;
-            this.level = level;
-        }
-
-        public int getLevel() {
-            return level;
-        }
-
-        public int getLimit() {
-            return limit;
-        }
-
-        public int getStart() {
-            return start;
+    private static int translateConstToIcu(int javaInt) {
+        switch (javaInt) {
+            case DIRECTION_DEFAULT_LEFT_TO_RIGHT:
+                return com.ibm.icu.text.Bidi.DIRECTION_DEFAULT_LEFT_TO_RIGHT;
+            case DIRECTION_DEFAULT_RIGHT_TO_LEFT:
+                return com.ibm.icu.text.Bidi.DIRECTION_DEFAULT_RIGHT_TO_LEFT;
+            case DIRECTION_LEFT_TO_RIGHT:
+                return com.ibm.icu.text.Bidi.DIRECTION_LEFT_TO_RIGHT;
+            case DIRECTION_RIGHT_TO_LEFT:
+                return com.ibm.icu.text.Bidi.DIRECTION_RIGHT_TO_LEFT;
+            // If the parameter was unrecognized use LEFT_TO_RIGHT.
+            default:
+                return com.ibm.icu.text.Bidi.DIRECTION_LEFT_TO_RIGHT;
         }
     }
+
+    private boolean isUnidirectional() {
+        return icuBidi.getRunCount() == 0;
+    }
+
+    private final com.ibm.icu.text.Bidi icuBidi;
 
     /**
      * Creates a {@code Bidi} object from the {@code
@@ -114,65 +104,7 @@ public final class Bidi {
             throw new IllegalArgumentException("paragraph is null");
         }
 
-        int begin = paragraph.getBeginIndex();
-        int end = paragraph.getEndIndex();
-        int length = end - begin;
-        char[] text = new char[length + 1]; // One more char for AttributedCharacterIterator.DONE
-
-        if (length != 0) {
-            text[0] = paragraph.first();
-        } else {
-            paragraph.first();
-        }
-
-        // First check the RUN_DIRECTION attribute.
-        int flags = DIRECTION_DEFAULT_LEFT_TO_RIGHT;
-        Object direction = paragraph.getAttribute(TextAttribute.RUN_DIRECTION);
-        if (direction != null && direction instanceof Boolean) {
-            if (direction.equals(TextAttribute.RUN_DIRECTION_LTR)) {
-                flags = DIRECTION_LEFT_TO_RIGHT;
-            } else {
-                flags = DIRECTION_RIGHT_TO_LEFT;
-            }
-        }
-
-        // Retrieve the text and gather BIDI_EMBEDDINGS
-        byte[] embeddings = null;
-        for (int textLimit = 1, i = 1; i < length; textLimit = paragraph
-                .getRunLimit(TextAttribute.BIDI_EMBEDDING)
-                - begin + 1) {
-            Object embedding = paragraph.getAttribute(TextAttribute.BIDI_EMBEDDING);
-            if (embedding != null && embedding instanceof Integer) {
-                int embLevel = ((Integer) embedding).intValue();
-
-                if (embeddings == null) {
-                    embeddings = new byte[length];
-                }
-
-                for (; i < textLimit; i++) {
-                    text[i] = paragraph.next();
-                    embeddings[i - 1] = (byte) embLevel;
-                }
-            } else {
-                for (; i < textLimit; i++) {
-                    text[i] = paragraph.next();
-                }
-            }
-        }
-
-        // Apply NumericShaper to the text
-        Object numericShaper = paragraph.getAttribute(TextAttribute.NUMERIC_SHAPING);
-        if (numericShaper != null && numericShaper instanceof NumericShaper) {
-            ((NumericShaper) numericShaper).shape(text, 0, length);
-        }
-
-        long bidi = 0;
-        try {
-            bidi = createUBiDi(text, 0, embeddings, 0, length, flags);
-            readBidiInfo(bidi);
-        } finally {
-            ubidi_close(bidi);
-        }
+        this.icuBidi = new com.ibm.icu.text.Bidi(paragraph);
     }
 
     /**
@@ -214,13 +146,11 @@ public final class Bidi {
         if (text == null || text.length - textStart < paragraphLength) {
             throw new IllegalArgumentException();
         }
-
         if (embeddings != null) {
             if (embeddings.length - embStart < paragraphLength) {
                 throw new IllegalArgumentException();
             }
         }
-
         if (textStart < 0) {
             throw new IllegalArgumentException("Negative textStart value " + textStart);
         }
@@ -231,13 +161,9 @@ public final class Bidi {
             throw new IllegalArgumentException("Negative paragraph length " + paragraphLength);
         }
 
-        long bidi = 0;
-        try {
-            bidi = createUBiDi(text, textStart, embeddings, embStart, paragraphLength, flags);
-            readBidiInfo(bidi);
-        } finally {
-            ubidi_close(bidi);
-        }
+        this.icuBidi = new com.ibm.icu.text.Bidi(text, textStart, embeddings, embStart,
+                paragraphLength, translateConstToIcu(flags));
+
     }
 
     /**
@@ -261,101 +187,10 @@ public final class Bidi {
                 (paragraph == null ? 0 : paragraph.length()), flags);
     }
 
-    // create the native UBiDi struct, need to be closed with ubidi_close().
-    private static long createUBiDi(char[] text, int textStart,
-            byte[] embeddings, int embStart, int paragraphLength, int flags) {
-        char[] realText = null;
 
-        byte[] realEmbeddings = null;
-
-        if (text == null || text.length - textStart < paragraphLength) {
-            throw new IllegalArgumentException();
-        }
-        realText = new char[paragraphLength];
-        System.arraycopy(text, textStart, realText, 0, paragraphLength);
-
-        if (embeddings != null) {
-            if (embeddings.length - embStart < paragraphLength) {
-                throw new IllegalArgumentException();
-            }
-            if (paragraphLength > 0) {
-                Bidi temp = new Bidi(text, textStart, null, 0, paragraphLength, flags);
-                realEmbeddings = new byte[paragraphLength];
-                System.arraycopy(temp.offsetLevel, 0, realEmbeddings, 0, paragraphLength);
-                for (int i = 0; i < paragraphLength; i++) {
-                    byte e = embeddings[i];
-                    if (e < 0) {
-                        realEmbeddings[i] = (byte) (UBIDI_LEVEL_OVERRIDE - e);
-                    } else if (e > 0) {
-                        realEmbeddings[i] = e;
-                    } else {
-                        realEmbeddings[i] |= (byte) UBIDI_LEVEL_OVERRIDE;
-                    }
-                }
-            }
-        }
-
-        if (flags > 1 || flags < -2) {
-            flags = 0;
-        }
-
-        long bidi = 0;
-        boolean needsDeletion = true;
-        try {
-            bidi = ubidi_open();
-            ubidi_setPara(bidi, realText, paragraphLength, flags, realEmbeddings);
-            needsDeletion = false;
-        } finally {
-            if (needsDeletion) {
-                ubidi_close(bidi);
-            }
-        }
-        return bidi;
+    private Bidi(com.ibm.icu.text.Bidi icuBidi) {
+        this.icuBidi = icuBidi;
     }
-
-    /* private constructor used by createLineBidi() */
-    private Bidi(long pBidi) {
-        readBidiInfo(pBidi);
-    }
-
-    // read info from the native UBiDi struct
-    private void readBidiInfo(long pBidi) {
-        length = ubidi_getLength(pBidi);
-
-        offsetLevel = (length == 0) ? null : ubidi_getLevels(pBidi);
-
-        baseLevel = ubidi_getParaLevel(pBidi);
-
-        int runCount = ubidi_countRuns(pBidi);
-        if (runCount == 0) {
-            unidirectional = true;
-            runs = null;
-        } else if (runCount < 0) {
-            runs = null;
-        } else {
-            runs = ubidi_getRuns(pBidi);
-
-            // Simplified case for one run which has the base level
-            if (runCount == 1 && runs[0].getLevel() == baseLevel) {
-                unidirectional = true;
-                runs = null;
-            }
-        }
-
-        direction = ubidi_getDirection(pBidi);
-    }
-
-    private int baseLevel;
-
-    private int length;
-
-    private byte[] offsetLevel;
-
-    private Run[] runs;
-
-    private int direction;
-
-    private boolean unidirectional;
 
     /**
      * Returns whether the base level is from left to right.
@@ -363,7 +198,7 @@ public final class Bidi {
      * @return true if the base level is from left to right.
      */
     public boolean baseIsLeftToRight() {
-        return baseLevel % 2 == 0 ? true : false;
+        return icuBidi.baseIsLeftToRight();
     }
 
     /**
@@ -382,55 +217,36 @@ public final class Bidi {
      *             than the length of this object's paragraph text.
      */
     public Bidi createLineBidi(int lineStart, int lineLimit) {
-        if (lineStart < 0 || lineLimit < 0 || lineLimit > length || lineStart > lineLimit) {
+        if (lineStart < 0 || lineLimit < 0 || lineLimit > getLength() || lineStart > lineLimit) {
             throw new IllegalArgumentException("Invalid ranges (start=" + lineStart + ", " +
-                    "limit=" + lineLimit + ", length=" + length + ")");
+                    "limit=" + lineLimit + ", length=" + getLength() + ")");
         }
 
-        char[] text = new char[this.length];
-        Arrays.fill(text, 'a');
-        byte[] embeddings = new byte[this.length];
-        for (int i = 0; i < embeddings.length; i++) {
-            embeddings[i] = (byte) -this.offsetLevel[i];
+        // In the special case where the start and end positions are the same, we return a new bidi
+        // instance which is empty. Note that the default constructor for an empty ICU4J bidi
+        // instance is not the same as passing in empty values. This way allows one to call
+        // .getLength() for example and return a correct value instead of an IllegalStateException
+        // being thrown, which happens in the case of using the empty constructor.
+        if (lineStart == lineLimit) {
+            return new Bidi(new com.ibm.icu.text.Bidi(new char[] {}, 0, new byte[] {}, 0, 0,
+                    translateConstToIcu(DIRECTION_LEFT_TO_RIGHT)));
         }
 
-        int dir = this.baseIsLeftToRight()
-                ? Bidi.DIRECTION_LEFT_TO_RIGHT
-                : Bidi.DIRECTION_RIGHT_TO_LEFT;
-        long parent = 0;
-        try {
-            parent = createUBiDi(text, 0, embeddings, 0, this.length, dir);
-            if (lineStart == lineLimit) {
-                return createEmptyLineBidi(parent);
-            }
-            return new Bidi(ubidi_setLine(parent, lineStart, lineLimit));
-        } finally {
-            ubidi_close(parent);
-        }
-    }
-
-    private Bidi createEmptyLineBidi(long parent) {
-        // ICU4C doesn't allow this case, but the RI does.
-        Bidi result = new Bidi(parent);
-        result.length = 0;
-        result.offsetLevel = null;
-        result.runs = null;
-        result.unidirectional = true;
-        return result;
+        return new Bidi(icuBidi.createLineBidi(lineStart, lineLimit));
     }
 
     /**
      * Returns the base level.
      */
     public int getBaseLevel() {
-        return baseLevel;
+        return icuBidi.getBaseLevel();
     }
 
     /**
      * Returns the length of the text.
      */
     public int getLength() {
-        return length;
+        return icuBidi.getLength();
     }
 
     /**
@@ -438,9 +254,9 @@ public final class Bidi {
      */
     public int getLevelAt(int offset) {
         try {
-            return offsetLevel[offset] & ~UBIDI_LEVEL_OVERRIDE;
-        } catch (RuntimeException e) {
-            return baseLevel;
+            return icuBidi.getLevelAt(offset);
+        } catch (IllegalArgumentException e) {
+            return getBaseLevel();
         }
     }
 
@@ -448,28 +264,43 @@ public final class Bidi {
      * Returns the number of runs in the text, at least 1.
      */
     public int getRunCount() {
-        return unidirectional ? 1 : runs.length;
+        return isUnidirectional() ? 1 : icuBidi.getRunCount();
     }
 
     /**
      * Returns the level of the given run.
      */
     public int getRunLevel(int run) {
-        return unidirectional ? baseLevel : runs[run].getLevel();
+        // Paper over a the ICU4J behaviour of strictly enforcing run must be strictly less than
+        // the number of runs. Done to maintain compatibility with previous C implementation.
+        if (run == getRunCount()) {
+            return getBaseLevel();
+        }
+        return isUnidirectional() ? icuBidi.getBaseLevel() : icuBidi.getRunLevel(run);
     }
 
     /**
      * Returns the limit offset of the given run.
      */
     public int getRunLimit(int run) {
-        return unidirectional ? length : runs[run].getLimit();
+        // Paper over a the ICU4J behaviour of strictly enforcing run must be strictly less than
+        // the number of runs. Done to maintain compatibility with previous C implementation.
+        if (run == getRunCount()) {
+            return getBaseLevel();
+        }
+        return isUnidirectional() ? icuBidi.getLength() : icuBidi.getRunLimit(run);
     }
 
     /**
      * Returns the start offset of the given run.
      */
     public int getRunStart(int run) {
-        return unidirectional ? 0 : runs[run].getStart();
+        // Paper over a the ICU4J behaviour of strictly enforcing run must be strictly less than
+        // the number of runs. Done to maintain compatibility with previous C implementation.
+        if (run == getRunCount()) {
+            return getBaseLevel();
+        }
+        return isUnidirectional() ? 0 : icuBidi.getRunStart(run);
     }
 
     /**
@@ -477,14 +308,14 @@ public final class Bidi {
      * direction and the text direction is from left to right.
      */
     public boolean isLeftToRight() {
-        return direction == UBiDiDirection_UBIDI_LTR;
+        return icuBidi.isLeftToRight();
     }
 
     /**
      * Returns true if the text direction is mixed.
      */
     public boolean isMixed() {
-        return direction == UBiDiDirection_UBIDI_MIXED;
+        return icuBidi.isMixed();
     }
 
     /**
@@ -492,7 +323,7 @@ public final class Bidi {
      * direction and the text direction is from right to left.
      */
     public boolean isRightToLeft() {
-        return direction == UBiDiDirection_UBIDI_RTL;
+        return icuBidi.isRightToLeft();
     }
 
     /**
@@ -519,6 +350,7 @@ public final class Bidi {
      */
     public static void reorderVisually(byte[] levels, int levelStart,
             Object[] objects, int objectStart, int count) {
+
         if (count < 0 || levelStart < 0 || objectStart < 0
                 || count > levels.length - levelStart
                 || count > objects.length - objectStart) {
@@ -527,17 +359,7 @@ public final class Bidi {
                     ", objectStart=" + objectStart + ", count=" + count + ")");
         }
 
-        byte[] realLevels = new byte[count];
-        System.arraycopy(levels, levelStart, realLevels, 0, count);
-
-        int[] indices = ubidi_reorderVisual(realLevels, count);
-
-        ArrayList<Object> result = new ArrayList<Object>(count);
-        for (int i = 0; i < count; i++) {
-            result.add(objects[objectStart + indices[i]]);
-        }
-
-        System.arraycopy(result.toArray(), 0, objects, objectStart, count);
+        com.ibm.icu.text.Bidi.reorderVisually(levels, levelStart, objects, objectStart, count);
     }
 
     /**
@@ -562,33 +384,13 @@ public final class Bidi {
             throw new IllegalArgumentException();
         }
 
-        Bidi bidi = new Bidi(text, start, null, 0, limit - start, 0);
-        return !bidi.isLeftToRight();
+        return com.ibm.icu.text.Bidi.requiresBidi(text, start, limit);
     }
 
     @Override
     public String toString() {
         return getClass().getName()
-                + "[direction: " + direction + " baseLevel: " + baseLevel
-                + " length: " + length + " runs: " + Arrays.toString(runs) + "]";
+                + "[direction: " + icuBidi.getDirection() + " baseLevel: " + icuBidi.getBaseLevel()
+                + " length: " + icuBidi.getLength() + " runs: " + icuBidi.getRunCount() + "]";
     }
-
-    // ICU4C constants.
-    private static final int UBIDI_LEVEL_OVERRIDE = 0x80;
-    private static final int UBiDiDirection_UBIDI_LTR = 0;
-    private static final int UBiDiDirection_UBIDI_RTL = 1;
-    private static final int UBiDiDirection_UBIDI_MIXED = 2;
-
-    // ICU4C functions.
-    private static native long ubidi_open();
-    private static native void ubidi_close(long pBiDi);
-    private static native void ubidi_setPara(long pBiDi, char[] text, int length, int paraLevel, byte[] embeddingLevels);
-    private static native long ubidi_setLine(final long pParaBiDi, int start, int limit);
-    private static native int ubidi_getDirection(final long pBiDi);
-    private static native int ubidi_getLength(final long pBiDi);
-    private static native byte ubidi_getParaLevel(final long pBiDi);
-    private static native byte[] ubidi_getLevels(long pBiDi);
-    private static native int ubidi_countRuns(long pBiDi);
-    private static native Bidi.Run[] ubidi_getRuns(long pBidi);
-    private static native int[] ubidi_reorderVisual(byte[] levels, int length);
 }
