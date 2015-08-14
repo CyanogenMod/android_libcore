@@ -76,18 +76,26 @@ public class SelectorTest extends TestCase {
     // The runtime itself blocks SIGQUIT, so that doesn't cause poll(2) to EINTR directly.
     // The EINTR is caused by the way libcorkscrew works.
     public void testEINTR() throws Exception {
-        Selector selector = Selector.open();
+        final Selector selector = Selector.open();
+        final ServerSocketChannel ssc = ServerSocketChannel.open();
+        final SocketChannel sc = SocketChannel.open();
+        sc.configureBlocking(false);
+        SelectionKey key = sc.register(selector, SelectionKey.OP_CONNECT);
+
         new Thread(new Runnable() {
             @Override public void run() {
                 try {
                     Thread.sleep(2000);
                     Libcore.os.kill(Libcore.os.getpid(), OsConstants.SIGQUIT);
+                    Thread.sleep(1000);
+                    sc.connect(ssc.socket().getLocalSocketAddress());
                 } catch (Exception ex) {
                     fail();
                 }
             }
         }).start();
-        assertEquals(0, selector.select());
+        assertEquals(1, selector.select());
+        assertEquals(SelectionKey.OP_CONNECT, key.readyOps());
     }
 
     // http://code.google.com/p/android/issues/detail?id=15388
