@@ -49,11 +49,6 @@ public class CollatorTest extends junit.framework.TestCase {
         mColl.getCollationKey("2d294f2d3739433565147655394f3762f3147312d3731641452f310");
     }
 
-    public void test_icuConstantNullorder() throws Exception {
-        assertEquals(android.icu.text.CollationElementIterator.NULLORDER,
-                CollationElementIterator.NULLORDER);
-    }
-
     public void test_collationKeySize() throws Exception {
         // Test to verify that very large collation keys are not truncated.
         StringBuilder b = new StringBuilder();
@@ -118,16 +113,6 @@ public class CollatorTest extends junit.framework.TestCase {
             fail("NullPointerException expected");
         } catch (NullPointerException expected) {
         }
-    }
-
-    // In traditional Spanish sorting, the pair of characters 'ch' behaves as a single character
-    // that sorts primary-after c.
-    public void testTradSpanishSorting() {
-        RuleBasedCollator traditionalSpanishCollator = (RuleBasedCollator)
-                Collator.getInstance(Locale.forLanguageTag("es-u-co-trad"));
-        String cd = "cd";
-        String chd = "chd";
-        assertTrue(traditionalSpanishCollator.compare(cd, chd) < 0);
     }
 
     private void assertCollationElementIterator(CollationElementIterator it, Integer... offsets) {
