@@ -19,28 +19,56 @@ public final class CollationKeyICU extends CollationKey {
     /**
      * The key.
      */
-    private final com.ibm.icu.text.CollationKey key;
+    private final byte[] bytes;
 
     /**
      * Cached hash value.
      */
     private int hashCode;
 
-    public CollationKeyICU(String source, com.ibm.icu.text.CollationKey key) {
+    CollationKeyICU(String source, byte[] bytes) {
         super(source);
-        this.key = key;
+        this.bytes = bytes;
     }
 
     @Override public int compareTo(CollationKey other) {
-        final com.ibm.icu.text.CollationKey otherKey;
+        // Get the bytes from the other collation key.
+        final byte[] rhsBytes;
         if (other instanceof CollationKeyICU) {
-            otherKey = ((CollationKeyICU) other).key;
+            rhsBytes = ((CollationKeyICU) other).bytes;
         } else {
-            otherKey = new com.ibm.icu.text.CollationKey(other.getSourceString(),
-                    other.toByteArray());
+            rhsBytes = other.toByteArray();
         }
 
-        return key.compareTo(otherKey);
+        if (bytes == null || bytes.length == 0) {
+            if (rhsBytes == null || rhsBytes.length == 0) {
+                return 0;
+            }
+            return -1;
+        } else {
+            if (rhsBytes == null || rhsBytes.length == 0) {
+                return 1;
+            }
+        }
+
+        int count = Math.min(bytes.length, rhsBytes.length);
+        for (int i = 0; i < count; ++i) {
+            int s = bytes[i] & 0xff;
+            int t = rhsBytes[i] & 0xff;
+            if (s < t) {
+                return -1;
+            }
+            if (s > t) {
+                return 1;
+            }
+        }
+        if (bytes.length < rhsBytes.length) {
+            return -1;
+        }
+        if (bytes.length > rhsBytes.length) {
+            return 1;
+        }
+        return 0;
     }
 
     @Override public boolean equals(Object object) {
@@ -54,20 +82,36 @@ public final class CollationKeyICU extends CollationKey {
     }
 
     /**
-     * <p>Returns a hash code for this CollationKey. The hash value is calculated
-     * on the key itself, not the String from which the key was created. Thus
-     * if x and y are CollationKeys, then x.hashCode(x) == y.hashCode()
-     * if x.equals(y) is true. This allows language-sensitive comparison in a
-     * hash table.
-     * </p>
-     * @return the hash value.
-     * @stable ICU 2.8
+     * Creates a hash code for this CollationKey.
+     * Compute the hash by iterating sparsely over about 32 (up to 63) bytes
+     * spaced evenly through the string.  For each byte, multiply the previous
+     * hash value by a prime number and add the new byte in, like a linear
+     * congruential random number generator, producing a pseudo-random
+     * deterministic value well distributed over the output range.
+     * @return hash value of collation key. Hash value is never 0.
+     * @stable ICU 2.4
      */
     @Override public int hashCode() {
-        return key.hashCode();
+        if (hashCode == 0) {
+            if (bytes != null && bytes.length != 0) {
+                int len = bytes.length;
+                int inc = ((len - 32) / 32) + 1;
+                for (int i = 0; i < len;) {
+                    hashCode = (hashCode * 37) + bytes[i];
+                    i += inc;
+                }
+            }
+            if (hashCode == 0) {
+                hashCode = 1;
+            }
+        }
+        return hashCode;
     }
 
     @Override public byte[] toByteArray() {
-        return key.toByteArray();
+        if (bytes == null || bytes.length == 0) {
+            return null;
+        }
+        return bytes.clone();
     }
 }
