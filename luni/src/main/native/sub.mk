@@ -27,7 +27,6 @@ LOCAL_SRC_FILES := \
     java_lang_StringToReal.cpp \
     java_lang_System.cpp \
     java_math_NativeBN.cpp \
-    java_text_Bidi.cpp \
     java_util_jar_StrictJarFile.cpp \
     java_util_regex_Matcher.cpp \
     java_util_regex_Pattern.cpp \
