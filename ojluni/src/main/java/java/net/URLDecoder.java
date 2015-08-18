@@ -171,6 +171,11 @@ public class URLDecoder {
 
                     while ( ((i+2) < numChars) &&
                             (c=='%')) {
+                        // ----- BEGIN android -----
+                        if (!isValidHexChar(s.charAt(i+1)) || !isValidHexChar(s.charAt(i+2))) {
+                            throw new IllegalArgumentException("URLDecoder: Illegal hex characters in escape (%) pattern");
+                        }
+                        // ----- END android -----
                         int v = Integer.parseInt(s.substring(i+1,i+3),16);
                         if (v < 0)
                             throw new IllegalArgumentException("URLDecoder: Illegal hex characters in escape (%) pattern - negative value");
@@ -204,4 +209,10 @@ public class URLDecoder {
 
         return (needToChange? sb.toString() : s);
     }
+
+    // ----- BEGIN android -----
+    private static boolean isValidHexChar(char c) {
+        return ('0' <= c && c <= '9') || ('a' <= c && c <= 'f') || ('A' <= c && c <= 'F');
+    }
+    // ----- END android -----
 }
