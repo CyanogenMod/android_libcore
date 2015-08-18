@@ -34,9 +34,12 @@ import junit.framework.TestCase;
 public class CollationElementIteratorTest extends TestCase {
 
   private RuleBasedCollator coll;
+  private RuleBasedCollator traditionalSpanishColl;
 
   protected void setUp() {
     coll = (RuleBasedCollator) Collator.getInstance(Locale.US);
+    traditionalSpanishColl = (RuleBasedCollator)
+            Collator.getInstance(Locale.forLanguageTag("es-u-co-trad"));
   }
 
   public void testGetOffset() {
@@ -191,10 +194,8 @@ public class CollationElementIteratorTest extends TestCase {
   }
 
   public void testSetTextString() {
-    RuleBasedCollator rbColl = (RuleBasedCollator) Collator.getInstance(
-            Locale.forLanguageTag("es-u-co-trad"));
     String text = "caa";
-    CollationElementIterator iterator = rbColl.getCollationElementIterator(text);
+    CollationElementIterator iterator = traditionalSpanishColl.getCollationElementIterator(text);
     iterator.setOffset(0);
     assertEquals(0, iterator.getOffset());
     iterator.setOffset(1);
@@ -211,14 +212,14 @@ public class CollationElementIteratorTest extends TestCase {
   }
 
   public void testSetTextCharacterIterator() {
-    RuleBasedCollator rbColl = (RuleBasedCollator) Collator.getInstance(
-            Locale.forLanguageTag("es-u-co-trad"));
     String text = "caa";
-    CollationElementIterator iterator = rbColl.getCollationElementIterator(text);
+    CollationElementIterator iterator = traditionalSpanishColl.getCollationElementIterator(text);
     iterator.setOffset(1);
     assertEquals(1, iterator.getOffset());
+    // In traditional spanish the "ch" acts as a single character so the iterator cannot stop
+    // between the 'c' and the 'h', it goes back if that is attempted.
     iterator.setText(new StringCharacterIterator("cha"));
     iterator.setOffset(1);
-    assertEquals(1, iterator.getOffset());
+    assertEquals(0, iterator.getOffset());
   }
 }
