@@ -49,11 +49,18 @@ public class ReferenceQueue<T> {
 
     static ReferenceQueue NULL = new Null();
     static ReferenceQueue ENQUEUED = new Null();
-    ----- END android ----- */
 
     static private class Lock { };
     private Lock lock = new Lock();
+    ----- END android ----- */
+
     private volatile Reference<? extends T> head = null;
+
+    // ----- BEGIN android -----
+    // Needed to make it a queue (OpenJdk impl behaves like a stack).
+    private Reference<? extends T> tail;
+    // ----- END android -----
+
     private long queueLength = 0;
 
     boolean enqueue(Reference<? extends T> r) { /* Called only by Reference class */
@@ -73,11 +80,16 @@ public class ReferenceQueue<T> {
             }
         }*/
         /* Caller must hold r lock */
-        synchronized (lock) {
-            r.queueNext = (head == null) ? r : head;
-            head = r;
+        synchronized (this) {
+            if (tail == null) {
+                head = r;
+            } else {
+                tail.queueNext = r;
+            }
+            tail = r;
+            tail.queueNext = r;
             queueLength++;
-            lock.notifyAll();
+            this.notifyAll();
             return true;
         }
         // ----- END android -----
@@ -99,7 +111,12 @@ public class ReferenceQueue<T> {
         */
         if (head != null) {
             Reference<? extends T> r = head;
-            head = (r.queueNext == r) ? null : r.queueNext;
+            if (head == tail) {
+                tail = null;
+                head = null;
+            } else {
+                head = head.queueNext;
+            }
             r.queueNext = null;
             queueLength--;
             return r;
@@ -119,7 +136,11 @@ public class ReferenceQueue<T> {
     public Reference<? extends T> poll() {
         if (head == null)
             return null;
-        synchronized (lock) {
+
+        /* ----- BEGIN android -----
+        synchronized (lock) { */
+        synchronized (this) {
+        // ----- END android -----
             return reallyPoll();
         }
     }
@@ -150,11 +171,17 @@ public class ReferenceQueue<T> {
         if (timeout < 0) {
             throw new IllegalArgumentException("Negative timeout value");
         }
-        synchronized (lock) {
+        /* ----- BEGIN android -----
+        synchronized (lock) { */
+        synchronized (this) {
+        // ----- END android -----
             Reference<? extends T> r = reallyPoll();
             if (r != null) return r;
             for (;;) {
-                lock.wait(timeout);
+                /* ----- BEGIN android -----
+                lock.wait(timeout);*/
+                this.wait(timeout);
+                // ----- END android -----
                 r = reallyPoll();
                 if (r != null) return r;
                 if (timeout != 0) return null;
@@ -173,6 +200,7 @@ public class ReferenceQueue<T> {
         return remove(0);
     }
 
+    // ----- BEGIN android -----
     /** @hide */
     public static Reference<?> unenqueued = null;
 
@@ -197,4 +225,5 @@ public class ReferenceQueue<T> {
             ReferenceQueue.class.notifyAll();
         }
     }
+    // ----- END android -----
 }
