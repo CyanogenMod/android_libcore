@@ -248,9 +248,9 @@ class DeflaterOutputStream extends FilterOutputStream {
      * @throws IOException if an I/O error has occurred
      */
     protected void deflate() throws IOException {
-        int len = def.deflate(buf, 0, buf.length);
-        if (len > 0) {
-            out.write(buf, 0, len);
+        int len = 0;
+        while ((len = def.deflate(buf, 0, buf.length)) > 0) {
+          out.write(buf, 0, len);
         }
     }
 
