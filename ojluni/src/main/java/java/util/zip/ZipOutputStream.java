@@ -339,9 +339,13 @@ class ZipOutputStream extends DeflaterOutputStream implements ZipConstants {
         if (finished) {
             return;
         }
+        if (xentries.isEmpty()) {
+            throw new ZipException("No entries");
+        }
         if (current != null) {
             closeEntry();
         }
+
         // write central directory
         long off = written;
         for (XEntry xentry : xentries)
