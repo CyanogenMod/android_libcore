@@ -109,11 +109,14 @@ statMode(const char *path, int *mode)
 
 JNIEXPORT jint JNICALL
 Java_java_io_UnixFileSystem_getBooleanAttributes0(JNIEnv *env, jobject this,
-                                                  jobject file)
+                                                  jstring abspath)
 {
     jint rv = 0;
 
-    WITH_FIELD_PLATFORM_STRING(env, file, ids.path, path) {
+    /* ----- BEGIN android -----
+    WITH_FIELD_PLATFORM_STRING(env, file, ids.path, path) {*/
+    WITH_PLATFORM_STRING(env, abspath, path) {
+    // ----- END android -----
         int mode;
         if (statMode(path, &mode)) {
             int fmt = mode & S_IFMT;

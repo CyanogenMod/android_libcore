@@ -236,10 +236,15 @@ class UnixFileSystem extends FileSystem {
 
     /* -- Attribute accessors -- */
 
-    public native int getBooleanAttributes0(File f);
+    /* ----- BEGIN android -----
+    public native int getBooleanAttributes0(File f);*/
+    public native int getBooleanAttributes0(String abspath);
 
     public int getBooleanAttributes(File f) {
-        int rv = getBooleanAttributes0(f);
+        /* ----- BEGIN android -----
+        int rv = getBooleanAttributes0(f);*/
+        int rv = getBooleanAttributes0(f.getAbsolutePath());
+        // ----- END android -----
         String name = f.getName();
         boolean hidden = (name.length() > 0) && (name.charAt(0) == '.');
         return rv | (hidden ? BA_HIDDEN : 0);
