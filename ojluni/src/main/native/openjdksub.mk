@@ -34,6 +34,8 @@ LOCAL_SRC_FILES := \
     UnixFileSystem_md.c \
     FileSystem_md.c \
     ObjectStreamClass.c \
+    ObjectOutputStream.c \
+    ObjectInputStream.c \
     InetAddress.c \
     InetAddressImplFactory.c \
     net_util.c \
