@@ -22,6 +22,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 import libcore.util.BasicLruCache;
 import libcore.util.ZoneInfoDB;
 
@@ -58,7 +59,7 @@ public final class TimeZoneNames {
         }
 
         @Override protected String[][] create(Locale locale) {
-            long start = System.currentTimeMillis();
+            long start = System.nanoTime();
 
             // Set up the 2D array used to hold the names. The first column contains the Olson ids.
             String[][] result = new String[availableTimeZoneIds.length][5];
@@ -66,17 +67,17 @@ public final class TimeZoneNames {
                 result[i][0] = availableTimeZoneIds[i];
             }
 
-            long nativeStart = System.currentTimeMillis();
+            long nativeStart = System.nanoTime();
             fillZoneStrings(locale.toString(), result);
-            long nativeEnd = System.currentTimeMillis();
+            long nativeEnd = System.nanoTime();
 
             internStrings(result);
             // Ending up in this method too often is an easy way to make your app slow, so we ensure
             // it's easy to tell from the log (a) what we were doing, (b) how long it took, and
             // (c) that it's all ICU's fault.
-            long end = System.currentTimeMillis();
-            long nativeDuration = nativeEnd - nativeStart;
-            long duration = end - start;
+            long end = System.nanoTime();
+            long nativeDuration = TimeUnit.NANOSECONDS.toMillis(nativeEnd - nativeStart);
+            long duration = TimeUnit.NANOSECONDS.toMillis(end - start);
             System.logI("Loaded time zone names for \"" + locale + "\" in " + duration + "ms" +
                         " (" + nativeDuration + "ms in ICU)");
             return result;
