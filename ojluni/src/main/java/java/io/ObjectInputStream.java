@@ -2012,7 +2012,11 @@ public class ObjectInputStream
             throw new InternalError();
         }
         clear();
-        return (IOException) readObject0(false);
+        IOException e = (IOException) readObject0(false);
+        // ----- BEGIN android -----
+        clear();
+        // ----- END android -----
+        return e;
     }
 
     /**
