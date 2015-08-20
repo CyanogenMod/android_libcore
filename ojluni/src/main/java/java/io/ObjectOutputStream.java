@@ -1119,12 +1119,14 @@ public class ObjectOutputStream
             } else if (!unshared && (h = handles.lookup(obj)) != -1) {
                 writeHandle(h);
                 return;
+            /* ----- BEGIN android -----
             } else if (obj instanceof Class) {
                 writeClass((Class) obj, unshared);
                 return;
             } else if (obj instanceof ObjectStreamClass) {
                 writeClassDesc((ObjectStreamClass) obj, unshared);
                 return;
+              ----- END android ----- */
             }
 
             // check for replacement object
@@ -1161,17 +1163,25 @@ public class ObjectOutputStream
                 } else if (!unshared && (h = handles.lookup(obj)) != -1) {
                     writeHandle(h);
                     return;
+                /* ----- BEGIN android -----
                 } else if (obj instanceof Class) {
                     writeClass((Class) obj, unshared);
                     return;
                 } else if (obj instanceof ObjectStreamClass) {
                     writeClassDesc((ObjectStreamClass) obj, unshared);
                     return;
+                  ----- END android -----*/
                 }
             }
 
             // remaining cases
-            if (obj instanceof String) {
+            // ----- BEGIN android -----
+            if (obj instanceof Class) {
+                writeClass((Class) obj, unshared);
+            } else if (obj instanceof ObjectStreamClass) {
+                writeClassDesc((ObjectStreamClass) obj, unshared);
+            // ----- END android -----
+            } else if (obj instanceof String) {
                 writeString((String) obj, unshared);
             } else if (cl.isArray()) {
                 writeArray(obj, desc, unshared);
