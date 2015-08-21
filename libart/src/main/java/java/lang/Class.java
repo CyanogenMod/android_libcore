@@ -202,6 +202,9 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     /** Virtual methods defined in this class; invoked through vtable. */
     private transient long virtualMethods;
 
+    /** Class flags to help the GC with object scanning. */
+    private transient int classFlags;
+
     /**
      * Total size of the Class instance; used when allocating storage on GC heap.
      * See also {@link Class#objectSize}.
