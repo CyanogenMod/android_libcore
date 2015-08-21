@@ -347,7 +347,17 @@ public class ObjectOutputStream
             writeObject0(obj, false);
         } catch (IOException ex) {
             if (depth == 0) {
-                writeFatalException(ex);
+                /* ----- BEGIN android -----
+                writeFatalException(ex);*/
+                try {
+                    writeFatalException(ex);
+
+                } catch (IOException ex2) {
+                    // If writing the exception to the output stream causes another exception there
+                    // is no need to propagate the second exception or generate a third exception,
+                    // both of which might obscure details of the root cause.
+                }
+                // ----- END android -----
             }
             throw ex;
         }
