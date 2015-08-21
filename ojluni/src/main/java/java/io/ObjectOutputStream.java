@@ -1143,6 +1143,8 @@ public class ObjectOutputStream
             Object orig = obj;
             Class cl = obj.getClass();
             ObjectStreamClass desc;
+
+            /* ----- BEGIN android -----
             for (;;) {
                 // REMIND: skip this check for strings/arrays?
                 Class repCl;
@@ -1154,7 +1156,22 @@ public class ObjectOutputStream
                     break;
                 }
                 cl = repCl;
+                desc = ObjectStreamClass.lookup(cl, true);
+                break;
+            }*/
+            // Do only one replace pass
+
+            Class repCl;
+            desc = ObjectStreamClass.lookup(cl, true);
+            if (desc.hasWriteReplaceMethod() &&
+                (obj = desc.invokeWriteReplace(obj)) != null &&
+                (repCl = obj.getClass()) != cl)
+            {
+                cl = repCl;
+                desc = ObjectStreamClass.lookup(cl, true);
             }
+            // ----- END android -----
+
             if (enableReplace) {
                 Object rep = replaceObject(obj);
                 if (rep != obj && rep != null) {
