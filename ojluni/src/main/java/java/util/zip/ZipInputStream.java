@@ -121,7 +121,10 @@ class ZipInputStream extends InflaterInputStream implements ZipConstants {
         if ((entry = readLOC()) == null) {
             return null;
         }
-        if (entry.method == STORED) {
+        // ----- BEGIN android -----
+        // if (entry.method == STORED) {
+        if (entry.method == STORED || entry.method == DEFLATED) {
+        // ----- END android -----
             remaining = entry.size;
         }
         entryEOF = false;
@@ -153,7 +156,10 @@ class ZipInputStream extends InflaterInputStream implements ZipConstants {
      */
     public int available() throws IOException {
         ensureOpen();
-        if (entryEOF) {
+        // ----- BEGIN android -----
+        // if (entryEOF) {
+        if (entryEOF || (entry != null && remaining == 0)) {
+        // ----- END android -----
             return 0;
         } else {
             return 1;
@@ -197,6 +203,9 @@ class ZipInputStream extends InflaterInputStream implements ZipConstants {
                 entry = null;
             } else {
                 crc.update(b, off, len);
+                // ----- BEGIN android -----
+                remaining -= len;
+                // ----- END android -----
             }
             return len;
         case STORED:
