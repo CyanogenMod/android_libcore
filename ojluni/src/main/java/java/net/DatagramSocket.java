@@ -106,6 +106,10 @@ class DatagramSocket implements java.io.Closeable {
     InetAddress connectedAddress = null;
     int connectedPort = -1;
 
+    // ----- BEGIN android -----
+    private SocketException pendingConnectException;
+    // ----- END android -----
+
     /**
      * Connects this socket to a remote socket address (IP address + port number).
      * Binds socket if not already bound.
@@ -142,16 +146,21 @@ class DatagramSocket implements java.io.Closeable {
              ((AbstractPlainDatagramSocketImpl)impl).nativeConnectDisabled())) {
             connectState = ST_CONNECTED_NO_IMPL;
         } else {
-            try {
-                getImpl().connect(address, port);
+          /* ----- BEGIN android -----
+          try {
+              getImpl().connect(address, port);
 
-                // socket is now connected by the impl
-                connectState = ST_CONNECTED;
-            } catch (SocketException se) {
-
+              // socket is now connected by the impl
+              connectState = ST_CONNECTED;
+          } catch (SocketException se) {
                 // connection will be emulated by DatagramSocket
                 connectState = ST_CONNECTED_NO_IMPL;
-            }
+          }*/
+          getImpl().connect(address, port);
+
+          // socket is now connected by the impl
+          connectState = ST_CONNECTED;
+          // ----- END android -----
         }
 
         connectedAddress = address;
@@ -444,7 +453,11 @@ class DatagramSocket implements java.io.Closeable {
         try {
             connectInternal(address, port);
         } catch (SocketException se) {
-            throw new Error("connect failed", se);
+            // ----- BEGIN android -----
+            //throw new Error("connect failed", se);
+            // TODO: or just use SneakyThrow? There's a clear API bug here.
+            pendingConnectException = connectException;
+            // ----- END android -----
         }
     }
 
@@ -715,6 +728,13 @@ class DatagramSocket implements java.io.Closeable {
         synchronized (p) {
             if (!isBound())
                 bind(new InetSocketAddress(0));
+
+            // ----- BEGIN android -----
+            if (pendingConnectException != null) {
+                throw new SocketException("Pending connect failure", pendingConnectException);
+            }
+            // ----- END android -----
+
             if (connectState == ST_NOT_CONNECTED) {
                 // check the address is ok with the security manager before every recv.
                 SecurityManager security = System.getSecurityManager();
