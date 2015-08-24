@@ -1486,7 +1486,11 @@ class InetAddress implements java.io.Serializable {
             }
 
             if (local.equals("localhost")) {
-                return impl.loopbackAddress();
+                // ----- BEGIN android -----
+                // Android tests are very keen to see IPv4 loopback returned here
+                //return impl.loopbackAddress();
+                return Inet4Address.LOOPBACK;
+                // ----- END android -----
             }
 
             InetAddress ret = null;

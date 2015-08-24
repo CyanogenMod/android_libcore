@@ -94,7 +94,10 @@ class Inet6AddressImpl implements InetAddressImpl {
 
     public synchronized InetAddress loopbackAddress() {
         if (loopbackAddress == null) {
-             if (InetAddress.preferIPv6Address) {
+          // ----- BEGIN android -----
+          // if (InetAddress.preferIPv6Address) {
+             if (true) {
+          // ----- END android -----
                  byte[] loopback =
                         {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01};
