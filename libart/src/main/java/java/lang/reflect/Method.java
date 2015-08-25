@@ -36,6 +36,7 @@ import com.android.dex.Dex;
 import java.lang.annotation.Annotation;
 import java.util.Comparator;
 import java.util.List;
+import libcore.reflect.AnnotationAccess;
 import libcore.reflect.Types;
 
 /**
@@ -147,7 +148,16 @@ public final class Method extends AbstractMethod implements GenericDeclaration, 
      *
      * @return the declared exception classes
      */
-    public native Class<?>[] getExceptionTypes();
+    public Class<?>[] getExceptionTypes() {
+        if (getDeclaringClass().isProxy()) {
+            return getExceptionTypesNative();
+        } else {
+            // TODO: use dex cache to speed looking up class
+            return AnnotationAccess.getExceptions(this);
+        }
+    }
+
+    private native Class<?>[] getExceptionTypesNative();
 
     /**
      * Returns an array of {@code Class} objects associated with the parameter
@@ -240,9 +250,8 @@ public final class Method extends AbstractMethod implements GenericDeclaration, 
         if (annotationType == null) {
             throw new NullPointerException("annotationType == null");
         }
-        return isAnnotationPresentNative(annotationType);
+        return AnnotationAccess.isDeclaredAnnotationPresent(this, annotationType);
     }
-    private native boolean isAnnotationPresentNative(Class<? extends Annotation> annotationType);
 
     /**
      * Returns the exception types as an array of {@code Type} instances. If
@@ -279,15 +288,17 @@ public final class Method extends AbstractMethod implements GenericDeclaration, 
         return Types.getType(getMethodOrConstructorGenericInfo().genericReturnType);
     }
 
-    @Override public native Annotation[] getDeclaredAnnotations();
+    @Override public Annotation[] getDeclaredAnnotations() {
+        List<Annotation> result = AnnotationAccess.getDeclaredAnnotations(this);
+        return result.toArray(new Annotation[result.size()]);
+    }
 
     @Override public <A extends Annotation> A getAnnotation(Class<A> annotationType) {
         if (annotationType == null) {
             throw new NullPointerException("annotationType == null");
         }
-        return getAnnotationNative(annotationType);
+        return AnnotationAccess.getDeclaredAnnotation(this, annotationType);
     }
-    private native <A extends Annotation> A getAnnotationNative(Class<A> annotationType);
 
     /**
      * Returns an array of arrays that represent the annotations of the formal
@@ -298,13 +309,9 @@ public final class Method extends AbstractMethod implements GenericDeclaration, 
      * @return an array of arrays of {@code Annotation} instances
      */
     public Annotation[][] getParameterAnnotations() {
-        Annotation[][] parameterAnnotations = getParameterAnnotationsNative();
-        if (parameterAnnotations == null) {
-          parameterAnnotations = new Annotation[getParameterTypes().length][0];
-        }
-        return parameterAnnotations;
+        return AnnotationAccess.getParameterAnnotations(
+            declaringClassOfOverriddenMethod, dexMethodIndex);
     }
-    private native Annotation[][] getParameterAnnotationsNative();
 
     /**
      * Returns the default value for the annotation member represented by this
@@ -316,7 +323,9 @@ public final class Method extends AbstractMethod implements GenericDeclaration, 
      *             if this annotation member is of type {@code Class} and no
      *             definition can be found
      */
-    public native Object getDefaultValue();
+    public Object getDefaultValue() {
+        return AnnotationAccess.getDefaultValue(this);
+    }
 
     /**
      * Returns the result of dynamically invoking this method. Equivalent to
