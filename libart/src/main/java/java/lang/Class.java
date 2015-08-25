@@ -37,6 +37,7 @@ import dalvik.system.VMStack;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
+import java.lang.annotation.Inherited;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
@@ -53,7 +54,9 @@ import java.nio.charset.StandardCharsets;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import libcore.reflect.AnnotationAccess;
 import libcore.reflect.GenericSignatureParser;
@@ -351,7 +354,25 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     }
 
     @Override public <A extends Annotation> A getAnnotation(Class<A> annotationType) {
-        return AnnotationAccess.getAnnotation(this, annotationType);
+        if (annotationType == null) {
+            throw new NullPointerException("annotationType == null");
+        }
+
+        A annotation = getDeclaredAnnotation(annotationType);
+        if (annotation != null) {
+            return annotation;
+        }
+
+        if (annotationType.isDeclaredAnnotationPresent(Inherited.class)) {
+            for (Class<?> sup = getSuperclass(); sup != null; sup = sup.getSuperclass()) {
+                annotation = sup.getDeclaredAnnotation(annotationType);
+                if (annotation != null) {
+                    return annotation;
+                }
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -361,7 +382,33 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @see #getDeclaredAnnotations()
      */
     @Override public Annotation[] getAnnotations() {
-        return AnnotationAccess.getAnnotations(this);
+        /*
+         * We need to get the annotations declared on this class, plus the
+         * annotations from superclasses that have the "@Inherited" annotation
+         * set.  We create a temporary map to use while we accumulate the
+         * annotations and convert it to an array at the end.
+         *
+         * It's possible to have duplicates when annotations are inherited.
+         * We use a Map to filter those out.
+         *
+         * HashMap might be overkill here.
+         */
+        HashMap<Class<?>, Annotation> map = new HashMap<Class<?>, Annotation>();
+        for (Annotation declaredAnnotation : getDeclaredAnnotations()) {
+            map.put(declaredAnnotation.annotationType(), declaredAnnotation);
+        }
+        for (Class<?> sup = getSuperclass(); sup != null; sup = sup.getSuperclass()) {
+            for (Annotation declaredAnnotation : sup.getDeclaredAnnotations()) {
+                Class<? extends Annotation> clazz = declaredAnnotation.annotationType();
+                if (!map.containsKey(clazz) && clazz.isDeclaredAnnotationPresent(Inherited.class)) {
+                    map.put(clazz, declaredAnnotation);
+                }
+            }
+        }
+
+        /* Convert annotation values from HashMap to array. */
+        Collection<Annotation> coll = map.values();
+        return coll.toArray(new Annotation[coll.size()]);
     }
 
     /**
@@ -734,10 +781,17 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      *
      * @see #getAnnotations()
      */
-    @Override public Annotation[] getDeclaredAnnotations() {
-        List<Annotation> result = AnnotationAccess.getDeclaredAnnotations(this);
-        return result.toArray(new Annotation[result.size()]);
-    }
+    @Override public native Annotation[] getDeclaredAnnotations();
+
+    /**
+     * Returns the annotation if it exists.
+     */
+    private native <A extends Annotation> A getDeclaredAnnotation(Class<A> annotationClass);
+
+    /**
+     * Returns true if the annotation exists.
+     */
+    private native boolean isDeclaredAnnotationPresent(Class<? extends Annotation> annotationClass);
 
     /**
      * Returns an array containing {@code Class} objects for all classes,
@@ -793,7 +847,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * method or constructor.
      */
     public Class<?> getDeclaringClass() {
-        if (AnnotationAccess.isAnonymousClass(this)) {
+        if (isAnonymousClass()) {
             return null;
         }
         return AnnotationAccess.getEnclosingClass(this);
@@ -1220,7 +1274,23 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     }
 
     @Override public boolean isAnnotationPresent(Class<? extends Annotation> annotationType) {
-        return AnnotationAccess.isAnnotationPresent(this, annotationType);
+        if (annotationType == null) {
+            throw new NullPointerException("annotationType == null");
+        }
+
+        if (isDeclaredAnnotationPresent(annotationType)) {
+            return true;
+        }
+
+        if (annotationType.isDeclaredAnnotationPresent(Inherited.class)) {
+            for (Class<?> sup = getSuperclass(); sup != null; sup = sup.getSuperclass()) {
+                if (sup.isDeclaredAnnotationPresent(annotationType)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     /**
