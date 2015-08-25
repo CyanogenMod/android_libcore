@@ -456,7 +456,7 @@ class DatagramSocket implements java.io.Closeable {
             // ----- BEGIN android -----
             //throw new Error("connect failed", se);
             // TODO: or just use SneakyThrow? There's a clear API bug here.
-            pendingConnectException = connectException;
+            pendingConnectException = se;
             // ----- END android -----
         }
     }
