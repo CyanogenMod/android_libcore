@@ -36,6 +36,7 @@ import com.android.dex.Dex;
 import java.lang.annotation.Annotation;
 import java.util.Comparator;
 import java.util.List;
+import libcore.reflect.AnnotationAccess;
 import libcore.reflect.GenericSignatureParser;
 import libcore.reflect.Types;
 
@@ -217,7 +218,7 @@ public final class Field extends AccessibleObject implements Member {
      *             instantiated for some reason
      */
     public Type getGenericType() {
-        String signatureAttribute = getSignatureAttribute();
+        String signatureAttribute = AnnotationAccess.getSignature(this);
         Class<?> declaringClass = getDeclaringClass();
         ClassLoader cl = declaringClass.getClassLoader();
         GenericSignatureParser parser = new GenericSignatureParser(cl);
@@ -229,19 +230,6 @@ public final class Field extends AccessibleObject implements Member {
         return genericType;
     }
 
-    private String getSignatureAttribute() {
-        String[] annotation = getSignatureAnnotation();
-        if (annotation == null) {
-            return null;
-        }
-        StringBuilder result = new StringBuilder();
-        for (String s : annotation) {
-          result.append(s);
-        }
-        return result.toString();
-    }
-    private native String[] getSignatureAnnotation();
-
     /**
      * Returns the constructor's signature in non-printable form. This is called
      * (only) from IO native code and needed for deriving the serialVersionUID
@@ -252,23 +240,24 @@ public final class Field extends AccessibleObject implements Member {
         return Types.getSignature(getType());
     }
 
-    @Override public native Annotation[] getDeclaredAnnotations();
+    @Override public Annotation[] getDeclaredAnnotations() {
+        List<Annotation> result = AnnotationAccess.getDeclaredAnnotations(this);
+        return result.toArray(new Annotation[result.size()]);
+    }
 
     @Override public <A extends Annotation> A getAnnotation(Class<A> annotationType) {
         if (annotationType == null) {
             throw new NullPointerException("annotationType == null");
         }
-        return getAnnotationNative(annotationType);
+        return AnnotationAccess.getDeclaredAnnotation(this, annotationType);
     }
-    private native <A extends Annotation> A getAnnotationNative(Class<A> annotationType);
 
     @Override public boolean isAnnotationPresent(Class<? extends Annotation> annotationType) {
         if (annotationType == null) {
             throw new NullPointerException("annotationType == null");
         }
-        return isAnnotationPresentNative(annotationType);
+        return AnnotationAccess.isDeclaredAnnotationPresent(this, annotationType);
     }
-    private native boolean isAnnotationPresentNative(Class<? extends Annotation> annotationType);
 
     /**
      * Returns the value of the field in the specified object. This reproduces

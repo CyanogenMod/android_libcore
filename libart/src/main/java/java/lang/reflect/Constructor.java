@@ -36,6 +36,7 @@ import com.android.dex.Dex;
 import java.lang.annotation.Annotation;
 import java.util.Comparator;
 import java.util.List;
+import libcore.reflect.AnnotationAccess;
 import libcore.reflect.Types;
 
 /**
@@ -96,7 +97,10 @@ public final class Constructor<T> extends AbstractMethod implements GenericDecla
      * this constructor has no declared exceptions, an empty array will be
      * returned.
      */
-    public native Class<?>[] getExceptionTypes();
+    public Class<?>[] getExceptionTypes() {
+        // TODO: use dex cache to speed looking up class
+        return AnnotationAccess.getExceptions(this);
+    }
 
     /**
      * Returns an array of the {@code Class} objects associated with the
@@ -177,23 +181,24 @@ public final class Constructor<T> extends AbstractMethod implements GenericDecla
         return super.getGenericExceptionTypes();
     }
 
-    @Override public native Annotation[] getDeclaredAnnotations();
+    @Override public Annotation[] getDeclaredAnnotations() {
+        List<Annotation> result = AnnotationAccess.getDeclaredAnnotations(this);
+        return result.toArray(new Annotation[result.size()]);
+    }
 
     @Override public boolean isAnnotationPresent(Class<? extends Annotation> annotationType) {
         if (annotationType == null) {
             throw new NullPointerException("annotationType == null");
         }
-        return isAnnotationPresentNative(annotationType);
+        return AnnotationAccess.isDeclaredAnnotationPresent(this, annotationType);
     }
-    private native boolean isAnnotationPresentNative(Class<? extends Annotation> annotationType);
 
     @Override public <A extends Annotation> A getAnnotation(Class<A> annotationType) {
         if (annotationType == null) {
             throw new NullPointerException("annotationType == null");
         }
-        return getAnnotationNative(annotationType);
+        return AnnotationAccess.getDeclaredAnnotation(this, annotationType);
     }
-    private native <A extends Annotation> A getAnnotationNative(Class<A> annotationType);
 
     /**
      * Returns an array of arrays that represent the annotations of the formal
@@ -204,13 +209,9 @@ public final class Constructor<T> extends AbstractMethod implements GenericDecla
      * @return an array of arrays of {@code Annotation} instances
      */
     public Annotation[][] getParameterAnnotations() {
-        Annotation[][] parameterAnnotations = getParameterAnnotationsNative();
-        if (parameterAnnotations == null) {
-          parameterAnnotations = new Annotation[getParameterTypes().length][0];
-        }
-        return parameterAnnotations;
+        return AnnotationAccess.getParameterAnnotations(
+            declaringClassOfOverriddenMethod, dexMethodIndex);
     }
-    private native Annotation[][] getParameterAnnotationsNative();
 
     /**
      * Returns the constructor's signature in non-printable form. This is called
