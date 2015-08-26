@@ -38,6 +38,11 @@ import java.lang.NullPointerException;  // for javadoc
 import java.util.Locale;
 import java.util.Objects;
 
+// ----- BEGIN android -----
+import java.util.Set;
+import java.util.HashSet;
+// ----- END android -----
+
 /**
  * An HttpCookie object represents an http cookie, which carries state
  * information between server and user agent. Cookie is widely adopted
@@ -58,6 +63,24 @@ import java.util.Objects;
  * @since 1.6
  */
 public final class HttpCookie implements Cloneable {
+    // ----- BEGIN android -----
+    private static final Set<String> RESERVED_NAMES = new HashSet<String>();
+
+    static {
+        RESERVED_NAMES.add("comment");    //           RFC 2109  RFC 2965  RFC 6265
+        RESERVED_NAMES.add("commenturl"); //                     RFC 2965  RFC 6265
+        RESERVED_NAMES.add("discard");    //                     RFC 2965  RFC 6265
+        RESERVED_NAMES.add("domain");     // Netscape  RFC 2109  RFC 2965  RFC 6265
+        RESERVED_NAMES.add("expires");    // Netscape
+        RESERVED_NAMES.add("httponly");   //                               RFC 6265
+        RESERVED_NAMES.add("max-age");    //           RFC 2109  RFC 2965  RFC 6265
+        RESERVED_NAMES.add("path");       // Netscape  RFC 2109  RFC 2965  RFC 6265
+        RESERVED_NAMES.add("port");       //                     RFC 2965  RFC 6265
+        RESERVED_NAMES.add("secure");     // Netscape  RFC 2109  RFC 2965  RFC 6265
+        RESERVED_NAMES.add("version");    //           RFC 2109  RFC 2965  RFC 6265
+    }
+    // ----- END android -----
+
     /* ---------------- Fields -------------- */
 
     //
@@ -894,7 +917,10 @@ public final class HttpCookie implements Cloneable {
     // from RFC 2068, token special case characters
     //
     // private static final String tspecials = "()<>@,;:\\\"/[]?={} \t";
-    private static final String tspecials = ",;";
+    // ----- BEGIN android -----
+    // private static final String tspecials = ",;";
+    private static final String tspecials = ",;= \t";
+    // ----- END android -----
 
     /*
      * Tests a string and returns true if the string counts as a
@@ -907,6 +933,12 @@ public final class HttpCookie implements Cloneable {
      */
 
     private static boolean isToken(String value) {
+        // ----- BEGIN android -----
+        if (RESERVED_NAMES.contains(value.toLowerCase(Locale.US))) {
+            return false;
+        }
+        // ----- END android -----
+
         int len = value.length();
 
         for (int i = 0; i < len; i++) {
