@@ -152,6 +152,14 @@ public final class Engine {
     }
 
     /**
+     * Returns a list of all providers for this type of service or {@code null}
+     * if no matches were found.
+     */
+    public ArrayList<Provider.Service> getServices() {
+        return Services.getServices(serviceName);
+    }
+
+    /**
      * Returns a list of all possible matches for a given algorithm. Returns
      * {@code null} if no matches were found.
      */
