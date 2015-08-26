@@ -512,8 +512,9 @@ public class Cipher {
         // Try each of the transforms and keep track of the first exception
         // encountered.
         Exception cause = null;
-        for (Transform transform : transforms) {
-            if (provider != null) {
+
+        if (provider != null) {
+            for (Transform transform : transforms) {
                 Provider.Service service = provider.getService(SERVICE, transform.name);
                 if (service == null) {
                     continue;
@@ -521,22 +522,40 @@ public class Cipher {
                 return tryTransformWithProvider(initParams, transformParts, transform.needToSet,
                         service);
             }
-            ArrayList<Provider.Service> services = ENGINE.getServices(transform.name);
-            if (services == null || services.isEmpty()) {
-                continue;
-            }
+        } else {
+            ArrayList<Provider.Service> services = ENGINE.getServices();
             for (Provider.Service service : services) {
-                if (initParams == null || initParams.key == null
-                        || service.supportsParameter(initParams.key)) {
-                    try {
-                        Engine.SpiAndProvider sap = tryTransformWithProvider(initParams,
-                                transformParts, transform.needToSet, service);
-                        if (sap != null) {
-                            return sap;
+                String serviceAlgorithmUC = service.getAlgorithm().toUpperCase(Locale.US);
+                for (Transform transform : transforms) {
+                    // Check that this service offers the algorithm we're after
+                    // since none of the services have been filtered yet.
+                    boolean matchesAlgorithm = false;
+                    if (transform.name.equals(serviceAlgorithmUC)) {
+                        matchesAlgorithm = true;
+                    } else {
+                        for (String alias : Engine.door.getAliases(service)) {
+                            if (transform.name.equals(alias.toUpperCase(Locale.US))) {
+                                matchesAlgorithm = true;
+                                break;
+                            }
                         }
-                    } catch (Exception e) {
-                        if (cause == null) {
-                            cause = e;
+                    }
+                    if (!matchesAlgorithm) {
+                        continue;
+                    }
+
+                    if (initParams == null || initParams.key == null
+                            || service.supportsParameter(initParams.key)) {
+                        try {
+                            Engine.SpiAndProvider sap = tryTransformWithProvider(initParams,
+                                    transformParts, transform.needToSet, service);
+                            if (sap != null) {
+                                return sap;
+                            }
+                        } catch (Exception e) {
+                            if (cause == null) {
+                                cause = e;
+                            }
                         }
                     }
                 }
