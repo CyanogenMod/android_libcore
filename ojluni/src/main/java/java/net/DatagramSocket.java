@@ -141,6 +141,11 @@ class DatagramSocket implements java.io.Closeable {
         if (!isBound())
           bind(new InetSocketAddress(0));
 
+        // ----- BEGIN android -----
+        connectedAddress = address;
+        connectedPort = port;
+        // ----- END android -----
+
         // old impls do not support connect/disconnect
         if (oldImpl || (impl instanceof AbstractPlainDatagramSocketImpl &&
              ((AbstractPlainDatagramSocketImpl)impl).nativeConnectDisabled())) {
@@ -163,8 +168,10 @@ class DatagramSocket implements java.io.Closeable {
           // ----- END android -----
         }
 
+        /* ----- BEGIN android -----
         connectedAddress = address;
         connectedPort = port;
+        ----- END android ----- */
     }
 
 
