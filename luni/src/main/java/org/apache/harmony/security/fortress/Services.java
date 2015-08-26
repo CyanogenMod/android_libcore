@@ -21,7 +21,7 @@ import java.security.Provider;
 import java.security.Security;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Locale;
+import java.util.Iterator;
 
 
 /**
@@ -134,12 +134,37 @@ public class Services {
     }
 
     /**
+     * Looks up the requested service by type. The service {@code type} and
+     * should be provided in the same format used when registering a service
+     * with a provider, for example, "KeyFactory". Callers can cache the
+     * returned service information but such caches should be validated against
+     * the result of Service.getCacheVersion() before use. Returns {@code null}
+     * if there are no services of the given {@code type} found.
+     */
+    public static synchronized ArrayList<Provider.Service> getServices(String type) {
+        ArrayList<Provider.Service> services = null;
+        for (Provider p : providers) {
+            Iterator<Provider.Service> i = p.getServices().iterator();
+            while (i.hasNext()) {
+                Provider.Service s = i.next();
+                if (type.equals(s.getType())) {
+                    if (services == null) {
+                        services = new ArrayList<>(providers.size());
+                    }
+                    services.add(s);
+                }
+            }
+        }
+        return services;
+    }
+
+    /**
      * Looks up the requested service by type and algorithm. The service
      * {@code type} and should be provided in the same format used when
-     * registering a service with a provider, for example, "KeyFactory.RSA".
-     * Callers can cache the returned service information but such caches should
-     * be validated against the result of Service.getCacheVersion() before use.
-     * Returns {@code null} if there are no services found.
+     * registering a service with a provider, for example, "KeyFactory" and
+     * "RSA". Callers can cache the returned service information but such caches
+     * should be validated against the result of Service.getCacheVersion()
+     * before use. Returns {@code null} if there are no services found.
      */
     public static synchronized ArrayList<Provider.Service> getServices(String type,
             String algorithm) {

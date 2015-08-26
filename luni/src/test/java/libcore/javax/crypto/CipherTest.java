@@ -979,6 +979,76 @@ public final class CipherTest extends TestCase {
         }
     }
 
+    public void testCipher_getInstance_CorrectPriority_AlgorithmOnlyFirst() throws Exception {
+        Provider mockProviderOnlyAlgorithm = new MockProvider("MockProviderOnlyAlgorithm") {
+            public void setup() {
+                put("Cipher.FOO", MockCipherSpi.AllKeyTypes.class.getName());
+            }
+        };
+        Provider mockProviderFullTransformSpecified = new MockProvider("MockProviderFull") {
+            public void setup() {
+                put("Cipher.FOO/FOO/FOO", MockCipherSpi.AllKeyTypes.class.getName());
+            }
+        };
+
+        Security.addProvider(mockProviderOnlyAlgorithm);
+        Security.addProvider(mockProviderFullTransformSpecified);
+        try {
+            Cipher c = Cipher.getInstance("FOO/FOO/FOO");
+            assertEquals(mockProviderOnlyAlgorithm, c.getProvider());
+        } finally {
+            Security.removeProvider(mockProviderOnlyAlgorithm.getName());
+            Security.removeProvider(mockProviderFullTransformSpecified.getName());
+        }
+    }
+
+    public void testCipher_getInstance_CorrectPriority_FullTransformFirst() throws Exception {
+        Provider mockProviderOnlyAlgorithm = new MockProvider("MockProviderOnlyAlgorithm") {
+            public void setup() {
+                put("Cipher.FOO", MockCipherSpi.AllKeyTypes.class.getName());
+            }
+        };
+        Provider mockProviderFullTransformSpecified = new MockProvider("MockProviderFull") {
+            public void setup() {
+                put("Cipher.FOO/FOO/FOO", MockCipherSpi.AllKeyTypes.class.getName());
+            }
+        };
+
+        Security.addProvider(mockProviderFullTransformSpecified);
+        Security.addProvider(mockProviderOnlyAlgorithm);
+        try {
+            Cipher c = Cipher.getInstance("FOO/FOO/FOO");
+            assertEquals(mockProviderFullTransformSpecified, c.getProvider());
+        } finally {
+            Security.removeProvider(mockProviderOnlyAlgorithm.getName());
+            Security.removeProvider(mockProviderFullTransformSpecified.getName());
+        }
+    }
+
+    public void testCipher_getInstance_CorrectPriority_AliasedAlgorithmFirst() throws Exception {
+        Provider mockProviderAliasedAlgorithm = new MockProvider("MockProviderAliasedAlgorithm") {
+            public void setup() {
+                put("Cipher.BAR", MockCipherSpi.AllKeyTypes.class.getName());
+                put("Alg.Alias.Cipher.FOO", "BAR");
+            }
+        };
+        Provider mockProviderAlgorithmOnly = new MockProvider("MockProviderAlgorithmOnly") {
+            public void setup() {
+                put("Cipher.FOO", MockCipherSpi.AllKeyTypes.class.getName());
+            }
+        };
+
+        Security.addProvider(mockProviderAliasedAlgorithm);
+        Security.addProvider(mockProviderAlgorithmOnly);
+        try {
+            Cipher c = Cipher.getInstance("FOO/FOO/FOO");
+            assertEquals(mockProviderAliasedAlgorithm, c.getProvider());
+        } finally {
+            Security.removeProvider(mockProviderAliasedAlgorithm.getName());
+            Security.removeProvider(mockProviderAlgorithmOnly.getName());
+        }
+    }
+
     public void testCipher_getInstance_WrongType_Failure() throws Exception {
         Provider mockProviderInvalid = new MockProvider("MockProviderInvalid") {
             public void setup() {
