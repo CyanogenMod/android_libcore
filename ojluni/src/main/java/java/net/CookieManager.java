@@ -241,6 +241,11 @@ public class CookieManager extends CookieHandler
                 }
             }
         }
+        // ----- BEGIN android -----
+        if (cookies.isEmpty()) {
+            return Collections.unmodifiableMap(cookieMap);
+        }
+        // ----- END android -----
 
         // apply sort rule (RFC 2965 sec. 3.3.4)
         List<String> cookieHeader = sortByPath(cookies);
@@ -403,6 +408,16 @@ public class CookieManager extends CookieHandler
             return true;
         if (path == null || pathToMatchWith == null)
             return false;
+
+        // ----- BEGIN android -----
+        if (!path.endsWith("/")) {
+            path = path + "/";
+        }
+        if (!pathToMatchWith.endsWith("/")) {
+            pathToMatchWith = pathToMatchWith + "/";
+        }
+        // ----- END android -----
+
         if (path.startsWith(pathToMatchWith))
             return true;
 
@@ -417,6 +432,10 @@ public class CookieManager extends CookieHandler
     private List<String> sortByPath(List<HttpCookie> cookies) {
         Collections.sort(cookies, new CookiePathComparator());
 
+        // ----- BEGIN android -----
+        StringBuilder result = new StringBuilder();
+        // ----- END android -----
+
         List<String> cookieHeader = new java.util.ArrayList<String>();
         for (HttpCookie cookie : cookies) {
             // Netscape cookie spec and RFC 2965 have different format of Cookie
@@ -424,11 +443,24 @@ public class CookieManager extends CookieHandler
             // does not.
             // The workaround here is to add a $Version="1" string in advance
             if (cookies.indexOf(cookie) == 0 && cookie.getVersion() > 0) {
-                cookieHeader.add("$Version=\"1\"");
+                // ----- BEGIN android -----
+                // cookieHeader.add("$Version=\"1\"");
+                result.append("$Version=\"1\"; ");
+                // ----- END android -----
             }
 
-            cookieHeader.add(cookie.toString());
+            // ----- BEGIN android -----
+            //cookieHeader.add(cookie.toString());
+            if (cookies.indexOf(cookie) != 0) {
+                result.append("; ");
+            }
+            result.append(cookie.toString());
+            // ----- END android -----
+
         }
+        // ----- BEGIN android -----
+        cookieHeader.add(result.toString());
+        // ----- END android -----
         return cookieHeader;
     }
 
