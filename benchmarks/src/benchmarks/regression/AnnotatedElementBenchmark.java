@@ -141,7 +141,68 @@ public class AnnotatedElementBenchmark extends SimpleBenchmark {
 
     public void timeGetDeclaredAnnotationsOnSubclass(int reps) {
         for (int i = 0; i < reps; i++) {
-            ExtendsHasThreeAnnotations.class.getAnnotations();
+            ExtendsHasThreeAnnotations.class.getDeclaredAnnotations();
+        }
+    }
+
+
+    // get annotations with enclosing / inner classes
+
+    public void timeGetDeclaredClasses(int reps) {
+        for (int i = 0; i < reps; i++) {
+            AnnotatedElementBenchmark.class.getDeclaredClasses();
+        }
+    }
+
+    public void timeGetDeclaringClass(int reps) {
+        for (int i = 0; i < reps; i++) {
+            HasSmallAnnotation.class.getDeclaringClass();
+        }
+    }
+
+    public void timeGetEnclosingClass(int reps) {
+        Object anonymousClass = new Object() {};
+        for (int i = 0; i < reps; i++) {
+            anonymousClass.getClass().getEnclosingClass();
+        }
+    }
+
+    public void timeGetEnclosingConstructor(int reps) {
+        Object anonymousClass = new Object() {};
+        for (int i = 0; i < reps; i++) {
+            anonymousClass.getClass().getEnclosingConstructor();
+        }
+    }
+
+    public void timeGetEnclosingMethod(int reps) {
+        Object anonymousClass = new Object() {};
+        for (int i = 0; i < reps; i++) {
+            anonymousClass.getClass().getEnclosingMethod();
+        }
+    }
+
+    public void timeGetModifiers(int reps) {
+        for (int i = 0; i < reps; i++) {
+            HasSmallAnnotation.class.getModifiers();
+        }
+    }
+
+    public void timeGetSimpleName(int reps) {
+        for (int i = 0; i < reps; i++) {
+            HasSmallAnnotation.class.getSimpleName();
+        }
+    }
+
+    public void timeIsAnonymousClass(int reps) {
+        Object anonymousClass = new Object() {};
+        for (int i = 0; i < reps; i++) {
+            anonymousClass.getClass().isAnonymousClass();
+        }
+    }
+
+    public void timeIsLocalClass(int reps) {
+        for (int i = 0; i < reps; i++) {
+            HasSmallAnnotation.class.isLocalClass();
         }
     }
 
@@ -174,7 +235,7 @@ public class AnnotatedElementBenchmark extends SimpleBenchmark {
     @Marker
     public class HasThreeAnnotations {}
 
-    public class ExtendsHasThreeAnnotations {}
+    public class ExtendsHasThreeAnnotations extends HasThreeAnnotations {}
 
 
     // the annotations
