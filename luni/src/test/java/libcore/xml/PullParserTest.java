@@ -769,10 +769,24 @@ public abstract class PullParserTest extends TestCase {
     public void testWhitespacesAfterDOCTYPE() throws Exception {
         XmlPullParser parser = newPullParser();
         String test = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-            "<!DOCTYPE root [\n" +
-            "<!ENTITY dummy \"dummy\">\n" +
-            "]>  \n" +
-            "<root></root>";
+                "<!DOCTYPE root [\n" +
+                "<!ENTITY dummy \"dummy\">\n" +
+                "]>  \n" +
+                "<root></root>";
+        assertParseSuccess(test, parser);
+    }
+
+    // Regression test for https://code.google.com/p/android/issues/detail?id=182605
+    public void testSetInputParserReuse() throws Exception {
+        XmlPullParser parser = newPullParser();
+        String test = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<!DOCTYPE root [\n" +
+                "<!ENTITY dummy \"dummy\">\n" +
+                "]>  \n" +
+                "<root></root>";
+        assertParseSuccess(test, parser);
+
+        // A second call to parser.setInput() on a parser should result in a fully-reset parser.
         assertParseSuccess(test, parser);
     }
 
