@@ -17,8 +17,16 @@
 
 package libcore.io;
 
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CharsetEncoder;
+import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+
+import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 
 public final class Base64Test extends TestCase {
@@ -33,7 +41,7 @@ public final class Base64Test extends TestCase {
         assertEncodeDecode("EjRWeJq8", 0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc);
     }
 
-    public void testEncode_doesNotWrap() {
+    public void testEncode_doesNotWrap() throws Exception {
         int[] data = new int[61];
         Arrays.fill(data, 0xff);
         String expected = "///////////////////////////////////////////////////////////////////////"
@@ -41,21 +49,28 @@ public final class Base64Test extends TestCase {
         assertEncodeDecode(expected, data);
     }
 
-    private static void assertEncodeDecode(String expectedEncoded, int... data) {
-        byte[] inputBytes = new byte[data.length];
-        for (int i = 0; i < data.length; i++) {
-            inputBytes[i] = (byte) data[i];
+    private static void assertEncodeDecode(String expectedEncoded, int... toEncode)
+            throws Exception {
+        // We should never expect (or receive) non-ASCII text from Base64.encoder.
+        asciiToBytes(expectedEncoded);
+
+        // Convert the convenient ints to the bytes we need.
+        byte[] inputBytes = new byte[toEncode.length];
+        for (int i = 0; i < toEncode.length; i++) {
+            inputBytes[i] = (byte) toEncode[i];
         }
         String encoded = Base64.encode(inputBytes);
         assertEquals(expectedEncoded, encoded);
 
-        byte[] actualDecodedBytes = Base64.decode(encoded.getBytes(StandardCharsets.US_ASCII));
-        assertArrayEquals(inputBytes, actualDecodedBytes);
+        // Check we can round-trip the encoded bytes to
+        // arrive at what we started with.
+        int[] actualDecodedBytes = decodeToInts(encoded);
+        assertArrayEquals(toEncode, actualDecodedBytes);
     }
 
     public void testDecode_empty() throws Exception {
         byte[] decoded = Base64.decode(new byte[0]);
-        assertArrayEquals(new byte[0], decoded);
+        assertEquals(0, decoded.length);
     }
 
     public void testDecode_truncated() throws Exception {
@@ -91,7 +106,9 @@ public final class Base64Test extends TestCase {
         assertDecodeBad("aGVsbG8sIHdvcmxk==");
         // Characters outside alphabet intermixed with (too much) padding.
         assertDecodeBad("aGVsbG8sIHdvcmxk =");
-        assertEquals("hello, world�", decodeToString("aGVsbG8sIHdvcmxk = = "));
+        assertArrayEquals(
+                new int[] { 104, 101, 108, 108, 111, 44, 32, 119, 111, 114, 108, 100, 0xc6 },
+                decodeToInts("aGVsbG8sIHdvcmxk = = "));
 
         // padding 1
         assertEquals("hello, world?!", decodeToString("aGVsbG8sIHdvcmxkPyE="));
@@ -110,10 +127,16 @@ public final class Base64Test extends TestCase {
         assertEquals("hello, world?!", decodeToString("aGVsbG8sIHdvcmxkPyE=\n"));
         assertEquals("hello, world?!", decodeToString("aGVsbG8sIHdvcmxkPyE=\r\n"));
         assertEquals("hello, world?!", decodeToString("aGVsbG8sIHdvcmxkPyE= "));
-        assertEquals("hello, world�", decodeToString("aGVsbG8sIHdvcmxkPyE=="));
+        assertArrayEquals(
+                new int[] { 104, 101, 108, 108, 111, 44, 32, 119, 111, 114, 108, 100, 0xc8 },
+                decodeToInts("aGVsbG8sIHdvcmxkPyE=="));
         // Characters outside alphabet intermixed with (too much) padding.
-        assertEquals("hello, world�", decodeToString("aGVsbG8sIHdvcmxkPyE =="));
-        assertEquals("hello, world�", decodeToString("aGVsbG8sIHdvcmxkPyE = = "));
+        assertArrayEquals(
+                new int[] { 104, 101, 108, 108, 111, 44, 32, 119, 111, 114, 108, 100, 0xc8 },
+                decodeToInts("aGVsbG8sIHdvcmxkPyE =="));
+        assertArrayEquals(
+                new int[] { 104, 101, 108, 108, 111, 44, 32, 119, 111, 114, 108, 100, 0xc8 },
+                decodeToInts("aGVsbG8sIHdvcmxkPyE = = "));
 
         // padding 2
         assertEquals("hello, world.", decodeToString("aGVsbG8sIHdvcmxkLg=="));
@@ -134,7 +157,9 @@ public final class Base64Test extends TestCase {
         assertEquals("hello, world.", decodeToString("aGVsbG8sIHdvcmxkLg==\n"));
         assertEquals("hello, world.", decodeToString("aGVsbG8sIHdvcmxkLg==\r\n"));
         assertEquals("hello, world.", decodeToString("aGVsbG8sIHdvcmxkLg== "));
-        assertEquals("hello, world�", decodeToString("aGVsbG8sIHdvcmxkLg==="));
+        assertArrayEquals(
+                new int[] { 104, 101, 108, 108, 111, 44, 32, 119, 111, 114, 108, 100, 0x80 },
+                decodeToInts("aGVsbG8sIHdvcmxkLg==="));
         // Characters outside alphabet inside padding.
         assertEquals("hello, world.", decodeToString("aGVsbG8sIHdvcmxkLg= ="));
         assertEquals(null, decodeToString("aGVsbG8sIHdvcmxkLg=*="));
@@ -148,69 +173,141 @@ public final class Base64Test extends TestCase {
         assertEquals(null, decodeToString("aGVsbG8sIHdvcmx_"));
 
         // Table 2 chars.
-        assertEquals("������������", decodeToString("/aGVsbG8sIHdvcmx"));
-        assertEquals("he���������", decodeToString("aGV/sbG8sIHdvcmx"));
-        assertEquals("hello, worl\u007F", decodeToString("aGVsbG8sIHdvcmx/"));
+        assertArrayEquals(
+                new int[] {0xfd, 0xa1, 0x95, 0xb1, 0xb1, 0xbc, 0xb0, 0x81, 0xdd, 0xbd, 0xc9,
+                        0xb1 },
+                decodeToInts("/aGVsbG8sIHdvcmx"));
+        assertArrayEquals(
+                new int[] { 0x68, 0x65, 0x7f, 0xb1, 0xb1, 0xbc, 0xb0, 0x81, 0xdd, 0xbd, 0xc9,
+                        0xb1 },
+                decodeToInts("aGV/sbG8sIHdvcmx"));
+        assertArrayEquals(
+                new int[] { 104, 101, 108, 108, 111, 44, 32, 119, 111, 114, 108, 0x7f },
+                decodeToInts("aGVsbG8sIHdvcmx/"));
     }
 
-    private static final byte[] BYTES = { (byte) 0xff, (byte) 0xee, (byte) 0xdd,
-        (byte) 0xcc, (byte) 0xbb, (byte) 0xaa,
-        (byte) 0x99, (byte) 0x88, (byte) 0x77 };
+    private static final int[] BYTE_VALUES = {
+            0xff, 0xee, 0xdd, 0xcc, 0xbb, 0xaa, 0x99, 0x88, 0x77
+    };
 
-    public void testDecode_nonPrintableBytes() throws Exception {
-        assertSubArrayEquals(BYTES, 0, decodeToBytes(""));
-        assertSubArrayEquals(BYTES, 1, decodeToBytes("/w=="));
-        assertSubArrayEquals(BYTES, 2, decodeToBytes("/+4="));
-        assertSubArrayEquals(BYTES, 3, decodeToBytes("/+7d"));
-        assertSubArrayEquals(BYTES, 4, decodeToBytes("/+7dzA=="));
-        assertSubArrayEquals(BYTES, 5, decodeToBytes("/+7dzLs="));
-        assertSubArrayEquals(BYTES, 6, decodeToBytes("/+7dzLuq"));
-        assertSubArrayEquals(BYTES, 7, decodeToBytes("/+7dzLuqmQ=="));
-        assertSubArrayEquals(BYTES, 8, decodeToBytes("/+7dzLuqmYg="));
+    public void testDecode_nonAsciiBytes() throws Exception {
+        assertSubArrayEquals(BYTE_VALUES, 0, decodeToInts(""));
+        assertSubArrayEquals(BYTE_VALUES, 1, decodeToInts("/w=="));
+        assertSubArrayEquals(BYTE_VALUES, 2, decodeToInts("/+4="));
+        assertSubArrayEquals(BYTE_VALUES, 3, decodeToInts("/+7d"));
+        assertSubArrayEquals(BYTE_VALUES, 4, decodeToInts("/+7dzA=="));
+        assertSubArrayEquals(BYTE_VALUES, 5, decodeToInts("/+7dzLs="));
+        assertSubArrayEquals(BYTE_VALUES, 6, decodeToInts("/+7dzLuq"));
+        assertSubArrayEquals(BYTE_VALUES, 7, decodeToInts("/+7dzLuqmQ=="));
+        assertSubArrayEquals(BYTE_VALUES, 8, decodeToInts("/+7dzLuqmYg="));
     }
 
-    public void testDecode_nonPrintableBytes_urlAlphabet() throws Exception {
-        assertNull(decodeToBytes("_w=="));
-        assertNull(decodeToBytes("_-4="));
-        assertNull(decodeToBytes("_-7d"));
-        assertNull(decodeToBytes("_-7dzA=="));
-        assertNull(decodeToBytes("_-7dzLs="));
-        assertNull(decodeToBytes("_-7dzLuq"));
-        assertNull(decodeToBytes("_-7dzLuqmQ=="));
-        assertNull(decodeToBytes("_-7dzLuqmYg="));
+    public void testDecode_urlAlphabet() throws Exception {
+        assertNull(decodeToInts("_w=="));
+        assertNull(decodeToInts("-w=="));
     }
 
-    /** Decodes a string, returning a string or null. */
+    /**
+     * Convenience function for decoding from a Base64 ASCII String to an ASCII String. A String is
+     * used for the output to make the tests compact. Can return null if the decoder returns null.
+     * If any of the strings involved are non-ASCII an exception is thrown.
+     * Use {@link #decodeToInts(String)} for decode tests that produce bytes
+     * outside of the ASCII range.
+     */
     private static String decodeToString(String in) throws Exception {
-        byte[] out = decodeToBytes(in);
-        return out == null ? null : new String(out, StandardCharsets.US_ASCII);
+        byte[] bytes = asciiToBytes(in);
+        byte[] out = Base64.decode(bytes);
+        if (out == null) {
+            return null;
+        }
+        return bytesToAscii(out);
     }
 
-    /** Decodes a string, returning a string. */
-    private static byte[] decodeToBytes(String in) throws Exception {
-        return Base64.decode(in.getBytes(StandardCharsets.US_ASCII));
+    private static String bytesToAscii(byte[] bytes) {
+        try {
+            CharsetDecoder decoder = StandardCharsets.US_ASCII.newDecoder();
+            decoder.onMalformedInput(CodingErrorAction.REPORT);
+            decoder.onUnmappableCharacter(CodingErrorAction.REPORT);
+            ByteBuffer bytesBuffer = ByteBuffer.wrap(bytes);
+            CharBuffer charsBuffer = decoder.decode(bytesBuffer);
+            char[] chars = new char[charsBuffer.remaining()];
+            charsBuffer.get(chars, 0, chars.length);
+            return new String(chars);
+        } catch (CharacterCodingException e) {
+            // Use bytes in your test, not Strings.
+            throw new AssertionFailedError("Cannot convert test bytes to String safely: " +
+                    Arrays.toString(bytesToInts(bytes)) + " contains non-ASCII codes");
+        }
+    }
+
+    private static byte[] asciiToBytes(String string) {
+        try {
+            char[] chars = string.toCharArray();
+
+            CharsetEncoder encoder = StandardCharsets.US_ASCII.newEncoder();
+            encoder.onMalformedInput(CodingErrorAction.REPORT);
+            encoder.onUnmappableCharacter(CodingErrorAction.REPORT);
+            CharBuffer charsBuffer = CharBuffer.wrap(chars);
+            ByteBuffer bytesBuffer = encoder.encode(charsBuffer);
+            byte[] bytes = new byte[bytesBuffer.remaining()];
+            bytesBuffer.get(bytes, 0, bytes.length);
+            return bytes;
+        } catch (CharacterCodingException e) {
+            // Use bytes in your test, not Strings.
+            throw new AssertionFailedError("Cannot convert test String to bytes safely: " + string +
+                    " contains non-ASCII characters");
+        }
+    }
+
+    /** Decodes an ASCII string, returning an int array. */
+    private static int[] decodeToInts(String in) throws Exception {
+        byte[] bytes = Base64.decode(asciiToBytes(in));
+        return bytesToInts(bytes);
+    }
+
+    /**
+     * Convert a byte[] to an int[]. int is used because it is more convenient to use ints in
+     * tests.
+     */
+    private static int[] bytesToInts(byte[] bytes) {
+        if (bytes == null) {
+            return null;
+        }
+        int[] ints = new int[bytes.length];
+        for (int i = 0; i < bytes.length; i++) {
+            ints[i] = bytes[i] & 0xff;
+        }
+        return ints;
     }
 
     /** Assert that decoding 'in' throws ArrayIndexOutOfBoundsException. */
     private static void assertDecodeBad(String in) throws Exception {
         try {
-            byte[] result = Base64.decode(in.getBytes(StandardCharsets.US_ASCII));
-            fail("should have failed to decode. Actually: " +
-                (result == null ? result : new String(result, StandardCharsets.US_ASCII)));
+            byte[] result = Base64.decode(asciiToBytes(in));
+            fail("should have failed to decode. Actually received: " +
+                    (result == null ? result : Arrays.toString(bytesToInts(result))));
         } catch (ArrayIndexOutOfBoundsException e) {
         }
     }
 
-    private static void assertArrayEquals(byte[] expected, byte[] actual) {
+    private static void assertArrayEquals(int[] expected, int[] actual) {
         assertSubArrayEquals(expected, expected.length, actual);
     }
 
     /** Assert that actual equals the first len bytes of expected. */
-    private static void assertSubArrayEquals(byte[] expected, int len, byte[] actual) {
-        assertEquals(len, actual.length);
-        for (int i = 0; i < len; ++i) {
-            assertEquals(expected[i], actual[i]);
+    private static void assertSubArrayEquals(int[] expected, int len, int[] actual) {
+        // Convert the arrays to Strings for easy comparison / reporting.
+        String expectedString = intsToString(expected, len);
+        String actualString = intsToString(actual, actual.length);
+        assertEquals(expectedString, actualString);
+    }
+
+    private static String intsToString(int[] toConvert, int length) {
+        String[] out = new String[length];
+        for (int i = 0; i < length; i++) {
+            out[i] = "0x" + Integer.toHexString(toConvert[i]);
         }
+        return Arrays.toString(out);
     }
 }
 
