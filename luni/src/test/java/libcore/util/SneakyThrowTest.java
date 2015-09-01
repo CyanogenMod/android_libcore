@@ -16,24 +16,21 @@
 
 package libcore.util;
 
-/**
- * Provides a hacky method that always throws {@code t} even if {@code t} is a checked exception.
- * and is not declared to be thrown.
- *
- * See
- * http://www.mail-archive.com/javaposse@googlegroups.com/msg05984.html
- */
-public class SneakyThrow {
-    /**
-     * A hacky method that always throws {@code t} even if {@code t} is a checked exception,
-     * and is not declared to be thrown.
-     */
-    public static void sneakyThrow(Throwable t) {
-        SneakyThrow.<RuntimeException>sneakyThrow_(t);
-    }
+import junit.framework.TestCase;
 
-    private static <T extends Throwable> void sneakyThrow_(Throwable t) throws T {
-       throw (T) t;
+/**
+ * Tests for {@link SneakyThrow}
+ */
+public class SneakyThrowTest extends TestCase {
+    public void testSneakyThrow() {
+        try {
+            throwsChecked();
+            fail("Expecting exception");
+        } catch(Exception e) {
+            // Expected.
+        }
+    }
+    private void throwsChecked() {
+        SneakyThrow.sneakyThrow(new Exception());
     }
 }
-
