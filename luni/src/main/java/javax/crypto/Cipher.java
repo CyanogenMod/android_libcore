@@ -380,17 +380,18 @@ public class Cipher {
      * </code>
      * <p>
      */
-    private static String[] checkTransformation(String transformation)
+    private static String[] checkTransformation(String transform)
             throws NoSuchAlgorithmException {
+        String transformUC = transform.toUpperCase(Locale.US);
         // ignore an extra prefix / characters such as in
         // "/DES/CBC/PKCS5Padding" http://b/3387688
-        if (transformation.startsWith("/")) {
-            transformation = transformation.substring(1);
+        if (transformUC.startsWith("/")) {
+            transformUC = transformUC.substring(1);
         }
         // 'transformation' should be of the form "algorithm/mode/padding".
-        String[] pieces = transformation.split("/");
+        String[] pieces = transformUC.split("/");
         if (pieces.length > 3) {
-            throw invalidTransformation(transformation);
+            throw invalidTransformation(transform);
         }
         // Empty or missing pieces are represented by null.
         String[] result = new String[3];
@@ -402,10 +403,10 @@ public class Cipher {
         }
         // You MUST specify an algorithm.
         if (result[0] == null) {
-            throw invalidTransformation(transformation);
+            throw invalidTransformation(transform);
         }
         if (!(result[1] == null && result[2] == null) && (result[1] == null || result[2] == null)) {
-            throw invalidTransformation(transformation);
+            throw invalidTransformation(transform);
         }
         return result;
     }
