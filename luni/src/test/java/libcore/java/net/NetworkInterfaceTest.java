@@ -22,14 +22,18 @@ import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import libcore.io.IoUtils;
 
 public class NetworkInterfaceTest extends TestCase {
     // http://code.google.com/p/android/issues/detail?id=13784
+    private final static int ARPHRD_ETHER = 1; // from if_arp.h
     public void testIPv6() throws Exception {
         NetworkInterface lo = NetworkInterface.getByName("lo");
         Set<InetAddress> actual = new HashSet<InetAddress>(Collections.list(lo.getInetAddresses()));
@@ -70,23 +74,30 @@ public class NetworkInterfaceTest extends TestCase {
         assertEquals(1, ifAddresses.size());
     }
 
+    public void testInterfaceProperties() throws Exception {
+        for (NetworkInterface nif : Collections.list(NetworkInterface.getNetworkInterfaces())) {
+            assertEquals(nif, NetworkInterface.getByName(nif.getName()));
+            // Skip interfaces that are inactive
+            if (nif.isUp() == false) {
+                continue;
+            }
+            // Ethernet
+            if (isEthernet(nif.getName())) {
+                assertEquals(6, nif.getHardwareAddress().length);
+                for (InterfaceAddress ia : nif.getInterfaceAddresses()) {
+                    if (ia.getAddress() instanceof Inet4Address) {
+                        assertNotNull(ia.getBroadcast());
+                    }
+                }
+            }
+        }
+    }
+
     public void testLoopback() throws Exception {
-        // We know lo shouldn't have a hardware address or an IPv4 broadcast address.
         NetworkInterface lo = NetworkInterface.getByName("lo");
         assertNull(lo.getHardwareAddress());
         for (InterfaceAddress ia : lo.getInterfaceAddresses()) {
             assertNull(ia.getBroadcast());
-        }
-
-        // But eth0, if it exists, should...
-        NetworkInterface eth0 = NetworkInterface.getByName("eth0");
-        if (eth0 != null) {
-            assertEquals(6, eth0.getHardwareAddress().length);
-            for (InterfaceAddress ia : eth0.getInterfaceAddresses()) {
-                if (ia.getAddress() instanceof Inet4Address) {
-                    assertNotNull(ia.getBroadcast());
-                }
-            }
         }
     }
 
@@ -128,6 +139,16 @@ public class NetworkInterfaceTest extends TestCase {
 
             assertFalse(allIndexes.contains(nif.getIndex()));
             allIndexes.add(nif.getIndex());
+        }
+    }
+
+    // Returns true if interface by name ifName is Ethernet
+    private boolean isEthernet(String ifName) throws Exception {
+        String s = IoUtils.readFileAsString("/sys/class/net/" + ifName + "/type").trim();
+        if (s.startsWith("0x")) {
+            return (Integer.parseInt(s.substring(2), 16) == ARPHRD_ETHER);
+        } else {
+            return (Integer.parseInt(s) == ARPHRD_ETHER);
         }
     }
 }
