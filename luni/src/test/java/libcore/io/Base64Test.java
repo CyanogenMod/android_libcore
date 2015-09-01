@@ -102,13 +102,11 @@ public final class Base64Test extends TestCase {
         // padding 0
         assertEquals("hello, world", decodeToString("aGVsbG8sIHdvcmxk"));
         // Extra padding
-        assertDecodeBad("aGVsbG8sIHdvcmxk=");
-        assertDecodeBad("aGVsbG8sIHdvcmxk==");
+        assertEquals(null, decodeToString("aGVsbG8sIHdvcmxk="));
+        assertEquals(null, decodeToString("aGVsbG8sIHdvcmxk=="));
         // Characters outside alphabet intermixed with (too much) padding.
-        assertDecodeBad("aGVsbG8sIHdvcmxk =");
-        assertArrayEquals(
-                new int[] { 104, 101, 108, 108, 111, 44, 32, 119, 111, 114, 108, 100, 0xc6 },
-                decodeToInts("aGVsbG8sIHdvcmxk = = "));
+        assertEquals(null, decodeToString("aGVsbG8sIHdvcmxk ="));
+        assertEquals(null, decodeToString("aGVsbG8sIHdvcmxk = = "));
 
         // padding 1
         assertEquals("hello, world?!", decodeToString("aGVsbG8sIHdvcmxkPyE="));
@@ -127,23 +125,17 @@ public final class Base64Test extends TestCase {
         assertEquals("hello, world?!", decodeToString("aGVsbG8sIHdvcmxkPyE=\n"));
         assertEquals("hello, world?!", decodeToString("aGVsbG8sIHdvcmxkPyE=\r\n"));
         assertEquals("hello, world?!", decodeToString("aGVsbG8sIHdvcmxkPyE= "));
-        assertArrayEquals(
-                new int[] { 104, 101, 108, 108, 111, 44, 32, 119, 111, 114, 108, 100, 0xc8 },
-                decodeToInts("aGVsbG8sIHdvcmxkPyE=="));
-        // Characters outside alphabet intermixed with (too much) padding.
-        assertArrayEquals(
-                new int[] { 104, 101, 108, 108, 111, 44, 32, 119, 111, 114, 108, 100, 0xc8 },
-                decodeToInts("aGVsbG8sIHdvcmxkPyE =="));
-        assertArrayEquals(
-                new int[] { 104, 101, 108, 108, 111, 44, 32, 119, 111, 114, 108, 100, 0xc8 },
-                decodeToInts("aGVsbG8sIHdvcmxkPyE = = "));
+        assertEquals("hello, world?!", decodeToString("aGVsbG8sIHdvcmxkPyE=="));
+        // Whitespace characters outside alphabet intermixed with (too much) padding.
+        assertEquals("hello, world?!", decodeToString("aGVsbG8sIHdvcmxkPyE =="));
+        assertEquals("hello, world?!", decodeToString("aGVsbG8sIHdvcmxkPyE = = "));
 
         // padding 2
         assertEquals("hello, world.", decodeToString("aGVsbG8sIHdvcmxkLg=="));
         // Missing padding
         assertEquals("hello, world", decodeToString("aGVsbG8sIHdvcmxkLg"));
         // Partially missing padding
-        assertDecodeBad("aGVsbG8sIHdvcmxkLg=");
+        assertEquals("hello, world", decodeToString("aGVsbG8sIHdvcmxkLg="));
         // Characters outside alphabet before padding.
         assertEquals("hello, world.", decodeToString("aGVsbG8sIHdvcmxkLg =="));
         assertEquals(null, decodeToString("aGVsbG8sIHdvcmxkLg*=="));
@@ -157,9 +149,7 @@ public final class Base64Test extends TestCase {
         assertEquals("hello, world.", decodeToString("aGVsbG8sIHdvcmxkLg==\n"));
         assertEquals("hello, world.", decodeToString("aGVsbG8sIHdvcmxkLg==\r\n"));
         assertEquals("hello, world.", decodeToString("aGVsbG8sIHdvcmxkLg== "));
-        assertArrayEquals(
-                new int[] { 104, 101, 108, 108, 111, 44, 32, 119, 111, 114, 108, 100, 0x80 },
-                decodeToInts("aGVsbG8sIHdvcmxkLg==="));
+        assertEquals("hello, world.", decodeToString("aGVsbG8sIHdvcmxkLg==="));
         // Characters outside alphabet inside padding.
         assertEquals("hello, world.", decodeToString("aGVsbG8sIHdvcmxkLg= ="));
         assertEquals(null, decodeToString("aGVsbG8sIHdvcmxkLg=*="));
