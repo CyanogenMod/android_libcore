@@ -816,7 +816,11 @@ public final class HttpCookie implements Cloneable {
             String H = host.substring(0, lengthDiff);
             String D = host.substring(lengthDiff);
 
-            return (H.indexOf('.') == -1 && D.equalsIgnoreCase(domain));
+            // ----- BEGIN android -----
+            //return (H.indexOf('.') == -1 && D.equalsIgnoreCase(domain));
+            return D.equalsIgnoreCase(domain) && ((domain.startsWith(".") && isFullyQualifiedDomainName(domain, 1))
+                || isLocalDomain);
+            // ----- END android -----
         }
         else if (lengthDiff == -1) {
             // if domain is actually .host
@@ -827,6 +831,12 @@ public final class HttpCookie implements Cloneable {
         return false;
     }
 
+    // ----- BEGIN android -----
+    private static boolean isFullyQualifiedDomainName(String s, int firstCharacter) {
+        int dotPosition = s.indexOf('.', firstCharacter + 1);
+        return dotPosition != -1 && dotPosition < s.length() - 1;
+    }
+    // ----- END android -----
 
     /**
      * Constructs a cookie header string representation of this cookie,
