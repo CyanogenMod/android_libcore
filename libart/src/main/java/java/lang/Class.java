@@ -800,9 +800,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * Returns an array containing {@code Class} objects for all classes,
      * interfaces, enums and annotations that are members of this class.
      */
-    public Class<?>[] getDeclaredClasses() {
-        return AnnotationAccess.getMemberClasses(this);
-    }
+    public native Class<?>[] getDeclaredClasses();
 
     /**
      * Returns a {@code Field} object for the field with the given name
@@ -849,12 +847,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * class is a top-level class, a primitive, an array, or defined within a
      * method or constructor.
      */
-    public Class<?> getDeclaringClass() {
-        if (isAnonymousClass()) {
-            return null;
-        }
-        return AnnotationAccess.getEnclosingClass(this);
-    }
+    public native Class<?> getDeclaringClass();
 
     /**
      * Returns the class enclosing this class. For most classes this is the same
@@ -862,17 +855,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * within a method or constructor (typically anonymous inner classes), this
      * is the declaring class of that member.
      */
-    public Class<?> getEnclosingClass() {
-        Class<?> declaringClass = getDeclaringClass();
-        if (declaringClass != null) {
-            return declaringClass;
-        }
-        AccessibleObject member = AnnotationAccess.getEnclosingMethodOrConstructor(this);
-        if (member != null)  {
-            return ((Member) member).getDeclaringClass();
-        }
-        return AnnotationAccess.getEnclosingClass(this);
-    }
+    public native Class<?> getEnclosingClass();
 
     /**
      * Returns the enclosing {@code Constructor} of this {@code Class}, if it is an
@@ -882,9 +865,10 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         if (classNameImpliesTopLevel()) {
             return null;
         }
-        AccessibleObject result = AnnotationAccess.getEnclosingMethodOrConstructor(this);
-        return result instanceof Constructor ? (Constructor<?>) result : null;
+        return getEnclosingConstructorNative();
     }
+
+    private native Constructor<?> getEnclosingConstructorNative();
 
     /**
      * Returns the enclosing {@code Method} of this {@code Class}, if it is an
@@ -894,9 +878,10 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         if (classNameImpliesTopLevel()) {
             return null;
         }
-        AccessibleObject result = AnnotationAccess.getEnclosingMethodOrConstructor(this);
-        return result instanceof Method ? (Method) result : null;
+        return getEnclosingMethodNative();
     }
+
+    private native Method getEnclosingMethodNative();
 
     /**
      * Returns true if this class is definitely a top level class, or false if
@@ -1100,9 +1085,11 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
             return Modifier.ABSTRACT | Modifier.FINAL | componentModifiers;
         }
         int JAVA_FLAGS_MASK = 0xffff;
-        int modifiers = AnnotationAccess.getInnerClassFlags(this, accessFlags & JAVA_FLAGS_MASK);
+        int modifiers = getInnerClassFlags(accessFlags & JAVA_FLAGS_MASK);
         return modifiers & JAVA_FLAGS_MASK;
     }
+
+    private native int getInnerClassFlags(int defaultValue);
 
     /**
      * Returns the name of the class represented by this {@code Class}. For a
@@ -1150,9 +1137,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     /**
      * Returns the simple name of a member or local class, or {@code null} otherwise.
      */
-    private String getInnerClassName() {
-        return AnnotationAccess.getInnerClassName(this);
-    }
+    private native String getInnerClassName();
 
     /**
      * Returns {@code null}.
@@ -1300,9 +1285,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * Tests whether the class represented by this {@code Class} is
      * anonymous.
      */
-    public boolean isAnonymousClass() {
-        return AnnotationAccess.isAnonymousClass(this);
-    }
+    public native boolean isAnonymousClass();
 
     /**
      * Tests whether the class represented by this {@code Class} is an array class.
@@ -1399,7 +1382,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      */
     public boolean isLocalClass() {
         return !classNameImpliesTopLevel()
-                && AnnotationAccess.getEnclosingMethodOrConstructor(this) != null
+                && (getEnclosingMethod() != null || getEnclosingConstructor() != null)
                 && !isAnonymousClass();
     }
 
