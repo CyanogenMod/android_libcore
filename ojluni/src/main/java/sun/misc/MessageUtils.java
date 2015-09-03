@@ -95,24 +95,35 @@ public class MessageUtils {
      *  character conversion methods.
      *  @param msg   message to print
      */
-    public static native void toStderr(String msg);
+    // Android-removed : Remove support for bypassing character conversion
+    // in printing debug message.
+    //
+    // public static native void toStderr(String msg);
 
     /**
      *  Print a message directly to stdout, bypassing all the
      *  character conversion methods.
      *  @param msg   message to print
      */
-    public static native void toStdout(String msg);
+    // Android-removed : Remove support for bypassing character conversion
+    // in printing debug message.
+    //
+
+    // public static native void toStdout(String msg);
 
 
     // Short forms of the above
 
     public static void err(String s) {
-        toStderr(s + "\n");
+        // Android changed.
+        // toStderr(s + "\n");
+        System.err.println(s);
     }
 
     public static void out(String s) {
-        toStdout(s + "\n");
+        // Android changed.
+        // toStdout(s + "\n");
+        System.out.println(s);
     }
 
     // Print a stack trace to stderr
@@ -120,8 +131,11 @@ public class MessageUtils {
     public static void where() {
         Throwable t = new Throwable();
         StackTraceElement[] es = t.getStackTrace();
-        for (int i = 1; i < es.length; i++)
-            toStderr("\t" + es[i].toString() + "\n");
+        for (int i = 1; i < es.length; i++) {
+            // Android changed.
+            // toStderr("\t" + es[i].toString() + "\n");
+            System.err.println("\t" + es[i].toString());
+        }
     }
 
 }
