@@ -168,19 +168,23 @@ public class PlatformLogger {
                 }
             });
 
+        // Android-removed: Unnecessary on android, and gets in the way of obfuscated
+        // releases.
+        //
         // force loading of all JavaLoggerProxy (sub)classes to make JIT de-optimizations
         // less probable.  Don't initialize JavaLoggerProxy class since
         // java.util.logging may not be enabled.
-        try {
-            Class.forName("sun.util.logging.PlatformLogger$DefaultLoggerProxy",
-                          false,
-                          PlatformLogger.class.getClassLoader());
-            Class.forName("sun.util.logging.PlatformLogger$JavaLoggerProxy",
-                          false,   // do not invoke class initializer
-                          PlatformLogger.class.getClassLoader());
-        } catch (ClassNotFoundException ex) {
-            throw new InternalError(ex.getMessage());
-        }
+        //
+        // try {
+        //     Class.forName("sun.util.logging.PlatformLogger$DefaultLoggerProxy",
+        //                   false,
+        //                   PlatformLogger.class.getClassLoader());
+        //     Class.forName("sun.util.logging.PlatformLogger$JavaLoggerProxy",
+        //                   false,   // do not invoke class initializer
+        //                   PlatformLogger.class.getClassLoader());
+        // } catch (ClassNotFoundException ex) {
+        //     throw new InternalError(ex.getMessage());
+        // }
     }
 
     // Table of known loggers.  Maps names to PlatformLoggers.
