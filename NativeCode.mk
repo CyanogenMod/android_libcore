@@ -71,6 +71,7 @@ core_cppflags += -std=gnu++11 -DU_USING_ICU_NAMESPACE=0
 
 core_test_files := \
   luni/src/test/native/dalvik_system_JniTest.cpp \
+  luni/src/test/native/libcore_java_io_FileTest.cpp \
 
 #
 # Build for the target (device).
@@ -97,7 +98,7 @@ LOCAL_CFLAGS += $(core_cflags)
 LOCAL_CPPFLAGS += $(core_cppflags)
 LOCAL_SRC_FILES += $(core_test_files)
 LOCAL_C_INCLUDES += libcore/include
-LOCAL_SHARED_LIBRARIES += libcrypto
+LOCAL_SHARED_LIBRARIES += libcrypto libnativehelper
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := libjavacoretests
 LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/NativeCode.mk
@@ -176,7 +177,7 @@ ifeq ($(LIBCORE_SKIP_TESTS),)
     LOCAL_MODULE_TAGS := optional
     LOCAL_MODULE := libjavacoretests
     LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/NativeCode.mk
-    LOCAL_SHARED_LIBRARIES := libcrypto-host
+    LOCAL_SHARED_LIBRARIES := libcrypto-host libnativehelper
     LOCAL_MULTILIB := both
     LOCAL_CXX_STL := libc++
     include $(BUILD_HOST_SHARED_LIBRARY)
