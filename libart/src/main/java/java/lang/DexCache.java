@@ -44,32 +44,52 @@ final class DexCache {
     /** The location of the associated dex file. */
     String location;
 
-    /**
-     * References to methods as they become resolved following interpreter semantics. May refer to
-     * methods defined in other dex files.
-     */
-    Object resolvedMethods;
-
-    /**
-     * References to fields as they become resolved following interpreter semantics. May refer to
-     * fields defined in other dex files. Either an int array or long array.
-     */
-    private Object resolvedFields;
-
-    /**
-     * References to types as they become resolved following interpreter semantics. May refer to
-     * types defined in other dex files.
-     */
-    Class[] resolvedTypes;
-
-    /**
-     * References to strings as they become resolved following interpreter semantics. All strings
-     * are interned.
-     */
-    String[] strings;
-
     /** Holds C pointer to dexFile. */
     private long dexFile;
+
+    /**
+     * References to fields (C array pointer) as they become resolved following
+     * interpreter semantics. May refer to fields defined in other dex files.
+     */
+    private long resolvedFields;
+
+    /**
+     * References to methods (C array pointer) as they become resolved following
+     * interpreter semantics. May refer to methods defined in other dex files.
+     */
+    private long resolvedMethods;
+
+    /**
+     * References to types (C array pointer) as they become resolved following
+     * interpreter semantics. May refer to types defined in other dex files.
+     */
+    private long resolvedTypes;
+
+    /**
+     * References to strings (C array pointer) as they become resolved following
+     * interpreter semantics. All strings are interned.
+     */
+    private long strings;
+
+    /**
+     * The number of elements in the native resolvedFields array.
+     */
+    private int numResolvedFields;
+
+    /**
+     * The number of elements in the native resolvedMethods array.
+     */
+    private int numResolvedMethods;
+
+    /**
+     * The number of elements in the native resolvedTypes array.
+     */
+    private int numResolvedTypes;
+
+    /**
+     * The number of elements in the native strings array.
+     */
+    private int numStrings;
 
     // Only created by the VM.
     private DexCache() {}
