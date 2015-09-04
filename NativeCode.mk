@@ -80,7 +80,7 @@ core_c_includes := libcore/include $(LOCAL_C_INCLUDES)
 core_shared_libraries := $(LOCAL_SHARED_LIBRARIES)
 core_static_libraries := $(LOCAL_STATIC_LIBRARIES)
 core_cflags := $(LOCAL_CFLAGS) -Wall -Wextra -Werror
-ifeq ($(ANDROID_DISABLE_CORE_OBFUSCATION),)
+ifneq ($(ANDROID_DISABLE_CORE_OBFUSCATION),)
 core_cflags += -DANDROID_DISABLE_CORE_OBFUSCATION
 endif
 core_cppflags += -std=gnu++11
@@ -153,6 +153,8 @@ include $(CLEAR_VARS)
 LOCAL_CLANG := true
 LOCAL_SRC_FILES += $(core_src_files)
 LOCAL_CFLAGS += $(core_cflags)
+# We don't run the host jar files through proguard.
+LOCAL_CFLAGS += -DANDROID_DISABLE_CORE_OBFUSCATION
 LOCAL_C_INCLUDES += $(core_c_includes)
 LOCAL_CPPFLAGS += $(core_cppflags)
 LOCAL_LDLIBS += -ldl -lpthread
@@ -171,6 +173,8 @@ include $(CLEAR_VARS)
 LOCAL_SRC_FILES := $(openjdk_core_src_files)
 LOCAL_C_INCLUDES := $(core_c_includes)
 LOCAL_CFLAGS := -D_LARGEFILE64_SOURCE -D_GNU_SOURCE -DLINUX -D__GLIBC__ # Sigh.
+# We don't run the host jar files through proguard.
+LOCAL_CFLAGS += -DANDROID_DISABLE_CORE_OBFUSCATION
 LOCAL_SHARED_LIBRARIES := $(core_shared_libraries) libcrypto-host libz-host
 LOCAL_SHARED_LIBRARIES += libart libnativehelper
 LOCAL_STATIC_LIBRARIES := $(core_static_libraries) libfdlibm

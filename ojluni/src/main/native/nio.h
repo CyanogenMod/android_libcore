@@ -31,3 +31,9 @@
 #define IOS_UNSUPPORTED      (sun_nio_ch_IOStatus_UNSUPPORTED)
 #define IOS_THROWN           (sun_nio_ch_IOStatus_THROWN)
 #define IOS_UNSUPPORTED_CASE (sun_nio_ch_IOStatus_UNSUPPORTED_CASE)
+
+#if defined(ANDROID_DISABLE_CORE_OBFUSCATION)
+#define SUN_NIO_CH(classname) "sun/nio/ch/"#classname
+#else
+#define SUN_NIO_CH(classname) "xx001/"#classname
+#endif

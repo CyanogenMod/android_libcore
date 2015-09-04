@@ -34,6 +34,7 @@
 #include "jni.h"
 #include "jni_util.h"
 #include "net_util.h"
+#include "nio.h"
 
 #include "sun_nio_ch_InheritedChannel.h"
 
@@ -177,5 +178,5 @@ static JNINativeMethod gMethods[] = {
 };
 
 void register_sun_nio_ch_InheritedChannel(JNIEnv* env) {
-  jniRegisterNativeMethods(env, "sun/nio/ch/InheritedChannel", gMethods, NELEM(gMethods));
+  jniRegisterNativeMethods(env, SUN_NIO_CH(InheritedChannel), gMethods, NELEM(gMethods));
 }

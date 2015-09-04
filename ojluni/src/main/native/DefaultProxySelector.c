@@ -344,5 +344,9 @@ static JNINativeMethod gMethods[] = {
 };
 
 void register_sun_net_spi_DefaultProxySelector(JNIEnv* env) {
+#if defined(ANDROID_DISABLE_CORE_OBFUSCATION)
   jniRegisterNativeMethods(env, "sun/net/spi/DefaultProxySelector", gMethods, NELEM(gMethods));
+#else
+  jniRegisterNativeMethods(env, "xx004/DefaultProxySelector", gMethods, NELEM(gMethods));
+#endif
 }

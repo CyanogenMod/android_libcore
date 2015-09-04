@@ -66,7 +66,7 @@ Java_sun_nio_ch_DatagramChannelImpl_initIDs(JNIEnv *env, jclass clazz)
     isa_ctorID = (*env)->GetMethodID(env, clazz, "<init>",
                                      "(Ljava/net/InetAddress;I)V");
 
-    clazz = (*env)->FindClass(env, "sun/nio/ch/DatagramChannelImpl");
+    clazz = (*env)->FindClass(env, SUN_NIO_CH(DatagramChannelImpl));
     dci_senderID = (*env)->GetFieldID(env, clazz, "sender",
                                       "Ljava/net/SocketAddress;");
     dci_senderAddrID = (*env)->GetFieldID(env, clazz,
@@ -256,5 +256,5 @@ static JNINativeMethod gMethods[] = {
 };
 
 void register_sun_nio_ch_DatagramChannelImpl(JNIEnv* env) {
-  jniRegisterNativeMethods(env, "sun/nio/ch/DatagramChannelImpl", gMethods, NELEM(gMethods));
+  jniRegisterNativeMethods(env, SUN_NIO_CH(DatagramChannelImpl), gMethods, NELEM(gMethods));
 }

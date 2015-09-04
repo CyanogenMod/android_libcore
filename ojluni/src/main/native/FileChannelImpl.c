@@ -246,5 +246,5 @@ static JNINativeMethod gMethods[] = {
 };
 
 void register_sun_nio_ch_FileChannelImpl(JNIEnv* env) {
-  jniRegisterNativeMethods(env, "sun/nio/ch/FileChannelImpl", gMethods, NELEM(gMethods));
+  jniRegisterNativeMethods(env, SUN_NIO_CH(FileChannelImpl), gMethods, NELEM(gMethods));
 }
