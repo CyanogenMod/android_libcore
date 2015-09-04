@@ -231,7 +231,7 @@ include $(LOCAL_PATH)/Docs.mk
 
 LOCAL_SRC_FILES := $(libcore_to_document)
 # rerun doc generation without recompiling the java
-LOCAL_JAVA_LIBRARIES:=
+LOCAL_JAVA_LIBRARIES:= icu4j  # ICU is needed to resolve some constants in public libcore.
 LOCAL_JAVACFLAGS := $(local_javac_flags)
 LOCAL_MODULE_CLASS:=JAVA_LIBRARIES
 
