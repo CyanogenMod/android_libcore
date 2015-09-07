@@ -407,9 +407,6 @@ import static java.text.DateFormatSymbols.*;
  */
 public class SimpleDateFormat extends DateFormat {
 
-    // 'L' and 'c' are ICU-compatible extensions for stand-alone month and stand-alone weekday.
-    static final String PATTERN_CHARS = "GyMdkHmsSEDFwWahKzZLc";
-
     // the official serial version ID which says cryptically
     // which version we're compatible with
     static final long serialVersionUID = 4774881970558875024L;
@@ -1037,7 +1034,10 @@ public class SimpleDateFormat extends DateFormat {
         // Pseudo Calendar fields
         CalendarBuilder.WEEK_YEAR,
         CalendarBuilder.ISO_DAY_OF_WEEK,
-        Calendar.ZONE_OFFSET
+        Calendar.ZONE_OFFSET,
+        // 'L' and 'c',
+        Calendar.MONTH,
+        Calendar.DAY_OF_WEEK
     };
 
     // Map index into pattern character string to DateFormat field number
@@ -1052,7 +1052,10 @@ public class SimpleDateFormat extends DateFormat {
         DateFormat.HOUR1_FIELD, DateFormat.HOUR0_FIELD,
         DateFormat.TIMEZONE_FIELD, DateFormat.TIMEZONE_FIELD,
         DateFormat.YEAR_FIELD, DateFormat.DAY_OF_WEEK_FIELD,
-        DateFormat.TIMEZONE_FIELD
+        DateFormat.TIMEZONE_FIELD,
+        // 'L' and 'c'
+        DateFormat.MONTH_FIELD,
+        DateFormat.DAY_OF_WEEK_FIELD
     };
 
     // Maps from DecimalFormatSymbols index to Field constant
@@ -1065,7 +1068,10 @@ public class SimpleDateFormat extends DateFormat {
         Field.AM_PM, Field.HOUR1, Field.HOUR0, Field.TIME_ZONE,
         Field.TIME_ZONE,
         Field.YEAR, Field.DAY_OF_WEEK,
-        Field.TIME_ZONE
+        Field.TIME_ZONE,
+        // 'L' and 'c'
+        Field.MONTH,
+        Field.DAY_OF_WEEK
     };
 
     /**
@@ -1131,6 +1137,7 @@ public class SimpleDateFormat extends DateFormat {
             }
             break;
 
+        case 'L': // Standalone month. Unsupported for now.
         case PATTERN_MONTH: // 'M'
             if (useDateFormatSymbols) {
                 String[] months;
@@ -1161,6 +1168,7 @@ public class SimpleDateFormat extends DateFormat {
             }
             break;
 
+        case 'c': // Standalone weekday. Unsupported for now.
         case PATTERN_DAY_OF_WEEK: // 'E'
             if (useDateFormatSymbols) {
                 String[] weekdays;
@@ -1862,6 +1870,7 @@ public class SimpleDateFormat extends DateFormat {
                 calb.set(field, value);
                 return pos.index;
 
+            case 'L': // Standalone month. Unsupported for now.
             case PATTERN_MONTH: // 'M'
                 if (count <= 2) // i.e., M or MM.
                 {
@@ -1909,6 +1918,7 @@ public class SimpleDateFormat extends DateFormat {
                 calb.set(Calendar.HOUR_OF_DAY, value);
                 return pos.index;
 
+            case 'c': // Standalone weekday. Unsupported for now.
             case PATTERN_DAY_OF_WEEK:  // 'E'
                 {
                     if (useDateFormatSymbols) {

@@ -225,8 +225,11 @@ public class DateFormatSymbols implements Serializable, Cloneable {
     /**
      * Unlocalized date-time pattern characters. For example: 'y', 'd', etc.
      * All locales use the same these unlocalized pattern characters.
+     *
+     * Pretend to support 'L' and 'c' for now. It's meant for standalone weekday and
+     * month names, but we just use the non-standalone versions for now.
      */
-    static final String  patternChars = "GyMdkHmsSEDFwWahKzZYuX";
+    static final String  patternChars = "GyMdkHmsSEDFwWahKzZYuXLc";
 
     static final int PATTERN_ERA                  =  0; // G
     static final int PATTERN_YEAR                 =  1; // y
@@ -665,7 +668,7 @@ public class DateFormatSymbols implements Serializable, Cloneable {
         months = localeData.longMonthNames;
         shortMonths = localeData.shortMonthNames;
         ampms = localeData.amPm;
-        localPatternChars = SimpleDateFormat.PATTERN_CHARS;
+        localPatternChars = patternChars;
 
         // Day of week names are stored in a 1-based array.
         weekdays = localeData.longWeekdayNames;
