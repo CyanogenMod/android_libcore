@@ -66,6 +66,7 @@ local_javac_flags=-encoding UTF-8
 #local_javac_flags+=-Xlint:all -Xlint:-serial,-deprecation,-unchecked
 local_javac_flags+=-Xmaxwarns 9999999
 
+
 #
 # Build for the target (device).
 #
@@ -89,6 +90,13 @@ LOCAL_UNINSTALLABLE_MODULE := true
 include $(BUILD_JAVA_LIBRARY)
 
 core_all_intermediates := $(call intermediates-dir-for,JAVA_LIBRARIES,core-all,,COMMON)
+core_proguard_obfuscation_flags := \
+    -renamesourcefileattribute SourceFile \
+    -keepattributes SourceFile,LineNumberTable \
+    -dontwarn \*\* \
+    -dontshrink \
+    -dontoptimize \
+    -applymapping $(core_all_intermediates)/proguard_dictionary
 
 include $(CLEAR_VARS)
 LOCAL_SRC_FILES := $(openjdk_java_files) $(non_openjdk_java_files)
@@ -116,7 +124,7 @@ LOCAL_MODULE := core-oj
 LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk core-all
 ifeq ($(ANDROID_DISABLE_CORE_OBFUSCATION),)
 LOCAL_PROGUARD_ENABLED := obfuscation nosystem
-LOCAL_PROGUARD_FLAGS := -dontwarn \*\* -dontshrink -dontoptimize -applymapping $(core_all_intermediates)/proguard_dictionary
+LOCAL_PROGUARD_FLAGS := $(core_proguard_obfuscation_flags)
 endif
 LOCAL_JAVA_LIBRARIES := core-all-unobfuscated
 LOCAL_REQUIRED_MODULES := tzdata
@@ -134,7 +142,7 @@ LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := core-libart
 ifeq ($(ANDROID_DISABLE_CORE_OBFUSCATION),)
 LOCAL_PROGUARD_ENABLED := obfuscation nosystem
-LOCAL_PROGUARD_FLAGS := -dontwarn \*\* -dontshrink -dontoptimize -applymapping $(core_all_intermediates)/proguard_dictionary
+LOCAL_PROGUARD_FLAGS := $(core_proguard_obfuscation_flags)
 endif
 LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk core-all
 LOCAL_JAVA_LIBRARIES := core-all-unobfuscated

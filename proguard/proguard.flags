@@ -3,6 +3,8 @@
 -packageobfuscationdictionary package_obfuscation_dictionary.proguard
 -applymapping mapping.proguard
 -ignorewarnings
+-renamesourcefileattribute SourceFile
+-keepattributes SourceFile,LineNumberTable
 
 -keepnames class java.** {
 *;
