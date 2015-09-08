@@ -92,7 +92,7 @@ include $(BUILD_JAVA_LIBRARY)
 core_all_intermediates := $(call intermediates-dir-for,JAVA_LIBRARIES,core-all,,COMMON)
 core_proguard_obfuscation_flags := \
     -renamesourcefileattribute SourceFile \
-    -keepattributes SourceFile,LineNumberTable \
+    -keepattributes Exceptions,InnerClasses,Signature,Deprecated,SourceFile,LineNumberTable,*Annotation*,EnclosingMethod \
     -dontwarn \*\* \
     -dontshrink \
     -dontoptimize \

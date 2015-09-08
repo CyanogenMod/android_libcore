@@ -4,7 +4,7 @@
 -applymapping mapping.proguard
 -ignorewarnings
 -renamesourcefileattribute SourceFile
--keepattributes SourceFile,LineNumberTable
+-keepattributes Exceptions,InnerClasses,Signature,Deprecated,SourceFile,LineNumberTable,*Annotation*,EnclosingMethod
 
 -keepnames class java.** {
 *;
