@@ -56,6 +56,11 @@
 *;
 }
 
+# Useful only for
+-keepnames class sun.text.resources.** {
+*;
+}
+
 -keepnames class org.apache.harmony.dalvik.** {
 *;
 }

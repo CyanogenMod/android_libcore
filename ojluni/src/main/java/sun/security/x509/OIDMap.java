@@ -116,55 +116,55 @@ public class OIDMap {
         oidMap = new HashMap<ObjectIdentifier,OIDInfo>();
         nameMap = new HashMap<String,OIDInfo>();
         addInternal(SUB_KEY_IDENTIFIER, PKIXExtensions.SubjectKey_Id,
-                    "sun.security.x509.SubjectKeyIdentifierExtension");
+                SubjectKeyIdentifierExtension.class);
         addInternal(KEY_USAGE, PKIXExtensions.KeyUsage_Id,
-                    "sun.security.x509.KeyUsageExtension");
+                KeyUsageExtension.class);
         addInternal(PRIVATE_KEY_USAGE, PKIXExtensions.PrivateKeyUsage_Id,
-                    "sun.security.x509.PrivateKeyUsageExtension");
+                PrivateKeyUsageExtension.class);
         addInternal(SUB_ALT_NAME, PKIXExtensions.SubjectAlternativeName_Id,
-                    "sun.security.x509.SubjectAlternativeNameExtension");
+                SubjectAlternativeNameExtension.class);
         addInternal(ISSUER_ALT_NAME, PKIXExtensions.IssuerAlternativeName_Id,
-                    "sun.security.x509.IssuerAlternativeNameExtension");
+                IssuerAlternativeNameExtension.class);
         addInternal(BASIC_CONSTRAINTS, PKIXExtensions.BasicConstraints_Id,
-                    "sun.security.x509.BasicConstraintsExtension");
+                    BasicConstraintsExtension.class);
         addInternal(CRL_NUMBER, PKIXExtensions.CRLNumber_Id,
-                    "sun.security.x509.CRLNumberExtension");
+                    CRLNumberExtension.class);
         addInternal(CRL_REASON, PKIXExtensions.ReasonCode_Id,
-                    "sun.security.x509.CRLReasonCodeExtension");
+                    CRLReasonCodeExtension.class);
         addInternal(NAME_CONSTRAINTS, PKIXExtensions.NameConstraints_Id,
-                    "sun.security.x509.NameConstraintsExtension");
+                    NameConstraintsExtension.class);
         addInternal(POLICY_MAPPINGS, PKIXExtensions.PolicyMappings_Id,
-                    "sun.security.x509.PolicyMappingsExtension");
+                    PolicyMappingsExtension.class);
         addInternal(AUTH_KEY_IDENTIFIER, PKIXExtensions.AuthorityKey_Id,
-                    "sun.security.x509.AuthorityKeyIdentifierExtension");
+                    AuthorityKeyIdentifierExtension.class);
         addInternal(POLICY_CONSTRAINTS, PKIXExtensions.PolicyConstraints_Id,
-                    "sun.security.x509.PolicyConstraintsExtension");
+                    PolicyConstraintsExtension.class);
         addInternal(NETSCAPE_CERT, ObjectIdentifier.newInternal
                     (new int[] {2,16,840,1,113730,1,1}),
-                    "sun.security.x509.NetscapeCertTypeExtension");
+                    NetscapeCertTypeExtension.class);
         addInternal(CERT_POLICIES, PKIXExtensions.CertificatePolicies_Id,
-                    "sun.security.x509.CertificatePoliciesExtension");
+                    CertificatePoliciesExtension.class);
         addInternal(EXT_KEY_USAGE, PKIXExtensions.ExtendedKeyUsage_Id,
-                    "sun.security.x509.ExtendedKeyUsageExtension");
+                    ExtendedKeyUsageExtension.class);
         addInternal(INHIBIT_ANY_POLICY, PKIXExtensions.InhibitAnyPolicy_Id,
-                    "sun.security.x509.InhibitAnyPolicyExtension");
+                    InhibitAnyPolicyExtension.class);
         addInternal(CRL_DIST_POINTS, PKIXExtensions.CRLDistributionPoints_Id,
-                    "sun.security.x509.CRLDistributionPointsExtension");
+                    CRLDistributionPointsExtension.class);
         addInternal(CERT_ISSUER, PKIXExtensions.CertificateIssuer_Id,
-                    "sun.security.x509.CertificateIssuerExtension");
+                    CertificateIssuerExtension.class);
         addInternal(SUBJECT_INFO_ACCESS, PKIXExtensions.SubjectInfoAccess_Id,
-                    "sun.security.x509.SubjectInfoAccessExtension");
+                    SubjectInfoAccessExtension.class);
         addInternal(AUTH_INFO_ACCESS, PKIXExtensions.AuthInfoAccess_Id,
-                    "sun.security.x509.AuthorityInfoAccessExtension");
+                    AuthorityInfoAccessExtension.class);
         addInternal(ISSUING_DIST_POINT,
                     PKIXExtensions.IssuingDistributionPoint_Id,
-                    "sun.security.x509.IssuingDistributionPointExtension");
+                    IssuingDistributionPointExtension.class);
         addInternal(DELTA_CRL_INDICATOR, PKIXExtensions.DeltaCRLIndicator_Id,
-                    "sun.security.x509.DeltaCRLIndicatorExtension");
+                    DeltaCRLIndicatorExtension.class);
         addInternal(FRESHEST_CRL, PKIXExtensions.FreshestCRL_Id,
-                    "sun.security.x509.FreshestCRLExtension");
+                    FreshestCRLExtension.class);
         addInternal(OCSPNOCHECK, PKIXExtensions.OCSPNoCheck_Id,
-                    "sun.security.x509.OCSPNoCheckExtension");
+                    OCSPNoCheckExtension.class);
     }
 
     /**
@@ -172,8 +172,8 @@ public class OIDMap {
      * initializer.
      */
     private static void addInternal(String name, ObjectIdentifier oid,
-            String className) {
-        OIDInfo info = new OIDInfo(name, oid, className);
+            Class clazz) {
+        OIDInfo info = new OIDInfo(name, oid, clazz);
         oidMap.put(oid, info);
         nameMap.put(name, info);
     }
@@ -185,19 +185,11 @@ public class OIDMap {
 
         final ObjectIdentifier oid;
         final String name;
-        final String className;
-        private volatile Class clazz;
-
-        OIDInfo(String name, ObjectIdentifier oid, String className) {
-            this.name = name;
-            this.oid = oid;
-            this.className = className;
-        }
+        private final Class clazz;
 
         OIDInfo(String name, ObjectIdentifier oid, Class clazz) {
             this.name = name;
             this.oid = oid;
-            this.className = clazz.getName();
             this.clazz = clazz;
         }
 
@@ -205,17 +197,7 @@ public class OIDMap {
          * Return the Class object associated with this attribute.
          */
         Class getClazz() throws CertificateException {
-            try {
-                Class c = clazz;
-                if (c == null) {
-                    c = Class.forName(className);
-                    clazz = c;
-                }
-                return c;
-            } catch (ClassNotFoundException e) {
-                throw (CertificateException)new CertificateException
-                                ("Could not load class: " + e).initCause(e);
-            }
+            return clazz;
         }
     }
 
