@@ -922,7 +922,10 @@ public class MulticastSocketTest extends junit.framework.TestCase {
         return iface.isUp()
                 // Typically loopback interfaces do not support multicast, but we rule them out
                 // explicitly anyway.
-                && !iface.isLoopback() && iface.supportsMulticast()
+                && !iface.isLoopback()
+                // Point-to-point interfaces are known to cause problems. http://b/23279677
+                && !iface.isPointToPoint()
+                && iface.supportsMulticast()
                 && iface.getInetAddresses().hasMoreElements();
     }
 
