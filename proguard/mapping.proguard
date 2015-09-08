@@ -2835,45 +2835,6 @@ sun.nio.ch.Util$SelectorWrapper -> xx001.bp:
 sun.nio.ch.Util$SelectorWrapper$Closer -> xx001.bq:
     java.nio.channels.Selector sel -> a
     void run() -> run
-sun.nio.cs.ArrayDecoder -> f.a:
-    int decode$3bd869d7() -> a
-sun.nio.cs.ArrayEncoder -> f.b:
-    int encode$70bea157() -> a
-sun.nio.cs.HistoricallyNamedCharset -> f.c:
-    java.lang.String historicalName() -> a
-sun.nio.cs.StreamDecoder -> f.d:
-    int MIN_BYTE_BUFFER_SIZE -> a
-    int DEFAULT_BYTE_BUFFER_SIZE -> b
-    boolean isOpen -> c
-    boolean haveLeftoverChar -> d
-    char leftoverChar -> e
-    boolean needsFlush -> f
-    boolean channelsAvailable -> g
-    java.nio.charset.Charset cs -> h
-    java.nio.charset.CharsetDecoder decoder -> i
-    java.nio.ByteBuffer bb -> j
-    java.io.InputStream in -> k
-    java.nio.channels.ReadableByteChannel ch -> l
-    boolean $assertionsDisabled -> m
-    void ensureOpen() -> b
-    sun.nio.cs.StreamDecoder forInputStreamReader(java.io.InputStream,java.lang.Object,java.lang.String) -> a
-    sun.nio.cs.StreamDecoder forInputStreamReader(java.io.InputStream,java.lang.Object,java.nio.charset.Charset) -> a
-    sun.nio.cs.StreamDecoder forInputStreamReader(java.io.InputStream,java.lang.Object,java.nio.charset.CharsetDecoder) -> a
-    sun.nio.cs.StreamDecoder forDecoder(java.nio.channels.ReadableByteChannel,java.nio.charset.CharsetDecoder,int) -> a
-    java.lang.String getEncoding() -> a
-    int read() -> read
-    int read0() -> c
-    int read(char[],int,int) -> read
-    boolean ready() -> ready
-    void close() -> close
-    boolean isOpen() -> d
-    java.nio.channels.FileChannel getChannel(java.io.FileInputStream) -> a
-    int readBytes() -> e
-    int implRead(char[],int,int) -> a
-    java.lang.String encodingName() -> f
-    boolean inReady() -> g
-    boolean implReady() -> h
-    void implClose() -> i
 sun.nio.fs.AbstractBasicFileAttributeView -> xx002.a:
     java.lang.String SIZE_NAME -> b
     java.lang.String CREATION_TIME_NAME -> c
