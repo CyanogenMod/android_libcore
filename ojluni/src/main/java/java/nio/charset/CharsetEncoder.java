@@ -906,15 +906,18 @@ public abstract class CharsetEncoder {
         try {
             onMalformedInput(CodingErrorAction.REPORT);
             onUnmappableCharacter(CodingErrorAction.REPORT);
-            encode(cb);
+            // Android changed : Account for ignorable codepoints. ICU doesn't report
+            // an error, but will return an empty buffer.
+            ByteBuffer buf = encode(cb);
+            return buf.hasRemaining();
         } catch (CharacterCodingException x) {
-            return false;
+            // fall through to return false.
         } finally {
             onMalformedInput(ma);
             onUnmappableCharacter(ua);
             reset();
         }
-        return true;
+        return false;
     }
 
     /**
