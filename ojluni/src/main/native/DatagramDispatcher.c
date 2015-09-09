@@ -42,6 +42,12 @@
 #include "nio_util.h"
 #include <limits.h>
 
+#include "nio.h"
+#include "JNIHelp.h"
+
+#define NATIVE_METHOD(className, functionName, signature) \
+{ #functionName, signature, (void*)(Java_sun_nio_ch_ ## className ## _ ## functionName) }
+
 JNIEXPORT jint JNICALL
 Java_sun_nio_ch_DatagramDispatcher_read0(JNIEnv *env, jclass clazz,
                          jobject fdo, jlong address, jint len)
@@ -132,4 +138,15 @@ Java_sun_nio_ch_DatagramDispatcher_writev0(JNIEnv *env, jclass clazz,
         return -2;
     }
     return convertLongReturnVal(env, (jlong)result, JNI_FALSE);
+}
+
+static JNINativeMethod gMethods[] = {
+  NATIVE_METHOD(DatagramDispatcher, read0, "(Ljava/io/FileDescriptor;JI)I"),
+  NATIVE_METHOD(DatagramDispatcher, readv0, "(Ljava/io/FileDescriptor;JI)J"),
+  NATIVE_METHOD(DatagramDispatcher, write0, "(Ljava/io/FileDescriptor;JI)I"),
+  NATIVE_METHOD(DatagramDispatcher, writev0, "(Ljava/io/FileDescriptor;JI)J"),
+};
+
+void register_sun_nio_ch_DatagramDispatcher(JNIEnv* env) {
+  jniRegisterNativeMethods(env, SUN_NIO_CH(DatagramDispatcher), gMethods, NELEM(gMethods));
 }
