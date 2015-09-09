@@ -36,6 +36,8 @@ public class ClassPathURLStreamHandlerTest extends TestCase {
     // A well formed jar file with 6 entries.
     private static final String JAR = "ClassPathURLStreamHandlerTest.jar";
     private static final String ENTRY_IN_ROOT = "root.txt";
+    private static final String DIR_ENTRY_WITHOUT_SLASH = "foo";
+    private static final String DIR_ENTRY_WITH_SLASH = DIR_ENTRY_WITHOUT_SLASH + "/";
     private static final String ENTRY_IN_SUBDIR = "foo/bar/baz.txt";
     private static final String ENTRY_STORED = "stored_file.txt";
     private static final String ENTRY_WITH_SPACES_ENCODED = "file%20with%20spaces.txt";
@@ -74,12 +76,23 @@ public class ClassPathURLStreamHandlerTest extends TestCase {
         assertNotNull(streamHandler.getEntryUrlOrNull(ENTRY_WITH_SPACES_UNENCODED));
         assertNotNull(streamHandler.getEntryUrlOrNull(ENTRY_THAT_NEEDS_ESCAPING));
 
-        // getEntryOrNull() performs an exact match on the entry name.
+        // getEntryOrNull() performs a lookup with and without trailing slash to handle directories.
+        // http://b/22527772
+        URL urlWithoutSlash = streamHandler.getEntryUrlOrNull(DIR_ENTRY_WITHOUT_SLASH);
+        assertNotNull(urlWithoutSlash);
+        assertTrue(urlWithoutSlash.toString().endsWith(DIR_ENTRY_WITHOUT_SLASH));
+
+        URL urlWithSlash = streamHandler.getEntryUrlOrNull(DIR_ENTRY_WITH_SLASH);
+        assertNotNull(urlWithSlash);
+        assertTrue(urlWithSlash.toString().endsWith(DIR_ENTRY_WITH_SLASH));
+
         assertNull(streamHandler.getEntryUrlOrNull(MISSING_ENTRY));
         assertNull(streamHandler.getEntryUrlOrNull("/" + ENTRY_IN_ROOT));
         assertNull(streamHandler.getEntryUrlOrNull("/" + ENTRY_IN_SUBDIR));
         assertNull(streamHandler.getEntryUrlOrNull(ENTRY_WITH_SPACES_ENCODED));
         assertNull(streamHandler.getEntryUrlOrNull(ENTRY_WITH_RELATIVE_PATH));
+        assertNull(streamHandler.getEntryUrlOrNull("/" + DIR_ENTRY_WITHOUT_SLASH));
+        assertNull(streamHandler.getEntryUrlOrNull("/" + DIR_ENTRY_WITH_SLASH));
         streamHandler.close();
     }
 
@@ -91,6 +104,12 @@ public class ClassPathURLStreamHandlerTest extends TestCase {
         // This one is compressed
         assertFalse(streamHandler.isEntryStored(ENTRY_IN_SUBDIR));
         assertTrue(streamHandler.isEntryStored(ENTRY_STORED));
+
+        // isEntryStored is used internally and requires an exact name match.
+        assertFalse(streamHandler.isEntryStored(DIR_ENTRY_WITHOUT_SLASH));
+        // Directory entries are just stored, empty entries with "/" on the end of the name, so
+        // "true".
+        assertTrue(streamHandler.isEntryStored(DIR_ENTRY_WITH_SLASH));
     }
 
     public void testOpenConnection() throws Exception {
@@ -101,6 +120,8 @@ public class ClassPathURLStreamHandlerTest extends TestCase {
         assertOpenConnectionOk(jarFile, ENTRY_IN_SUBDIR, streamHandler);
         assertOpenConnectionOk(jarFile, ENTRY_WITH_SPACES_ENCODED, streamHandler);
         assertOpenConnectionOk(jarFile, ENTRY_WITH_SPACES_UNENCODED, streamHandler);
+        assertOpenConnectionOk(jarFile, DIR_ENTRY_WITH_SLASH, streamHandler);
+        assertOpenConnectionOk(jarFile, DIR_ENTRY_WITHOUT_SLASH, streamHandler);
 
         assertOpenConnectionConnectFails(jarFile, ENTRY_WITH_RELATIVE_PATH, streamHandler);
         assertOpenConnectionConnectFails(jarFile, MISSING_ENTRY, streamHandler);
