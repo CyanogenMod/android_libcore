@@ -64,8 +64,11 @@ public final class ECKeyFactory extends KeyFactorySpi {
         final Provider p = new Provider("SunEC-Internal", 1.0d, null) {};
         AccessController.doPrivileged(new PrivilegedAction<Void>() {
             public Void run() {
-                p.put("KeyFactory.EC", "sun.security.ec.ECKeyFactory");
-                p.put("AlgorithmParameters.EC", "sun.security.ec.ECParameters");
+                // Android changed : replace string reference with class name. It
+                // makes no difference in this case since these classes are already
+                // in direct use here.
+                p.put("KeyFactory.EC", ECKeyFactory.class.getName());
+                p.put("AlgorithmParameters.EC", ECParameters.class.getName());
                 p.put("Alg.Alias.AlgorithmParameters.1.2.840.10045.2.1", "EC");
                 return null;
             }
