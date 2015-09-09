@@ -1464,18 +1464,8 @@ openjdk_java_files := \
     ojluni/src/main/java/sun/security/util/ManifestEntryVerifier.java \
     ojluni/src/main/java/sun/security/util/ObjectIdentifier.java \
     ojluni/src/main/java/sun/security/util/PropertyExpander.java \
-    ojluni/src/main/java/sun/security/util/Resources_de.java \
-    ojluni/src/main/java/sun/security/util/Resources_es.java \
-    ojluni/src/main/java/sun/security/util/Resources_fr.java \
-    ojluni/src/main/java/sun/security/util/Resources_it.java \
-    ojluni/src/main/java/sun/security/util/Resources_ja.java \
     ojluni/src/main/java/sun/security/util/Resources.java \
-    ojluni/src/main/java/sun/security/util/Resources_ko.java \
     ojluni/src/main/java/sun/security/util/ResourcesMgr.java \
-    ojluni/src/main/java/sun/security/util/Resources_pt_BR.java \
-    ojluni/src/main/java/sun/security/util/Resources_sv.java \
-    ojluni/src/main/java/sun/security/util/Resources_zh_CN.java \
-    ojluni/src/main/java/sun/security/util/Resources_zh_TW.java \
     ojluni/src/main/java/sun/security/util/SecurityConstants.java \
     ojluni/src/main/java/sun/security/util/SignatureFileVerifier.java \
     ojluni/src/main/java/sun/security/util/UntrustedCertificates.java \
