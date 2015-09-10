@@ -76,47 +76,25 @@ public abstract class CalendarSystem {
 
     /////////////////////// Calendar Factory Methods /////////////////////////
 
-    private volatile static boolean initialized = false;
+    // Map of calendar names and calendar classes;
+    private static final Map<String, Class<?>> names;
 
-    // Map of calendar names and calendar class names
-    private static ConcurrentMap<String, String> names;
+    // Android changed : Don't use reflection for Class.forName every time.
+
+    static {
+        names = new HashMap<>();
+        names.put("gregorian", Gregorian.class);
+        names.put("japanese", LocalGregorianCalendar.class);
+        names.put("julian", JulianCalendar.class);
+        // names.put("hebrew", "HebrewCalendar");
+        // names.put("iso8601", "ISOCalendar");
+        // names.put("taiwanese", "LocalGregorianCalendar");
+        // names.put("thaibuddhist", "LocalGregorianCalendar");
+    }
 
     // Map of calendar names and CalendarSystem instances
-    private static ConcurrentMap<String,CalendarSystem> calendars;
-
-    private static final String PACKAGE_NAME = "sun.util.calendar.";
-
-    private static final String[] namePairs = {
-        "gregorian", "Gregorian",
-        "japanese", "LocalGregorianCalendar",
-        "julian", "JulianCalendar",
-        /*
-        "hebrew", "HebrewCalendar",
-        "iso8601", "ISOCalendar",
-        "taiwanese", "LocalGregorianCalendar",
-        "thaibuddhist", "LocalGregorianCalendar",
-        */
-    };
-
-    private static void initNames() {
-        ConcurrentMap<String,String> nameMap = new ConcurrentHashMap<String,String>();
-
-        // Associate a calendar name with its class name and the
-        // calendar class name with its date class name.
-        StringBuilder clName = new StringBuilder();
-        for (int i = 0; i < namePairs.length; i += 2) {
-            clName.setLength(0);
-            String cl = clName.append(PACKAGE_NAME).append(namePairs[i+1]).toString();
-            nameMap.put(namePairs[i], cl);
-        }
-        synchronized (CalendarSystem.class) {
-            if (!initialized) {
-                names = nameMap;
-                calendars = new ConcurrentHashMap<String,CalendarSystem>();
-                initialized = true;
-            }
-        }
-    }
+    private static final ConcurrentMap<String, CalendarSystem> calendars =
+            new ConcurrentHashMap<>();
 
     private final static Gregorian GREGORIAN_INSTANCE = new Gregorian();
 
@@ -145,27 +123,22 @@ public abstract class CalendarSystem {
             return GREGORIAN_INSTANCE;
         }
 
-        if (!initialized) {
-            initNames();
-        }
-
         CalendarSystem cal = calendars.get(calendarName);
         if (cal != null) {
             return cal;
         }
 
-        String className = names.get(calendarName);
-        if (className == null) {
+        Class<?> calendarClass = names.get(calendarName);
+        if (calendarClass == null) {
             return null; // Unknown calendar name
         }
 
-        if (className.endsWith("LocalGregorianCalendar")) {
+        if (calendarClass.isAssignableFrom(LocalGregorianCalendar.class)) {
             // Create the specific kind of local Gregorian calendar system
             cal = LocalGregorianCalendar.getLocalGregorianCalendar(calendarName);
         } else {
             try {
-                Class cl = Class.forName(className);
-                cal = (CalendarSystem) cl.newInstance();
+                cal = (CalendarSystem) calendarClass.newInstance();
             } catch (Exception e) {
                 throw new RuntimeException("internal error", e);
             }
@@ -173,6 +146,7 @@ public abstract class CalendarSystem {
         if (cal == null) {
             return null;
         }
+
         CalendarSystem cs =  calendars.putIfAbsent(calendarName, cal);
         return (cs == null) ? cal : cs;
     }
