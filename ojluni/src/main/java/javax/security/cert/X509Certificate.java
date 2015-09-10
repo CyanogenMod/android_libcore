@@ -26,6 +26,8 @@
 
 package javax.security.cert;
 
+import com.sun.security.cert.internal.x509.X509V1CertImpl;
+
 import java.io.InputStream;
 import java.lang.Class;
 import java.lang.reflect.Constructor;
@@ -141,6 +143,9 @@ public abstract class X509Certificate extends Certificate {
     private static final String X509_PROVIDER = "cert.provider.x509v1";
     private static String X509Provider;
 
+    // Android-added.
+    private static final String DEFAULT_X509_CERT_CLASS = X509V1CertImpl.class.getName();
+
     static {
         X509Provider = AccessController.doPrivileged(
             new PrivilegedAction<String>() {
@@ -216,7 +221,9 @@ public abstract class X509Certificate extends Certificate {
         if (className == null || className.length() == 0) {
             // shouldn't happen, but assume corrupted properties file
             // provide access to sun implementation
-            className = "com.sun.security.cert.internal.x509.X509V1CertImpl";
+            //
+            // Android-changed.
+            className = DEFAULT_X509_CERT_CLASS;
         }
         try {
             Class[] params = null;
