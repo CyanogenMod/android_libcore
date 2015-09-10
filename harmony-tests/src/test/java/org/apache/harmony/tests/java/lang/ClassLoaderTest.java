@@ -21,6 +21,11 @@ import junit.framework.TestCase;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.JarURLConnection;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.jar.JarFile;
+import libcore.io.Streams;
 
 public class ClassLoaderTest extends TestCase {
 
@@ -130,6 +135,71 @@ public class ClassLoaderTest extends TestCase {
         assertGetResourceAsStreamNotNull(testClassLoader, ClassTest.SHARP_RESOURCE_ABS_NAME);
     }
 
+    public void testUncachedJarStreamBehavior() throws Exception {
+        URL resourceFromJar = testClassLoader.getResource(TEST_RESOURCE_NAME);
+        JarURLConnection uncachedConnection = (JarURLConnection) resourceFromJar.openConnection();
+        uncachedConnection.setUseCaches(false);
+        JarFile uncachedJarFile = uncachedConnection.getJarFile();
+        InputStream is = uncachedConnection.getInputStream();
+        is.close();
+
+        assertTrue("Closing the stream should close a cached connection",
+                isJarUrlConnectClosed(uncachedConnection));
+
+        // Closing the stream closes the JarFile.
+        assertTrue(isJarFileClosed(uncachedJarFile));
+    }
+
+    public void testCachedJarStreamBehavior() throws Exception {
+        URL resourceFromJar = testClassLoader.getResource(TEST_RESOURCE_NAME);
+        JarURLConnection cachedConnection1 = (JarURLConnection) resourceFromJar.openConnection();
+        assertTrue(cachedConnection1.getUseCaches());
+
+        JarURLConnection cachedConnection2 = (JarURLConnection) resourceFromJar.openConnection();
+        assertTrue(cachedConnection2.getUseCaches());
+
+        InputStream is1 = cachedConnection1.getInputStream();
+        byte[] resourceData1 = Streams.readFullyNoClose(is1);
+        is1.close();
+        assertFalse("Closing the stream should not close a cached connection",
+                isJarUrlConnectClosed(cachedConnection1));
+
+        InputStream is2 = cachedConnection2.getInputStream();
+        byte[] resourceData2 = Streams.readFullyNoClose(is2);
+        is2.close();
+        assertFalse("Closing the stream should not close a cached connection",
+                isJarUrlConnectClosed(cachedConnection2));
+
+        assertEquals(Arrays.toString(resourceData1), Arrays.toString(resourceData2));
+    }
+
+    public void testResourceJarFileBehavior() throws Exception {
+        URL resourceFromJar = testClassLoader.getResource(TEST_RESOURCE_NAME);
+        JarURLConnection urlConnection1 = (JarURLConnection) resourceFromJar.openConnection();
+        assertTrue(urlConnection1.getUseCaches());
+
+        JarURLConnection urlConnection2 = (JarURLConnection) resourceFromJar.openConnection();
+        assertTrue(urlConnection1.getUseCaches());
+        assertNotSame(urlConnection1, urlConnection2);
+
+        JarURLConnection uncachedConnection = (JarURLConnection) resourceFromJar.openConnection();
+        assertNotSame(uncachedConnection, urlConnection2);
+        uncachedConnection.setUseCaches(false);
+
+        JarFile jarFile1 = urlConnection1.getJarFile();
+        JarFile jarFile2 = urlConnection2.getJarFile();
+        // Note: This implies nobody should ever call JarFile.close() when caching is enabled.
+        // We cannot test this, because it will break later tests.
+        assertSame(jarFile1, jarFile2);
+
+        JarFile uncachedJarFile = uncachedConnection.getJarFile();
+        assertNotSame(jarFile1, uncachedJarFile);
+        uncachedJarFile.close();
+
+        assertFalse(isJarFileClosed(jarFile1));
+        assertTrue(isJarFileClosed(uncachedJarFile));
+    }
+
     private static void assertGetResourceAsStreamNotNull(ClassLoader classLoader,
             String resourceName) throws IOException {
         InputStream is = null;
@@ -153,6 +223,27 @@ public class ClassLoaderTest extends TestCase {
             is.close();
         } catch (IOException e) {
             fail("IOException getting stream for resource : " + e.getMessage());
+        }
+    }
+
+    private static boolean isJarFileClosed(JarFile jarFile) {
+        // Indirectly detect that the JarFile has been closed.
+        try {
+            jarFile.getEntry("anyName");
+            return false;
+        } catch (IllegalStateException expected) {
+            return true;
+        }
+    }
+
+    private static boolean isJarUrlConnectClosed(JarURLConnection jarURLConnection)
+            throws IOException {
+        // Indirectly detect that the jarURLConnection has been closed.
+        try {
+            jarURLConnection.getInputStream();
+            return false;
+        } catch (IllegalStateException e) {
+            return true;
         }
     }
 }
