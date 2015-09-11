@@ -35,11 +35,24 @@ import libcore.net.UriCodec;
  * of an archive is referred.
  * <p>
  * Examples:
+ * <ul>
  * <li>Archive: {@code jar:http://www.example.com/applets/archive.jar!/}</li>
  * <li>File Entry: {@code
  * jar:http://www.example.com/applets/archive.jar!/test.class}</li>
  * <li>Directory Entry: {@code
  * jar:http://www.example.com/applets/archive.jar!/applets/}</li>
+ * </ul>
+ * <p>
+ * This class has different behavior depending on the {@link #getUseCaches()}
+ * setting. When caching is enabled the underlying {@code JarFile} returned from
+ * {@link #getJarFile()} is cached and shared between connections. It must not be
+ * closed by the caller. Disabling caching using {@link #setUseCaches(boolean)}
+ * will prevent sharing but in the absence of a
+ * {@code JarURLConnection.disconnect()} method the only way to close the
+ * underlying {@code JarFile} is to call {@code getJarFile().close()}
+ * or {@code getInputStream().close()}. For uncached connections, closing the
+ * {@code JarFile} can prevent various other {@link URLConnection} methods from
+ * working.
  */
 public abstract class JarURLConnection extends URLConnection {
 
