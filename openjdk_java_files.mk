@@ -851,7 +851,6 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/java/util/ListIterator.java \
     ojluni/src/main/java/java/util/List.java \
     ojluni/src/main/java/java/util/ListResourceBundle.java \
-    ojluni/src/main/java/java/util/LocaleISOData.java \
     ojluni/src/main/java/java/util/Locale.java \
     ojluni/src/main/java/java/util/logging/ConsoleHandler.java \
     ojluni/src/main/java/java/util/logging/ErrorManager.java \

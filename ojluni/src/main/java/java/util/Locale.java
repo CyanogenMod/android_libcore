@@ -948,12 +948,8 @@ public final class Locale implements Cloneable, Serializable {
      * codes that can be used to create Locales.
      */
     public static String[] getISOCountries() {
-        if (isoCountries == null) {
-            isoCountries = getISO2Table(LocaleISOData.isoCountryTable);
-        }
-        String[] result = new String[isoCountries.length];
-        System.arraycopy(isoCountries, 0, result, 0, isoCountries.length);
-        return result;
+        // Android-changed: Use ICU.
+        return ICU.getISOCountries();
     }
 
     /**
@@ -971,21 +967,8 @@ public final class Locale implements Cloneable, Serializable {
      * </ul>
      */
     public static String[] getISOLanguages() {
-        if (isoLanguages == null) {
-            isoLanguages = getISO2Table(LocaleISOData.isoLanguageTable);
-        }
-        String[] result = new String[isoLanguages.length];
-        System.arraycopy(isoLanguages, 0, result, 0, isoLanguages.length);
-        return result;
-    }
-
-    private static final String[] getISO2Table(String table) {
-        int len = table.length() / 5;
-        String[] isoTable = new String[len];
-        for (int i = 0, j = 0; i < len; i++, j += 5) {
-            isoTable[i] = table.substring(j, j + 2);
-        }
-        return isoTable;
+        // Android-changed: Use ICU.
+        return ICU.getISOLanguages();
     }
 
     /**
@@ -1493,16 +1476,21 @@ public final class Locale implements Cloneable, Serializable {
      * three-letter language abbreviation is not available for this locale.
      */
     public String getISO3Language() throws MissingResourceException {
+        // Android-changed: Use ICU.getIso3Language. Also return "" for empty languages
+        // for the sake of backwards compatibility.
         String lang = baseLocale.getLanguage();
         if (lang.length() == 3) {
             return lang;
+        } else if (lang.isEmpty()) {
+            return "";
         }
 
-        String language3 = getISO3Code(lang, LocaleISOData.isoLanguageTable);
-        if (language3 == null) {
+        String language3 = ICU.getISO3Language(lang);
+        if (language3.isEmpty()) {
             throw new MissingResourceException("Couldn't find 3-letter language code for "
                     + lang, "FormatData_" + toString(), "ShortLanguage");
         }
+
         return language3;
     }
 
@@ -1520,38 +1508,22 @@ public final class Locale implements Cloneable, Serializable {
      * three-letter country abbreviation is not available for this locale.
      */
     public String getISO3Country() throws MissingResourceException {
-        // Android-changed : Hack for UN-M49 location codes.
-        if (baseLocale.getRegion().length() == 3) {
+        // Android changed: Use.getIso3Country. Also return "" for missing regions.
+        final String region = baseLocale.getRegion();
+        // Note that this will return an UN.M49 region code
+        if (region.length() == 3) {
             return baseLocale.getRegion();
+        } else if (region.isEmpty()) {
+            return "";
         }
 
-        String country3 = getISO3Code(baseLocale.getRegion(), LocaleISOData.isoCountryTable);
+        // Prefix "en-" because ICU doesn't really care about what the language is.
+        String country3 = ICU.getISO3Country("en-" + region);
         if (country3 == null) {
             throw new MissingResourceException("Couldn't find 3-letter country code for "
                     + baseLocale.getRegion(), "FormatData_" + toString(), "ShortCountry");
         }
         return country3;
-    }
-
-    private static final String getISO3Code(String iso2Code, String table) {
-        int codeLength = iso2Code.length();
-        if (codeLength == 0) {
-            return "";
-        }
-
-        int tableLength = table.length();
-        int index = tableLength;
-        if (codeLength == 2) {
-            char c1 = iso2Code.charAt(0);
-            char c2 = iso2Code.charAt(1);
-            for (index = 0; index < tableLength; index += 5) {
-                if (table.charAt(index) == c1
-                    && table.charAt(index + 1) == c2) {
-                    break;
-                }
-            }
-        }
-        return index < tableLength ? table.substring(index + 2, index + 5) : null;
     }
 
     /**
@@ -2108,7 +2080,7 @@ public final class Locale implements Cloneable, Serializable {
      * @param in the <code>ObjectInputStream</code> to read
      * @throws IOException
      * @throws ClassNotFoundException
-     * @throws IllformdLocaleException
+     * @throws IllformedLocaleException
      * @since 1.7
      */
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
@@ -2208,39 +2180,6 @@ public final class Locale implements Cloneable, Serializable {
         }
 
         return adjusted;
-    }
-
-    /**
-     * Obtains a localized locale names from a LocaleNameProvider
-     * implementation.
-     */
-    private static class LocaleNameGetter
-        implements LocaleServiceProviderPool.LocalizedObjectGetter<LocaleNameProvider, String> {
-        private static final LocaleNameGetter INSTANCE = new LocaleNameGetter();
-
-        public String getObject(LocaleNameProvider localeNameProvider,
-                                Locale locale,
-                                String key,
-                                Object... params) {
-            assert params.length == 2;
-            int type = (Integer)params[0];
-            String code = (String)params[1];
-
-            switch(type) {
-            case DISPLAY_LANGUAGE:
-                return localeNameProvider.getDisplayLanguage(code, locale);
-            case DISPLAY_COUNTRY:
-                return localeNameProvider.getDisplayCountry(code, locale);
-            case DISPLAY_VARIANT:
-                return localeNameProvider.getDisplayVariant(code, locale);
-            case DISPLAY_SCRIPT:
-                return localeNameProvider.getDisplayScript(code, locale);
-            default:
-                assert false; // shouldn't happen
-            }
-
-            return null;
-        }
     }
 
     /**
