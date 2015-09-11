@@ -6,6 +6,10 @@
 -renamesourcefileattribute SourceFile
 -keepattributes Exceptions,InnerClasses,Signature,Deprecated,SourceFile,LineNumberTable,*Annotation*,EnclosingMethod
 
+-keepnames class com.ibm.** {
+*;
+}
+
 -keepnames class java.** {
 *;
 }
