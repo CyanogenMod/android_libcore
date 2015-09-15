@@ -80,8 +80,8 @@ import libcore.tlswire.handshake.ServerNameHelloExtension;
 import libcore.tlswire.record.TlsProtocols;
 import libcore.tlswire.record.TlsRecord;
 import libcore.tlswire.util.TlsProtocolVersion;
+import tests.net.DelegatingSSLSocketFactory;
 import tests.util.ForEachRunner;
-import tests.util.DelegatingSSLSocketFactory;
 import tests.util.Pair;
 
 public class SSLSocketTest extends TestCase {
@@ -1515,7 +1515,7 @@ public class SSLSocketTest extends TestCase {
         SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
         sslSocketFactory = new DelegatingSSLSocketFactory(sslSocketFactory) {
             @Override
-            protected void configureSocket(SSLSocket socket) {
+            protected SSLSocket configureSocket(SSLSocket socket) {
                 // Enable SNI extension on the socket (this is typically enabled by default)
                 // to increase the size of ClientHello.
                 try {
@@ -1538,6 +1538,7 @@ public class SSLSocketTest extends TestCase {
                 } catch (Exception e) {
                     throw new RuntimeException("Failed to enable Session Tickets", e);
                 }
+                return socket;
             }
         };
 

@@ -22,6 +22,8 @@ import com.google.mockwebserver.MockResponse;
 import com.google.mockwebserver.MockWebServer;
 import com.google.mockwebserver.RecordedRequest;
 import com.google.mockwebserver.SocketPolicy;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -62,6 +64,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
+import javax.net.SocketFactory;
 import javax.net.ssl.HandshakeCompletedListener;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -77,13 +80,17 @@ import javax.net.ssl.X509TrustManager;
 import libcore.java.security.TestKeyStore;
 import libcore.java.util.AbstractResourceLeakageDetectorTestCase;
 import libcore.javax.net.ssl.TestSSLContext;
-import tests.net.StuckServer;
+import tests.net.DelegatingSocketFactory;
 
 import static com.google.mockwebserver.SocketPolicy.DISCONNECT_AT_END;
 import static com.google.mockwebserver.SocketPolicy.DISCONNECT_AT_START;
 import static com.google.mockwebserver.SocketPolicy.FAIL_HANDSHAKE;
 import static com.google.mockwebserver.SocketPolicy.SHUTDOWN_INPUT_AT_END;
 import static com.google.mockwebserver.SocketPolicy.SHUTDOWN_OUTPUT_AT_END;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.spy;
 
 public final class URLConnectionTest extends AbstractResourceLeakageDetectorTestCase {
 
@@ -1745,30 +1752,61 @@ public final class URLConnectionTest extends AbstractResourceLeakageDetectorTest
     }
 
     /**
-     * Test that the timeout period is honored. The timeout may be doubled!
-     * HttpURLConnection will wait the full timeout for each of the server's IP
-     * addresses. This is typically one IPv4 address and one IPv6 address.
+     * Test that the timeout period is honored. The connect timeout is applied to each socket
+     * connection attempt. If a hostname resolves to multiple IPs HttpURLConnection will wait the
+     * full timeout for each.
      */
     public void testConnectTimeouts() throws IOException {
-        StuckServer ss = new StuckServer(true);
-        int serverPort = ss.getLocalPort();
-        String hostName = ss.getLocalSocketAddress().getAddress().getHostAddress();
-        URLConnection urlConnection = new URL("http://" + hostName + ":" + serverPort + "/")
-                .openConnection();
+        // During CTS tests we are limited in what host names we can depend on and unfortunately
+        // DNS lookups are not pluggable through standard APIs. During manual testing you should be
+        // able to change this to any name that can be resolved to multiple IPs and it should still
+        // work.
+        String hostName = "localhost";
+        int expectedConnectionAttempts = InetAddress.getAllByName(hostName).length;
+        int perSocketTimeout = 1000;
+        final int[] socketCreationCount = new int[1];
+        final int[] socketConnectTimeouts = new int[expectedConnectionAttempts];
 
-        int timeout = 1000;
-        urlConnection.setConnectTimeout(timeout);
-        long start = System.currentTimeMillis();
+        // It is difficult to force socket timeouts reliably so we replace the default SocketFactory
+        // and have it create Sockets that always time out when connect(SocketAddress, int) is
+        // called.
+        SocketFactory originalDefault = SocketFactory.getDefault();
         try {
+            // Override the default SocketFactory so we can intercept socket creation.
+            SocketFactory.setDefault(new DelegatingSocketFactory(originalDefault) {
+                @Override
+                protected Socket configureSocket(Socket socket) throws IOException {
+                    final int attemptNumber = socketCreationCount[0]++;
+                    Answer socketConnectAnswer = new Answer() {
+                        @Override public Object answer(InvocationOnMock invocation)
+                                throws Throwable {
+                            int timeoutArg = (int) invocation.getArguments()[1];
+                            socketConnectTimeouts[attemptNumber] = timeoutArg;
+                            throw new SocketTimeoutException(
+                                "Simulated timeout after " + timeoutArg);
+                        }
+                    };
+
+                    Socket socketSpy = spy(socket);
+                    // Create a partial mock that wraps the actual socket and intercepts the
+                    // connect(SocketAddress, int) method.
+                    doAnswer(socketConnectAnswer)
+                        .when(socketSpy).connect(any(SocketAddress.class), anyInt());
+                    return socketSpy;
+                }
+            });
+
+            URLConnection urlConnection = new URL("http://" + hostName + "/").openConnection();
+            urlConnection.setConnectTimeout(perSocketTimeout);
             urlConnection.getInputStream();
             fail();
-        } catch (SocketTimeoutException expected) {
-            long elapsed = System.currentTimeMillis() - start;
-            int attempts = InetAddress.getAllByName("localhost").length; // one per IP address
-            assertTrue("timeout=" +timeout + ", elapsed=" + elapsed + ", attempts=" + attempts,
-                    Math.abs((attempts * timeout) - elapsed) < 500);
+        } catch (SocketTimeoutException e) {
+            assertEquals(expectedConnectionAttempts, socketCreationCount[0]);
+            for (int i = 0; i < expectedConnectionAttempts; i++) {
+                assertEquals(perSocketTimeout, socketConnectTimeouts[i]);
+            }
         } finally {
-            ss.close();
+            SocketFactory.setDefault(originalDefault);
         }
     }
 
