@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package tests.util;
+package tests.net;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -41,7 +41,9 @@ public class DelegatingSSLSocketFactory extends SSLSocketFactory {
    *
    * <p>The default implementation does nothing.
    */
-  protected void configureSocket(@SuppressWarnings("unused") SSLSocket socket) {}
+  protected SSLSocket configureSocket(SSLSocket socket) throws IOException {
+    return socket;
+  }
 
   @Override
   public String[] getDefaultCipherSuites() {
@@ -56,46 +58,39 @@ public class DelegatingSSLSocketFactory extends SSLSocketFactory {
   @Override
   public Socket createSocket() throws IOException {
     SSLSocket socket = (SSLSocket) mDelegate.createSocket();
-    configureSocket(socket);
-    return socket;
+    return configureSocket(socket);
   }
 
   @Override
   public Socket createSocket(Socket s, String host, int port, boolean autoClose)
       throws IOException {
     SSLSocket socket = (SSLSocket) mDelegate.createSocket(s, host, port, autoClose);
-    configureSocket(socket);
-    return socket;
+    return configureSocket(socket);
   }
 
   @Override
   public Socket createSocket(String host, int port) throws IOException, UnknownHostException {
-      SSLSocket socket = (SSLSocket) mDelegate.createSocket(host, port);
-      configureSocket(socket);
-      return socket;
+    SSLSocket socket = (SSLSocket) mDelegate.createSocket(host, port);
+    return configureSocket(socket);
   }
 
   @Override
   public Socket createSocket(String host, int port, InetAddress localHost, int localPort)
       throws IOException, UnknownHostException {
     SSLSocket socket = (SSLSocket) mDelegate.createSocket(host, port, localHost, localPort);
-    configureSocket(socket);
-    return socket;
+    return configureSocket(socket);
   }
 
   @Override
   public Socket createSocket(InetAddress host, int port) throws IOException {
     SSLSocket socket = (SSLSocket) mDelegate.createSocket(host, port);
-    configureSocket(socket);
-    return socket;
+    return configureSocket(socket);
   }
 
   @Override
   public Socket createSocket(InetAddress address, int port, InetAddress localAddress,
-    int localPort) throws IOException {
-    SSLSocket socket =
-        (SSLSocket) mDelegate.createSocket(address, port, localAddress, localPort);
-    configureSocket(socket);
-    return socket;
+      int localPort) throws IOException {
+    SSLSocket socket = (SSLSocket) mDelegate.createSocket(address, port, localAddress, localPort);
+    return configureSocket(socket);
   }
 }
