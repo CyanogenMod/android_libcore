@@ -45,6 +45,14 @@ public abstract class SocketFactory {
     }
 
     /**
+     * Set the default socket factory. For use in tests.
+     * @hide
+     */
+    public static synchronized void setDefault(SocketFactory socketFactory) {
+        defaultFactory = socketFactory;
+    }
+
+    /**
      * Creates a new {@code SocketFactory} instance.
      */
     protected SocketFactory() {
