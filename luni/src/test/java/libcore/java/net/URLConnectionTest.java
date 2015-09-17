@@ -18,6 +18,7 @@ package libcore.java.net;
 
 import com.android.okhttp.AndroidShimResponseCache;
 
+import com.google.mockwebserver.Dispatcher;
 import com.google.mockwebserver.MockResponse;
 import com.google.mockwebserver.MockWebServer;
 import com.google.mockwebserver.RecordedRequest;
@@ -2012,60 +2013,21 @@ public final class URLConnectionTest extends AbstractResourceLeakageDetectorTest
      * because most of those characters are interesting in some way according to
      * RFC 2396 and RFC 2732. http://b/1158780
      */
-    public void testLenientUrlToUri() throws Exception {
+    public void testUrlCharacterMapping() throws Exception {
+        server.setDispatcher(new Dispatcher() {
+            @Override public MockResponse dispatch(RecordedRequest request)
+                throws InterruptedException {
+                return new MockResponse();
+            }
+        });
+        server.play();
+
         // alphanum
         testUrlToUriMapping("abzABZ09", "abzABZ09", "abzABZ09", "abzABZ09", "abzABZ09");
+        testUrlToRequestMapping("abzABZ09", "abzABZ09", "abzABZ09");
 
         // control characters
-        testUrlToUriMapping("\u0001", "%01", "%01", "%01", "%01");
-        testUrlToUriMapping("\u001f", "%1F", "%1F", "%1F", "%1F");
 
-        // ascii characters
-        testUrlToUriMapping("%20", "%20", "%20", "%20", "%20");
-        testUrlToUriMapping("%20", "%20", "%20", "%20", "%20");
-        testUrlToUriMapping(" ", "%20", "%20", "%20", "%20");
-        testUrlToUriMapping("!", "!", "!", "!", "!");
-        testUrlToUriMapping("\"", "%22", "%22", "%22", "%22");
-        testUrlToUriMapping("#", null, null, null, "%23");
-        testUrlToUriMapping("$", "$", "$", "$", "$");
-        testUrlToUriMapping("&", "&", "&", "&", "&");
-        testUrlToUriMapping("'", "'", "'", "'", "'");
-        testUrlToUriMapping("(", "(", "(", "(", "(");
-        testUrlToUriMapping(")", ")", ")", ")", ")");
-        testUrlToUriMapping("*", "*", "*", "*", "*");
-        testUrlToUriMapping("+", "+", "+", "+", "+");
-        testUrlToUriMapping(",", ",", ",", ",", ",");
-        testUrlToUriMapping("-", "-", "-", "-", "-");
-        testUrlToUriMapping(".", ".", ".", ".", ".");
-        testUrlToUriMapping("/", null, "/", "/", "/");
-        testUrlToUriMapping(":", null, ":", ":", ":");
-        testUrlToUriMapping(";", ";", ";", ";", ";");
-        testUrlToUriMapping("<", "%3C", "%3C", "%3C", "%3C");
-        testUrlToUriMapping("=", "=", "=", "=", "=");
-        testUrlToUriMapping(">", "%3E", "%3E", "%3E", "%3E");
-        testUrlToUriMapping("?", null, null, "?", "?");
-        testUrlToUriMapping("@", "@", "@", "@", "@");
-        testUrlToUriMapping("[", null, "%5B", null, "%5B");
-        testUrlToUriMapping("\\", "%5C", "%5C", "%5C", "%5C");
-        testUrlToUriMapping("]", null, "%5D", null, "%5D");
-        testUrlToUriMapping("^", "%5E", "%5E", "%5E", "%5E");
-        testUrlToUriMapping("_", "_", "_", "_", "_");
-        testUrlToUriMapping("`", "%60", "%60", "%60", "%60");
-        testUrlToUriMapping("{", "%7B", "%7B", "%7B", "%7B");
-        testUrlToUriMapping("|", "%7C", "%7C", "%7C", "%7C");
-        testUrlToUriMapping("}", "%7D", "%7D", "%7D", "%7D");
-        testUrlToUriMapping("~", "~", "~", "~", "~");
-        testUrlToUriMapping("~", "~", "~", "~", "~");
-        testUrlToUriMapping("\u007f", "%7F", "%7F", "%7F", "%7F");
-
-        // beyond ascii
-        testUrlToUriMapping("\u0080", "%C2%80", "%C2%80", "%C2%80", "%C2%80");
-        testUrlToUriMapping("\u20ac", "\u20ac", "\u20ac", "\u20ac", "\u20ac");
-        testUrlToUriMapping("\ud842\udf9f",
-                "\ud842\udf9f", "\ud842\udf9f", "\ud842\udf9f", "\ud842\udf9f");
-    }
-
-    public void testLenientUrlToUriNul() throws Exception {
         // On JB-MR2 and below, we would allow a host containing \u0000
         // and then generate a request with a Host header that violated RFC2616.
         // We now reject such hosts.
@@ -2074,32 +2036,116 @@ public final class URLConnectionTest extends AbstractResourceLeakageDetectorTest
         // it, but attempting to do so introduces a new range of incompatible
         // behaviours.
         testUrlToUriMapping("\u0000", null, "%00", "%00", "%00"); // RI fails this
+        testUrlToRequestMapping("\u0000", "\u0000", "\u0000");
+
+        testUrlToUriMapping("\u0001", "%01", "%01", "%01", "%01");
+        testUrlToRequestMapping("\u0001", "\u0001", "\u0001");
+
+        testUrlToUriMapping("\u001f", "%1F", "%1F", "%1F", "%1F");
+        testUrlToRequestMapping("\u001f", "\u001f", "\u001f");
+
+        // ascii characters
+        testUrlToUriMapping("%20", "%20", "%20", "%20", "%20");
+        testUrlToRequestMapping("%20", "%20", "%20");
+        testUrlToUriMapping(" ", "%20", "%20", "%20", "%20");
+        testUrlToRequestMapping(" ", null, null);
+        testUrlToUriMapping("!", "!", "!", "!", "!");
+        testUrlToRequestMapping("!", "!", "!");
+        testUrlToUriMapping("\"", "%22", "%22", "%22", "%22");
+        testUrlToRequestMapping("\"", "\"", "\"");
+        testUrlToUriMapping("#", null, null, null, "%23");
+        testUrlToRequestMapping("#", null, null);
+        testUrlToUriMapping("$", "$", "$", "$", "$");
+        testUrlToRequestMapping("$", "$", "$");
+        testUrlToUriMapping("&", "&", "&", "&", "&");
+        testUrlToRequestMapping("&", "&", "&");
+        testUrlToUriMapping("'", "'", "'", "'", "'");
+        testUrlToRequestMapping("'", "'", "'");
+        testUrlToUriMapping("(", "(", "(", "(", "(");
+        testUrlToRequestMapping("(", "(", "(");
+        testUrlToUriMapping(")", ")", ")", ")", ")");
+        testUrlToRequestMapping(")", ")", ")");
+        testUrlToUriMapping("*", "*", "*", "*", "*");
+        testUrlToRequestMapping("*", "*", "*");
+        testUrlToUriMapping("+", "+", "+", "+", "+");
+        testUrlToRequestMapping("+", "+", "+");
+        testUrlToUriMapping(",", ",", ",", ",", ",");
+        testUrlToRequestMapping(",", ",", ",");
+        testUrlToUriMapping("-", "-", "-", "-", "-");
+        testUrlToRequestMapping("-", "-", "-");
+        testUrlToUriMapping(".", ".", ".", ".", ".");
+        testUrlToRequestMapping(".", ".", ".");
+        testUrlToUriMapping(".foo", ".foo", ".foo", ".foo", ".foo");
+        testUrlToRequestMapping(".foo", ".foo", ".foo");
+        testUrlToUriMapping("/", null, "/", "/", "/");
+        testUrlToRequestMapping("/", "/", "/");
+        testUrlToUriMapping(":", null, ":", ":", ":");
+        testUrlToRequestMapping(":", ":", ":");
+        testUrlToUriMapping(";", ";", ";", ";", ";");
+        testUrlToRequestMapping(";", ";", ";");
+        testUrlToUriMapping("<", "%3C", "%3C", "%3C", "%3C");
+        testUrlToRequestMapping("<", "<", "<");
+        testUrlToUriMapping("=", "=", "=", "=", "=");
+        testUrlToRequestMapping("=", "=", "=");
+        testUrlToUriMapping(">", "%3E", "%3E", "%3E", "%3E");
+        testUrlToRequestMapping(">", ">", ">");
+        testUrlToUriMapping("?", null, null, "?", "?");
+        testUrlToRequestMapping("?", null, "?");
+        testUrlToUriMapping("@", "@", "@", "@", "@");
+        testUrlToRequestMapping("@", "@", "@");
+        testUrlToUriMapping("[", null, "%5B", null, "%5B");
+        testUrlToRequestMapping("[", null, null);
+        testUrlToUriMapping("\\", "%5C", "%5C", "%5C", "%5C");
+        testUrlToRequestMapping("\\", null, null);
+        testUrlToUriMapping("]", null, "%5D", null, "%5D");
+        testUrlToRequestMapping("]", null, null);
+        testUrlToUriMapping("^", "%5E", "%5E", "%5E", "%5E");
+        testUrlToRequestMapping("^", "^", null);
+        testUrlToUriMapping("_", "_", "_", "_", "_");
+        testUrlToRequestMapping("_", "_", "_");
+        testUrlToUriMapping("`", "%60", "%60", "%60", "%60");
+        testUrlToRequestMapping("`", "`", null);
+        testUrlToUriMapping("{", "%7B", "%7B", "%7B", "%7B");
+        testUrlToRequestMapping("{", "{", null);
+        testUrlToUriMapping("|", "%7C", "%7C", "%7C", "%7C");
+        testUrlToRequestMapping("|", "|", null);
+        testUrlToUriMapping("}", "%7D", "%7D", "%7D", "%7D");
+        testUrlToRequestMapping("}", "}", null);
+        testUrlToUriMapping("~", "~", "~", "~", "~");
+        testUrlToRequestMapping("~", "~", "~");
+        testUrlToUriMapping("\u007f", "%7F", "%7F", "%7F", "%7F");
+        testUrlToRequestMapping("\u007f", "\u007F", "\u007F");
+
+        // beyond ASCII
+
+        // 0x80 is the code point for the Euro sign in CP1252 (but not 8859-15 or Unicode).
+        // Unicode code point 0x80 is a control character and maps to {0xC2, 0x80} in UTF-8.
+        testUrlToUriMapping("\u0080", "%C2%80", "%C2%80", "%C2%80", "%C2%80");
+        testUrlToRequestMapping("\u0080", "\u00C2\u0080", "\u00C2\u0080");
+
+        // More complicated transformations for the authorities below.
+
+        // 0x20AC is the code point for the Euro sign in Unicode.
+        // Unicode code point 0x20AC maps to {0xE2, 0x82, 0xAC} in UTF-8
+        testUrlToUriMapping("\u20ac", "\u20ac", "\u20ac", "\u20ac", "\u20ac");
+        testUrlToUriMappingAuthority("http://host\u20ac.tld/", "http://host\u20ac.tld/");
+        testUrlToRequestMapping("\u20ac",  "\u00E2\u0082\u00AC", "\u00E2\u0082\u00AC");
+
+        // UTF-16 {0xD842, 0xDF9F} -> Unicode 0x20B9F (a Kanji character)
+        // Unicode code point 0x20B9F maps to {0xF0, 0xA0, 0xAE, 0x9F} in UTF-8
+        testUrlToUriMapping("\ud842\udf9f", "\uD842\uDF9F", "\uD842\uDF9F",
+            "\uD842\uDF9F", "\uD842\uDF9F");
+        testUrlToUriMappingAuthority("http://host\uD842\uDF9F.tld/",
+            "http://host\uD842\uDF9F.tld/");
+        testUrlToRequestMapping("\ud842\udf9f",  "\u00F0\u00A0\u00AE\u009F",
+            "\u00F0\u00A0\u00AE\u009F"
+        );
     }
 
-    public void testHostWithNul() throws Exception {
-        URL url = new URL("http://host\u0000/");
-        try {
-            url.openStream();
-            fail();
-        } catch (IllegalArgumentException expected) {}
-    }
-
-    private void testUrlToUriMapping(String string, String asAuthority, String asFile,
-            String asQuery, String asFragment) throws Exception {
-        if (asAuthority != null) {
-            assertEquals("http://host" + asAuthority + ".tld/",
-                    backdoorUrlToUri(new URL("http://host" + string + ".tld/")).toString());
-        }
-        if (asFile != null) {
-            assertEquals("http://host.tld/file" + asFile + "/",
-                    backdoorUrlToUri(new URL("http://host.tld/file" + string + "/")).toString());
-        }
-        if (asQuery != null) {
-            assertEquals("http://host.tld/file?q" + asQuery + "=x",
-                    backdoorUrlToUri(new URL("http://host.tld/file?q" + string + "=x")).toString());
-        }
-        assertEquals("http://host.tld/file#" + asFragment + "-x",
-                backdoorUrlToUri(new URL("http://host.tld/file#" + asFragment + "-x")).toString());
+    private void testUrlToUriMappingAuthority(String urlString, String expectedUriString)
+        throws Exception {
+        URI authorityUri = backdoorUrlToUri(new URL(urlString));
+        assertEquals(expectedUriString, authorityUri.toString());
     }
 
     /**
@@ -2111,7 +2157,8 @@ public final class URLConnectionTest extends AbstractResourceLeakageDetectorTest
         final AtomicReference<URI> uriReference = new AtomicReference<URI>();
 
         ResponseCache.setDefault(new ResponseCache() {
-            @Override public CacheRequest put(URI uri, URLConnection connection) throws IOException {
+            @Override public CacheRequest put(URI uri, URLConnection connection)
+                    throws IOException {
                 return null;
             }
             @Override public CacheResponse get(URI uri, String requestMethod,
@@ -2128,6 +2175,67 @@ public final class URLConnectionTest extends AbstractResourceLeakageDetectorTest
         }
 
         return uriReference.get();
+    }
+
+    /*
+     * Test the request that would be made by making an actual request a MockWebServer and capturing
+     * the request made.
+     *
+     * Any "as" values that are null are not tested.
+     */
+    private void testUrlToRequestMapping(
+            String string, String asFile, String asQuery) throws Exception {
+        if (asFile != null) {
+            URL fileUrl = server.getUrl("/file" + string + "/#discarded");
+            HttpURLConnection urlConnection = (HttpURLConnection) fileUrl.openConnection();
+            // Bypass the cache.
+            urlConnection.setUseCaches(false);
+
+            assertEquals(200, urlConnection.getResponseCode());
+            assertEquals("/file" + asFile + "/", server.takeRequest().getPath());
+        }
+        if (asQuery != null) {
+            URL queryUrl = server.getUrl("/file?q" + string + "=x#discarded");
+            HttpURLConnection urlConnection = (HttpURLConnection) queryUrl.openConnection();
+            // Bypass the cache.
+            urlConnection.setUseCaches(false);
+
+            assertEquals(200, urlConnection.getResponseCode());
+            assertEquals("/file?q" + asQuery + "=x", server.takeRequest().getPath());
+        }
+    }
+
+    /*
+     * Test the request that would be made by looking at the URI presented to the cache. This
+     * includes the likely host name that would be used if a request were made. The cache throws an
+     * exception so no request is actually made.
+     *
+     * Any "as" values that are null are not tested.
+     */
+    private void testUrlToUriMapping(String string, String asAuthority, String asFile,
+            String asQuery, String asFragment) throws Exception {
+        if (asAuthority != null) {
+            URI authorityUri = backdoorUrlToUri(new URL("http://host" + string + ".tld/"));
+            assertEquals("http://host" + asAuthority + ".tld/", authorityUri.toString());
+        }
+        if (asFile != null) {
+            URI fileUri = backdoorUrlToUri(new URL("http://host.tld/file" + string + "/"));
+            assertEquals("http://host.tld/file" + asFile + "/", fileUri.toString());
+        }
+        if (asQuery != null) {
+            URI queryUri = backdoorUrlToUri(new URL("http://host.tld/file?q" + string + "=x"));
+            assertEquals("http://host.tld/file?q" + asQuery + "=x", queryUri.toString());
+        }
+        assertEquals("http://host.tld/file#" + asFragment + "-x",
+            backdoorUrlToUri(new URL("http://host.tld/file#" + asFragment + "-x")).toString());
+    }
+
+    public void testHostWithNul() throws Exception {
+        URL url = new URL("http://host\u0000/");
+        try {
+            url.openStream();
+            fail();
+        } catch (IllegalArgumentException expected) {}
     }
 
     /**
