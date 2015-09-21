@@ -118,7 +118,12 @@ public final class NetworkInterface extends Object {
      */
     private static NetworkInterface getByNameInternal(String interfaceName,
             String[] ifInet6Lines) throws SocketException {
-        int interfaceIndex = readIntFile("/sys/class/net/" + interfaceName + "/ifindex");
+        int interfaceIndex;
+        try {
+            interfaceIndex = readIntFile("/sys/class/net/" + interfaceName + "/ifindex");
+        } catch (SocketException e) {
+            return null;
+        }
         List<InetAddress> addresses = new ArrayList<InetAddress>();
         List<InterfaceAddress> interfaceAddresses = new ArrayList<InterfaceAddress>();
 
