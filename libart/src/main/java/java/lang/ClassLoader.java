@@ -92,6 +92,12 @@ public abstract class ClassLoader {
     private Map<String, Package> packages = new HashMap<String, Package>();
 
     /**
+     * Pointer to the allocator used by the runtime to allocate metadata such
+     * as ArtFields and ArtMethods.
+     */
+    private transient long allocator;
+
+    /**
      * Pointer to the class table, only used from within the runtime.
      */
     private transient long classTable;
