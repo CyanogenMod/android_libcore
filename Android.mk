@@ -35,12 +35,6 @@ include $(LOCAL_PATH)/JavaLibrary.mk
 include $(LOCAL_PATH)/NativeCode.mk
 
 #
-# Include the definitions for the Certificate Authority (CA) certificates
-#
-
-include $(LOCAL_PATH)/CaCerts.mk
-
-#
 # Disable test modules if LIBCORE_SKIP_TESTS environment variable is set.
 #
 
