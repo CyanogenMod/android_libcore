@@ -114,6 +114,8 @@ public final class Daemons {
                     threadToStop.join();
                     return;
                 } catch (InterruptedException ignored) {
+                } catch (OutOfMemoryError ignored) {
+                    // An OOME may be thrown if allocating the InterruptedException failed.
                 }
             }
         }
@@ -151,6 +153,8 @@ public final class Daemons {
                     }
                 } catch (InterruptedException e) {
                     continue;
+                } catch (OutOfMemoryError e) {
+                    continue;
                 }
                 enqueue(list);
             }
@@ -184,6 +188,7 @@ public final class Daemons {
                 try {
                     doFinalize((FinalizerReference<?>) queue.remove());
                 } catch (InterruptedException ignored) {
+                } catch (OutOfMemoryError ignored) {
                 }
             }
         }
@@ -256,6 +261,8 @@ public final class Daemons {
                     } catch (InterruptedException e) {
                         // Daemon.stop may have interrupted us.
                         return false;
+                    } catch (OutOfMemoryError e) {
+                        return false;
                     }
                 }
             }
@@ -272,6 +279,10 @@ public final class Daemons {
                 try {
                     Thread.sleep(sleepMills);
                 } catch (InterruptedException e) {
+                    if (!isRunning()) {
+                        return;
+                    }
+                } catch (OutOfMemoryError ignored) {
                     if (!isRunning()) {
                         return;
                     }
@@ -304,6 +315,8 @@ public final class Daemons {
                 Thread.sleep(5000);
             } catch (Exception e) {
                 System.logE("failed to send SIGQUIT", e);
+            } catch (OutOfMemoryError ignored) {
+                // May occur while trying to allocate the exception.
             }
             if (h == null) {
                 // If we have no handler, log and exit.
