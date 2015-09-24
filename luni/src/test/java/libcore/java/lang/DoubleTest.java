@@ -30,6 +30,19 @@ public class DoubleTest extends TestCase {
         assertEquals("0.010206713752229896", Double.toString(0.010206713752229896));
     }
 
+    // http://b/24195419
+    public void testDoubleToStringTie() throws Exception {
+        double d = 242.60000610351562;
+        assertEquals(0x406E533340000000L, Double.doubleToLongBits(d));
+
+        double d2 = 242.60000610351563;
+        assertEquals(Double.doubleToLongBits(d), Double.doubleToLongBits(d2));
+
+        // There is a tie between 242.60000610351562 and 242.60000610351563 on the final decimal
+        // digit. Testing suggests toString() should produce "242.60000610351562".
+        assertEquals("242.60000610351562", Double.toString(d));
+    }
+
     public void testNamedDoubles() throws Exception {
         assertEquals(Double.NaN, Double.parseDouble("NaN"));
         assertEquals(Double.NaN, Double.parseDouble("-NaN"));
