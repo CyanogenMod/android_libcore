@@ -1838,7 +1838,10 @@ public abstract class AbstractQueuedLongSynchronizer
             if (interruptMode != 0)
                 reportInterruptAfterWait(interruptMode);
             long remaining = deadline - System.nanoTime(); // avoid overflow
-            return (remaining < initialNanos) ? remaining : Long.MIN_VALUE;
+            // BEGIN android-note Changed from < to <= http://b/24284239
+            // return (remaining < initialNanos) ? remaining : Long.MIN_VALUE;
+            return (remaining <= initialNanos) ? remaining : Long.MIN_VALUE;
+            // END android-note
         }
 
         /**
