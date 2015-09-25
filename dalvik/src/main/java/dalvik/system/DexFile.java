@@ -34,7 +34,12 @@ import libcore.io.Libcore;
  * read-only by the VM.
  */
 public final class DexFile {
+  /**
+   * If close is called, mCookie becomes null but the internal cookie is preserved if the close
+   * failed so that we can free resources in the finalizer.
+   */
     private Object mCookie;
+    private Object mInternalCookie;
     private final String mFileName;
     private final CloseGuard guard = CloseGuard.get();
 
@@ -78,6 +83,7 @@ public final class DexFile {
      */
     public DexFile(String fileName) throws IOException {
         mCookie = openDexFile(fileName, null, 0);
+        mInternalCookie = mCookie;
         mFileName = fileName;
         guard.open("close");
         //System.out.println("DEX FILE cookie is " + mCookie + " fileName=" + fileName);
@@ -110,7 +116,6 @@ public final class DexFile {
 
         mCookie = openDexFile(sourceName, outputName, flags);
         mFileName = sourceName;
-        guard.open("close");
         //System.out.println("DEX FILE cookie is " + mCookie + " sourceName=" + sourceName + " outputName=" + outputName);
     }
 
@@ -167,17 +172,20 @@ public final class DexFile {
     /**
      * Closes the DEX file.
      * <p>
-     * This may not be able to release any resources. If classes from this
-     * DEX file are still resident, the DEX file can't be unmapped.
+     * This may not be able to release all of the resources. If classes from this DEX file are
+     * still resident, the DEX file can't be unmapped. In the case where we do not release all
+     * the resources, close is called again in the finalizer.
      *
      * @throws IOException
      *             if an I/O error occurs during closing the file, which
      *             normally should not happen
      */
     public void close() throws IOException {
-        if (mCookie != null) {
+        if (mInternalCookie != null) {
+            if (closeDexFile(mInternalCookie)) {
+                mInternalCookie = null;
+            }
             guard.close();
-            closeDexFile(mCookie);
             mCookie = null;
         }
     }
@@ -279,7 +287,11 @@ public final class DexFile {
             if (guard != null) {
                 guard.warnIfOpen();
             }
-            close();
+            if (mInternalCookie != null && !closeDexFile(mInternalCookie)) {
+                throw new AssertionError("Failed to close dex file in finalizer.");
+            }
+            mInternalCookie = null;
+            mCookie = null;
         } finally {
             super.finalize();
         }
@@ -297,7 +309,10 @@ public final class DexFile {
                                  flags);
     }
 
-    private static native void closeDexFile(Object cookie);
+    /*
+     * Returns true if we managed to close the dex file.
+     */
+    private static native boolean closeDexFile(Object cookie);
     private static native Class defineClassNative(String name, ClassLoader loader, Object cookie)
             throws ClassNotFoundException, NoClassDefFoundError;
     private static native String[] getClassNameList(Object cookie);
