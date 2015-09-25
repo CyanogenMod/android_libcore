@@ -174,6 +174,19 @@ public class StrictJarFileTest extends TestCase {
         assertThrowsOnInit("removed.jar");
     }
 
+    public void testJarSigning_zeroedClass() throws IOException {
+        Support_Resources.copyFile(resources, null,  "replace_with_zero.jar");
+        StrictJarFile jarFile = new StrictJarFile(
+                new File(resources,  "replace_with_zero.jar").getAbsolutePath());
+
+        ZipEntry ze = jarFile.findEntry("Test.class");
+        try {
+            jarFile.getInputStream(ze).skip(Long.MAX_VALUE);
+            fail();
+        } catch (SecurityException expected) {
+        }
+    }
+
     public void testJarWithNoManifest() throws Exception {
         String jarFileName = "StrictJarFileTestNoManifest.jar";
         Support_Resources.copyFile(resources, null, jarFileName);
