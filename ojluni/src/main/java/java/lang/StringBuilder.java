@@ -401,8 +401,10 @@ public final class StringBuilder
     }
 
     public String toString() {
-        // Create a copy, don't share the array
-        return new String(value, 0, count);
+        if (count == 0) {
+            return "";
+        }
+        return StringFactory.newStringFromChars(0, count, value);
     }
 
     /**

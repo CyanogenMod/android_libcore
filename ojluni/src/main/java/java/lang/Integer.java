@@ -330,7 +330,8 @@ public final class Integer extends Number implements Comparable<Integer> {
         int size = (i < 0) ? stringSize(-i) + 1 : stringSize(i);
         char[] buf = new char[size];
         getChars(i, size, buf);
-        return new String(buf, true);
+        // Android-changed: change string constructor.
+        return new String(buf);
     }
 
     /**

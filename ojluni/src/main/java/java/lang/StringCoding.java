@@ -391,6 +391,13 @@ class StringCoding {
         }
     }
 
+    static byte[] encode(Charset cs, String str) {
+        ByteBuffer buffer = cs.encode(str);
+        byte[] bytes = new byte[buffer.limit()];
+        buffer.get(bytes);
+        return bytes;
+    }
+
     static byte[] encode(char[] ca, int off, int len) {
         String csn = Charset.defaultCharset().name();
         try {
