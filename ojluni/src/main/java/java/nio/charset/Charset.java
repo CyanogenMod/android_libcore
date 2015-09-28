@@ -548,6 +548,24 @@ public abstract class Charset
         throw new UnsupportedCharsetException(charsetName);
     }
 
+
+    /**
+     * Equivalent to {@code forName} but only throws {@code UnsupportedEncodingException},
+     * which is all pre-nio code claims to throw.
+     *
+     * @hide internal use only
+     */
+    public static Charset forNameUEE(String charsetName) throws UnsupportedEncodingException {
+        try {
+            return Charset.forName(charsetName);
+        } catch (Exception cause) {
+            UnsupportedEncodingException ex = new UnsupportedEncodingException(charsetName);
+            ex.initCause(cause);
+            throw ex;
+        }
+    }
+
+
     // Fold charsets from the given iterator into the given map, ignoring
     // charsets whose names already have entries in the map.
     //
