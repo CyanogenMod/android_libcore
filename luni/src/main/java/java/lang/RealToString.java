@@ -311,7 +311,7 @@ final class RealToString {
             digits[digitCount++] = U;
         } else if (high && !low) {
             digits[digitCount++] = U + 1;
-        } else if ((R << 1) <= S) {
+        } else if ((R << 1) < S) {
             digits[digitCount++] = U;
         } else {
             digits[digitCount++] = U + 1;
