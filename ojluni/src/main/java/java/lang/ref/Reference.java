@@ -118,7 +118,7 @@ public abstract class Reference<T> {
      *           enqueued; <code>false</code> if it was already enqueued or if
      *           it was not registered with a queue when it was created
      */
-    public synchronized boolean enqueue() {
+    public final synchronized boolean enqueueInternal() {
         if (queue != null && queueNext == null) {
             queue.enqueue(this);
             queue = null;
@@ -126,6 +126,11 @@ public abstract class Reference<T> {
         }
         return false;
     }
+
+    public boolean enqueue() {
+       return enqueueInternal();
+    }
+
 
     /* -- Constructors -- */
 
