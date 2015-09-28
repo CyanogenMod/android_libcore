@@ -1356,8 +1356,14 @@ public class DecimalFormat extends NumberFormat {
                             !isParseIntegerOnly();
             }
 
-            return gotDouble ?
-                (Number)new Double(doubleResult) : (Number)new Long(longResult);
+            // Android-changed: Work around compiler bug. TODO(narayan): File a bug.
+            if (gotDouble) {
+              return new Double(doubleResult);
+            } else {
+              return new Long(longResult);
+            }
+            // return gotDouble ?
+            //    (Number)new Double(doubleResult) : (Number)new Long(longResult);*/
         }
     }
 
