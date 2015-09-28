@@ -34,6 +34,7 @@ import java.util.List;
 import dalvik.system.BaseDexClassLoader;
 import dalvik.system.VMDebug;
 import dalvik.system.VMStack;
+import dalvik.system.VMRuntime;
 import libcore.io.IoUtils;
 import libcore.io.Libcore;
 import libcore.util.EmptyArray;
@@ -783,11 +784,7 @@ public class Runtime {
      * @see     java.lang.Object#finalize()
      */
     public void runFinalization() {
-        try {
-            FinalizerReference.finalizeAllEnqueued();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        VMRuntime.runFinalization(0);
     }
 
     /**
