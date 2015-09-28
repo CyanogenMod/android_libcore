@@ -896,6 +896,10 @@ public abstract class Signature extends SignatureSpi {
         }
     }
 
+    public SignatureSpi getCurrentSpi() {
+      return null;
+    }
+
     /*
      * The following class allows providers to extend from SignatureSpi
      * rather than from Signature. It represents a Signature with an
@@ -1197,6 +1201,13 @@ public abstract class Signature extends SignatureSpi {
         protected AlgorithmParameters engineGetParameters() {
             chooseFirstProvider();
             return sigSpi.engineGetParameters();
+        }
+
+        @Override
+        public SignatureSpi getCurrentSpi() {
+            synchronized (lock) {
+                return sigSpi;
+            }
         }
     }
 

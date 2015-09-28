@@ -2663,4 +2663,14 @@ public class Cipher {
         }
         spi.engineUpdateAAD(src);
     }
+
+    /**
+     * Returns the {@code CipherSpi} backing this {@code Cipher} or {@code null} if no
+     * {@code CipherSpi} is backing this {@code Cipher}.
+     *
+     * @hide
+     */
+    public CipherSpi getCurrentSpi() {
+        return spi;
+    }
 }
