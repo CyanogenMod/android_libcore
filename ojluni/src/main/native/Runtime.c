@@ -83,9 +83,9 @@ Runtime_nativeLoad(JNIEnv* env, jclass ignored, jstring javaFilename, jobject ja
 }
 
 static JNINativeMethod gMethods[] = {
-  NATIVE_METHOD(Runtime, freeMemory, "()J"),
-  NATIVE_METHOD(Runtime, totalMemory, "()J"),
-  NATIVE_METHOD(Runtime, maxMemory, "()J"),
+  NATIVE_METHOD(Runtime, freeMemory, "!()J"),
+  NATIVE_METHOD(Runtime, totalMemory, "!()J"),
+  NATIVE_METHOD(Runtime, maxMemory, "!()J"),
   NATIVE_METHOD(Runtime, gc, "()V"),
   NATIVE_METHOD(Runtime, nativeExit, "(I)V"),
   NATIVE_METHOD(Runtime, nativeLoad, "(Ljava/lang/String;Ljava/lang/ClassLoader;Ljava/lang/String;)Ljava/lang/String;"),
