@@ -45,9 +45,7 @@ static jobject newZipEntry(JNIEnv* env, const ZipEntry& entry, jstring entryName
                         static_cast<jlong>(entry.uncompressed_length),
                         static_cast<jint>(entry.method),
                         static_cast<jint>(0),  // time
-                        static_cast<jint>(0),  // modData
                         NULL,  // byte[] extra
-                        static_cast<jlong>(-1),  // local header offset
                         static_cast<jlong>(entry.offset));
 }
 
@@ -165,6 +163,6 @@ void register_java_util_jar_StrictJarFile(JNIEnv* env) {
   jniRegisterNativeMethods(env, "java/util/jar/StrictJarFile", gMethods, NELEM(gMethods));
 
   zipEntryCtor = env->GetMethodID(JniConstants::zipEntryClass, "<init>",
-      "(Ljava/lang/String;Ljava/lang/String;JJJIII[BJJ)V");
+      "(Ljava/lang/String;Ljava/lang/String;JJJII[BJ)V");
   LOG_ALWAYS_FATAL_IF(zipEntryCtor == NULL, "Unable to find ZipEntry.<init>");
 }

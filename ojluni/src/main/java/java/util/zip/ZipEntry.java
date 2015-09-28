@@ -57,6 +57,22 @@ class ZipEntry implements ZipConstants, Cloneable {
      */
     public static final int DEFLATED = 8;
 
+
+    /** @hide - for testing only */
+    public ZipEntry(String name, String comment, long crc, long compressedSize,
+            long size, int compressionMethod, int time, byte[] extra,
+            long dataOffset) {
+        this.name = name;
+        this.comment = comment;
+        this.crc = crc;
+        this.csize = compressedSize;
+        this.size = size;
+        this.method = compressionMethod;
+        this.time = time;
+        this.extra = extra;
+        this.dataOffset = dataOffset;
+    }
+
     /**
      * Creates a new zip entry with the specified name.
      *

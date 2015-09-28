@@ -65,9 +65,10 @@ public final class StrictJarFile {
             // parse them. We never want to accept a JAR File with broken signatures
             // or manifests, so it's best to throw as early as possible.
             HashMap<String, byte[]> metaEntries = getMetaEntries();
-            this.manifest = new Manifest(metaEntries.get(JarFile.MANIFEST_NAME), true);
-            this.verifier = new JarVerifier(fileName, manifest, metaEntries);
-            Set<String> files = this.manifest.getEntries().keySet();
+            StrictJarManifest manifest =
+                    new StrictJarManifest(metaEntries.get(JarFile.MANIFEST_NAME), true);
+            this.verifier = new StrictJarVerifier(fileName, manifest, metaEntries);
+            Set<String> files = manifest.getEntries().keySet();
             for (String file : files) {
                 if (findEntry(file) == null) {
                     throw new SecurityException(fileName + ": File " + file + " in manifest does not exist");
