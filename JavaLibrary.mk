@@ -76,33 +76,6 @@ icu4j_root := ../external/icu/icu4j/
 icu4j_src_files := $(call all-java-files-under,$(icu4j_root)/main/classes)
 
 # Filter out bits of ICU4J we don't use yet : the SPIs (which we have limited support for),
-# and the charset encoders
-icu4j_src_files := $(filter-out $(icu4j_root)/main/classes/localespi/%, $(icu4j_src_files))
-icu4j_src_files := $(filter-out $(icu4j_root)/main/classes/charset/%, $(icu4j_src_files))
-
-# Not all src dirs contain resources, some instead contain other random files
-# that should not be included as resources. The ones that should be included
-# can be identifed by the fact that they contain particular subdir trees.
-#
-define all-icu-subdir-with-subdir
-$(patsubst $(LOCAL_PATH)/%/$(2),%,$(wildcard $(LOCAL_PATH)/$(1)/$(2)))
-endef
-
-icu4j_resource_dirs := $(call all-icu-subdir-with-subdir,$(icu4j_root)/main/classes/*/src,com/ibm/icu)
-icu4j_resource_dirs := $(filter-out $(icu4j_root)/main/classes/localespi/%, $(icu4j_resource_dirs))
-icu4j_resource_dirs := $(filter-out $(icu4j_root)/main/classes/charset/%, $(icu4j_resource_dirs))
-
-
-
-#
-# ICU4J related rules.
-#
-# We compile icu4j along with core-libart because we're implementing parts of core-libart
-# in terms of icu4j.
-icu4j_root := ../external/icu/icu4j/
-icu4j_src_files := $(call all-java-files-under,$(icu4j_root)/main/classes)
-
-# Filter out bits of ICU4J we don't use yet : the SPIs (which we have limited support for),
 # the charset encoders and the transliterators.
 icu4j_src_files := $(filter-out $(icu4j_root)/main/classes/localespi/%, $(icu4j_src_files))
 icu4j_src_files := $(filter-out $(icu4j_root)/main/classes/charset/%, $(icu4j_src_files))
@@ -194,7 +167,6 @@ include $(BUILD_JAVA_LIBRARY)
 # Definitions to make the core library.
 include $(CLEAR_VARS)
 LOCAL_SRC_FILES := $(non_openjdk_java_files) $(icu4j_src_files)
-LOCAL_JAVA_RESOURCE_DIRS := $(icu4j_resource_dirs)
 LOCAL_NO_STANDARD_LIBRARIES := true
 LOCAL_JAVACFLAGS := $(local_javac_flags)
 LOCAL_DX_FLAGS := --core-library
@@ -208,7 +180,6 @@ endif
 LOCAL_ADDITIONAL_DEPENDENCIES += $(LOCAL_PATH)/JavaLibrary.mk
 LOCAL_JAVA_LIBRARIES := core-all-unobfuscated
 LOCAL_CORE_LIBRARY := true
-LOCAL_JARJAR_RULES := $(LOCAL_PATH)/jarjar-rules.txt
 LOCAL_REQUIRED_MODULES := tzdata
 LOCAL_JARJAR_RULES := $(LOCAL_PATH)/jarjar-rules.txt
 include $(BUILD_JAVA_LIBRARY)
@@ -277,7 +248,7 @@ include $(BUILD_HOST_JAVA_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_SRC_FILES := $(non_openjdk_java_files) $(openjdk_java_files) $(icu4j_src_files)
-LOCAL_JAVA_RESOURCE_DIRS := $(core_resource_dirs) $(icu4j_resource_dirs)
+LOCAL_JAVA_RESOURCE_DIRS := $(core_resource_dirs)
 LOCAL_NO_STANDARD_LIBRARIES := true
 LOCAL_JAVACFLAGS := $(local_javac_flags)
 LOCAL_DX_FLAGS := --core-library
@@ -308,7 +279,6 @@ include $(BUILD_HOST_DALVIK_JAVA_LIBRARY)
 # Definitions to make the core library.
 include $(CLEAR_VARS)
 LOCAL_SRC_FILES := $(non_openjdk_java_files) $(icu4j_src_files)
-LOCAL_JAVA_RESOURCE_DIRS := $(icu4j_resource_dirs)
 LOCAL_NO_STANDARD_LIBRARIES := true
 LOCAL_JAVACFLAGS := $(local_javac_flags)
 LOCAL_DX_FLAGS := --core-library

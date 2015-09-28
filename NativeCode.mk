@@ -123,7 +123,7 @@ LOCAL_SHARED_LIBRARIES += libart libnativehelper libdl
 LOCAL_STATIC_LIBRARIES := $(core_static_libraries) libfdlibm
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := libxxavacore
-include external/stlport/libstlport.mk
+LOCAL_CXX_STL := libc++
 include $(BUILD_SHARED_LIBRARY)
 
 # Test JNI library.
