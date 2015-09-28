@@ -2060,7 +2060,7 @@ public class ObjectInputStream
      * corresponding modifications to the above class.
      */
     private static ClassLoader latestUserDefinedLoader() {
-        return VMStack.getClosestUserClassLoader(bootstrapLoader, systemLoader);
+        return VMStack.getClosestUserClassLoader();
     }
 
     /**
