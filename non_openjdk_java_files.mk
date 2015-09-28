@@ -1,8 +1,10 @@
 non_openjdk_javadoc_files := \
   luni/src/main/java/android/system/ErrnoException.java \
   luni/src/main/java/android/system/GaiException.java \
+  luni/src/main/java/android/system/NetlinkSocketAddress.java \
   luni/src/main/java/android/system/Os.java \
   luni/src/main/java/android/system/OsConstants.java \
+  luni/src/main/java/android/system/PacketSocketAddress.java \
   luni/src/main/java/android/system/StructAddrinfo.java \
   luni/src/main/java/android/system/StructFlock.java \
   luni/src/main/java/android/system/StructGroupReq.java \
@@ -55,13 +57,12 @@ non_openjdk_javadoc_files := \
   dalvik/src/main/java/dalvik/system/PathClassLoader.java \
   dalvik/src/main/java/dalvik/system/PotentialDeadlockError.java \
   dalvik/src/main/java/dalvik/system/SocketTagger.java \
-  dalvik/src/main/java/dalvik/system/StaleDexCacheError.java \
   dalvik/src/main/java/dalvik/system/TemporaryDirectory.java \
   dalvik/src/main/java/dalvik/system/VMDebug.java \
   libart/src/main/java/dalvik/system/VMRuntime.java \
   libart/src/main/java/dalvik/system/VMStack.java \
+  libart/src/main/java/dalvik/system/TransactionAbortError.java \
   dalvik/src/main/java/dalvik/system/ZygoteHooks.java \
-  luni/src/main/java/java/lang/CaseMapper.java \
   luni/src/main/java/java/lang/Compiler.java \
   libart/src/main/java/java/lang/Daemons.java \
   libart/src/main/java/java/lang/DexCache.java \
@@ -70,8 +71,6 @@ non_openjdk_javadoc_files := \
   libart/src/main/java/java/lang/VMClassLoader.java \
   luni/src/main/java/java/lang/ref/FinalizerReference.java \
   libart/src/main/java/java/lang/reflect/AbstractMethod.java \
-  libart/src/main/java/java/lang/reflect/ArtField.java \
-  libart/src/main/java/java/lang/reflect/ArtMethod.java \
   luni/src/main/java/java/math/BigDecimal.java \
   luni/src/main/java/java/math/BigInt.java \
   luni/src/main/java/java/math/BigInteger.java \
@@ -91,7 +90,6 @@ non_openjdk_javadoc_files := \
   luni/src/main/java/java/nio/charset/CharsetDecoderICU.java \
   luni/src/main/java/java/nio/charset/CharsetEncoderICU.java \
   luni/src/main/java/java/nio/charset/CharsetICU.java \
-  luni/src/main/java/java/nio/charset/Charsets.java \
   luni/src/main/java/java/nio/charset/ModifiedUtf8.java \
   luni/src/main/java/java/security/AccessControlContext.java \
   luni/src/main/java/java/security/AccessController.java \
@@ -185,7 +183,6 @@ non_openjdk_javadoc_files := \
   luni/src/main/java/java/util/regex/Splitter.java \
   luni/src/main/java/java/util/regex/MatchResultImpl.java \
   luni/src/main/java/java/util/regex/MatchResult.java \
-  luni/src/main/java/javax/net/ssl/DefaultHostnameVerifier.java \
   luni/src/main/java/javax/net/ssl/DistinguishedNameParser.java \
   luni/src/main/java/javax/xml/XMLConstants.java \
   luni/src/main/java/javax/xml/datatype/DatatypeConfigurationException.java \
@@ -372,16 +369,18 @@ non_openjdk_java_files := \
   luni/src/main/java/libcore/icu/AlphabeticIndex.java \
   luni/src/main/java/libcore/icu/CollationElementIteratorICU.java \
   luni/src/main/java/libcore/icu/CollationKeyICU.java \
+  luni/src/main/java/libcore/icu/DateUtilsBridge.java \
   luni/src/main/java/libcore/icu/DateIntervalFormat.java \
   luni/src/main/java/libcore/icu/ICU.java \
   luni/src/main/java/libcore/icu/LocaleData.java \
-  luni/src/main/java/libcore/icu/NativeBreakIterator.java \
   luni/src/main/java/libcore/icu/NativeCollation.java \
   luni/src/main/java/libcore/icu/NativeConverter.java \
   luni/src/main/java/libcore/icu/NativeIDN.java \
   luni/src/main/java/libcore/icu/NativeNormalizer.java \
   luni/src/main/java/libcore/icu/NativePluralRules.java \
   luni/src/main/java/libcore/icu/RuleBasedCollatorICU.java \
+  luni/src/main/java/libcore/icu/DateTimeFormat.java \
+  luni/src/main/java/libcore/icu/RelativeDateTimeFormatter.java \
   luni/src/main/java/libcore/icu/TimeZoneNames.java \
   luni/src/main/java/libcore/icu/Transliterator.java \
   luni/src/main/java/libcore/internal/StringPool.java \
@@ -404,10 +403,12 @@ non_openjdk_java_files := \
   luni/src/main/java/libcore/io/Streams.java \
   luni/src/main/java/libcore/math/MathUtils.java \
   luni/src/main/java/libcore/net/MimeUtils.java \
+  luni/src/main/java/libcore/net/NetworkSecurityPolicy.java \
   luni/src/main/java/libcore/net/UriCodec.java \
   luni/src/main/java/libcore/net/event/NetworkEventDispatcher.java \
   luni/src/main/java/libcore/net/event/NetworkEventListener.java \
   luni/src/main/java/libcore/net/http/HttpDate.java \
+  luni/src/main/java/libcore/net/http/ResponseUtils.java \
   luni/src/main/java/libcore/reflect/AnnotationAccess.java \
   luni/src/main/java/libcore/reflect/AnnotationFactory.java \
   luni/src/main/java/libcore/reflect/AnnotationMember.java \
@@ -420,6 +421,8 @@ non_openjdk_java_files := \
   luni/src/main/java/libcore/reflect/TypeVariableImpl.java \
   luni/src/main/java/libcore/reflect/Types.java \
   luni/src/main/java/libcore/reflect/WildcardTypeImpl.java \
+  luni/src/main/java/libcore/util/CharsetUtils.java \
+  luni/src/main/java/libcore/util/EmptyArray.java \
   luni/src/main/java/libcore/util/BasicLruCache.java \
   luni/src/main/java/libcore/util/CollectionUtils.java \
   luni/src/main/java/libcore/util/EmptyArray.java \
@@ -428,6 +431,7 @@ non_openjdk_java_files := \
   luni/src/main/java/libcore/util/SneakyThrow.java \
   luni/src/main/java/libcore/util/ZoneInfo.java \
   luni/src/main/java/libcore/util/ZoneInfoDB.java \
+  luni/src/main/java/libcore/util/HexEncoding.java \
   luni/src/main/java/org/apache/harmony/crypto/internal/NullCipherSpi.java \
   dalvik/src/main/java/org/apache/harmony/dalvik/NativeTestTarget.java \
   dalvik/src/main/java/org/apache/harmony/dalvik/ddmc/Chunk.java \
@@ -464,6 +468,8 @@ non_openjdk_java_files := \
   luni/src/main/java/org/apache/harmony/xml/parsers/SAXParserFactoryImpl.java \
   luni/src/main/java/org/apache/harmony/xml/parsers/SAXParserImpl.java \
   libart/src/main/java/sun/misc/Unsafe.java \
+  libart/src/main/java/java/lang/CaseMapper.java \
+  libart/src/main/java/java/lang/StringFactory.java \
   xml/src/main/java/org/kxml2/io/KXmlParser.java \
   xml/src/main/java/org/kxml2/io/KXmlSerializer.java \
   $(non_openjdk_javadoc_files)
