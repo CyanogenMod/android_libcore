@@ -146,7 +146,7 @@ public class LocaleTest extends junit.framework.TestCase {
         // he (new) -> iw (obsolete)
         assertObsolete("he", "iw", "עברית");
         // id (new) -> in (obsolete)
-        assertObsolete("id", "in", "Bahasa Indonesia");
+        assertObsolete("id", "in", "Indonesia");
     }
 
     private static void assertObsolete(String newCode, String oldCode, String displayName) {
