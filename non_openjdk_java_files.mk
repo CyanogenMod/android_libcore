@@ -425,6 +425,7 @@ non_openjdk_java_files := \
   luni/src/main/java/libcore/util/CollectionUtils.java \
   luni/src/main/java/libcore/util/EmptyArray.java \
   luni/src/main/java/libcore/util/Objects.java \
+  luni/src/main/java/libcore/util/RecoverySystem.java \
   luni/src/main/java/libcore/util/SneakyThrow.java \
   luni/src/main/java/libcore/util/ZoneInfo.java \
   luni/src/main/java/libcore/util/ZoneInfoDB.java \
