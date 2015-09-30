@@ -2012,6 +2012,8 @@ public final class URLConnectionTest extends AbstractResourceLeakageDetectorTest
      * This test goes through the exhaustive set of interesting ASCII characters
      * because most of those characters are interesting in some way according to
      * RFC 2396 and RFC 2732. http://b/1158780
+     * After M, Android's HttpURLConnection started canonicalizing hostnames to lower case, IDN
+     * encoding and being more strict about invalid characters.
      */
     public void testUrlCharacterMapping() throws Exception {
         server.setDispatcher(new Dispatcher() {
@@ -2023,7 +2025,7 @@ public final class URLConnectionTest extends AbstractResourceLeakageDetectorTest
         server.play();
 
         // alphanum
-        testUrlToUriMapping("abzABZ09", "abzABZ09", "abzABZ09", "abzABZ09", "abzABZ09");
+        testUrlToUriMapping("abzABZ09", "abzabz09", "abzABZ09", "abzABZ09", "abzABZ09");
         testUrlToRequestMapping("abzABZ09", "abzABZ09", "abzABZ09");
 
         // control characters
@@ -2036,44 +2038,44 @@ public final class URLConnectionTest extends AbstractResourceLeakageDetectorTest
         // it, but attempting to do so introduces a new range of incompatible
         // behaviours.
         testUrlToUriMapping("\u0000", null, "%00", "%00", "%00"); // RI fails this
-        testUrlToRequestMapping("\u0000", "\u0000", "\u0000");
+        testUrlToRequestMapping("\u0000", "%00", "%00");
 
-        testUrlToUriMapping("\u0001", "%01", "%01", "%01", "%01");
-        testUrlToRequestMapping("\u0001", "\u0001", "\u0001");
+        testUrlToUriMapping("\u0001", null, "%01", "%01", "%01");
+        testUrlToRequestMapping("\u0001", "%01", "%01");
 
-        testUrlToUriMapping("\u001f", "%1F", "%1F", "%1F", "%1F");
-        testUrlToRequestMapping("\u001f", "\u001f", "\u001f");
+        testUrlToUriMapping("\u001f", null, "%1F", "%1F", "%1F");
+        testUrlToRequestMapping("\u001f", "%1F", "%1F");
 
         // ascii characters
-        testUrlToUriMapping("%20", "%20", "%20", "%20", "%20");
+        testUrlToUriMapping("%20", null, "%20", "%20", "%20");
         testUrlToRequestMapping("%20", "%20", "%20");
-        testUrlToUriMapping(" ", "%20", "%20", "%20", "%20");
-        testUrlToRequestMapping(" ", null, null);
+        testUrlToUriMapping(" ", null, "%20", "%20", "%20");
+        testUrlToRequestMapping(" ", "%20", "%20");
         testUrlToUriMapping("!", "!", "!", "!", "!");
         testUrlToRequestMapping("!", "!", "!");
-        testUrlToUriMapping("\"", "%22", "%22", "%22", "%22");
-        testUrlToRequestMapping("\"", "\"", "\"");
+        testUrlToUriMapping("\"", null, "%22", "%22", "%22");
+        testUrlToRequestMapping("\"", "%22", "%22");
         testUrlToUriMapping("#", null, null, null, "%23");
         testUrlToRequestMapping("#", null, null);
         testUrlToUriMapping("$", "$", "$", "$", "$");
         testUrlToRequestMapping("$", "$", "$");
         testUrlToUriMapping("&", "&", "&", "&", "&");
         testUrlToRequestMapping("&", "&", "&");
-        testUrlToUriMapping("'", "'", "'", "'", "'");
-        testUrlToRequestMapping("'", "'", "'");
+        testUrlToUriMapping("'", "'", "'", "%27", "'");
+        testUrlToRequestMapping("'", "'", "%27");
         testUrlToUriMapping("(", "(", "(", "(", "(");
         testUrlToRequestMapping("(", "(", "(");
         testUrlToUriMapping(")", ")", ")", ")", ")");
         testUrlToRequestMapping(")", ")", ")");
         testUrlToUriMapping("*", "*", "*", "*", "*");
         testUrlToRequestMapping("*", "*", "*");
-        testUrlToUriMapping("+", "+", "+", "+", "+");
-        testUrlToRequestMapping("+", "+", "+");
+        testUrlToUriMapping("+", "+", "+", "%20", "+");
+        testUrlToRequestMapping("+", "+", "%20");
         testUrlToUriMapping(",", ",", ",", ",", ",");
         testUrlToRequestMapping(",", ",", ",");
         testUrlToUriMapping("-", "-", "-", "-", "-");
         testUrlToRequestMapping("-", "-", "-");
-        testUrlToUriMapping(".", ".", ".", ".", ".");
+        testUrlToUriMapping(".", null, ".", ".", ".");
         testUrlToRequestMapping(".", ".", ".");
         testUrlToUriMapping(".foo", ".foo", ".foo", ".foo", ".foo");
         testUrlToRequestMapping(".foo", ".foo", ".foo");
@@ -2083,63 +2085,64 @@ public final class URLConnectionTest extends AbstractResourceLeakageDetectorTest
         testUrlToRequestMapping(":", ":", ":");
         testUrlToUriMapping(";", ";", ";", ";", ";");
         testUrlToRequestMapping(";", ";", ";");
-        testUrlToUriMapping("<", "%3C", "%3C", "%3C", "%3C");
-        testUrlToRequestMapping("<", "<", "<");
+        testUrlToUriMapping("<", null, "%3C", "%3C", "%3C");
+        testUrlToRequestMapping("<", "%3C", "%3C");
         testUrlToUriMapping("=", "=", "=", "=", "=");
         testUrlToRequestMapping("=", "=", "=");
-        testUrlToUriMapping(">", "%3E", "%3E", "%3E", "%3E");
-        testUrlToRequestMapping(">", ">", ">");
+        testUrlToUriMapping(">", null, "%3E", "%3E", "%3E");
+        testUrlToRequestMapping(">", "%3E", "%3E");
         testUrlToUriMapping("?", null, null, "?", "?");
         testUrlToRequestMapping("?", null, "?");
-        testUrlToUriMapping("@", "@", "@", "@", "@");
+        testUrlToUriMapping("@", null, "@", "@", "@");
         testUrlToRequestMapping("@", "@", "@");
-        testUrlToUriMapping("[", null, "%5B", null, "%5B");
+        testUrlToUriMapping("[", null, null, null, "%5B");
         testUrlToRequestMapping("[", null, null);
-        testUrlToUriMapping("\\", "%5C", "%5C", "%5C", "%5C");
+        testUrlToUriMapping("\\", null, null, null, "%5C");
         testUrlToRequestMapping("\\", null, null);
-        testUrlToUriMapping("]", null, "%5D", null, "%5D");
+        testUrlToUriMapping("]", null, null, null, "%5D");
         testUrlToRequestMapping("]", null, null);
-        testUrlToUriMapping("^", "%5E", "%5E", "%5E", "%5E");
-        testUrlToRequestMapping("^", "^", null);
+        testUrlToUriMapping("^", null, "%5E", null, "%5E");
+        testUrlToRequestMapping("^", "%5E", null);
         testUrlToUriMapping("_", "_", "_", "_", "_");
         testUrlToRequestMapping("_", "_", "_");
-        testUrlToUriMapping("`", "%60", "%60", "%60", "%60");
-        testUrlToRequestMapping("`", "`", null);
-        testUrlToUriMapping("{", "%7B", "%7B", "%7B", "%7B");
-        testUrlToRequestMapping("{", "{", null);
-        testUrlToUriMapping("|", "%7C", "%7C", "%7C", "%7C");
-        testUrlToRequestMapping("|", "|", null);
-        testUrlToUriMapping("}", "%7D", "%7D", "%7D", "%7D");
-        testUrlToRequestMapping("}", "}", null);
+        testUrlToUriMapping("`", null, "%60", null, "%60");
+        testUrlToRequestMapping("`", "%60", null);
+        testUrlToUriMapping("{", null, "%7B", null, "%7B");
+        testUrlToRequestMapping("{", "%7B", null);
+        testUrlToUriMapping("|", null, "%7C", null, "%7C");
+        testUrlToRequestMapping("|", "%7C", null);
+        testUrlToUriMapping("}", null, "%7D", null, "%7D");
+        testUrlToRequestMapping("}", "%7D", null);
         testUrlToUriMapping("~", "~", "~", "~", "~");
         testUrlToRequestMapping("~", "~", "~");
-        testUrlToUriMapping("\u007f", "%7F", "%7F", "%7F", "%7F");
-        testUrlToRequestMapping("\u007f", "\u007F", "\u007F");
+        testUrlToUriMapping("\u007f", null, "%7F", "%7F", "%7F");
+        testUrlToRequestMapping("\u007f", "%7F", "%7F");
 
         // beyond ASCII
 
         // 0x80 is the code point for the Euro sign in CP1252 (but not 8859-15 or Unicode).
         // Unicode code point 0x80 is a control character and maps to {0xC2, 0x80} in UTF-8.
-        testUrlToUriMapping("\u0080", "%C2%80", "%C2%80", "%C2%80", "%C2%80");
-        testUrlToRequestMapping("\u0080", "\u00C2\u0080", "\u00C2\u0080");
+        // 0x80 is outside of the ASCII range and is not supported by IDN in hostnames.
+        testUrlToUriMapping("\u0080", null, "%C2%80", "%C2%80", "%C2%80");
+        testUrlToRequestMapping("\u0080", "%C2%80", "%C2%80");
 
         // More complicated transformations for the authorities below.
 
         // 0x20AC is the code point for the Euro sign in Unicode.
         // Unicode code point 0x20AC maps to {0xE2, 0x82, 0xAC} in UTF-8
-        testUrlToUriMapping("\u20ac", "\u20ac", "\u20ac", "\u20ac", "\u20ac");
-        testUrlToUriMappingAuthority("http://host\u20ac.tld/", "http://host\u20ac.tld/");
-        testUrlToRequestMapping("\u20ac",  "\u00E2\u0082\u00AC", "\u00E2\u0082\u00AC");
+        // 0x20AC is not supported by all registrars but there are some legacy domains that
+        // use it and Android currently supports IDN conversion for it.
+        testUrlToUriMapping("\u20ac", null /* skip */, "%E2%82%AC", "%E2%82%AC", "%E2%82%AC");
+        testUrlToUriMappingAuthority("http://host\u20ac.tld/", "http://xn--host-yv7a.tld/");
+        testUrlToRequestMapping("\u20ac",  "%E2%82%AC", "%E2%82%AC");
 
         // UTF-16 {0xD842, 0xDF9F} -> Unicode 0x20B9F (a Kanji character)
         // Unicode code point 0x20B9F maps to {0xF0, 0xA0, 0xAE, 0x9F} in UTF-8
-        testUrlToUriMapping("\ud842\udf9f", "\uD842\uDF9F", "\uD842\uDF9F",
-            "\uD842\uDF9F", "\uD842\uDF9F");
-        testUrlToUriMappingAuthority("http://host\uD842\uDF9F.tld/",
-            "http://host\uD842\uDF9F.tld/");
-        testUrlToRequestMapping("\ud842\udf9f",  "\u00F0\u00A0\u00AE\u009F",
-            "\u00F0\u00A0\u00AE\u009F"
-        );
+        // IDN can deal with this code point.
+        testUrlToUriMapping("\ud842\udf9f", null /* skip */, "%F0%A0%AE%9F", "%F0%A0%AE%9F",
+            "%F0%A0%AE%9F");
+        testUrlToUriMappingAuthority("http://host\uD842\uDF9F.tld/", "http://xn--host-ov06c.tld/");
+        testUrlToRequestMapping("\ud842\udf9f",  "%F0%A0%AE%9F", "%F0%A0%AE%9F");
     }
 
     private void testUrlToUriMappingAuthority(String urlString, String expectedUriString)
@@ -2235,7 +2238,7 @@ public final class URLConnectionTest extends AbstractResourceLeakageDetectorTest
         try {
             url.openStream();
             fail();
-        } catch (IllegalArgumentException expected) {}
+        } catch (UnknownHostException expected) {}
     }
 
     /**
@@ -2477,8 +2480,12 @@ public final class URLConnectionTest extends AbstractResourceLeakageDetectorTest
         URLConnection urlConnection = new URL("http://and roid.com/")
                 .openConnection(server.toProxyAddress());
 
-        // This test is to check that a NullPointerException is not thrown.
-        urlConnection.getInputStream();
+        try {
+            // This test is to check that a NullPointerException is not thrown.
+            urlConnection.getInputStream();
+            fail(); // the RI makes a bogus proxy request for "GET http://and roid.com/ HTTP/1.1"
+        } catch (UnknownHostException expected) {
+        }
     }
 
     public void testSslFallback_allSupportedProtocols() throws Exception {
