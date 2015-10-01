@@ -149,7 +149,7 @@ LOCAL_JAVACFLAGS := $(local_javac_flags)
 LOCAL_DX_FLAGS := --core-library
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := core-oj
-LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
+LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk core-all
 ifeq ($(ANDROID_DISABLE_CORE_OBFUSCATION),)
 LOCAL_PROGUARD_ENABLED := obfuscation nosystem
 LOCAL_PROGUARD_FLAGS := $(core_proguard_obfuscation_flags)
