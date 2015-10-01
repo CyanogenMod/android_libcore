@@ -153,6 +153,7 @@ LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk core-all
 ifeq ($(ANDROID_DISABLE_CORE_OBFUSCATION),)
 LOCAL_PROGUARD_ENABLED := obfuscation nosystem
 LOCAL_PROGUARD_FLAGS := $(core_proguard_obfuscation_flags)
+LOCAL_ADDITIONAL_DEPENDENCIES += $(core_all_intermediates)/proguard_dictionary
 endif
 LOCAL_JAVA_LIBRARIES := core-all-unobfuscated
 LOCAL_REQUIRED_MODULES := tzdata
@@ -173,8 +174,9 @@ LOCAL_MODULE := core-libart
 ifeq ($(ANDROID_DISABLE_CORE_OBFUSCATION),)
 LOCAL_PROGUARD_ENABLED := obfuscation nosystem
 LOCAL_PROGUARD_FLAGS := $(core_proguard_obfuscation_flags)
+LOCAL_ADDITIONAL_DEPENDENCIES += $(core_all_intermediates)/proguard_dictionary
 endif
-LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk core-all
+LOCAL_ADDITIONAL_DEPENDENCIES += $(LOCAL_PATH)/JavaLibrary.mk
 LOCAL_JAVA_LIBRARIES := core-all-unobfuscated
 LOCAL_CORE_LIBRARY := true
 LOCAL_JARJAR_RULES := $(LOCAL_PATH)/jarjar-rules.txt
