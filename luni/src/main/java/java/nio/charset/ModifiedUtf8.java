@@ -110,7 +110,7 @@ public class ModifiedUtf8 {
      * {@code out},
      *
      * <p>A maximum of {@code length} chars are written to the output starting at offset 0.
-     * {@out} is assumed to have enough space for the output (a standard
+     * {@code out} is assumed to have enough space for the output (a standard
      * {@code ArrayIndexOutOfBoundsException} is thrown otherwise).
      *
      * <p>If a ‘0’ byte is encountered, it is converted to U+0000.
