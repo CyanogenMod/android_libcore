@@ -190,6 +190,19 @@ public class ReflectionBenchmark extends SimpleBenchmark {
         }
     }
 
+    public void timeGetInterfaceStaticField(int reps) throws Exception {
+        for (int rep = 0; rep < reps; ++rep) {
+            F.class.getField("sf");
+        }
+    }
+
+    public void timeGetSuperClassField(int reps) throws Exception {
+        for (int rep = 0; rep < reps; ++rep) {
+            G.class.getField("f");
+        }
+    }
+
+
     public static class C {
         public static int sf = 0;
         public int f = 0;
@@ -221,8 +234,18 @@ public class ReflectionBenchmark extends SimpleBenchmark {
     }
 
     interface IC extends IB {
+        public static final int sf = 0;
     }
 
     class D implements IC {
+    }
+
+    class E extends D {
+    }
+
+    class F extends E implements IB {
+    }
+
+    class G extends C {
     }
 }
