@@ -77,7 +77,7 @@ import libcore.icu.CollationKeyICU;
  */
 public class RuleBasedCollator extends Collator {
 
-    RuleBasedCollator(com.ibm.icu.text.RuleBasedCollator wrapper) {
+    RuleBasedCollator(android.icu.text.RuleBasedCollator wrapper) {
         super(wrapper);
     }
 
@@ -104,7 +104,7 @@ public class RuleBasedCollator extends Collator {
             throw new NullPointerException("rules == null");
         }
         try {
-            icuColl = new com.ibm.icu.text.RuleBasedCollator(rules);
+            icuColl = new android.icu.text.RuleBasedCollator(rules);
         } catch (Exception e) {
             if (e instanceof ParseException) {
                 throw (ParseException) e;
@@ -237,8 +237,8 @@ public class RuleBasedCollator extends Collator {
         return super.equals(obj);
     }
 
-    private com.ibm.icu.text.RuleBasedCollator collAsICU() {
-        return (com.ibm.icu.text.RuleBasedCollator) icuColl;
+    private android.icu.text.RuleBasedCollator collAsICU() {
+        return (android.icu.text.RuleBasedCollator) icuColl;
     }
 
 }

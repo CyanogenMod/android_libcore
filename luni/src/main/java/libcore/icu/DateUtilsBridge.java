@@ -16,10 +16,10 @@
 
 package libcore.icu;
 
-import com.ibm.icu.impl.JavaTimeZone;
-import com.ibm.icu.util.Calendar;
-import com.ibm.icu.util.GregorianCalendar;
-import com.ibm.icu.util.ULocale;
+import android.icu.impl.JavaTimeZone;
+import android.icu.util.Calendar;
+import android.icu.util.GregorianCalendar;
+import android.icu.util.ULocale;
 
 /**
  * Common methods and constants for the various ICU formatters used to support
@@ -50,13 +50,13 @@ public final class DateUtilsBridge {
    * writing the libcore implementation is faster but restricted to 1902 - 2038.
    * Callers must not modify the {@code tz} after calling this method.
    */
-  public static com.ibm.icu.util.TimeZone icuTimeZone(java.util.TimeZone tz) {
+  public static android.icu.util.TimeZone icuTimeZone(java.util.TimeZone tz) {
     JavaTimeZone javaTimeZone = new JavaTimeZone(tz, null);
     javaTimeZone.freeze(); // Optimization - allows the timezone to be copied cheaply.
     return javaTimeZone;
   }
 
-  public static Calendar createIcuCalendar(com.ibm.icu.util.TimeZone icuTimeZone, ULocale icuLocale,
+  public static Calendar createIcuCalendar(android.icu.util.TimeZone icuTimeZone, ULocale icuLocale,
       long timeInMillis) {
     Calendar calendar = new GregorianCalendar(icuTimeZone, icuLocale);
     calendar.setTimeInMillis(timeInMillis);
