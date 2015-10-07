@@ -3177,27 +3177,31 @@ public class Arrays {
 
         for (Object element : a) {
             int elementHash = 0;
-            if (element instanceof Object[])
-                elementHash = deepHashCode((Object[]) element);
-            else if (element instanceof byte[])
-                elementHash = hashCode((byte[]) element);
-            else if (element instanceof short[])
-                elementHash = hashCode((short[]) element);
-            else if (element instanceof int[])
-                elementHash = hashCode((int[]) element);
-            else if (element instanceof long[])
-                elementHash = hashCode((long[]) element);
-            else if (element instanceof char[])
-                elementHash = hashCode((char[]) element);
-            else if (element instanceof float[])
-                elementHash = hashCode((float[]) element);
-            else if (element instanceof double[])
-                elementHash = hashCode((double[]) element);
-            else if (element instanceof boolean[])
-                elementHash = hashCode((boolean[]) element);
-            else if (element != null)
-                elementHash = element.hashCode();
-
+            if (element != null) {
+                Class<?> cl = element.getClass().getComponentType();
+                if (cl == null)
+                    elementHash = element.hashCode();
+                else if (element instanceof Object[])
+                    elementHash = deepHashCode((Object[]) element);
+                else if (cl == byte.class)
+                    elementHash = hashCode((byte[]) element);
+                else if (cl == short.class)
+                    elementHash = hashCode((short[]) element);
+                else if (cl == int.class)
+                    elementHash = hashCode((int[]) element);
+                else if (cl == long.class)
+                    elementHash = hashCode((long[]) element);
+                else if (cl == char.class)
+                    elementHash = hashCode((char[]) element);
+                else if (cl == float.class)
+                    elementHash = hashCode((float[]) element);
+                else if (cl == double.class)
+                    elementHash = hashCode((double[]) element);
+                else if (cl == boolean.class)
+                    elementHash = hashCode((boolean[]) element);
+                else
+                    elementHash = element.hashCode();
+            }
             result = 31 * result + elementHash;
         }
 
@@ -3254,7 +3258,7 @@ public class Arrays {
 
             if (e1 == e2)
                 continue;
-            if (e1 == null)
+            if (e1 == null || e2 == null)
                 return false;
 
             // Figure out whether the two elements are equal
@@ -3267,29 +3271,32 @@ public class Arrays {
     }
 
     static boolean deepEquals0(Object e1, Object e2) {
-        assert e1 != null;
-        boolean eq;
-        if (e1 instanceof Object[] && e2 instanceof Object[])
-            eq = deepEquals ((Object[]) e1, (Object[]) e2);
-        else if (e1 instanceof byte[] && e2 instanceof byte[])
-            eq = equals((byte[]) e1, (byte[]) e2);
-        else if (e1 instanceof short[] && e2 instanceof short[])
-            eq = equals((short[]) e1, (short[]) e2);
-        else if (e1 instanceof int[] && e2 instanceof int[])
-            eq = equals((int[]) e1, (int[]) e2);
-        else if (e1 instanceof long[] && e2 instanceof long[])
-            eq = equals((long[]) e1, (long[]) e2);
-        else if (e1 instanceof char[] && e2 instanceof char[])
-            eq = equals((char[]) e1, (char[]) e2);
-        else if (e1 instanceof float[] && e2 instanceof float[])
-            eq = equals((float[]) e1, (float[]) e2);
-        else if (e1 instanceof double[] && e2 instanceof double[])
-            eq = equals((double[]) e1, (double[]) e2);
-        else if (e1 instanceof boolean[] && e2 instanceof boolean[])
-            eq = equals((boolean[]) e1, (boolean[]) e2);
+        Class<?> cl1 = e1.getClass().getComponentType();
+        Class<?> cl2 = e2.getClass().getComponentType();
+
+        if (cl1 != cl2) {
+            return false;
+        }
+        if (e1 instanceof Object[])
+            return deepEquals ((Object[]) e1, (Object[]) e2);
+        else if (cl1 == byte.class)
+            return equals((byte[]) e1, (byte[]) e2);
+        else if (cl1 == short.class)
+            return equals((short[]) e1, (short[]) e2);
+        else if (cl1 == int.class)
+            return equals((int[]) e1, (int[]) e2);
+        else if (cl1 == long.class)
+            return equals((long[]) e1, (long[]) e2);
+        else if (cl1 == char.class)
+            return equals((char[]) e1, (char[]) e2);
+        else if (cl1 == float.class)
+            return equals((float[]) e1, (float[]) e2);
+        else if (cl1 == double.class)
+            return equals((double[]) e1, (double[]) e2);
+        else if (cl1 == boolean.class)
+            return equals((boolean[]) e1, (boolean[]) e2);
         else
-            eq = e1.equals(e2);
-        return eq;
+            return e1.equals(e2);
     }
 
     /**
