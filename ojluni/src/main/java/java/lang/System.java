@@ -24,29 +24,18 @@
  */
 package java.lang;
 
-import java.io.*;
-import java.util.Properties;
-import java.util.PropertyPermission;
-import java.util.StringTokenizer;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.security.AllPermission;
-import java.nio.channels.Channel;
-import java.nio.channels.spi.SelectorProvider;
-import sun.nio.ch.Interruptible;
-import sun.reflect.CallerSensitive;
-/* ----- BEGIN android -----
-import sun.reflect.Reflection;*/
-import android.system.ErrnoException;
-import android.system.StructPasswd;
-import android.system.StructUtsname;
 import dalvik.system.VMRuntime;
 import dalvik.system.VMStack;
+import android.system.StructPasswd;
+import android.system.StructUtsname;
+import android.system.ErrnoException;
+import java.io.*;
+import java.util.Locale;
+import java.util.Properties;
+import java.nio.channels.Channel;
+import java.nio.channels.spi.SelectorProvider;
 import libcore.icu.ICU;
 import libcore.io.Libcore;
-// ----- END android -----
-import sun.security.util.SecurityConstants;
-import sun.reflect.annotation.AnnotationType;
 
 /**
  * The <code>System</code> class contains several useful class fields
@@ -62,7 +51,6 @@ import sun.reflect.annotation.AnnotationType;
  * @since   JDK1.0
  */
 public final class System {
-
     /** Don't let anyone instantiate this class */
     private System() {
     }
@@ -116,10 +104,6 @@ public final class System {
      */
     public final static PrintStream err;
 
-    /* The security manager for the system.
-     */
-    private static volatile SecurityManager security = null;
-
     /**
      * Reassigns the "standard" input stream.
      *
@@ -141,7 +125,6 @@ public final class System {
      * @since   JDK1.1
      */
     public static void setIn(InputStream in) {
-        checkIO();
         setIn0(in);
     }
 
@@ -165,7 +148,6 @@ public final class System {
      * @since   JDK1.1
      */
     public static void setOut(PrintStream out) {
-        checkIO();
         setOut0(out);
     }
 
@@ -189,11 +171,11 @@ public final class System {
      * @since   JDK1.1
      */
     public static void setErr(PrintStream err) {
-        checkIO();
         setErr0(err);
     }
 
-    private static volatile Console cons = null;
+    private static Console cons = null;
+
     /**
      * Returns the unique {@link java.io.Console Console} object associated
      * with the current Java virtual machine, if any.
@@ -203,12 +185,13 @@ public final class System {
      * @since   1.6
      */
      public static Console console() {
-         if (cons == null) {
-             synchronized (System.class) {
+         synchronized (System.class) {
+             if (cons == null) {
                  cons = Console.console();
              }
+
+             return cons;
          }
-         return cons;
      }
 
     /**
@@ -240,9 +223,6 @@ public final class System {
         return SelectorProvider.provider().inheritedChannel();
     }
 
-    private static void checkIO() {
-    }
-
     private static native void setIn0(InputStream in);
     private static native void setOut0(PrintStream out);
     private static native void setErr0(PrintStream err);
@@ -270,8 +250,8 @@ public final class System {
      * @see SecurityManager#checkPermission
      * @see java.lang.RuntimePermission
      */
-    public static
-    void setSecurityManager(final SecurityManager s) {
+    public static  void setSecurityManager(final SecurityManager s) {
+        // No-op on android.
     }
 
     /**
@@ -283,6 +263,7 @@ public final class System {
      * @see     #setSecurityManager
      */
     public static SecurityManager getSecurityManager() {
+        // No-op on android.
         return null;
     }
 
@@ -908,6 +889,7 @@ public final class System {
      */
 
     private static Properties props;
+    private static Properties unchangeableProps;
 
     private static native String[] specialProperties();
 
@@ -937,6 +919,7 @@ public final class System {
             return super.remove(key);
         }
     }
+
     private static void parsePropertyAssignments(Properties p, String[] assignments) {
         for (String assignment : assignments) {
             int split = assignment.indexOf('=');
@@ -945,7 +928,8 @@ public final class System {
             p.put(key, value);
         }
     }
-    private static Properties initProperties() {
+
+    private static Properties initUnchangeableSystemProperties() {
         VMRuntime runtime = VMRuntime.getRuntime();
         Properties p = new Properties();
 
@@ -983,10 +967,6 @@ public final class System {
         p.put("java.vm.vendor", projectName);
         p.put("java.vm.version", runtime.vmVersion());
 
-        p.put("file.separator", "/");
-        p.put("line.separator", "\n");
-        p.put("path.separator", ":");
-
         p.put("java.runtime.name", "Android Runtime");
         p.put("java.runtime.version", "0.9");
         p.put("java.vm.vendor.url", projectUrl);
@@ -994,8 +974,6 @@ public final class System {
         p.put("java.net.preferIPv6Addresses", "false");
 
         p.put("file.encoding", "UTF-8");
-        p.put("user.language", "en");
-        p.put("user.region", "US");
 
         try {
             StructPasswd passwd = Libcore.os.getpwuid(Libcore.os.getuid());
@@ -1025,26 +1003,91 @@ public final class System {
         // Override built-in properties with settings from the command line.
         parsePropertyAssignments(p, runtime.properties());
 
-        // Save user.home and java.io.tmpdir
-        String userHome = (String)p.remove("user.home");
-        String javaIoTmpdir = (String)p.remove("java.io.tmpdir");
+        if (p.containsKey("file.separator")) {
+            logE("Ignoring command line argument: -Dfile.separator");
+        }
 
-        Properties result = new PropertiesWithNonOverrideableDefaults(p);
+        if (p.containsKey("line.separator")) {
+            logE("Ignoring command line argument: -Dline.separator");
+        }
+
+        if (p.containsKey("path.separator")) {
+            logE("Ignoring command line argument: -Dpath.separator");
+        }
+
+        p.put("file.separator", "/");
+        p.put("line.separator", "\n");
+        p.put("path.separator", ":");
+
+        return p;
+    }
+
+    private static Properties initProperties() {
+        Properties p = new PropertiesWithNonOverrideableDefaults(unchangeableProps);
+        setDefaultChangeableProperties(p);
+        return p;
+    }
+
+    private static Properties setDefaultChangeableProperties(Properties p) {
         // On Android, each app gets its own temporary directory.
         // (See android.app.ActivityThread.) This is just a fallback default,
         // useful only on the host.
-        result.put("java.io.tmpdir",
-            (javaIoTmpdir == null || javaIoTmpdir.isEmpty()) ? "/tmp" : javaIoTmpdir);
+        // We check first if the property has not been set already: note that it
+        // can only be set from the command line through the '-Djava.io.tmpdir=' option.
+        if (!unchangeableProps.containsKey("java.io.tmpdir")) {
+            p.put("java.io.tmpdir", "/tmp");
+        }
 
         // Android has always had an empty "user.home" (see docs for getProperty).
         // This is not useful for normal android apps which need to use android specific
         // APIs such as {@code Context.getFilesDir} and {@code Context.getCacheDir} but
         // we make it changeable for backward compatibility, so that they can change it
         // to a writeable location if required.
-        result.put("user.home",
-            (userHome == null || userHome.isEmpty()) ? "" : userHome);
+        // We check first if the property has not been set already: note that it
+        // can only be set from the command line through the '-Duser.home=' option.
+        if (!unchangeableProps.containsKey("user.home")) {
+            p.put("user.home", "");
+        }
 
-        return result;
+        return p;
+    }
+
+    /**
+     * Inits an unchangeable system property with the given value.
+     *
+     * This is called from native code when the environment needs to change under native
+     * bridge emulation.
+     *
+     * @hide also visible for tests.
+     */
+    public static void setUnchangeableSystemProperty(String key, String value) {
+        checkKey(key);
+        unchangeableProps.put(key, value);
+    }
+
+    private static void addLegacyLocaleSystemProperties() {
+        final String locale = getProperty("user.locale", "");
+        if (!locale.isEmpty()) {
+            Locale l = Locale.forLanguageTag(locale);
+            setUnchangeableSystemProperty("user.language", l.getLanguage());
+            setUnchangeableSystemProperty("user.region", l.getCountry());
+            setUnchangeableSystemProperty("user.variant", l.getVariant());
+        } else {
+            // If "user.locale" isn't set we fall back to our old defaults of
+            // language="en" and region="US" (if unset) and don't attempt to set it.
+            // The Locale class will fall back to using user.language and
+            // user.region if unset.
+            final String language = getProperty("user.language", "");
+            final String region = getProperty("user.region", "");
+
+            if (language.isEmpty()) {
+                setUnchangeableSystemProperty("user.language", "en");
+            }
+
+            if (region.isEmpty()) {
+                setUnchangeableSystemProperty("user.region", "US");
+            }
+        }
     }
 
     /**
@@ -1178,12 +1221,13 @@ public final class System {
      * @see        java.lang.SecurityManager#checkPropertiesAccess()
      */
     public static void setProperties(Properties props) {
-        // TODO: cache initProperties on init?
-        // TODO: update comments in other related property methods
-        Properties baseProperties = initProperties();
+        Properties baseProperties = new PropertiesWithNonOverrideableDefaults(unchangeableProps);
         if (props != null) {
             baseProperties.putAll(props);
+        } else {
+            setDefaultChangeableProperties(baseProperties);
         }
+
         System.props = baseProperties;
     }
 
@@ -1215,6 +1259,7 @@ public final class System {
      */
     public static String getProperty(String key) {
         checkKey(key);
+
         return props.getProperty(key);
     }
 
@@ -1246,6 +1291,7 @@ public final class System {
      */
     public static String getProperty(String key, String def) {
         checkKey(key);
+
         return props.getProperty(key, def);
     }
 
@@ -1280,6 +1326,7 @@ public final class System {
      */
     public static String setProperty(String key, String value) {
         checkKey(key);
+
         return (String) props.setProperty(key, value);
     }
 
@@ -1312,6 +1359,7 @@ public final class System {
      */
     public static String clearProperty(String key) {
         checkKey(key);
+
         return (String) props.remove(key);
     }
 
@@ -1374,6 +1422,7 @@ public final class System {
         if (name == null) {
             throw new NullPointerException("name == null");
         }
+
         return Libcore.os.getenv(name);
     }
 
@@ -1541,7 +1590,6 @@ public final class System {
      * @see        java.lang.Runtime#load(java.lang.String)
      * @see        java.lang.SecurityManager#checkLink(java.lang.String)
      */
-    @CallerSensitive
     public static void load(String filename) {
         Runtime.getRuntime().load0(VMStack.getStackClass2(), filename);
     }
@@ -1567,7 +1615,6 @@ public final class System {
      * @see        java.lang.Runtime#loadLibrary(java.lang.String)
      * @see        java.lang.SecurityManager#checkLink(java.lang.String)
      */
-    @CallerSensitive
     public static void loadLibrary(String libname) {
         Runtime.getRuntime().loadLibrary0(VMStack.getCallingClassLoader(), libname);
     }
@@ -1590,37 +1637,12 @@ public final class System {
      * Initialize the system class.  Called after thread initialization.
      */
     static {
-
-        // VM might invoke JNU_NewStringPlatform() to set those encoding
-        // sensitive properties (user.home, user.name, boot.class.path, etc.)
-        // during "props" initialization, in which it may need access, via
-        // System.getProperty(), to the related system encoding property that
-        // have been initialized (put into "props") at early stage of the
-        // initialization. So make sure the "props" is available at the
-        // very beginning of the initialization and all system properties to
-        // be put into it directly.
-        /* ----- BEGIN android -----
-        props = new Properties();
-        initProperties(props);  // initialized by the VM*/
+        unchangeableProps = initUnchangeableSystemProperties();
         props = initProperties();
-        // ----- END android -----
+        addLegacyLocaleSystemProperties();
 
-        // There are certain system configurations that may be controlled by
-        // VM options such as the maximum amount of direct memory and
-        // Integer cache size used to support the object identity semantics
-        // of autoboxing.  Typically, the library will obtain these values
-        // from the properties set by the VM.  If the properties are for
-        // internal implementation use only, these properties should be
-        // removed from the system properties.
-        //
-        // See java.lang.Integer.IntegerCache and the
-        // sun.misc.VM.saveAndRemoveProperties method for example.
-        //
-        // Save a private copy of the system properties object that
-        // can only be accessed by the internal implementation.  Remove
-        // certain system properties that are not intended for public access.
-        sun.misc.VM.saveAndRemoveProperties(props);
-
+        // TODO: Confirm that this isn't something super important.
+        // sun.misc.VM.saveAndRemoveProperties(props);
 
         lineSeparator = props.getProperty("line.separator");
         sun.misc.Version.init();
@@ -1628,38 +1650,16 @@ public final class System {
         FileInputStream fdIn = new FileInputStream(FileDescriptor.in);
         FileOutputStream fdOut = new FileOutputStream(FileDescriptor.out);
         FileOutputStream fdErr = new FileOutputStream(FileDescriptor.err);
-        /* ----- BEGIN android -----
-        setIn0(new BufferedInputStream(fdIn));
-        setOut0(new PrintStream(new BufferedOutputStream(fdOut, 128), true));
-        setErr0(new PrintStream(new BufferedOutputStream(fdErr, 128), true));*/
+
         in = new BufferedInputStream(fdIn);
         out = new PrintStream(fdOut);
         err = new PrintStream(fdErr);
-        // ----- END android -----
-        // Load the zip library now in order to keep java.util.zip.ZipFile
-        // from trying to use itself to load this library later.
-        /* ----- BEGIN android -----
-        loadLibrary("zip");
-        ----- END android ----- */
-
-        // Setup Java signal handlers for HUP, TERM, and INT (where available).
-        //
-        // Android changed: Not necessary.
-        // Terminator.setup();
 
         // Initialize any miscellenous operating system settings that need to be
         // set for the class libraries. Currently this is no-op everywhere except
         // for Windows where the process-wide error mode is set before the java.io
         // classes are used.
         sun.misc.VM.initializeOSEnvironment();
-
-        // The main thread is not added to its thread group in the same
-        // way as other threads; we must do it ourselves here.
-        Thread current = Thread.currentThread();
-        //current.getThreadGroup().add(current);
-
-        // register shared secrets
-        //setJavaLangAccess();
 
         // Subsystems that are invoked during initialization can invoke
         // sun.misc.VM.isBooted() in order to avoid doing things that should
