@@ -458,10 +458,12 @@ static bool fillInetSocketAddress(JNIEnv* env, jint rc, jobject javaInetSocketAd
     if (sender == NULL) {
         return false;
     }
-    static jfieldID holderFid = env->GetFieldID(JniConstants::inetSocketAddressClass, "holder", "Ljava/net/InetSocketAddress$InetSocketAddressHolder;");
+    static jfieldID holderFid = env->GetFieldID(JniConstants::inetSocketAddressClass, "holder",
+                                                "Ljava/net/InetSocketAddress$InetSocketAddressHolder;");
     jobject holder = env->GetObjectField(javaInetSocketAddress, holderFid);
 
-    static jfieldID addressFid = env->GetFieldID(JniConstants::inetSocketAddressHolderClass, "addr", "Ljava/net/InetAddress;");
+    static jfieldID addressFid = env->GetFieldID(JniConstants::inetSocketAddressHolderClass,
+                                                 "addr", "Ljava/net/InetAddress;");
     static jfieldID portFid = env->GetFieldID(JniConstants::inetSocketAddressHolderClass, "port", "I");
     env->SetObjectField(holder, addressFid, sender);
     env->SetIntField(holder, portFid, port);
@@ -470,11 +472,16 @@ static bool fillInetSocketAddress(JNIEnv* env, jint rc, jobject javaInetSocketAd
 
 static void javaInetSocketAddressToInetAddressAndPort(
         JNIEnv* env, jobject javaInetSocketAddress, jobject& javaInetAddress, jint& port) {
+    static jfieldID holderFid = env->GetFieldID(JniConstants::inetSocketAddressClass, "holder",
+                                                "Ljava/net/InetSocketAddress$InetSocketAddressHolder;");
+    jobject holder = env->GetObjectField(javaInetSocketAddress, holderFid);
+
     static jfieldID addressFid = env->GetFieldID(
-            JniConstants::inetSocketAddressClass, "addr", "Ljava/net/InetAddress;");
-    static jfieldID portFid = env->GetFieldID(JniConstants::inetSocketAddressClass, "port", "I");
-    javaInetAddress = env->GetObjectField(javaInetSocketAddress, addressFid);
-    port = env->GetIntField(javaInetSocketAddress, portFid);
+            JniConstants::inetSocketAddressHolderClass, "addr", "Ljava/net/InetAddress;");
+    static jfieldID portFid = env->GetFieldID(JniConstants::inetSocketAddressHolderClass, "port", "I");
+
+    javaInetAddress = env->GetObjectField(holder, addressFid);
+    port = env->GetIntField(holder, portFid);
 }
 
 static bool javaInetSocketAddressToSockaddr(
