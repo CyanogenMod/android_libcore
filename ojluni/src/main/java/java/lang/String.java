@@ -729,15 +729,26 @@ public final class String
      *                <code>dst.length</code></ul>
      */
     public void getChars(int srcBegin, int srcEnd, char dst[], int dstBegin) {
+        if (dst == null) {
+            throw new NullPointerException("dst == null");
+        }
+
         if (srcBegin < 0) {
-            throw new StringIndexOutOfBoundsException(srcBegin);
+            throw new StringIndexOutOfBoundsException(this, srcBegin);
         }
         if (srcEnd > count) {
-            throw new StringIndexOutOfBoundsException(srcEnd);
+            throw new StringIndexOutOfBoundsException(this, srcEnd);
         }
-        if (srcBegin > srcEnd) {
-            throw new StringIndexOutOfBoundsException(srcEnd - srcBegin);
+
+        int count = srcEnd - srcBegin;
+        if (count < 0) {
+            throw new StringIndexOutOfBoundsException(this, srcBegin, (srcEnd - srcBegin));
         }
+
+        if (dstBegin + count > dst.length) {
+            throw new ArrayIndexOutOfBoundsException("dstBegin + count > dst.length");
+        }
+
         getCharsNoCheck(srcBegin, srcEnd, dst, dstBegin);
     }
 
