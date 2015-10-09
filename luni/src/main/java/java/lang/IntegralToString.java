@@ -75,7 +75,7 @@ public final class IntegralToString {
         '9', '9', '9', '9', '9', '9', '9', '9', '9', '9'
     };
 
-    /** Ones [i] contains the tens digit of the number i, 0 <= i <= 99. */
+    /** Ones [i] contains the ones digit of the number i, 0 <= i <= 99. */
     private static final char[] ONES = {
         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
