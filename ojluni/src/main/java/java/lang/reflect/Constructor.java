@@ -429,11 +429,11 @@ public final
     // Android changed param name s/initargs/args
     public T newInstance(Object... args) throws InstantiationException,
             IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-      if (serializationClass == null) {
-          return newInstance(args, isAccessible());
-      } else {
-          return (T) newInstance0(serializationCtor, serializationClass);
-      }
+        if (serializationClass == null) {
+            return newInstance0(args);
+        } else {
+            return (T) newInstanceFromSerialization(serializationCtor, serializationClass);
+        }
     }
 
     private static native Object newInstanceFromSerialization(Class<?> ctorClass, Class<?> allocClass)
