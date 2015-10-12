@@ -21,6 +21,8 @@ import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import junit.framework.TestCase;
 
@@ -976,6 +978,217 @@ public class TimerTest extends TestCase {
         Thread timerThread = threadRef.get();
         assertFalse(timerThread.isAlive());
     }
+
+    private class CheckIfExecutedOnTime extends TimerTask {
+        private static final int TOLERANCE_TIME = 100;
+        private final AtomicBoolean executedOnTime;
+
+        static final int SLEEPING_TIME = 10 * TOLERANCE_TIME;
+
+        private CheckIfExecutedOnTime(AtomicBoolean executedOnTime) {
+            this.executedOnTime = executedOnTime;
+        }
+
+        @Override
+        public void run() {
+            // We'll schedule one after the other to execute immediately, the first one with
+            // {@code executedOnTime == null}. Ensure that the second
+            // is delayed by at most the time spent by the first one, plus some tolerance.
+            if (executedOnTime != null &&
+                    System.currentTimeMillis()
+                            <= scheduledExecutionTime() + SLEEPING_TIME + TOLERANCE_TIME) {
+                executedOnTime.set(true);
+            } else {
+                try {
+                    Thread.sleep(SLEEPING_TIME);
+                } catch (InterruptedException e) {
+                    throw new IllegalStateException(e);
+                }
+            }
+        }
+    };
+
+    public void testOverdueTaskExecutesImmediately() throws Exception {
+        Timer t = new Timer();
+        Date date = new Date(System.currentTimeMillis());
+        t.schedule(new CheckIfExecutedOnTime(null), date);
+        AtomicBoolean actuallyExecutedOnTime = new AtomicBoolean();
+        // Scheduled to execute right now but won't do as the other task is sleeping. Check that
+        // this one executes as soon as the other one finishes.
+        t.schedule(new CheckIfExecutedOnTime(actuallyExecutedOnTime), date);
+        // Only the first one sleeps, this will be the two tasks plenty of time to finish.
+        Thread.sleep(2 * CheckIfExecutedOnTime.SLEEPING_TIME);
+        t.cancel();
+        assertTrue(actuallyExecutedOnTime.get());
+    }
+
+    public void testCanBeCancelledEvenIfTaskKeepsItPermanentlyBusy() throws Exception {
+        final int timeSleeping = 200;
+        Timer t = new Timer();
+        final AtomicLong counter = new AtomicLong();
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    counter.incrementAndGet();
+                    Thread.sleep(timeSleeping);
+                } catch (InterruptedException e) {
+                    throw new IllegalStateException(e);
+                }
+            }
+        };
+        // Keep the thread busy by scheduling execution twice as fast than the task can execute.
+        t.scheduleAtFixedRate(task, 1 /* delay */, timeSleeping / 2 /* rate */);
+        Thread.sleep(timeSleeping * 8);
+        // Check the task was actually running.
+        assertTrue(counter.get() > 0);
+        t.cancel();
+        // Allow some time to finish.
+        Thread.sleep(2 * timeSleeping);
+        try {
+            t.schedule(
+                    new TimerTask() {
+                        @Override
+                        public void run() {
+
+                        }
+                    },
+                    1 /* delay */);
+            fail("timer should be cancelled, and not accept new schedulings");
+        } catch (IllegalStateException expected) {
+            // Expected.
+        }
+    }
+
+    public void testTaskNotCancelledWhenTimerCancelled() throws Exception {
+        final int timeSleeping = 200;
+        Timer t = new Timer();
+        final AtomicLong counter = new AtomicLong();
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    counter.incrementAndGet();
+                    Thread.sleep(timeSleeping);
+                } catch (InterruptedException e) {
+                    throw new IllegalStateException(e);
+                }
+            }
+        };
+        t.scheduleAtFixedRate(task, 1 /* delay */, 100 /* rate */);
+        Thread.sleep(1000);
+        t.cancel();
+        // Returns true as the task wasn't cancelled before.
+        assertTrue(task.cancel());
+    }
+
+    public void testTaskNotCancelledWhenTimerCancelledAndPurged() throws Exception {
+        final int timeSleeping = 200;
+        Timer t = new Timer();
+        final AtomicLong counter = new AtomicLong();
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    counter.incrementAndGet();
+                    Thread.sleep(timeSleeping);
+                } catch (InterruptedException e) {
+                    throw new IllegalStateException(e);
+                }
+            }
+        };
+        t.scheduleAtFixedRate(task, 1 /* delay */, 100 /* rate */);
+        Thread.sleep(1000);
+        t.cancel();
+        t.purge();
+        // Returns true as the task wasn't cancelled before.
+        assertTrue(task.cancel());
+    }
+
+    public void testTimerCancelledAfterException() throws Exception {
+        Timer t = new Timer();
+        final AtomicLong counter = new AtomicLong();
+        TimerTask task1 = new TimerTask() {
+            @Override
+            public void run() {
+                counter.incrementAndGet();
+                throw new IllegalStateException("AAA");
+            }
+        };
+        TimerTask task2 = new TimerTask() {
+            @Override
+            public void run() {
+                counter.incrementAndGet();
+            }
+        };
+        t.scheduleAtFixedRate(task1, 1 /* delay */, 100);
+        t.schedule(task2, 100 /* delay */);
+        Thread.sleep(1000);
+        // Check the counter wasn't increased more than once (ie, the exception killed the
+        // execution thread).
+        assertEquals("Counter should be 1, and is: " + counter.get(), 1, counter.get());
+
+        assertTrue("The timer should not cancel the tasks", task1.cancel());
+        assertTrue("The timer should not cancel the tasks", task2.cancel());
+
+
+        TimerTask task3 = new TimerTask() {
+            @Override
+            public void run() {
+                counter.incrementAndGet();
+            }
+        };
+
+        try {
+            t.schedule(task3, 1);
+            fail("Timer should be cancelled and no new tasks should be allowed");
+        } catch (Exception expected) {
+            // Expected.
+        }
+    }
+
+    public void testTimerCancelledAfterExceptionAndTasksNotCancelledAfterPurge() throws Exception {
+        Timer t = new Timer();
+        final AtomicLong counter = new AtomicLong();
+        TimerTask task1 = new TimerTask() {
+            @Override
+            public void run() {
+                counter.incrementAndGet();
+                throw new IllegalStateException("AAA");
+            }
+        };
+        TimerTask task2 = new TimerTask() {
+            @Override
+            public void run() {
+                counter.incrementAndGet();
+            }
+        };
+        t.scheduleAtFixedRate(task1, 1 /* delay */, 100);
+        t.schedule(task2, 100 /* delay */);
+        Thread.sleep(1000);
+        // Check the counter wasn't increased more than once (ie, the exception killed the
+        // execution thread).
+        assertEquals("Counter should be 1, and is: " + counter.get(), 1, counter.get());
+        t.purge();
+        assertTrue("The timer should not cancel the tasks", task1.cancel());
+        assertTrue("The timer should not cancel the tasks", task2.cancel());
+
+
+        TimerTask task3 = new TimerTask() {
+            @Override
+            public void run() {
+                counter.incrementAndGet();
+            }
+        };
+
+        try {
+            t.schedule(task3, 1);
+            fail("Timer should be cancelled and no new tasks should be allowed");
+        } catch (Exception expected) {
+            // Expected.
+        }
+    }
+
 
     protected void setUp() {
         timerCounter = 0;
