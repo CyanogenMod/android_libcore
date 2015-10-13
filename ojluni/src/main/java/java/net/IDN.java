@@ -212,7 +212,7 @@ public final class IDN {
         InputStream stream = null;
 
         try {
-            final String IDN_PROFILE = "uidna.spp";
+            final String IDN_PROFILE = "/sun/net/idn/uidna.spp";
             if (System.getSecurityManager() != null) {
                 stream = AccessController.doPrivileged(new PrivilegedAction<InputStream>() {
                     public InputStream run() {
