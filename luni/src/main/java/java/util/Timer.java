@@ -330,12 +330,16 @@ public class Timer {
                         // We must execute a task right now. Either because at the beginning of the
                         // loop it was time to execute, or because we waited enough time in the
                         // condition.
-                        timerLock.unlock();
+                        if (nextTask.timerTask.isCancelled()) {
+                            scheduledTaskPriorityQueue.remove(nextTask);
+                        } else {
+                            timerLock.unlock();
 
-                        runTask(nextTask);
+                            runTask(nextTask);
 
-                        timerLock.lock();
-                        updatePriorityQueue(nextTask, System.currentTimeMillis());
+                            timerLock.lock();
+                            updatePriorityQueue(nextTask, System.currentTimeMillis());
+                        }
                     }
                     // On the contrary, if the waiting condition was satisfied, restart the loop
                     // as the scheduling thread signalled a change in the scheduled tasks (or
