@@ -1189,6 +1189,20 @@ public class TimerTest extends TestCase {
         }
     }
 
+    public void testTimerCancelledTasksRemovedFromQueue() throws Exception {
+        Timer t = new Timer();
+        TimerTask task1 = new TimerTask() {
+            @Override
+            public void run() {
+            }
+        };
+        t.scheduleAtFixedRate(task1, 1 /* delay */, 10);
+
+        task1.cancel();
+        // As the rate is 10, the timer will try to schedule it before the purge and remove it.
+        Thread.sleep(500);
+        assertEquals(0, t.purge());
+    }
 
     protected void setUp() {
         timerCounter = 0;
