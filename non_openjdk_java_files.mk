@@ -66,7 +66,6 @@ non_openjdk_javadoc_files := \
   libart/src/main/java/java/lang/Daemons.java \
   libart/src/main/java/java/lang/DexCache.java \
   luni/src/main/java/java/lang/FindBugsSuppressWarnings.java \
-  luni/src/main/java/java/lang/IntegralToString.java \
   luni/src/main/java/java/lang/SecurityManager.java \
   libart/src/main/java/java/lang/VMClassLoader.java \
   luni/src/main/java/java/lang/ref/FinalizerReference.java \
