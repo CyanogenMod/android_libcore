@@ -1,4 +1,4 @@
-/*
+o/*
  * Copyright (c) 1994, 2013, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
@@ -56,7 +56,7 @@ class FileOutputStream extends OutputStream
     /**
      * The system dependent file descriptor.
      */
-    private final FileDescriptor fd;
+    private FileDescriptor fd;
 
     /**
      * The path of the referenced file (null if the stream is created with a file descriptor)
@@ -72,6 +72,11 @@ class FileOutputStream extends OutputStream
      * The associated channel, initalized lazily.
      */
     private FileChannel channel;
+
+    /**
+     * True if the current stream owns the file descriptor.
+     */
+    private boolean isOwner;
 
     private final Object closeLock = new Object();
     private volatile boolean closed = false;
@@ -215,6 +220,7 @@ class FileOutputStream extends OutputStream
             throw new FileNotFoundException("Invalid file path");
         }
         this.fd = new FileDescriptor();
+        this.isOwner = true;
         this.append = append;
         this.path = name;
         fd.incrementAndGetUseCount();
@@ -253,6 +259,7 @@ class FileOutputStream extends OutputStream
             security.checkWrite(fdObj);
         }
         this.fd = fdObj;
+        this.isOwner = false;
         this.path = null;
         this.append = false;
 
@@ -395,15 +402,13 @@ class FileOutputStream extends OutputStream
         int useCount = fd.decrementAndGetUseCount();
 
         /*
-         * If FileDescriptor is still in use by another stream, the finalizer
-         * will not close it.
+         * The file descriptor will close with the closing of
+         * the owner thread.
          */
-        // Android change, make sure only last close closes FD.
-        if ((useCount <= 0)) { // || !isRunningFinalize()) {
-            /* ----- BEGIN android -----
-            close0(); */
+        if (isOwner) {
             IoBridge.closeAndSignalBlockedThreads(fd);
-            // ----- END android -----
+        } else {
+            fd = new FileDescriptor();
         }
     }
 
