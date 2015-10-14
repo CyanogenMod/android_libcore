@@ -28,9 +28,7 @@ public class UriCodecTest extends TestCase {
     private static final UriCodec CODEC = new UriCodec() {
         @Override
         protected boolean isRetained(char c) {
-            // Note: this is a dubious codec specifying to retain the escape character '%'.
-            // Testing that is not treated as retained anyway..
-            return c == '$' || c == '%';
+            return c == '$';
         }
     };
 
@@ -182,18 +180,27 @@ public class UriCodecTest extends TestCase {
         assertEquals("ab%2F$%C4%82%2512%20",
                 CODEC.encode("ab/$\u0102%12 ", StandardCharsets.UTF_8));
 
-
         UriCodec withWhitespaceRetained = new UriCodec() {
             @Override
             protected boolean isRetained(char c) {
-                // Note: this is a dubious codec specifying to retain the escape character '%'.
-                // Testing that is not treated as retained anyway..
-                return c == '$' || c == '%' || c == ' ';
+                return c == '$' || c == ' ';
             }
         };
         // Whitespace is retained, convert to plus.
         assertEquals("ab%2F$%C4%82%2512+",
                 withWhitespaceRetained.encode("ab/$\u0102%12 ", StandardCharsets.UTF_8));
+    }
+
+    /** Confirm that '%' can be retained, disabling '%' encoding. http://b/24806835 */
+    public void testEncode_percentRetained() {
+        UriCodec withPercentRetained = new UriCodec() {
+            @Override
+            protected boolean isRetained(char c) {
+                return c == '%';
+            }
+        };
+        // Percent is retained
+        assertEquals("ab%34%20", withPercentRetained.encode("ab%34 ", StandardCharsets.UTF_8));
     }
 
     public void testEncode_partially_returnsPercentUnchanged() {
@@ -227,6 +234,18 @@ public class UriCodecTest extends TestCase {
     public void testEncode_lastCharacter() {
         assertEquals("ab%2F$%C4%82%25%E0%A1%80",
                 CODEC.encode("ab/$\u0102%\u0840", StandardCharsets.UTF_8));
+    }
+
+    // Last character needs encoding (make sure we are flushing the buffer with chars to encode).
+    public void testEncode_flushBufferBeforePlusFromSpace() {
+        UriCodec withSpaceRetained = new UriCodec() {
+            @Override
+            protected boolean isRetained(char c) {
+                return c == ' ';
+            }
+        };
+        assertEquals("%2F+",
+                withSpaceRetained.encode("/ ", StandardCharsets.UTF_8));
     }
 
     public void testDecode_emptyString_returnsEmptyString() {
