@@ -110,7 +110,7 @@ public class Timer {
      */
     public void cancel() {
         lock.lock();
-        purge();
+        doPurge();
         try {
             isCancelled.set(true);
             // Notify the execution thread about the cancellation.
@@ -128,23 +128,29 @@ public class Timer {
      */
     public int purge() {
         lock.lock();
-        List<ScheduledTask> tasksToRemove;
         try {
-            if (isCancelled.get()) {
-                return 0;
-            }
-            tasksToRemove = new LinkedList<ScheduledTask>();
-
-            for (ScheduledTask scheduledTask : scheduledTasksPriorityQueue) {
-                if (scheduledTask.timerTask.isCancelled()) {
-                    tasksToRemove.add(scheduledTask);
-                }
-            }
-            scheduledTasksPriorityQueue.removeAll(tasksToRemove);
+            return doPurge();
         } finally {
             lock.unlock();
         }
+    }
 
+    private int doPurge() {
+        List<ScheduledTask> tasksToRemove;
+        if (isCancelled.get()) {
+            return 0;
+        }
+        tasksToRemove = new LinkedList<ScheduledTask>();
+
+        for (ScheduledTask scheduledTask : scheduledTasksPriorityQueue) {
+            if (scheduledTask.timerTask.isCancelled()) {
+                tasksToRemove.add(scheduledTask);
+            }
+        }
+
+        for (ScheduledTask s : tasksToRemove) {
+            scheduledTasksPriorityQueue.remove(s);
+        }
         return tasksToRemove.size();
     }
 
@@ -257,8 +263,10 @@ public class Timer {
             }
 
             timerTask.setScheduled(true);
-            scheduledTasksPriorityQueue.add(
-                    new ScheduledTask(timerTask, nextExecution, period, isAtFixedRate));
+            if (!timerTask.isCancelled()) {
+                scheduledTasksPriorityQueue.add(
+                        new ScheduledTask(timerTask, nextExecution, period, isAtFixedRate));
+            }
 
             schedulingChanged.signal();
         } finally {
@@ -326,20 +334,21 @@ public class Timer {
                                 e);
                     }
 
+                    if (nextTask != null && nextTask.timerTask.isCancelled()) {
+                        scheduledTaskPriorityQueue.remove(nextTask);
+                        continue;
+                    }
+
                     if (executeNextTask && !isCancelled.get()) {
                         // We must execute a task right now. Either because at the beginning of the
                         // loop it was time to execute, or because we waited enough time in the
                         // condition.
-                        if (nextTask.timerTask.isCancelled()) {
-                            scheduledTaskPriorityQueue.remove(nextTask);
-                        } else {
-                            timerLock.unlock();
+                        timerLock.unlock();
 
-                            runTask(nextTask);
+                        runTask(nextTask);
 
-                            timerLock.lock();
-                            updatePriorityQueue(nextTask, System.currentTimeMillis());
-                        }
+                        timerLock.lock();
+                        updatePriorityQueue(nextTask, System.currentTimeMillis());
                     }
                     // On the contrary, if the waiting condition was satisfied, restart the loop
                     // as the scheduling thread signalled a change in the scheduled tasks (or
@@ -385,8 +394,8 @@ public class Timer {
 
         private void updatePriorityQueue(ScheduledTask taskExecuted, long timeFinished) {
             scheduledTaskPriorityQueue.remove(taskExecuted);
-            if (taskExecuted.period == null) {
-                // Was a one off.
+            if (taskExecuted.period == null || taskExecuted.timerTask.isCancelled()) {
+                // Was a one off or was cancelled.
                 return;
             }
             taskExecuted.nextExecution = taskExecuted.period
