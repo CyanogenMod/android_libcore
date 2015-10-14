@@ -49,9 +49,7 @@ public abstract class UriCodec {
     }
 
     private boolean isWhitelistedOrRetained(char c) {
-        return (isWhitelisted(c) || isRetained(c))
-                // Make sure % is not retained.
-                && (c != '%');
+        return isWhitelisted(c) || isRetained(c);
     }
 
     /**
@@ -183,6 +181,7 @@ public abstract class UriCodec {
             }
 
             if (c == ' ' && isRetained(' ')) {
+                flushEncodingCharBuffer(builder, encoder, cBuffer);
                 builder.append('+');
                 continue;
             }
