@@ -119,8 +119,10 @@ public class ArrayList<E> extends AbstractList<E>
      * The capacity of the ArrayList is the length of this array buffer. Any
      * empty ArrayList with elementData == EMPTY_ELEMENTDATA will be expanded to
      * DEFAULT_CAPACITY when the first element is added.
+     *
+     * Package private to allow access from java.util.Collections.
      */
-    private transient Object[] elementData;
+    transient Object[] elementData;
 
     /**
      * The size of the ArrayList (the number of elements it contains).

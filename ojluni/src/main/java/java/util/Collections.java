@@ -151,6 +151,11 @@ public class Collections {
      *         found to violate the {@link Comparable} contract
      */
     public static <T extends Comparable<? super T>> void sort(List<T> list) {
+        if (list.getClass() == ArrayList.class) {
+            Arrays.sort(((ArrayList) list).elementData, 0, list.size());
+            return;
+        }
+
         Object[] a = list.toArray();
         Arrays.sort(a);
         ListIterator<T> i = list.listIterator();
@@ -213,6 +218,11 @@ public class Collections {
      *         found to violate the {@link Comparator} contract
      */
     public static <T> void sort(List<T> list, Comparator<? super T> c) {
+        if (list.getClass() == ArrayList.class) {
+            Arrays.sort(((ArrayList) list).elementData, 0, list.size(), (Comparator) c);
+            return;
+        }
+
         Object[] a = list.toArray();
         Arrays.sort(a, (Comparator)c);
         ListIterator i = list.listIterator();
