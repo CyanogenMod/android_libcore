@@ -116,4 +116,59 @@ public class DecimalFormatSymbolsTest extends junit.framework.TestCase {
         assertEquals('%', dfs.getPercent());
         assertEquals('-', dfs.getMinusSign());
     }
+
+
+    /**
+     * This class exists to allow the test to access the protected methods
+     * getIcuDecimalFormatSymbols and fromIcuInstance on the real DecimalFormatSymbols class.
+     */
+    private static class DFSForTests extends DecimalFormatSymbols {
+        public DFSForTests(Locale locale) {
+            super(locale);
+        }
+
+        @Override
+        public android.icu.text.DecimalFormatSymbols getIcuDecimalFormatSymbols() {
+            return super.getIcuDecimalFormatSymbols();
+        }
+
+        protected static DecimalFormatSymbols fromIcuInstance(
+                android.icu.text.DecimalFormatSymbols dfs) {
+            return DecimalFormatSymbols.fromIcuInstance(dfs);
+        }
+    }
+
+    public void compareDfs(DecimalFormatSymbols dfs,
+                           android.icu.text.DecimalFormatSymbols icuSymb) {
+        // Check currency code is the same because ICU returns its own currency class.
+        assertEquals(dfs.getCurrency().getCurrencyCode(), icuSymb.getCurrency().getCurrencyCode());
+        assertEquals(dfs.getCurrencySymbol(), icuSymb.getCurrencySymbol());
+        assertEquals(dfs.getDecimalSeparator(), icuSymb.getDecimalSeparator());
+        assertEquals(dfs.getDigit(), icuSymb.getDigit());
+        assertEquals(dfs.getExponentSeparator(), icuSymb.getExponentSeparator());
+        assertEquals(dfs.getGroupingSeparator(), icuSymb.getGroupingSeparator());
+        assertEquals(dfs.getInfinity(), icuSymb.getInfinity());
+        assertEquals(dfs.getInternationalCurrencySymbol(),
+                icuSymb.getInternationalCurrencySymbol());
+        assertEquals(dfs.getMinusSign(), icuSymb.getMinusSign());
+        assertEquals(dfs.getMonetaryDecimalSeparator(), icuSymb.getMonetaryDecimalSeparator());
+        assertEquals(dfs.getPatternSeparator(), icuSymb.getPatternSeparator());
+        assertEquals(dfs.getPercent(), icuSymb.getPercent());
+        assertEquals(dfs.getPerMill(), icuSymb.getPerMill());
+        assertEquals(dfs.getZeroDigit(), icuSymb.getZeroDigit());
+    }
+
+    // Test the methods to convert to and from the ICU DecimalFormatSymbols
+    public void testToIcuDecimalFormatSymbols() {
+        DFSForTests dfs = new DFSForTests(Locale.US);
+        android.icu.text.DecimalFormatSymbols icuSymb = dfs.getIcuDecimalFormatSymbols();
+        compareDfs(dfs, icuSymb);
+    }
+
+    public void testFromIcuDecimalFormatSymbols() {
+        android.icu.text.DecimalFormatSymbols icuSymb = new android.icu.text.DecimalFormatSymbols();
+        DecimalFormatSymbols dfs = DFSForTests.fromIcuInstance(icuSymb);
+        compareDfs(dfs, icuSymb);
+    }
+
 }

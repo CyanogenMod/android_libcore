@@ -384,7 +384,9 @@ public abstract class NumberFormat extends Format {
             throw new NullPointerException("locale == null");
         }
 
-        NumberFormat result = getInstance(LocaleData.get(locale).integerPattern, locale);
+        com.ibm.icu.text.DecimalFormat icuDF = (com.ibm.icu.text.DecimalFormat)
+                com.ibm.icu.text.NumberFormat.getIntegerInstance(locale);
+        NumberFormat result = new DecimalFormat(icuDF);
         result.setParseIntegerOnly(true);
         return result;
     }
@@ -480,7 +482,9 @@ public abstract class NumberFormat extends Format {
         if (locale == null) {
             throw new NullPointerException("locale == null");
         }
-        return getInstance(LocaleData.get(locale).numberPattern, locale);
+        com.ibm.icu.text.DecimalFormat icuDF = (com.ibm.icu.text.DecimalFormat)
+            com.ibm.icu.text.NumberFormat.getNumberInstance(locale);
+        return new DecimalFormat(icuDF);
     }
 
     /**
@@ -519,7 +523,10 @@ public abstract class NumberFormat extends Format {
             throw new NullPointerException("locale == null");
         }
 
-        return getInstance(LocaleData.get(locale).percentPattern, locale);
+        com.ibm.icu.text.DecimalFormat icuDF = (com.ibm.icu.text.DecimalFormat)
+            com.ibm.icu.text.NumberFormat.getPercentInstance(locale);
+
+        return new DecimalFormat(icuDF);
     }
 
     @Override
