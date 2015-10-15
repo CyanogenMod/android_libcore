@@ -1140,9 +1140,9 @@ class InetAddress implements java.io.Serializable {
         throws UnknownHostException {
 
         if (host == null || host.length() == 0) {
-            InetAddress[] ret = new InetAddress[1];
-            ret[0] = impl.loopbackAddress();
-            return ret;
+            // Android-changed : Return both the Inet4 and Inet6 loopback addresses
+            // when host == null or empty.
+            return new InetAddress[] { Inet4Address.LOOPBACK, Inet6Address.LOOPBACK };
         }
 
         boolean ipv6Expected = false;
