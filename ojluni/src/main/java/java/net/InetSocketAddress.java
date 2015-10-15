@@ -195,7 +195,7 @@ public class InetSocketAddress
                         /* ----- BEGIN android -----
                            Return IPv4 address
                            addr == null ? InetAddress.anyLocalAddress() : addr,*/
-                        addr == null ? Inet4Address.ANY : addr,
+                        addr == null ? Inet6Address.ANY : addr,
                         checkPort(port));
     }
 
