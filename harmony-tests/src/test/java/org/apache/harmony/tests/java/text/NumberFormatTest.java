@@ -172,9 +172,12 @@ public class NumberFormatTest extends junit.framework.TestCase {
 
         // try with a locale that has a different integer pattern
         format = (DecimalFormat) NumberFormat.getIntegerInstance(arLocale);
+        // Previous versions of android use just the positive format string (ICU4C) although now we
+        // use '<positive_format>;<negative_format>' because of ICU4J denormalization.
+        String variant = (format.toPattern().indexOf(';') > 0) ? "#,##0;-#,##0" : "#,##0";
         assertEquals(
                 "Test7: NumberFormat.getIntegerInstance(new Locale(\"ar\", \"AE\")).toPattern() returned wrong pattern",
-                "#,##0", format.toPattern());
+                variant, format.toPattern());
         assertEquals(
                 "Test8: NumberFormat.getIntegerInstance(new Locale(\"ar\", \"AE\")).format(-35.76) returned wrong value",
                 "\u200f-\u0666", format.format(-6));

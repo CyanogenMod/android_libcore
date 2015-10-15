@@ -922,8 +922,8 @@ public class DecimalFormatTest extends TestCase {
                 "$$#0.######",
                 "%#,###,####", // icu only. icu supports two grouping sizes
                 "#,##0.00;(#,##0.00)",
-                "#0.##-'E'"
-                // icu only. E in the suffix does not need to be quoted. This is done automatically.
+                "#0.##-E"
+                // icu only. E in the suffix does not need to be quoted.
         };
 
         for (int i = 0; i < patterns.length; i++) {
