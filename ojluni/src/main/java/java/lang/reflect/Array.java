@@ -105,6 +105,15 @@ class Array {
      */
     public static Object newInstance(Class<?> componentType, int... dimensions)
         throws IllegalArgumentException, NegativeArraySizeException {
+        if (dimensions.length <= 0 || dimensions.length > 255) {
+            throw new IllegalArgumentException("Bad number of dimensions: " + dimensions.length);
+        }
+        if (componentType == void.class) {
+            throw new IllegalArgumentException("Can't allocate an array of void");
+        }
+        if (componentType == null) {
+            throw new NullPointerException("componentType == null");
+        }
         return createMultiArray(componentType, dimensions);
     }
 
