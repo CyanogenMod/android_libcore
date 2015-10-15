@@ -897,6 +897,11 @@ public abstract class CharsetEncoder {
 
 
     private boolean canEncode(CharBuffer cb) {
+        // Empty buffers or char-sequences are always encodable by definition.
+        if (!cb.hasRemaining()) {
+            return true;
+        }
+
         if (state == ST_FLUSHED)
             reset();
         else if (state != ST_RESET)
@@ -977,7 +982,7 @@ public abstract class CharsetEncoder {
         if (cs instanceof CharBuffer)
             cb = ((CharBuffer)cs).duplicate();
         else
-            cb = CharBuffer.wrap(cs.toString());
+            cb = CharBuffer.wrap(cs);
         return canEncode(cb);
     }
 
