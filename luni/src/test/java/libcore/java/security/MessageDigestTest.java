@@ -16,12 +16,17 @@
 
 package libcore.java.security;
 
+import java.lang.reflect.Method;
 import java.security.MessageDigest;
+import java.security.MessageDigestSpi;
 import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
 import java.security.Security;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -272,5 +277,34 @@ public final class MessageDigestTest extends TestCase {
         }
         es.shutdown();
         assertTrue("Test should not timeout", es.awaitTermination(1, TimeUnit.MINUTES));
+    }
+
+    /**
+     * When an instance of a MessageDigest is obtained, it's actually wrapped in an implementation
+     * which delegates MessageDigestSpi calls through to the underlying SPI implementation. We
+     * verify that all these MessageDigestSpi methods are indeed overridden -- if they aren't, they
+     * won't be delegated to the SPI implementation.
+     */
+    public void testMessageDigestDelegateOverridesAllMethods() throws Exception {
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+
+        /*
+         * Make sure we're dealing with a delegate and not an actual instance of MessageDigest.
+         */
+        Class<?> mdClass = md.getClass();
+        assertFalse(mdClass.equals(MessageDigestSpi.class));
+        assertFalse(mdClass.equals(MessageDigest.class));
+
+        List<String> methodsNotOverridden = new ArrayList<String>();
+
+        for (Method spiMethod : MessageDigestSpi.class.getDeclaredMethods()) {
+            try {
+                mdClass.getDeclaredMethod(spiMethod.getName(), spiMethod.getParameterTypes());
+            } catch (NoSuchMethodException e) {
+                methodsNotOverridden.add(spiMethod.toString());
+            }
+        }
+
+        assertEquals(Collections.EMPTY_LIST, methodsNotOverridden);
     }
 }
