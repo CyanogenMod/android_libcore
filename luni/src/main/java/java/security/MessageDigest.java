@@ -392,6 +392,12 @@ public abstract class MessageDigest extends MessageDigestSpi {
             return spiImpl.engineDigest();
         }
 
+        // engineDigest() implementation
+        @Override
+        protected int engineDigest(byte[] buf, int offset, int len) throws DigestException {
+            return spiImpl.engineDigest(buf, offset, len);
+        }
+
         // engineGetDigestLength() implementation
         @Override
         protected int engineGetDigestLength() {
@@ -408,6 +414,12 @@ public abstract class MessageDigest extends MessageDigestSpi {
         @Override
         protected void engineUpdate(byte[] arg0, int arg1, int arg2) {
             spiImpl.engineUpdate(arg0, arg1, arg2);
+        }
+
+        // engineUpdate() implementation
+        @Override
+        protected void engineUpdate(ByteBuffer input) {
+            spiImpl.engineUpdate(input);
         }
 
         // Returns a clone if the spiImpl is cloneable
