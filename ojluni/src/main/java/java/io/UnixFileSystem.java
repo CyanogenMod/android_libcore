@@ -243,7 +243,7 @@ class UnixFileSystem extends FileSystem {
     public int getBooleanAttributes(File f) {
         /* ----- BEGIN android -----
         int rv = getBooleanAttributes0(f);*/
-        int rv = getBooleanAttributes0(f.getAbsolutePath());
+        int rv = getBooleanAttributes0(f.getPath());
         // ----- END android -----
         String name = f.getName();
         boolean hidden = (name.length() > 0) && (name.charAt(0) == '.');
