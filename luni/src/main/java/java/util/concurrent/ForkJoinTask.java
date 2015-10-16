@@ -774,6 +774,7 @@ public abstract class ForkJoinTask<V> implements Future<V>, Serializable {
      * unprocessed.
      *
      * @param tasks the collection of tasks
+     * @param <T> the type of the values returned from the tasks
      * @return the tasks argument, to simplify usage
      * @throws NullPointerException if tasks or any element are null
      */
@@ -1438,6 +1439,7 @@ public abstract class ForkJoinTask<V> implements Future<V>, Serializable {
      *
      * @param runnable the runnable action
      * @param result the result upon completion
+     * @param <T> the type of the result
      * @return the task
      */
     public static <T> ForkJoinTask<T> adapt(Runnable runnable, T result) {
@@ -1451,6 +1453,7 @@ public abstract class ForkJoinTask<V> implements Future<V>, Serializable {
      * encountered into {@code RuntimeException}.
      *
      * @param callable the callable action
+     * @param <T> the type of the callable's result
      * @return the task
      */
     public static <T> ForkJoinTask<T> adapt(Callable<? extends T> callable) {
