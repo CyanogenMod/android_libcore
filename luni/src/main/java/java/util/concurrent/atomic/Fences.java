@@ -70,7 +70,7 @@ package java.util.concurrent.atomic;
  * turn because it is used in a framework requiring that all classes
  * have a no-argument constructor; as in:
  *
- *  <pre> {@code
+ * <pre> {@code
  * class WidgetHolder {
  *   private Widget widget;
  *   public WidgetHolder() {}
@@ -105,7 +105,7 @@ package java.util.concurrent.atomic;
  * practice, among other changes, you would use access methods instead
  * of a public field.
  *
- *  <pre> {@code
+ * <pre> {@code
  * class AnotherWidgetHolder {
  *   public Widget widget;
  *   void publish(Widget w) {
@@ -129,21 +129,21 @@ package java.util.concurrent.atomic;
  * {@code c} contains an accessible variable {@code data} that should
  * have been declared as {@code volatile} but wasn't:
  *
- *  <pre> {@code
+ * <pre> {@code
  * class C {
- *    Object data;  // need volatile access but not volatile
- *    // ...
+ *   Object data;  // need volatile access but not volatile
+ *   // ...
  * }
  *
  * class App {
  *   Object getData(C c) {
- *      return Fences.orderReads(c).data;
+ *     return Fences.orderReads(c).data;
  *   }
  *
  *   void setData(C c) {
- *      Object newValue = ...;
- *      c.data = Fences.orderWrites(newValue);
- *      Fences.orderAccesses(c);
+ *     Object newValue = ...;
+ *     c.data = Fences.orderWrites(newValue);
+ *     Fences.orderAccesses(c);
  *   }
  *   // ...
  * }}</pre>
@@ -184,20 +184,20 @@ package java.util.concurrent.atomic;
  * already ensured by the referenced objects.
  * For example:
  *
- *  <pre> {@code
+ * <pre> {@code
  * class Item {
- *    synchronized f(); // ALL methods are synchronized
- *    // ...
+ *   synchronized f(); // ALL methods are synchronized
+ *   // ...
  * }
  *
  * class ItemHolder {
  *   private Item item;
  *   Item acquireItem() {
- *      return Fences.orderReads(item);
+ *     return Fences.orderReads(item);
  *   }
  *
  *   void releaseItem(Item x) {
- *      item = Fences.orderWrites(x);
+ *     item = Fences.orderWrites(x);
  *   }
  *
  *   // ...
@@ -228,7 +228,7 @@ package java.util.concurrent.atomic;
  * in method {@link Object#finalize}, which may otherwise run
  * concurrently.
  *
- *  <pre> {@code
+ * <pre> {@code
  * class Resource {
  *   private static ExternalResource[] externalResourceArray = ...
  *
@@ -275,7 +275,7 @@ package java.util.concurrent.atomic;
  * finalizer had already executed (nulling out slot), then you could
  * localize use of {@code reachabilityFence}:
  *
- *  <pre> {@code
+ * <pre> {@code
  * public void action2() {
  *   // ...
  *   Resource.update(getExternalResource());
@@ -304,7 +304,7 @@ package java.util.concurrent.atomic;
  * 17, the rules governing the semantics of the methods of this class
  * are as follows:
  *
- * <p> The following is still under construction.
+ * <p>The following is still under construction.
  *
  * <dl>
  *
@@ -325,9 +325,8 @@ package java.util.concurrent.atomic;
  *     such that <em>accesses(r, p)</em>.
  *
  *   </ul>
- *   <p>
  *   <dt><b>[Matching]</b>
- *   <dd> Given:
+ *   <dd>Given:
  *
  *   <ul>
  *
@@ -365,9 +364,8 @@ package java.util.concurrent.atomic;
  *     happens-before w1</em>.
  *
  *   </ul>
- *   <p>
  *   <dt><b>[Initial Reads]</b>
- *   <dd> Given:
+ *   <dd>Given:
  *
  *   <ul>
  *
@@ -399,9 +397,8 @@ package java.util.concurrent.atomic;
  *     <li> the effects of <em>b</em> are constrained
  *          by the relation <em>a happens-before b</em>.
  *   </ul>
- *  <p>
  *  <dt><b>[orderAccesses]</b>
- *  <dd> Given:
+ *  <dd>Given:
  *
  *   <ul>
  *     <li><em>p</em>, a reference to an object
@@ -419,9 +416,8 @@ package java.util.concurrent.atomic;
  *     <li> <em>f</em> is an element of the <em>synchronization order</em>.
  *
  *   </ul>
- *   <p>
  *   <dt><b>[Reachability]</b>
- *   <dd> Given:
+ *   <dd>Given:
  *
  *   <ul>
  *
@@ -433,7 +429,7 @@ package java.util.concurrent.atomic;
  *
  *     <li><em>b</em>, an action (by a garbage collector) taking
  *     the form of an invocation of {@code
- *     p.finalize()} or of enqueing any {@link
+ *     p.finalize()} or of enqueuing any {@link
  *     java.lang.ref.Reference} constructed with argument <em>p</em>
  *
  *   </ul>
@@ -459,7 +455,7 @@ package java.util.concurrent.atomic;
 public class Fences {
     private Fences() {} // Non-instantiable
 
-    /*
+    /**
      * The methods of this class are intended to be intrinisified by a
      * JVM. However, we provide correct but inefficient Java-level
      * code that simply reads and writes a static volatile
@@ -480,6 +476,7 @@ public class Fences {
      * class documentation for this class.
      *
      * @param ref the reference. If null, this method has no effect.
+     * @param <T> the type of the reference
      * @return the given ref, to simplify usage
      */
     public static <T> T orderReads(T ref) {
@@ -495,6 +492,7 @@ public class Fences {
      * details, see the class documentation for this class.
      *
      * @param ref the reference. If null, this method has no effect.
+     * @param <T> the type of the reference
      * @return the given ref, to simplify usage
      */
     public static <T> T orderWrites(T ref) {
@@ -509,6 +507,7 @@ public class Fences {
      * documentation for this class.
      *
      * @param ref the reference. If null, this method has no effect.
+     * @param <T> the type of the reference
      * @return the given ref, to simplify usage
      */
     public static <T> T orderAccesses(T ref) {
