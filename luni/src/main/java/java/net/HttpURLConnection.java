@@ -55,16 +55,16 @@ import java.util.Arrays;
  * <pre>   {@code
  *   URL url = new URL("http://www.android.com/");
  *   HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
- *   try {
+ *   try &#123;
  *     InputStream in = new BufferedInputStream(urlConnection.getInputStream());
  *     readStream(in);
- *   } finally {
+ *   &#125; finally &#123;
  *     urlConnection.disconnect();
- *   }
+ *   &#125;
  * }</pre>
  *
  * <h3>Secure Communication with HTTPS</h3>
- * Calling {@link URL#openConnection()} on a URL with the "https"
+ * <p>Calling {@link URL#openConnection()} on a URL with the "https"
  * scheme will return an {@code HttpsURLConnection}, which allows for
  * overriding the default {@link javax.net.ssl.HostnameVerifier
  * HostnameVerifier} and {@link javax.net.ssl.SSLSocketFactory
@@ -77,17 +77,18 @@ import java.util.Arrays;
  * HttpsURLConnection} for more details.
  *
  * <h3>Response Handling</h3>
- * {@code HttpURLConnection} will follow up to five HTTP redirects. It will
- * follow redirects from one origin server to another. This implementation
+ * <p>{@code HttpURLConnection} will follow up to twenty HTTP redirects from
+ * KitKat onwards. Before KitKat it will only follow five. It will follow
+ * redirects from one origin server to another. This implementation
  * doesn't follow redirects from HTTPS to HTTP or vice versa.
  *
  * <p>If the HTTP response indicates that an error occurred, {@link
  * #getInputStream()} will throw an {@link IOException}. Use {@link
  * #getErrorStream()} to read the error response. The headers can be read in
- * the normal way using {@link #getHeaderFields()},
+ * the normal way using {@link #getHeaderFields()}.
  *
  * <h3>Posting Content</h3>
- * To upload data to a web server, configure the connection for output using
+ * <p>To upload data to a web server, configure the connection for output using
  * {@link #setDoOutput(boolean) setDoOutput(true)}.
  *
  * <p>For best performance, you should call either {@link
@@ -99,7 +100,7 @@ import java.util.Arrays;
  *
  * <p>For example, to perform an upload: <pre>   {@code
  *   HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
- *   try {
+ *   try &#123;
  *     urlConnection.setDoOutput(true);
  *     urlConnection.setChunkedStreamingMode(0);
  *
@@ -108,13 +109,13 @@ import java.util.Arrays;
  *
  *     InputStream in = new BufferedInputStream(urlConnection.getInputStream());
  *     readStream(in);
- *   } finally {
+ *   &#125; finally &#123;
  *     urlConnection.disconnect();
- *   }
+ *   &#125;
  * }</pre>
  *
  * <h3>Performance</h3>
- * The input and output streams returned by this class are <strong>not
+ * <p>The input and output streams returned by this class are <strong>not
  * buffered</strong>. Most callers should wrap the returned streams with {@link
  * java.io.BufferedInputStream BufferedInputStream} or {@link
  * java.io.BufferedOutputStream BufferedOutputStream}. Callers that do only bulk
@@ -152,7 +153,7 @@ import java.util.Arrays;
  * until it is exhausted, i.e. when {@link InputStream#read} returns -1.
  *
  * <h3>Handling Network Sign-On</h3>
- * Some Wi-Fi networks block Internet access until the user clicks through a
+ * <p>Some Wi-Fi networks block Internet access until the user clicks through a
  * sign-on page. Such sign-on pages are typically presented by using HTTP
  * redirects. You can use {@link #getURL()} to test if your connection has been
  * unexpectedly redirected. This check is not valid until <strong>after</strong>
@@ -161,41 +162,41 @@ import java.util.Arrays;
  * check that a response was not redirected to an unexpected host:
  * <pre>   {@code
  *   HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
- *   try {
+ *   try &#123;
  *     InputStream in = new BufferedInputStream(urlConnection.getInputStream());
- *     if (!url.getHost().equals(urlConnection.getURL().getHost())) {
+ *     if (!url.getHost().equals(urlConnection.getURL().getHost())) &#123;
  *       // we were redirected! Kick the user out to the browser to sign on?
- *     }
+ *     &#125;
  *     ...
- *   } finally {
+ *   &#125; finally &#123;
  *     urlConnection.disconnect();
- *   }
+ *   &#125;
  * }</pre>
  *
  * <h3>HTTP Authentication</h3>
- * {@code HttpURLConnection} supports <a
+ * <p>{@code HttpURLConnection} supports <a
  * href="http://www.ietf.org/rfc/rfc2617">HTTP basic authentication</a>. Use
  * {@link Authenticator} to set the VM-wide authentication handler:
  * <pre>   {@code
- *   Authenticator.setDefault(new Authenticator() {
- *     protected PasswordAuthentication getPasswordAuthentication() {
+ *   Authenticator.setDefault(new Authenticator() &#123;
+ *     protected PasswordAuthentication getPasswordAuthentication() &#123;
  *       return new PasswordAuthentication(username, password.toCharArray());
- *     }
- *   });
+ *     &#125;
+ *   &#125;);
  * }</pre>
- * Unless paired with HTTPS, this is <strong>not</strong> a secure mechanism for
+ * <p>Unless paired with HTTPS, this is <strong>not</strong> a secure mechanism for
  * user authentication. In particular, the username, password, request and
  * response are all transmitted over the network without encryption.
  *
  * <h3>Sessions with Cookies</h3>
- * To establish and maintain a potentially long-lived session between client
+ * <p>To establish and maintain a potentially long-lived session between client
  * and server, {@code HttpURLConnection} includes an extensible cookie manager.
  * Enable VM-wide cookie management using {@link CookieHandler} and {@link
  * CookieManager}: <pre>   {@code
  *   CookieManager cookieManager = new CookieManager();
  *   CookieHandler.setDefault(cookieManager);
  * }</pre>
- * By default, {@code CookieManager} accepts cookies from the <a
+ * <p>By default, {@code CookieManager} accepts cookies from the <a
  * href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec1.html">origin
  * server</a> only. Two other policies are included: {@link
  * CookiePolicy#ACCEPT_ALL} and {@link CookiePolicy#ACCEPT_NONE}. Implement
@@ -230,7 +231,7 @@ import java.util.Arrays;
  * DELETE} and {@code TRACE}) can be used with {@link #setRequestMethod}.
  *
  * <h3>Proxies</h3>
- * By default, this class will connect directly to the <a
+ * <p>By default, this class will connect directly to the <a
  * href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec1.html">origin
  * server</a>. It can also connect via an {@link Proxy.Type#HTTP HTTP} or {@link
  * Proxy.Type#SOCKS SOCKS} proxy. To use a proxy, use {@link
@@ -243,22 +244,22 @@ import java.util.Arrays;
  * until a connection is established.
  *
  * <h3>Response Caching</h3>
- * Android 4.0 (Ice Cream Sandwich, API level 15) includes a response cache. See
+ * <p>Android 4.0 (Ice Cream Sandwich, API level 15) includes a response cache. See
  * {@code android.net.http.HttpResponseCache} for instructions on enabling HTTP
  * caching in your application.
  *
  * <h3>Avoiding Bugs In Earlier Releases</h3>
- * Prior to Android 2.2 (Froyo), this class had some frustrating bugs. In
+ * <p>Prior to Android 2.2 (Froyo), this class had some frustrating bugs. In
  * particular, calling {@code close()} on a readable {@code InputStream} could
  * <a href="http://code.google.com/p/android/issues/detail?id=2939">poison the
  * connection pool</a>. Work around this by disabling connection pooling:
  * <pre>   {@code
- * private void disableConnectionReuseIfNecessary() {
- *   // Work around pre-Froyo bugs in HTTP connection reuse.
- *   if (Integer.parseInt(Build.VERSION.SDK) < Build.VERSION_CODES.FROYO) {
- *     System.setProperty("http.keepAlive", "false");
- *   }
- * }}</pre>
+ *   private void disableConnectionReuseIfNecessary() &#123;
+ *     // Work around pre-Froyo bugs in HTTP connection reuse.
+ *     if (Integer.parseInt(Build.VERSION.SDK) < Build.VERSION_CODES.FROYO) &#123;
+ *       System.setProperty("http.keepAlive", "false");
+ *     &#125;
+ *   &#125;}</pre>
  *
  * <p>Each instance of {@code HttpURLConnection} may be used for one
  * request/response pair. Instances of this class are not thread safe.
