@@ -228,7 +228,7 @@ class InMemoryCookieStore implements CookieStore {
             /* ----- BEGIN android -----
                Added uri check */
             uri = getEffectiveURI(uri);
-            if (uri == null || uriIndex.get(uri) == null) {
+            if (uriIndex.get(uri) == null) {
                 return false;
             } else {
                 List<HttpCookie> cookies = uriIndex.get(uri);
@@ -366,14 +366,14 @@ class InMemoryCookieStore implements CookieStore {
     // @param cookieIndex       the index
     // @param comparator        the prediction to decide whether or not
     //                          a cookie in index should be returned
-    private <T> void getInternal2(List<HttpCookie> cookies,
-                                Map<T, List<HttpCookie>> cookieIndex,
-                                Comparable<T> comparator, boolean secureLink)
+    private <T extends Comparable<T>>
+        void getInternal2(List<HttpCookie> cookies, Map<T, List<HttpCookie>> cookieIndex,
+                          T comparator, boolean secureLink)
     {
         // ----- BEGIN android -----
         // Removed cookieJar
         for (T index : cookieIndex.keySet()) {
-            if (comparator.compareTo(index) == 0) {
+            if ((index == comparator) || (index != null && comparator.compareTo(index) == 0)) {
                 List<HttpCookie> indexedCookies = cookieIndex.get(index);
                 // check the list of cookies associated with this domain
                 if (indexedCookies != null) {
@@ -402,18 +402,19 @@ class InMemoryCookieStore implements CookieStore {
                               T index,
                               HttpCookie cookie)
     {
-        if (index != null) {
-            List<HttpCookie> cookies = indexStore.get(index);
-            if (cookies != null) {
-                // there may already have the same cookie, so remove it first
-                cookies.remove(cookie);
+        // Android-changed : "index" can be null. We only use the URI based
+        // index on Android and we want to support null URIs. The underlying
+        // store is a HashMap which will support null keys anyway.
+        List<HttpCookie> cookies = indexStore.get(index);
+        if (cookies != null) {
+            // there may already have the same cookie, so remove it first
+            cookies.remove(cookie);
 
-                cookies.add(cookie);
-            } else {
-                cookies = new ArrayList<HttpCookie>();
-                cookies.add(cookie);
-                indexStore.put(index, cookies);
-            }
+            cookies.add(cookie);
+        } else {
+            cookies = new ArrayList<HttpCookie>();
+            cookies.add(cookie);
+            indexStore.put(index, cookies);
         }
     }
 
