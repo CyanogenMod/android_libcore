@@ -224,14 +224,14 @@ public final class DexFile {
      * @hide
      */
     public Class loadClassBinaryName(String name, ClassLoader loader, List<Throwable> suppressed) {
-        return defineClass(name, loader, mCookie, suppressed);
+        return defineClass(name, loader, mCookie, this, suppressed);
     }
 
     private static Class defineClass(String name, ClassLoader loader, Object cookie,
-                                     List<Throwable> suppressed) {
+                                     DexFile dexFile, List<Throwable> suppressed) {
         Class result = null;
         try {
-            result = defineClassNative(name, loader, cookie);
+            result = defineClassNative(name, loader, cookie, dexFile);
         } catch (NoClassDefFoundError e) {
             if (suppressed != null) {
                 suppressed.add(e);
@@ -313,7 +313,8 @@ public final class DexFile {
      * Returns true if we managed to close the dex file.
      */
     private static native boolean closeDexFile(Object cookie);
-    private static native Class defineClassNative(String name, ClassLoader loader, Object cookie)
+    private static native Class defineClassNative(String name, ClassLoader loader, Object cookie,
+                                                  DexFile dexFile)
             throws ClassNotFoundException, NoClassDefFoundError;
     private static native String[] getClassNameList(Object cookie);
     /*
