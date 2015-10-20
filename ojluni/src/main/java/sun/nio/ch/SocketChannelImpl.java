@@ -697,10 +697,12 @@ class SocketChannelImpl
                         }
                         // If nonblocking and no exception then connection
                         // pending; disallow another invocation
-                        if (!isBlocking())
+                        if (!isBlocking()) {
                             state = ST_PENDING;
-                        else
-                            assert false;
+                            if (isOpen()) {
+                                localAddress = Net.localAddress(fd);
+                            }
+                        }
                     }
                 }
                 return false;
