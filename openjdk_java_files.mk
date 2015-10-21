@@ -515,7 +515,6 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/java/nio/file/WatchService.java \
     ojluni/src/main/java/java/nio/FloatBuffer.java \
     ojluni/src/main/java/java/nio/HeapByteBuffer.java \
-    ojluni/src/main/java/java/nio/HeapByteBufferR.java \
     ojluni/src/main/java/java/nio/HeapCharBuffer.java \
     ojluni/src/main/java/java/nio/HeapCharBufferR.java \
     ojluni/src/main/java/java/nio/HeapDoubleBuffer.java \
@@ -1617,4 +1616,3 @@ openjdk_java_files := \
     ojluni/src/main/java/sun/util/ResourceBundleEnumeration.java \
     ojluni/src/main/java/sun/util/resources/OpenListResourceBundle.java \
     $(openjdk_javadoc_files)
-  
