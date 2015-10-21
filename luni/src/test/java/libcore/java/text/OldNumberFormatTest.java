@@ -317,7 +317,7 @@ public class OldNumberFormatTest extends TestCase {
         format = NumberFormat.getCurrencyInstance(atLocale);
         // BEGIN android-changed: ICU uses non-breaking space after the euro sign; the RI uses ' '.
         assertEquals("\u20ac\u00a035,76", format.format(35.76));
-        assertEquals("\u20ac\u00a0123.456,79", format.format(123456.789));
+        assertEquals("\u20ac\u00a0123\u00a0456,79", format.format(123456.789));
         assertEquals("\u20ac\u00a00,10", format.format(0.1));
         assertEquals("\u20ac\u00a01,00", format.format(0.999));
         try {
