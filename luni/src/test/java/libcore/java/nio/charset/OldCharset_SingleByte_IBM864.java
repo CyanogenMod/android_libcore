@@ -22,8 +22,7 @@ import java.nio.charset.CharacterCodingException;
 public class OldCharset_SingleByte_IBM864 extends OldCharset_SingleByteAbstractTest {
 
     protected void setUp() throws Exception {
-//        charsetName = "IBM864"; // ICU name "cp864", wanted Android name "CP864"
-        charsetName = "cp864"; // ICU name "cp864", wanted Android name "CP864"
+        charsetName = "IBM864"; // This is the preferred MIME name.
 
         allChars = theseChars(new int[]{
             0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
