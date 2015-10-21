@@ -524,7 +524,6 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/java/nio/HeapIntBuffer.java \
     ojluni/src/main/java/java/nio/HeapIntBufferR.java \
     ojluni/src/main/java/java/nio/HeapLongBuffer.java \
-    ojluni/src/main/java/java/nio/HeapLongBufferR.java \
     ojluni/src/main/java/java/nio/HeapShortBuffer.java \
     ojluni/src/main/java/java/nio/HeapShortBufferR.java \
     ojluni/src/main/java/java/nio/IntBuffer.java \
