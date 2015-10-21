@@ -23,109 +23,86 @@
  * questions.
  */
 
-// -- This file was mechanically generated: Do not edit! -- //
-
 package java.nio;
 
-
 /**
-
  * A read/write HeapCharBuffer.
-
-
-
-
-
-
  */
 
-class HeapCharBuffer
-    extends CharBuffer
-{
+class HeapCharBuffer extends CharBuffer {
 
     // For speed these fields are actually declared in X-Buffer;
     // these declarations are here as documentation
     /*
 
-    protected final char[] hb;
-    protected final int offset;
+      protected final char[] hb;
+      protected final int offset;
 
     */
 
+    private final boolean isReadOnly;
+
     HeapCharBuffer(int cap, int lim) {            // package-private
+        this(cap, lim, false);
+    }
 
+    HeapCharBuffer(int cap, int lim, boolean isReadOnly) {            // package-private
         super(-1, 0, lim, cap, new char[cap], 0);
-        /*
-        hb = new char[cap];
-        offset = 0;
-        */
-
-
-
-
+        this.isReadOnly = isReadOnly;
     }
 
     HeapCharBuffer(char[] buf, int off, int len) { // package-private
+        this(buf, off, len, false);
+    }
 
+    HeapCharBuffer(char[] buf, int off, int len, boolean isReadOnly) { // package-private
         super(-1, off, off + len, buf.length, buf, 0);
-        /*
-        hb = buf;
-        offset = 0;
-        */
-
-
-
-
+        this.isReadOnly = isReadOnly;
     }
 
     protected HeapCharBuffer(char[] buf,
-                                   int mark, int pos, int lim, int cap,
-                                   int off)
-    {
+                             int mark, int pos, int lim, int cap,
+                             int off) {
+        this(buf, mark, pos, lim, cap, off, false);
+    }
 
+    protected HeapCharBuffer(char[] buf,
+                             int mark, int pos, int lim, int cap,
+                             int off, boolean isReadOnly) {
         super(mark, pos, lim, cap, buf, off);
-        /*
-        hb = buf;
-        offset = off;
-        */
-
-
-
-
+        this.isReadOnly = isReadOnly;
     }
 
     public CharBuffer slice() {
         return new HeapCharBuffer(hb,
-                                        -1,
-                                        0,
-                                        this.remaining(),
-                                        this.remaining(),
-                                        this.position() + offset);
+                                  -1,
+                                  0,
+                                  this.remaining(),
+                                  this.remaining(),
+                                  this.position() + offset,
+                                  isReadOnly);
     }
 
     public CharBuffer duplicate() {
         return new HeapCharBuffer(hb,
-                                        this.markValue(),
-                                        this.position(),
-                                        this.limit(),
-                                        this.capacity(),
-                                        offset);
+                                  this.markValue(),
+                                  this.position(),
+                                  this.limit(),
+                                  this.capacity(),
+                                  offset,
+                                  isReadOnly);
     }
 
     public CharBuffer asReadOnlyBuffer() {
 
-        return new HeapCharBufferR(hb,
-                                     this.markValue(),
-                                     this.position(),
-                                     this.limit(),
-                                     this.capacity(),
-                                     offset);
-
-
-
+        return new HeapCharBuffer(hb,
+                                  this.markValue(),
+                                  this.position(),
+                                  this.limit(),
+                                  this.capacity(),
+                                  offset,
+                                  true);
     }
-
-
 
     protected int ix(int i) {
         return i + offset;
@@ -152,45 +129,42 @@ class HeapCharBuffer
         return false;
     }
 
-
-
     public boolean isReadOnly() {
-        return false;
+        return isReadOnly;
     }
 
     public CharBuffer put(char x) {
-
+        if (isReadOnly) {
+            throw new ReadOnlyBufferException();
+        }
         hb[ix(nextPutIndex())] = x;
         return this;
-
-
-
     }
 
     public CharBuffer put(int i, char x) {
-
+        if (isReadOnly) {
+            throw new ReadOnlyBufferException();
+        }
         hb[ix(checkIndex(i))] = x;
         return this;
-
-
-
     }
 
     public CharBuffer put(char[] src, int offset, int length) {
-
+        if (isReadOnly) {
+            throw new ReadOnlyBufferException();
+        }
         checkBounds(offset, length, src.length);
         if (length > remaining())
             throw new BufferOverflowException();
         System.arraycopy(src, offset, hb, ix(position()), length);
         position(position() + length);
         return this;
-
-
-
     }
 
     public CharBuffer put(CharBuffer src) {
-
+        if (isReadOnly) {
+            throw new ReadOnlyBufferException();
+        }
         if (src instanceof HeapCharBuffer) {
             if (src == this)
                 throw new IllegalArgumentException();
@@ -212,349 +186,18 @@ class HeapCharBuffer
             super.put(src);
         }
         return this;
-
-
-
     }
 
     public CharBuffer compact() {
-
+        if (isReadOnly) {
+            throw new ReadOnlyBufferException();
+        }
         System.arraycopy(hb, ix(position()), hb, ix(0), remaining());
         position(remaining());
         limit(capacity());
         discardMark();
         return this;
-
-
-
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     String toString(int start, int end) {               // package-private
         try {
@@ -564,9 +207,6 @@ class HeapCharBuffer
         }
     }
 
-
-    // --- Methods to support CharSequence ---
-
     public CharBuffer subSequence(int start, int end) {
         if ((start < 0)
             || (end > length())
@@ -574,22 +214,14 @@ class HeapCharBuffer
             throw new IndexOutOfBoundsException();
         int pos = position();
         return new HeapCharBuffer(hb,
-                                      -1,
-                                      pos + start,
-                                      pos + end,
-                                      capacity(),
-                                      offset);
+                                  -1,
+                                  pos + start,
+                                  pos + end,
+                                  capacity(),
+                                  offset, isReadOnly);
     }
-
-
-
-
-
 
     public ByteOrder order() {
         return ByteOrder.nativeOrder();
     }
-
-
-
 }

@@ -516,7 +516,6 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/java/nio/FloatBuffer.java \
     ojluni/src/main/java/java/nio/HeapByteBuffer.java \
     ojluni/src/main/java/java/nio/HeapCharBuffer.java \
-    ojluni/src/main/java/java/nio/HeapCharBufferR.java \
     ojluni/src/main/java/java/nio/HeapDoubleBuffer.java \
     ojluni/src/main/java/java/nio/HeapDoubleBufferR.java \
     ojluni/src/main/java/java/nio/HeapFloatBuffer.java \
