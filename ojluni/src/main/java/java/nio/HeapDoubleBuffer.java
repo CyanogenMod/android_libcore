@@ -23,109 +23,85 @@
  * questions.
  */
 
-// -- This file was mechanically generated: Do not edit! -- //
-
 package java.nio;
 
-
 /**
-
  * A read/write HeapDoubleBuffer.
-
-
-
-
-
-
  */
 
-class HeapDoubleBuffer
-    extends DoubleBuffer
-{
+class HeapDoubleBuffer extends DoubleBuffer {
 
     // For speed these fields are actually declared in X-Buffer;
     // these declarations are here as documentation
     /*
 
-    protected final double[] hb;
-    protected final int offset;
+      protected final double[] hb;
+      protected final int offset;
 
     */
 
+    private final boolean isReadOnly;
+
     HeapDoubleBuffer(int cap, int lim) {            // package-private
-
-        super(-1, 0, lim, cap, new double[cap], 0);
-        /*
-        hb = new double[cap];
-        offset = 0;
-        */
-
-
-
-
+        this(cap, lim, false);
     }
 
     HeapDoubleBuffer(double[] buf, int off, int len) { // package-private
-
-        super(-1, off, off + len, buf.length, buf, 0);
-        /*
-        hb = buf;
-        offset = 0;
-        */
-
-
-
-
+        this(buf, off, len, false);
     }
 
     protected HeapDoubleBuffer(double[] buf,
-                                   int mark, int pos, int lim, int cap,
-                                   int off)
-    {
-
-        super(mark, pos, lim, cap, buf, off);
-        /*
-        hb = buf;
-        offset = off;
-        */
-
-
-
-
+                               int mark, int pos, int lim, int cap,
+                               int off) {
+        this(buf, mark, pos, lim, cap, off, false);
     }
+
+    HeapDoubleBuffer(int cap, int lim, boolean isReadOnly) {            // package-private
+        super(-1, 0, lim, cap, new double[cap], 0);
+        this.isReadOnly = isReadOnly;
+    }
+
+    HeapDoubleBuffer(double[] buf, int off, int len, boolean isReadOnly) { // package-private
+        super(-1, off, off + len, buf.length, buf, 0);
+        this.isReadOnly = isReadOnly;
+    }
+
+    protected HeapDoubleBuffer(double[] buf,
+                               int mark, int pos, int lim, int cap,
+                               int off, boolean isReadOnly) {
+        super(mark, pos, lim, cap, buf, off);
+        this.isReadOnly = isReadOnly;
+    }
+
 
     public DoubleBuffer slice() {
         return new HeapDoubleBuffer(hb,
-                                        -1,
-                                        0,
-                                        this.remaining(),
-                                        this.remaining(),
-                                        this.position() + offset);
+                                    -1,
+                                    0,
+                                    this.remaining(),
+                                    this.remaining(),
+                                    this.position() + offset,
+                                    isReadOnly);
     }
 
     public DoubleBuffer duplicate() {
         return new HeapDoubleBuffer(hb,
-                                        this.markValue(),
-                                        this.position(),
-                                        this.limit(),
-                                        this.capacity(),
-                                        offset);
+                                    this.markValue(),
+                                    this.position(),
+                                    this.limit(),
+                                    this.capacity(),
+                                    offset,
+                                    isReadOnly);
     }
 
     public DoubleBuffer asReadOnlyBuffer() {
-
-        return new HeapDoubleBufferR(hb,
+        return new HeapDoubleBuffer(hb,
                                      this.markValue(),
                                      this.position(),
                                      this.limit(),
                                      this.capacity(),
-                                     offset);
-
-
-
+                                     offset, true);
     }
-
-
 
     protected int ix(int i) {
         return i + offset;
@@ -152,45 +128,42 @@ class HeapDoubleBuffer
         return false;
     }
 
-
-
     public boolean isReadOnly() {
-        return false;
+        return isReadOnly;
     }
 
     public DoubleBuffer put(double x) {
-
+        if (isReadOnly) {
+            throw new ReadOnlyBufferException();
+        }
         hb[ix(nextPutIndex())] = x;
         return this;
-
-
-
     }
 
     public DoubleBuffer put(int i, double x) {
-
+        if (isReadOnly) {
+            throw new ReadOnlyBufferException();
+        }
         hb[ix(checkIndex(i))] = x;
         return this;
-
-
-
     }
 
     public DoubleBuffer put(double[] src, int offset, int length) {
-
+        if (isReadOnly) {
+            throw new ReadOnlyBufferException();
+        }
         checkBounds(offset, length, src.length);
         if (length > remaining())
             throw new BufferOverflowException();
         System.arraycopy(src, offset, hb, ix(position()), length);
         position(position() + length);
         return this;
-
-
-
     }
 
     public DoubleBuffer put(DoubleBuffer src) {
-
+        if (isReadOnly) {
+            throw new ReadOnlyBufferException();
+        }
         if (src instanceof HeapDoubleBuffer) {
             if (src == this)
                 throw new IllegalArgumentException();
@@ -212,384 +185,20 @@ class HeapDoubleBuffer
             super.put(src);
         }
         return this;
-
-
-
     }
 
     public DoubleBuffer compact() {
-
+        if (isReadOnly) {
+            throw new ReadOnlyBufferException();
+        }
         System.arraycopy(hb, ix(position()), hb, ix(0), remaining());
         position(remaining());
         limit(capacity());
         discardMark();
         return this;
-
-
-
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     public ByteOrder order() {
         return ByteOrder.nativeOrder();
     }
-
-
-
 }

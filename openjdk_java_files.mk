@@ -517,14 +517,10 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/java/nio/HeapByteBuffer.java \
     ojluni/src/main/java/java/nio/HeapCharBuffer.java \
     ojluni/src/main/java/java/nio/HeapDoubleBuffer.java \
-    ojluni/src/main/java/java/nio/HeapDoubleBufferR.java \
     ojluni/src/main/java/java/nio/HeapFloatBuffer.java \
-    ojluni/src/main/java/java/nio/HeapFloatBufferR.java \
     ojluni/src/main/java/java/nio/HeapIntBuffer.java \
-    ojluni/src/main/java/java/nio/HeapIntBufferR.java \
     ojluni/src/main/java/java/nio/HeapLongBuffer.java \
     ojluni/src/main/java/java/nio/HeapShortBuffer.java \
-    ojluni/src/main/java/java/nio/HeapShortBufferR.java \
     ojluni/src/main/java/java/nio/IntBuffer.java \
     ojluni/src/main/java/java/nio/InvalidMarkException.java \
     ojluni/src/main/java/java/nio/LongBuffer.java \
