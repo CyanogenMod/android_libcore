@@ -96,4 +96,16 @@ public final class BigDecimalTest extends TestCase {
         assertEquals("1.20", a.abs(new MathContext(3,RoundingMode.HALF_UP)).toPlainString());
         assertEquals("1.200002", a.toPlainString());
     }
+
+    // https://code.google.com/p/android/issues/detail?id=191227
+    public void test191227() {
+        BigDecimal zero = BigDecimal.ZERO;
+        zero = zero.setScale(2, RoundingMode.HALF_EVEN);
+
+        BigDecimal other = BigDecimal.valueOf(999999998000000001.00);
+        other = other.setScale(2, RoundingMode.HALF_EVEN);
+
+        assertFalse(zero.equals(other));
+        assertFalse(other.equals(zero));
+    }
 }
