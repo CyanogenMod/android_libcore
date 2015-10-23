@@ -539,34 +539,23 @@ class HeapByteBuffer
     public DoubleBuffer asDoubleBuffer() {
         int size = this.remaining() >> 3;
         int off = offset + position();
-        if (isReadOnly) {
-            return (bigEndian
-                    ? (DoubleBuffer)(new ByteBufferAsDoubleBufferRB(this,
-                                                                    -1,
-                                                                    0,
-                                                                    size,
-                                                                    size,
-                                                                    off))
-                    : (DoubleBuffer)(new ByteBufferAsDoubleBufferRL(this,
-                                                                    -1,
-                                                                    0,
-                                                                    size,
-                                                                    size,
-                                                                    off)));
-        } else {
-            return (bigEndian
-                    ? (DoubleBuffer)(new ByteBufferAsDoubleBufferB(this,
-                                                                   -1,
-                                                                   0,
-                                                                   size,
-                                                                   size,
-                                                                   off))
-                    : (DoubleBuffer)(new ByteBufferAsDoubleBufferL(this,
-                                                                   -1,
-                                                                   0,
-                                                                   size,
-                                                                   size,
-                                                                   off)));
-        }
+        return (bigEndian
+                ? (DoubleBuffer)(new ByteBufferAsDoubleBuffer(this,
+                                                              -1,
+                                                              0,
+                                                              size,
+                                                              size,
+                                                              off,
+                                                              ByteOrder.BIG_ENDIAN,
+                                                              isReadOnly))
+                : (DoubleBuffer)(new ByteBufferAsDoubleBuffer(this,
+                                                              -1,
+                                                              0,
+                                                              size,
+                                                              size,
+                                                              off,
+                                                              ByteOrder.LITTLE_ENDIAN,
+                                                              isReadOnly)));
+
     }
 }
