@@ -145,9 +145,9 @@ public abstract class Collator implements Comparator<Object>, Cloneable {
     // Note that this differs from the ICU equivalent and must be mapped.
     public static final int IDENTICAL = 3;
 
-    com.ibm.icu.text.Collator icuColl;
+    android.icu.text.Collator icuColl;
 
-    Collator(com.ibm.icu.text.Collator icuColl) {
+    Collator(android.icu.text.Collator icuColl) {
         this.icuColl = icuColl;
     }
 
@@ -155,8 +155,8 @@ public abstract class Collator implements Comparator<Object>, Cloneable {
      * Constructs a new {@code Collator} instance.
      */
     protected Collator() {
-        icuColl = (com.ibm.icu.text.RuleBasedCollator)
-                com.ibm.icu.text.RuleBasedCollator.getInstance(Locale.getDefault());
+        icuColl = (android.icu.text.RuleBasedCollator)
+                android.icu.text.RuleBasedCollator.getInstance(Locale.getDefault());
     }
 
     /**
@@ -170,7 +170,7 @@ public abstract class Collator implements Comparator<Object>, Cloneable {
     public Object clone() {
         try {
             Collator clone = (Collator) super.clone();
-            clone.icuColl = (com.ibm.icu.text.Collator) icuColl.clone();
+            clone.icuColl = (android.icu.text.Collator) icuColl.clone();
             return clone;
         } catch (CloneNotSupportedException e) {
             throw new AssertionError(e);
@@ -289,8 +289,8 @@ public abstract class Collator implements Comparator<Object>, Cloneable {
         if (locale == null) {
             throw new NullPointerException("locale == null");
         }
-        return new RuleBasedCollator((com.ibm.icu.text.RuleBasedCollator)
-                com.ibm.icu.text.Collator.getInstance(locale));
+        return new RuleBasedCollator((android.icu.text.RuleBasedCollator)
+                android.icu.text.Collator.getInstance(locale));
     }
 
     /**
@@ -302,7 +302,7 @@ public abstract class Collator implements Comparator<Object>, Cloneable {
     public int getStrength() {
         // The value for IDENTICAL in ICU differs from that used in this class.
         int value = icuColl.getStrength();
-        return (value == com.ibm.icu.text.Collator.IDENTICAL) ? IDENTICAL : value;
+        return (value == android.icu.text.Collator.IDENTICAL) ? IDENTICAL : value;
     }
 
     @Override
@@ -335,7 +335,7 @@ public abstract class Collator implements Comparator<Object>, Cloneable {
     public void setStrength(int value) {
         // The ICU value for IDENTICAL differs from that defined in this class.
         if (value == IDENTICAL) {
-            value = com.ibm.icu.text.Collator.IDENTICAL;
+            value = android.icu.text.Collator.IDENTICAL;
         }
         icuColl.setStrength(value);
     }
@@ -343,9 +343,9 @@ public abstract class Collator implements Comparator<Object>, Cloneable {
     private int decompositionMode_Java_ICU(int mode) {
         switch (mode) {
         case Collator.CANONICAL_DECOMPOSITION:
-            return com.ibm.icu.text.Collator.CANONICAL_DECOMPOSITION;
+            return android.icu.text.Collator.CANONICAL_DECOMPOSITION;
         case Collator.NO_DECOMPOSITION:
-            return com.ibm.icu.text.Collator.NO_DECOMPOSITION;
+            return android.icu.text.Collator.NO_DECOMPOSITION;
         }
         throw new IllegalArgumentException("Bad mode: " + mode);
     }
@@ -353,10 +353,10 @@ public abstract class Collator implements Comparator<Object>, Cloneable {
     private int decompositionMode_ICU_Java(int mode) {
         int javaMode = mode;
         switch (mode) {
-        case com.ibm.icu.text.Collator.NO_DECOMPOSITION:
+        case android.icu.text.Collator.NO_DECOMPOSITION:
             javaMode = Collator.NO_DECOMPOSITION;
             break;
-        case com.ibm.icu.text.Collator.CANONICAL_DECOMPOSITION:
+        case android.icu.text.Collator.CANONICAL_DECOMPOSITION:
             javaMode = Collator.CANONICAL_DECOMPOSITION;
             break;
         }

@@ -57,7 +57,7 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
     private transient Locale locale;
     private transient String exponentSeparator;
 
-    private transient com.ibm.icu.text.DecimalFormatSymbols cachedIcuDFS = null;
+    private transient android.icu.text.DecimalFormatSymbols cachedIcuDFS = null;
 
     /**
      * Constructs a new {@code DecimalFormatSymbols} containing the symbols for
@@ -117,12 +117,12 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
      * Convert an instance of this class to the ICU version so that it can be used with ICU4J.
      * @hide
      */
-    protected com.ibm.icu.text.DecimalFormatSymbols getIcuDecimalFormatSymbols() {
+    protected android.icu.text.DecimalFormatSymbols getIcuDecimalFormatSymbols() {
         if (cachedIcuDFS != null) {
             return cachedIcuDFS;
         }
 
-        cachedIcuDFS = new com.ibm.icu.text.DecimalFormatSymbols(this.locale);
+        cachedIcuDFS = new android.icu.text.DecimalFormatSymbols(this.locale);
         cachedIcuDFS.setZeroDigit(zeroDigit);
         cachedIcuDFS.setDigit(digit);
         cachedIcuDFS.setDecimalSeparator(decimalSeparator);
@@ -137,7 +137,7 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
 
         try {
             cachedIcuDFS.setCurrency(
-                    com.ibm.icu.util.Currency.getInstance(currency.getCurrencyCode()));
+                    android.icu.util.Currency.getInstance(currency.getCurrencyCode()));
         } catch (NullPointerException e) {
             currency = Currency.getInstance("XXX");
         }
@@ -153,7 +153,7 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
      * @hide
      */
     protected static DecimalFormatSymbols fromIcuInstance(
-            com.ibm.icu.text.DecimalFormatSymbols dfs) {
+            android.icu.text.DecimalFormatSymbols dfs) {
         DecimalFormatSymbols result = new DecimalFormatSymbols(dfs.getLocale());
         result.setZeroDigit(dfs.getZeroDigit());
         result.setDigit(dfs.getDigit());
