@@ -19,9 +19,9 @@ package libcore.icu;
 import java.util.Locale;
 import libcore.util.BasicLruCache;
 
-import com.ibm.icu.text.DisplayContext;
-import com.ibm.icu.util.Calendar;
-import com.ibm.icu.util.ULocale;
+import android.icu.text.DisplayContext;
+import android.icu.util.Calendar;
+import android.icu.util.ULocale;
 
 import static libcore.icu.DateUtilsBridge.FORMAT_ABBREV_ALL;
 import static libcore.icu.DateUtilsBridge.FORMAT_ABBREV_MONTH;
@@ -52,7 +52,7 @@ public final class RelativeDateTimeFormatter {
   private static final FormatterCache CACHED_FORMATTERS = new FormatterCache();
 
   static class FormatterCache
-      extends BasicLruCache<String, com.ibm.icu.text.RelativeDateTimeFormatter> {
+      extends BasicLruCache<String, android.icu.text.RelativeDateTimeFormatter> {
     FormatterCache() {
       super(8);
     }
@@ -105,30 +105,30 @@ public final class RelativeDateTimeFormatter {
       throw new NullPointerException("tz == null");
     }
     ULocale icuLocale = ULocale.forLocale(locale);
-    com.ibm.icu.util.TimeZone icuTimeZone = DateUtilsBridge.icuTimeZone(tz);
+    android.icu.util.TimeZone icuTimeZone = DateUtilsBridge.icuTimeZone(tz);
     return getRelativeTimeSpanString(icuLocale, icuTimeZone, time, now, minResolution, flags,
         displayContext);
   }
 
   private static String getRelativeTimeSpanString(ULocale icuLocale,
-      com.ibm.icu.util.TimeZone icuTimeZone, long time, long now, long minResolution, int flags,
+      android.icu.util.TimeZone icuTimeZone, long time, long now, long minResolution, int flags,
       DisplayContext displayContext) {
 
     long duration = Math.abs(now - time);
     boolean past = (now >= time);
 
-    com.ibm.icu.text.RelativeDateTimeFormatter.Style style;
+    android.icu.text.RelativeDateTimeFormatter.Style style;
     if ((flags & (FORMAT_ABBREV_RELATIVE | FORMAT_ABBREV_ALL)) != 0) {
-      style = com.ibm.icu.text.RelativeDateTimeFormatter.Style.SHORT;
+      style = android.icu.text.RelativeDateTimeFormatter.Style.SHORT;
     } else {
-      style = com.ibm.icu.text.RelativeDateTimeFormatter.Style.LONG;
+      style = android.icu.text.RelativeDateTimeFormatter.Style.LONG;
     }
 
-    com.ibm.icu.text.RelativeDateTimeFormatter.Direction direction;
+    android.icu.text.RelativeDateTimeFormatter.Direction direction;
     if (past) {
-      direction = com.ibm.icu.text.RelativeDateTimeFormatter.Direction.LAST;
+      direction = android.icu.text.RelativeDateTimeFormatter.Direction.LAST;
     } else {
-      direction = com.ibm.icu.text.RelativeDateTimeFormatter.Direction.NEXT;
+      direction = android.icu.text.RelativeDateTimeFormatter.Direction.NEXT;
     }
 
     // 'relative' defaults to true as we are generating relative time span
@@ -136,24 +136,24 @@ public final class RelativeDateTimeFormatter {
     // a quantity, such as 'Yesterday', etc.
     boolean relative = true;
     int count;
-    com.ibm.icu.text.RelativeDateTimeFormatter.RelativeUnit unit;
-    com.ibm.icu.text.RelativeDateTimeFormatter.AbsoluteUnit aunit = null;
+    android.icu.text.RelativeDateTimeFormatter.RelativeUnit unit;
+    android.icu.text.RelativeDateTimeFormatter.AbsoluteUnit aunit = null;
 
     if (duration < MINUTE_IN_MILLIS && minResolution < MINUTE_IN_MILLIS) {
       count = (int)(duration / SECOND_IN_MILLIS);
-      unit = com.ibm.icu.text.RelativeDateTimeFormatter.RelativeUnit.SECONDS;
+      unit = android.icu.text.RelativeDateTimeFormatter.RelativeUnit.SECONDS;
     } else if (duration < HOUR_IN_MILLIS && minResolution < HOUR_IN_MILLIS) {
       count = (int)(duration / MINUTE_IN_MILLIS);
-      unit = com.ibm.icu.text.RelativeDateTimeFormatter.RelativeUnit.MINUTES;
+      unit = android.icu.text.RelativeDateTimeFormatter.RelativeUnit.MINUTES;
     } else if (duration < DAY_IN_MILLIS && minResolution < DAY_IN_MILLIS) {
       // Even if 'time' actually happened yesterday, we don't format it as
       // "Yesterday" in this case. Unless the duration is longer than a day,
       // or minResolution is specified as DAY_IN_MILLIS by user.
       count = (int)(duration / HOUR_IN_MILLIS);
-      unit = com.ibm.icu.text.RelativeDateTimeFormatter.RelativeUnit.HOURS;
+      unit = android.icu.text.RelativeDateTimeFormatter.RelativeUnit.HOURS;
     } else if (duration < WEEK_IN_MILLIS && minResolution < WEEK_IN_MILLIS) {
       count = Math.abs(dayDistance(icuTimeZone, time, now));
-      unit = com.ibm.icu.text.RelativeDateTimeFormatter.RelativeUnit.DAYS;
+      unit = android.icu.text.RelativeDateTimeFormatter.RelativeUnit.DAYS;
 
       if (count == 2) {
         // Some locales have special terms for "2 days ago". Return them if
@@ -167,15 +167,15 @@ public final class RelativeDateTimeFormatter {
           synchronized (CACHED_FORMATTERS) {
             str = getFormatter(icuLocale, style, displayContext)
                 .format(
-                    com.ibm.icu.text.RelativeDateTimeFormatter.Direction.LAST_2,
-                    com.ibm.icu.text.RelativeDateTimeFormatter.AbsoluteUnit.DAY);
+                    android.icu.text.RelativeDateTimeFormatter.Direction.LAST_2,
+                    android.icu.text.RelativeDateTimeFormatter.AbsoluteUnit.DAY);
           }
         } else {
           synchronized (CACHED_FORMATTERS) {
             str = getFormatter(icuLocale, style, displayContext)
                 .format(
-                    com.ibm.icu.text.RelativeDateTimeFormatter.Direction.NEXT_2,
-                    com.ibm.icu.text.RelativeDateTimeFormatter.AbsoluteUnit.DAY);
+                    android.icu.text.RelativeDateTimeFormatter.Direction.NEXT_2,
+                    android.icu.text.RelativeDateTimeFormatter.AbsoluteUnit.DAY);
           }
         }
         if (str != null && !str.isEmpty()) {
@@ -184,17 +184,17 @@ public final class RelativeDateTimeFormatter {
         // Fall back to show something like "2 days ago".
       } else if (count == 1) {
         // Show "Yesterday / Tomorrow" instead of "1 day ago / In 1 day".
-        aunit = com.ibm.icu.text.RelativeDateTimeFormatter.AbsoluteUnit.DAY;
+        aunit = android.icu.text.RelativeDateTimeFormatter.AbsoluteUnit.DAY;
         relative = false;
       } else if (count == 0) {
         // Show "Today" if time and now are on the same day.
-        aunit = com.ibm.icu.text.RelativeDateTimeFormatter.AbsoluteUnit.DAY;
-        direction = com.ibm.icu.text.RelativeDateTimeFormatter.Direction.THIS;
+        aunit = android.icu.text.RelativeDateTimeFormatter.AbsoluteUnit.DAY;
+        direction = android.icu.text.RelativeDateTimeFormatter.Direction.THIS;
         relative = false;
       }
     } else if (minResolution == WEEK_IN_MILLIS) {
       count = (int)(duration / WEEK_IN_MILLIS);
-      unit = com.ibm.icu.text.RelativeDateTimeFormatter.RelativeUnit.WEEKS;
+      unit = android.icu.text.RelativeDateTimeFormatter.RelativeUnit.WEEKS;
     } else {
       Calendar timeCalendar = DateUtilsBridge.createIcuCalendar(icuTimeZone, icuLocale, time);
       // The duration is longer than a week and minResolution is not
@@ -218,7 +218,7 @@ public final class RelativeDateTimeFormatter {
     }
 
     synchronized (CACHED_FORMATTERS) {
-      com.ibm.icu.text.RelativeDateTimeFormatter formatter =
+      android.icu.text.RelativeDateTimeFormatter formatter =
           getFormatter(icuLocale, style, displayContext);
       if (relative) {
         return formatter.format(count, direction, unit);
@@ -267,18 +267,18 @@ public final class RelativeDateTimeFormatter {
       throw new NullPointerException("tz == null");
     }
     ULocale icuLocale = ULocale.forLocale(locale);
-    com.ibm.icu.util.TimeZone icuTimeZone = DateUtilsBridge.icuTimeZone(tz);
+    android.icu.util.TimeZone icuTimeZone = DateUtilsBridge.icuTimeZone(tz);
 
     long duration = Math.abs(now - time);
     // It doesn't make much sense to have results like: "1 week ago, 10:50 AM".
     if (transitionResolution > WEEK_IN_MILLIS) {
         transitionResolution = WEEK_IN_MILLIS;
     }
-    com.ibm.icu.text.RelativeDateTimeFormatter.Style style;
+    android.icu.text.RelativeDateTimeFormatter.Style style;
     if ((flags & (FORMAT_ABBREV_RELATIVE | FORMAT_ABBREV_ALL)) != 0) {
-        style = com.ibm.icu.text.RelativeDateTimeFormatter.Style.SHORT;
+        style = android.icu.text.RelativeDateTimeFormatter.Style.SHORT;
     } else {
-        style = com.ibm.icu.text.RelativeDateTimeFormatter.Style.LONG;
+        style = android.icu.text.RelativeDateTimeFormatter.Style.LONG;
     }
 
     Calendar timeCalendar = DateUtilsBridge.createIcuCalendar(icuTimeZone, icuLocale, time);
@@ -334,13 +334,13 @@ public final class RelativeDateTimeFormatter {
    * getFormatter() may have been evicted by the time of the call to
    * formatter->action().
    */
-  private static com.ibm.icu.text.RelativeDateTimeFormatter getFormatter(
-      ULocale locale, com.ibm.icu.text.RelativeDateTimeFormatter.Style style,
+  private static android.icu.text.RelativeDateTimeFormatter getFormatter(
+      ULocale locale, android.icu.text.RelativeDateTimeFormatter.Style style,
       DisplayContext displayContext) {
     String key = locale + "\t" + style + "\t" + displayContext;
-    com.ibm.icu.text.RelativeDateTimeFormatter formatter = CACHED_FORMATTERS.get(key);
+    android.icu.text.RelativeDateTimeFormatter formatter = CACHED_FORMATTERS.get(key);
     if (formatter == null) {
-      formatter = com.ibm.icu.text.RelativeDateTimeFormatter.getInstance(
+      formatter = android.icu.text.RelativeDateTimeFormatter.getInstance(
           locale, null, style, displayContext);
       CACHED_FORMATTERS.put(key, formatter);
     }
@@ -348,12 +348,12 @@ public final class RelativeDateTimeFormatter {
   }
 
   // Return the date difference for the two times in a given timezone.
-  private static int dayDistance(com.ibm.icu.util.TimeZone icuTimeZone, long startTime,
+  private static int dayDistance(android.icu.util.TimeZone icuTimeZone, long startTime,
       long endTime) {
     return julianDay(icuTimeZone, endTime) - julianDay(icuTimeZone, startTime);
   }
 
-  private static int julianDay(com.ibm.icu.util.TimeZone icuTimeZone, long time) {
+  private static int julianDay(android.icu.util.TimeZone icuTimeZone, long time) {
     long utcMs = time + icuTimeZone.getOffset(time);
     return (int) (utcMs / DAY_IN_MS) + EPOCH_JULIAN_DAY;
   }

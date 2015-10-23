@@ -240,7 +240,7 @@ public abstract class BreakIterator implements Cloneable {
      * <p>Note that Android does not support user-supplied locale service providers.
      */
     public static Locale[] getAvailableLocales() {
-        return com.ibm.icu.text.BreakIterator.getAvailableLocales();
+        return android.icu.text.BreakIterator.getAvailableLocales();
     }
 
     /**
@@ -259,7 +259,7 @@ public abstract class BreakIterator implements Cloneable {
      */
     public static BreakIterator getCharacterInstance(Locale locale) {
         return new IcuIteratorWrapper(
-                com.ibm.icu.text.BreakIterator.getCharacterInstance(locale));
+                android.icu.text.BreakIterator.getCharacterInstance(locale));
     }
 
     /**
@@ -278,7 +278,7 @@ public abstract class BreakIterator implements Cloneable {
      */
     public static BreakIterator getLineInstance(Locale locale) {
         return new IcuIteratorWrapper(
-                com.ibm.icu.text.BreakIterator.getLineInstance(locale));
+                android.icu.text.BreakIterator.getLineInstance(locale));
     }
 
     /**
@@ -297,7 +297,7 @@ public abstract class BreakIterator implements Cloneable {
      */
     public static BreakIterator getSentenceInstance(Locale locale) {
         return new IcuIteratorWrapper(
-                com.ibm.icu.text.BreakIterator.getSentenceInstance(locale));
+                android.icu.text.BreakIterator.getSentenceInstance(locale));
     }
 
     /**
@@ -316,7 +316,7 @@ public abstract class BreakIterator implements Cloneable {
      */
     public static BreakIterator getWordInstance(Locale locale) {
         return new IcuIteratorWrapper(
-                com.ibm.icu.text.BreakIterator.getWordInstance(locale));
+                android.icu.text.BreakIterator.getWordInstance(locale));
     }
 
     /**

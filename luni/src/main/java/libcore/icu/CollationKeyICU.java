@@ -19,24 +19,24 @@ public final class CollationKeyICU extends CollationKey {
     /**
      * The key.
      */
-    private final com.ibm.icu.text.CollationKey key;
+    private final android.icu.text.CollationKey key;
 
     /**
      * Cached hash value.
      */
     private int hashCode;
 
-    public CollationKeyICU(String source, com.ibm.icu.text.CollationKey key) {
+    public CollationKeyICU(String source, android.icu.text.CollationKey key) {
         super(source);
         this.key = key;
     }
 
     @Override public int compareTo(CollationKey other) {
-        final com.ibm.icu.text.CollationKey otherKey;
+        final android.icu.text.CollationKey otherKey;
         if (other instanceof CollationKeyICU) {
             otherKey = ((CollationKeyICU) other).key;
         } else {
-            otherKey = new com.ibm.icu.text.CollationKey(other.getSourceString(),
+            otherKey = new android.icu.text.CollationKey(other.getSourceString(),
                     other.toByteArray());
         }
 

@@ -16,9 +16,9 @@
 
 package java.lang;
 
+import android.icu.text.Transliterator;
 import java.util.Locale;
 import libcore.icu.ICU;
-import com.ibm.icu.text.Transliterator;
 
 /**
  * Performs case operations as described by http://unicode.org/reports/tr21/tr21-5.html.

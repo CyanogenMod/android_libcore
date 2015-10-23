@@ -16,12 +16,12 @@
 
 package libcore.icu;
 
-import com.ibm.icu.text.DateFormat;
-import com.ibm.icu.text.DateTimePatternGenerator;
-import com.ibm.icu.text.DisplayContext;
-import com.ibm.icu.text.SimpleDateFormat;
-import com.ibm.icu.util.Calendar;
-import com.ibm.icu.util.ULocale;
+import android.icu.text.DateFormat;
+import android.icu.text.DateTimePatternGenerator;
+import android.icu.text.DisplayContext;
+import android.icu.text.SimpleDateFormat;
+import android.icu.util.Calendar;
+import android.icu.util.ULocale;
 
 import libcore.util.BasicLruCache;
 

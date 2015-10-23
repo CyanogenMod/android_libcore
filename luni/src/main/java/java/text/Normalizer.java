@@ -34,30 +34,30 @@ public final class Normalizer {
         /**
          * Normalization Form D - Canonical Decomposition.
          */
-        NFD(com.ibm.icu.text.Normalizer.NFD),
+        NFD(android.icu.text.Normalizer.NFD),
 
         /**
          * Normalization Form C - Canonical Decomposition, followed by Canonical Composition.
          */
-        NFC(com.ibm.icu.text.Normalizer.NFC),
+        NFC(android.icu.text.Normalizer.NFC),
 
         /**
          * Normalization Form KD - Compatibility Decomposition.
          */
-        NFKD(com.ibm.icu.text.Normalizer.NFKD),
+        NFKD(android.icu.text.Normalizer.NFKD),
 
         /**
          * Normalization Form KC - Compatibility Decomposition, followed by Canonical Composition.
          */
-        NFKC(com.ibm.icu.text.Normalizer.NFKC);
+        NFKC(android.icu.text.Normalizer.NFKC);
 
-        private final com.ibm.icu.text.Normalizer.Mode icuForm;
+        private final android.icu.text.Normalizer.Mode icuForm;
 
-        Form(com.ibm.icu.text.Normalizer.Mode icuForm) {
+        Form(android.icu.text.Normalizer.Mode icuForm) {
             this.icuForm = icuForm;
         }
 
-        com.ibm.icu.text.Normalizer.Mode getIcuForm() {
+        android.icu.text.Normalizer.Mode getIcuForm() {
             return icuForm;
         }
     }
@@ -71,7 +71,7 @@ public final class Normalizer {
      * @return true if normalized according to <code>form</code>
      */
     public static boolean isNormalized(CharSequence src, Form form) {
-        return com.ibm.icu.text.Normalizer.isNormalized(src.toString(), form.getIcuForm(), 0);
+        return android.icu.text.Normalizer.isNormalized(src.toString(), form.getIcuForm(), 0);
     }
 
     /**
@@ -83,7 +83,7 @@ public final class Normalizer {
      * @return string normalized according to <code>form</code>
      */
     public static String normalize(CharSequence src, Form form) {
-        return com.ibm.icu.text.Normalizer.normalize(src.toString(), form.getIcuForm());
+        return android.icu.text.Normalizer.normalize(src.toString(), form.getIcuForm());
     }
 
     private Normalizer() {}
