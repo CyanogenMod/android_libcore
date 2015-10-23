@@ -2121,8 +2121,8 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
         if (x instanceof BigDecimal) {
             BigDecimal x1 = (BigDecimal) x;
             return x1.scale == scale
-                   && (bitLength < 64 ? (x1.smallValue == smallValue)
-                    : intVal.equals(x1.intVal));
+                    && x1.bitLength == bitLength
+                    && (bitLength < 64 ? (x1.smallValue == smallValue) : x1.intVal.equals(intVal));
         }
         return false;
     }
