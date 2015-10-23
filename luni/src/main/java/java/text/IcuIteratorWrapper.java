@@ -27,9 +27,9 @@ package java.text;
 class IcuIteratorWrapper extends BreakIterator {
 
     /* The wrapped ICU implementation. Non-final for #clone() */
-    private com.ibm.icu.text.BreakIterator wrapped;
+    private android.icu.text.BreakIterator wrapped;
 
-    IcuIteratorWrapper(com.ibm.icu.text.BreakIterator iterator) {
+    IcuIteratorWrapper(android.icu.text.BreakIterator iterator) {
         wrapped = iterator;
     }
 
@@ -113,7 +113,7 @@ class IcuIteratorWrapper extends BreakIterator {
 
     @Override public Object clone() {
         IcuIteratorWrapper cloned = (IcuIteratorWrapper) super.clone();
-        cloned.wrapped = (com.ibm.icu.text.BreakIterator) wrapped.clone();
+        cloned.wrapped = (android.icu.text.BreakIterator) wrapped.clone();
         return cloned;
     }
 }

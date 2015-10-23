@@ -56,16 +56,16 @@ public final class Bidi {
     private static int translateConstToIcu(int javaInt) {
         switch (javaInt) {
             case DIRECTION_DEFAULT_LEFT_TO_RIGHT:
-                return com.ibm.icu.text.Bidi.DIRECTION_DEFAULT_LEFT_TO_RIGHT;
+                return android.icu.text.Bidi.DIRECTION_DEFAULT_LEFT_TO_RIGHT;
             case DIRECTION_DEFAULT_RIGHT_TO_LEFT:
-                return com.ibm.icu.text.Bidi.DIRECTION_DEFAULT_RIGHT_TO_LEFT;
+                return android.icu.text.Bidi.DIRECTION_DEFAULT_RIGHT_TO_LEFT;
             case DIRECTION_LEFT_TO_RIGHT:
-                return com.ibm.icu.text.Bidi.DIRECTION_LEFT_TO_RIGHT;
+                return android.icu.text.Bidi.DIRECTION_LEFT_TO_RIGHT;
             case DIRECTION_RIGHT_TO_LEFT:
-                return com.ibm.icu.text.Bidi.DIRECTION_RIGHT_TO_LEFT;
+                return android.icu.text.Bidi.DIRECTION_RIGHT_TO_LEFT;
             // If the parameter was unrecognized use LEFT_TO_RIGHT.
             default:
-                return com.ibm.icu.text.Bidi.DIRECTION_LEFT_TO_RIGHT;
+                return android.icu.text.Bidi.DIRECTION_LEFT_TO_RIGHT;
         }
     }
 
@@ -73,7 +73,7 @@ public final class Bidi {
         return icuBidi.getRunCount() == 0;
     }
 
-    private final com.ibm.icu.text.Bidi icuBidi;
+    private final android.icu.text.Bidi icuBidi;
 
     /**
      * Creates a {@code Bidi} object from the {@code
@@ -104,7 +104,7 @@ public final class Bidi {
             throw new IllegalArgumentException("paragraph is null");
         }
 
-        this.icuBidi = new com.ibm.icu.text.Bidi(paragraph);
+        this.icuBidi = new android.icu.text.Bidi(paragraph);
     }
 
     /**
@@ -161,7 +161,7 @@ public final class Bidi {
             throw new IllegalArgumentException("Negative paragraph length " + paragraphLength);
         }
 
-        this.icuBidi = new com.ibm.icu.text.Bidi(text, textStart, embeddings, embStart,
+        this.icuBidi = new android.icu.text.Bidi(text, textStart, embeddings, embStart,
                 paragraphLength, translateConstToIcu(flags));
 
     }
@@ -188,7 +188,7 @@ public final class Bidi {
     }
 
 
-    private Bidi(com.ibm.icu.text.Bidi icuBidi) {
+    private Bidi(android.icu.text.Bidi icuBidi) {
         this.icuBidi = icuBidi;
     }
 
@@ -228,7 +228,7 @@ public final class Bidi {
         // .getLength() for example and return a correct value instead of an IllegalStateException
         // being thrown, which happens in the case of using the empty constructor.
         if (lineStart == lineLimit) {
-            return new Bidi(new com.ibm.icu.text.Bidi(new char[] {}, 0, new byte[] {}, 0, 0,
+            return new Bidi(new android.icu.text.Bidi(new char[] {}, 0, new byte[] {}, 0, 0,
                     translateConstToIcu(DIRECTION_LEFT_TO_RIGHT)));
         }
 
@@ -359,7 +359,7 @@ public final class Bidi {
                     ", objectStart=" + objectStart + ", count=" + count + ")");
         }
 
-        com.ibm.icu.text.Bidi.reorderVisually(levels, levelStart, objects, objectStart, count);
+        android.icu.text.Bidi.reorderVisually(levels, levelStart, objects, objectStart, count);
     }
 
     /**
@@ -384,7 +384,7 @@ public final class Bidi {
             throw new IllegalArgumentException();
         }
 
-        return com.ibm.icu.text.Bidi.requiresBidi(text, start, limit);
+        return android.icu.text.Bidi.requiresBidi(text, start, limit);
     }
 
     @Override
