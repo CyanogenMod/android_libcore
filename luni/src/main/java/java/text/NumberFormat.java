@@ -384,8 +384,8 @@ public abstract class NumberFormat extends Format {
             throw new NullPointerException("locale == null");
         }
 
-        com.ibm.icu.text.DecimalFormat icuDF = (com.ibm.icu.text.DecimalFormat)
-                com.ibm.icu.text.NumberFormat.getIntegerInstance(locale);
+        android.icu.text.DecimalFormat icuDF = (android.icu.text.DecimalFormat)
+                android.icu.text.NumberFormat.getIntegerInstance(locale);
         NumberFormat result = new DecimalFormat(icuDF);
         result.setParseIntegerOnly(true);
         return result;
@@ -482,8 +482,8 @@ public abstract class NumberFormat extends Format {
         if (locale == null) {
             throw new NullPointerException("locale == null");
         }
-        com.ibm.icu.text.DecimalFormat icuDF = (com.ibm.icu.text.DecimalFormat)
-            com.ibm.icu.text.NumberFormat.getNumberInstance(locale);
+        android.icu.text.DecimalFormat icuDF = (android.icu.text.DecimalFormat)
+            android.icu.text.NumberFormat.getNumberInstance(locale);
         return new DecimalFormat(icuDF);
     }
 
@@ -523,8 +523,8 @@ public abstract class NumberFormat extends Format {
             throw new NullPointerException("locale == null");
         }
 
-        com.ibm.icu.text.DecimalFormat icuDF = (com.ibm.icu.text.DecimalFormat)
-            com.ibm.icu.text.NumberFormat.getPercentInstance(locale);
+        android.icu.text.DecimalFormat icuDF = (android.icu.text.DecimalFormat)
+            android.icu.text.NumberFormat.getPercentInstance(locale);
 
         return new DecimalFormat(icuDF);
     }

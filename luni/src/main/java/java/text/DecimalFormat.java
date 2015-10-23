@@ -27,7 +27,7 @@ import java.math.RoundingMode;
 import java.util.Currency;
 import java.util.Locale;
 
-import com.ibm.icu.math.MathContext;
+import android.icu.math.MathContext;
 import libcore.icu.LocaleData;
 
 /**
@@ -510,7 +510,7 @@ public class DecimalFormat extends NumberFormat {
 
     private transient RoundingMode roundingMode = RoundingMode.HALF_EVEN;
 
-    private transient com.ibm.icu.text.DecimalFormat icuDecimalFormat;
+    private transient android.icu.text.DecimalFormat icuDecimalFormat;
 
     /**
      * Constructs a new {@code DecimalFormat} for formatting and parsing numbers
@@ -562,7 +562,7 @@ public class DecimalFormat extends NumberFormat {
     // specific number formatting needs such as the case with ar_AE which has a minus sign of more
     // than one char, we get the correct pattern which contains the left to right symbol and the
     // minus sign.
-    DecimalFormat(com.ibm.icu.text.DecimalFormat icuDF) {
+    DecimalFormat(android.icu.text.DecimalFormat icuDF) {
         this.icuDecimalFormat = icuDF;
 
         this.symbols = DecimalFormatSymbols.fromIcuInstance(icuDF.getDecimalFormatSymbols());
@@ -573,7 +573,7 @@ public class DecimalFormat extends NumberFormat {
     }
 
     private void initIcu(String pattern) {
-        this.icuDecimalFormat = new com.ibm.icu.text.DecimalFormat(
+        this.icuDecimalFormat = new android.icu.text.DecimalFormat(
                 pattern, symbols.getIcuDecimalFormatSymbols());
         super.setMaximumFractionDigits(icuDecimalFormat.getMaximumFractionDigits());
         super.setMaximumIntegerDigits(icuDecimalFormat.getMaximumIntegerDigits());
@@ -626,7 +626,7 @@ public class DecimalFormat extends NumberFormat {
     @Override
     public Object clone() {
         DecimalFormat clone = (DecimalFormat) super.clone();
-        clone.icuDecimalFormat = (com.ibm.icu.text.DecimalFormat) icuDecimalFormat.clone();
+        clone.icuDecimalFormat = (android.icu.text.DecimalFormat) icuDecimalFormat.clone();
         clone.symbols = (DecimalFormatSymbols) symbols.clone();
         return clone;
     }
@@ -664,7 +664,7 @@ public class DecimalFormat extends NumberFormat {
                 && compareIcuRoundingIncrement(other.icuDecimalFormat);
     }
 
-    private boolean compareIcuRoundingIncrement(com.ibm.icu.text.DecimalFormat other) {
+    private boolean compareIcuRoundingIncrement(android.icu.text.DecimalFormat other) {
         BigDecimal increment = this.icuDecimalFormat.getRoundingIncrement();
         if (increment != null) {
             return (other.getRoundingIncrement() != null)
@@ -778,34 +778,34 @@ public class DecimalFormat extends NumberFormat {
     /**
      * Converts between field positions used by Java/ICU.
      * @param fp The java.text.NumberFormat.Field field position
-     * @return The com.ibm.icu.text.NumberFormat.Field field position
+     * @return The android.icu.text.NumberFormat.Field field position
      */
     private static FieldPosition getIcuFieldPosition(FieldPosition fp) {
         if (fp.getFieldAttribute() == null) return fp;
 
-        com.ibm.icu.text.NumberFormat.Field attribute;
+        android.icu.text.NumberFormat.Field attribute;
         if (fp.getFieldAttribute() == Field.INTEGER) {
-            attribute = com.ibm.icu.text.NumberFormat.Field.INTEGER;
+            attribute = android.icu.text.NumberFormat.Field.INTEGER;
         } else if (fp.getFieldAttribute() == Field.FRACTION) {
-            attribute = com.ibm.icu.text.NumberFormat.Field.FRACTION;
+            attribute = android.icu.text.NumberFormat.Field.FRACTION;
         } else if (fp.getFieldAttribute() == Field.DECIMAL_SEPARATOR) {
-            attribute = com.ibm.icu.text.NumberFormat.Field.DECIMAL_SEPARATOR;
+            attribute = android.icu.text.NumberFormat.Field.DECIMAL_SEPARATOR;
         } else if (fp.getFieldAttribute() == Field.EXPONENT_SYMBOL) {
-            attribute = com.ibm.icu.text.NumberFormat.Field.EXPONENT_SYMBOL;
+            attribute = android.icu.text.NumberFormat.Field.EXPONENT_SYMBOL;
         } else if (fp.getFieldAttribute() == Field.EXPONENT_SIGN) {
-            attribute = com.ibm.icu.text.NumberFormat.Field.EXPONENT_SIGN;
+            attribute = android.icu.text.NumberFormat.Field.EXPONENT_SIGN;
         } else if (fp.getFieldAttribute() == Field.EXPONENT) {
-            attribute = com.ibm.icu.text.NumberFormat.Field.EXPONENT;
+            attribute = android.icu.text.NumberFormat.Field.EXPONENT;
         } else if (fp.getFieldAttribute() == Field.GROUPING_SEPARATOR) {
-            attribute = com.ibm.icu.text.NumberFormat.Field.GROUPING_SEPARATOR;
+            attribute = android.icu.text.NumberFormat.Field.GROUPING_SEPARATOR;
         } else if (fp.getFieldAttribute() == Field.CURRENCY) {
-            attribute = com.ibm.icu.text.NumberFormat.Field.CURRENCY;
+            attribute = android.icu.text.NumberFormat.Field.CURRENCY;
         } else if (fp.getFieldAttribute() == Field.PERCENT) {
-            attribute = com.ibm.icu.text.NumberFormat.Field.PERCENT;
+            attribute = android.icu.text.NumberFormat.Field.PERCENT;
         } else if (fp.getFieldAttribute() == Field.PERMILLE) {
-            attribute = com.ibm.icu.text.NumberFormat.Field.PERMILLE;
+            attribute = android.icu.text.NumberFormat.Field.PERMILLE;
         } else if (fp.getFieldAttribute() == Field.SIGN) {
-            attribute = com.ibm.icu.text.NumberFormat.Field.SIGN;
+            attribute = android.icu.text.NumberFormat.Field.SIGN;
         } else {
             throw new IllegalArgumentException("Unexpected field position attribute type.");
         }
@@ -819,7 +819,7 @@ public class DecimalFormat extends NumberFormat {
     /**
      * Converts the Attribute that ICU returns in its AttributedCharacterIterator
      * responses to the type that java uses.
-     * @param icuAttribute The com.ibm.icu.text.NumberFormat.Field field.
+     * @param icuAttribute The android.icu.text.NumberFormat.Field field.
      * @return Field converted to a java.text.NumberFormat.Field field.
      */
     private static Field toJavaFieldAttribute(AttributedCharacterIterator.Attribute icuAttribute) {
@@ -1010,7 +1010,7 @@ public class DecimalFormat extends NumberFormat {
      */
     @Override
     public Number parse(String string, ParsePosition position) {
-        // This might return com.ibm.icu.math.BigDecimal, java.math.BigInteger or a primitive type.
+        // This might return android.icu.math.BigDecimal, java.math.BigInteger or a primitive type.
         Number number = icuDecimalFormat.parse(string, position);
         if (number == null) {
             return null;
@@ -1028,11 +1028,11 @@ public class DecimalFormat extends NumberFormat {
                     (((Double) number).isNaN() || ((Double) number).isInfinite())) {
                 return number;
             }
-            if (number instanceof com.ibm.icu.math.BigDecimal) {
-                return ((com.ibm.icu.math.BigDecimal) number).toBigDecimal();
+            if (number instanceof android.icu.math.BigDecimal) {
+                return ((android.icu.math.BigDecimal) number).toBigDecimal();
             }
         }
-        if ((number instanceof com.ibm.icu.math.BigDecimal) || (number instanceof BigInteger)) {
+        if ((number instanceof android.icu.math.BigDecimal) || (number instanceof BigInteger)) {
             return number.doubleValue();
         }
         if (this.isParseIntegerOnly() && number.equals(NEGATIVE_ZERO_DOUBLE)) {

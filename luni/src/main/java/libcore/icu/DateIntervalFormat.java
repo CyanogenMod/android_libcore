@@ -16,8 +16,8 @@
 
 package libcore.icu;
 
-import com.ibm.icu.util.Calendar;
-import com.ibm.icu.util.ULocale;
+import android.icu.util.Calendar;
+import android.icu.util.ULocale;
 
 import java.text.FieldPosition;
 import java.util.TimeZone;
@@ -32,7 +32,7 @@ public final class DateIntervalFormat {
 
   private static final FormatterCache CACHED_FORMATTERS = new FormatterCache();
 
-  static class FormatterCache extends BasicLruCache<String, com.ibm.icu.text.DateIntervalFormat> {
+  static class FormatterCache extends BasicLruCache<String, android.icu.text.DateIntervalFormat> {
     FormatterCache() {
       super(8);
     }
@@ -49,14 +49,14 @@ public final class DateIntervalFormat {
     // We create a java.util.TimeZone here to use libcore's data and libcore's olson ID / pseudo-tz
     // logic.
     TimeZone tz = (olsonId != null) ? TimeZone.getTimeZone(olsonId) : TimeZone.getDefault();
-    com.ibm.icu.util.TimeZone icuTimeZone = DateUtilsBridge.icuTimeZone(tz);
+    android.icu.util.TimeZone icuTimeZone = DateUtilsBridge.icuTimeZone(tz);
     ULocale icuLocale = ULocale.getDefault();
     return formatDateRange(icuLocale, icuTimeZone, startMs, endMs, flags);
   }
 
   // This is our slightly more sensible internal API. (A truly sane replacement would take a
   // skeleton instead of int flags.)
-  public static String formatDateRange(ULocale icuLocale, com.ibm.icu.util.TimeZone icuTimeZone,
+  public static String formatDateRange(ULocale icuLocale, android.icu.util.TimeZone icuTimeZone,
       long startMs, long endMs, int flags) {
     Calendar startCalendar = DateUtilsBridge.createIcuCalendar(icuTimeZone, icuLocale, startMs);
     Calendar endCalendar;
@@ -80,21 +80,21 @@ public final class DateIntervalFormat {
 
     String skeleton = DateUtilsBridge.toSkeleton(startCalendar, endCalendar, flags);
     synchronized (CACHED_FORMATTERS) {
-      com.ibm.icu.text.DateIntervalFormat formatter =
+      android.icu.text.DateIntervalFormat formatter =
           getFormatter(skeleton, icuLocale, icuTimeZone);
       return formatter.format(startCalendar, endCalendar, new StringBuffer(),
           new FieldPosition(0)).toString();
     }
   }
 
-  private static com.ibm.icu.text.DateIntervalFormat getFormatter(String skeleton, ULocale locale,
-      com.ibm.icu.util.TimeZone icuTimeZone) {
+  private static android.icu.text.DateIntervalFormat getFormatter(String skeleton, ULocale locale,
+      android.icu.util.TimeZone icuTimeZone) {
     String key = skeleton + "\t" + locale + "\t" + icuTimeZone;
-    com.ibm.icu.text.DateIntervalFormat formatter = CACHED_FORMATTERS.get(key);
+    android.icu.text.DateIntervalFormat formatter = CACHED_FORMATTERS.get(key);
     if (formatter != null) {
       return formatter;
     }
-    formatter = com.ibm.icu.text.DateIntervalFormat.getInstance(skeleton, locale);
+    formatter = android.icu.text.DateIntervalFormat.getInstance(skeleton, locale);
     formatter.setTimeZone(icuTimeZone);
     CACHED_FORMATTERS.put(key, formatter);
     return formatter;

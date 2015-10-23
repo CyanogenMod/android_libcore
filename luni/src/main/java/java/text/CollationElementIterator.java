@@ -55,7 +55,7 @@ public final class CollationElementIterator {
      * beginning of the source string has been reached, and there are no more
      * valid collation elements to return.
      */
-    public static final int NULLORDER = com.ibm.icu.text.CollationElementIterator.NULLORDER;
+    public static final int NULLORDER = android.icu.text.CollationElementIterator.NULLORDER;
 
     /**
      * This constant is returned by the iterator in the methods {@code next()}
@@ -65,9 +65,9 @@ public final class CollationElementIterator {
     public static final int IGNORABLE = 0;
 
     // The ICU version of this class that we proxy to.
-    private final com.ibm.icu.text.CollationElementIterator icuIterator;
+    private final android.icu.text.CollationElementIterator icuIterator;
 
-    CollationElementIterator(com.ibm.icu.text.CollationElementIterator iterator) {
+    CollationElementIterator(android.icu.text.CollationElementIterator iterator) {
         this.icuIterator = iterator;
     }
 
@@ -132,7 +132,7 @@ public final class CollationElementIterator {
      *            the element of the collation.
      */
     public static final int primaryOrder(int order) {
-        return com.ibm.icu.text.CollationElementIterator.primaryOrder(order);
+        return android.icu.text.CollationElementIterator.primaryOrder(order);
     }
 
     /**
@@ -156,7 +156,7 @@ public final class CollationElementIterator {
      *            the element of the collator.
      */
     public static final short secondaryOrder(int order) {
-        return (short) com.ibm.icu.text.CollationElementIterator.secondaryOrder(order);
+        return (short) android.icu.text.CollationElementIterator.secondaryOrder(order);
     }
 
     /**
@@ -215,6 +215,6 @@ public final class CollationElementIterator {
      *            the element of the collation.
      */
     public static final short tertiaryOrder(int order) {
-        return (short) com.ibm.icu.text.CollationElementIterator.tertiaryOrder(order);
+        return (short) android.icu.text.CollationElementIterator.tertiaryOrder(order);
     }
 }

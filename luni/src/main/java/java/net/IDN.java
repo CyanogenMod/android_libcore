@@ -16,7 +16,7 @@
 
 package java.net;
 
-import com.ibm.icu.text.IDNA;
+import android.icu.text.IDNA;
 
 /**
  * Converts internationalized domain names between Unicode and the ASCII Compatible Encoding
@@ -63,7 +63,7 @@ public final class IDN {
     public static String toASCII(String input, int flags) {
         try {
             return IDNA.convertIDNToASCII(input, flags).toString();
-        } catch (com.ibm.icu.text.StringPrepParseException e) {
+        } catch (android.icu.text.StringPrepParseException e) {
             throw new IllegalArgumentException("Invalid input to toASCII: " + input, e);
         }
     }
@@ -99,7 +99,7 @@ public final class IDN {
             // ICU only translates separators to ASCII for toASCII.
             // Java expects the translation for toUnicode too.
             return convertFullStop(IDNA.convertIDNToUnicode(input, flags)).toString();
-        } catch (com.ibm.icu.text.StringPrepParseException e) {
+        } catch (android.icu.text.StringPrepParseException e) {
             // The RI documentation explicitly states that if the conversion was unsuccessful
             // the original string is returned.
             return input;
