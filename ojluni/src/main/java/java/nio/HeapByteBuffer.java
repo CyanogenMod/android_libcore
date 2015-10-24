@@ -31,9 +31,7 @@ package java.nio;
  * A read/write HeapByteBuffer.
  */
 
-class HeapByteBuffer
-    extends ByteBuffer
-{
+class HeapByteBuffer extends ByteBuffer {
 
     // For speed these fields are actually declared in X-Buffer;
     // these declarations are here as documentation
@@ -46,7 +44,7 @@ class HeapByteBuffer
 
     private final boolean isReadOnly;
 
-    HeapByteBuffer(int cap, int lim) {            // package-private
+    HeapByteBuffer(int cap, int lim) {            // packag-private
         this(cap, lim, false);
     }
 
@@ -358,36 +356,15 @@ class HeapByteBuffer
     public IntBuffer asIntBuffer() {
         int size = this.remaining() >> 2;
         int off = offset + position();
-        if (isReadOnly) {
-            return (bigEndian
-                    ? (IntBuffer)(new ByteBufferAsIntBufferRB(this,
-                                                              -1,
-                                                              0,
-                                                              size,
-                                                              size,
-                                                              off))
-                    : (IntBuffer)(new ByteBufferAsIntBufferRL(this,
-                                                              -1,
-                                                              0,
-                                                              size,
-                                                              size,
-                                                              off)));
-        } else {
-            return (bigEndian
-                    ? (IntBuffer)(new ByteBufferAsIntBufferB(this,
-                                                             -1,
-                                                             0,
-                                                             size,
-                                                             size,
-                                                             off))
-                    : (IntBuffer)(new ByteBufferAsIntBufferL(this,
-                                                             -1,
-                                                             0,
-                                                             size,
-                                                             size,
-                                                             off)));
-        }
 
+        return (IntBuffer)(new ByteBufferAsIntBuffer(this,
+                                              -1,
+                                              0,
+                                              size,
+                                              size,
+                                              off,
+                                              order(),
+                                              isReadOnly));
     }
 
     public long getLong() {
@@ -397,8 +374,6 @@ class HeapByteBuffer
     public long getLong(int i) {
         return Bits.getLong(this, ix(checkIndex(i, 8)), bigEndian);
     }
-
-
 
     public ByteBuffer putLong(long x) {
         if (isReadOnly) {
