@@ -209,7 +209,9 @@ include $(CLEAR_VARS)
 # for shared defintion of libcore_to_document
 include $(LOCAL_PATH)/Docs.mk
 
-LOCAL_SRC_FILES := $(libcore_to_document)
+# The libcore_to_document paths are relative to $(TOPDIR). We are in libcore so we must prepend
+# ../ to make LOCAL_SRC_FILES relative to $(LOCAL_PATH).
+LOCAL_SRC_FILES := $(addprefix ../, $(libcore_to_document))
 # rerun doc generation without recompiling the java
 LOCAL_JAVACFLAGS := $(local_javac_flags)
 LOCAL_MODULE_CLASS:=JAVA_LIBRARIES
