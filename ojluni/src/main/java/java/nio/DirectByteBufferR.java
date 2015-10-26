@@ -626,19 +626,14 @@ class DirectByteBufferR
 
         int size = rem >> 1;
         if (!unaligned() && ((address + off) % (1 << 1) != 0)) {
-            return (bigEndian
-                    ? (ShortBuffer)(new ByteBufferAsShortBufferRB(this,
-                                                                  -1,
-                                                                  0,
-                                                                  size,
-                                                                  size,
-                                                                  off))
-                    : (ShortBuffer)(new ByteBufferAsShortBufferRL(this,
-                                                                  -1,
-                                                                  0,
-                                                                  size,
-                                                                  size,
-                                                                  off)));
+            return (ShortBuffer)(new ByteBufferAsShortBuffer(this,
+                                                             -1,
+                                                             0,
+                                                             size,
+                                                             size,
+                                                             off,
+                                                             order(),
+                                                             true));
         } else {
             return (nativeByteOrder
                     ? (ShortBuffer)(new DirectShortBufferRU(this,
@@ -718,13 +713,13 @@ class DirectByteBufferR
         int size = rem >> 2;
         if (!unaligned() && ((address + off) % (1 << 2) != 0)) {
             return (IntBuffer)(new ByteBufferAsIntBuffer(this,
-                                                  -1,
-                                                  0,
-                                                  size,
-                                                  size,
-                                                  off,
-                                                  order(),
-                                                  true));
+                                                         -1,
+                                                         0,
+                                                         size,
+                                                         size,
+                                                         off,
+                                                         order(),
+                                                         true));
         } else {
             return (nativeByteOrder
                     ? (IntBuffer)(new DirectIntBufferRU(this,
