@@ -809,19 +809,14 @@ class DirectByteBuffer
 
         int size = rem >> 3;
         if (!unaligned() && ((address + off) % (1 << 3) != 0)) {
-            return (bigEndian
-                    ? (LongBuffer)(new ByteBufferAsLongBufferB(this,
-                                                               -1,
-                                                               0,
-                                                               size,
-                                                               size,
-                                                               off))
-                    : (LongBuffer)(new ByteBufferAsLongBufferL(this,
-                                                               -1,
-                                                               0,
-                                                               size,
-                                                               size,
-                                                               off)));
+            return (LongBuffer)(new ByteBufferAsLongBuffer(this,
+                                                           -1,
+                                                           0,
+                                                           size,
+                                                           size,
+                                                           off,
+                                                           order(),
+                                                           false));
         } else {
             return (nativeByteOrder
                     ? (LongBuffer)(new DirectLongBufferU(this,
