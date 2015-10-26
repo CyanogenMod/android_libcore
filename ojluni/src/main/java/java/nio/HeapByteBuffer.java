@@ -373,35 +373,14 @@ class HeapByteBuffer extends ByteBuffer {
     public LongBuffer asLongBuffer() {
         int size = this.remaining() >> 3;
         int off = offset + position();
-        if (isReadOnly) {
-            return (bigEndian
-                    ? (LongBuffer)(new ByteBufferAsLongBufferRB(this,
-                                                                -1,
-                                                                0,
-                                                                size,
-                                                                size,
-                                                                off))
-                    : (LongBuffer)(new ByteBufferAsLongBufferRL(this,
-                                                                -1,
-                                                                0,
-                                                                size,
-                                                                size,
-                                                                off)));
-        } else {
-            return (bigEndian
-                    ? (LongBuffer)(new ByteBufferAsLongBufferB(this,
-                                                               -1,
-                                                               0,
-                                                               size,
-                                                               size,
-                                                               off))
-                    : (LongBuffer)(new ByteBufferAsLongBufferL(this,
-                                                               -1,
-                                                               0,
-                                                               size,
-                                                               size,
-                                                               off)));
-        }
+        return (LongBuffer)(new ByteBufferAsLongBuffer(this,
+                                                       -1,
+                                                       0,
+                                                       size,
+                                                       size,
+                                                       off,
+                                                       order(),
+                                                       isReadOnly));
     }
 
     public float getFloat() {
