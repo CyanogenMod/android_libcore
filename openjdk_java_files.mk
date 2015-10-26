@@ -332,10 +332,7 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/java/nio/ByteBufferAsLongBufferL.java \
     ojluni/src/main/java/java/nio/ByteBufferAsLongBufferRB.java \
     ojluni/src/main/java/java/nio/ByteBufferAsLongBufferRL.java \
-    ojluni/src/main/java/java/nio/ByteBufferAsShortBufferB.java \
-    ojluni/src/main/java/java/nio/ByteBufferAsShortBufferL.java \
-    ojluni/src/main/java/java/nio/ByteBufferAsShortBufferRB.java \
-    ojluni/src/main/java/java/nio/ByteBufferAsShortBufferRL.java \
+    ojluni/src/main/java/java/nio/ByteBufferAsShortBuffer.java \
     ojluni/src/main/java/java/nio/ByteBuffer.java \
     ojluni/src/main/java/java/nio/ByteOrder.java \
     ojluni/src/main/java/java/nio/channels/AcceptPendingException.java \

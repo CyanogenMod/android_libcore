@@ -23,50 +23,47 @@
  * questions.
  */
 
-// -- This file was mechanically generated: Do not edit! -- //
-
 package java.nio;
 
-
-class ByteBufferAsShortBufferL                  // package-private
-    extends ShortBuffer
-{
-
-
+class ByteBufferAsShortBuffer extends ShortBuffer {       // package-private
 
     protected final ByteBuffer bb;
     protected final int offset;
+    private final boolean isReadOnly;
+    private final ByteOrder order;
 
+    ByteBufferAsShortBuffer(ByteBuffer bb, ByteOrder order) {   // package-private
+        this(bb, order, false);
+    }
 
-
-    ByteBufferAsShortBufferL(ByteBuffer bb) {   // package-private
-
+    ByteBufferAsShortBuffer(ByteBuffer bb, ByteOrder order, boolean isReadOnly) {   // package-private
         super(-1, 0,
               bb.remaining() >> 1,
               bb.remaining() >> 1);
         this.bb = bb;
-        // enforce limit == capacity
+        this.order = order;
+        this.isReadOnly = isReadOnly;
         int cap = this.capacity();
         this.limit(cap);
         int pos = this.position();
         assert (pos <= cap);
         offset = pos;
-
-
-
     }
 
-    ByteBufferAsShortBufferL(ByteBuffer bb,
-                                     int mark, int pos, int lim, int cap,
-                                     int off)
-    {
+    ByteBufferAsShortBuffer(ByteBuffer bb,
+                            int mark, int pos, int lim, int cap,
+                            int off, ByteOrder order) {
+        this(bb, mark, pos, lim, cap, off, order, false);
+    }
 
+    ByteBufferAsShortBuffer(ByteBuffer bb,
+                            int mark, int pos, int lim, int cap,
+                            int off, ByteOrder order, boolean isReadOnly) {
         super(mark, pos, lim, cap);
         this.bb = bb;
+        this.order = order;
+        this.isReadOnly = isReadOnly;
         offset = off;
-
-
-
     }
 
     public ShortBuffer slice() {
@@ -76,72 +73,79 @@ class ByteBufferAsShortBufferL                  // package-private
         int rem = (pos <= lim ? lim - pos : 0);
         int off = (pos << 1) + offset;
         assert (off >= 0);
-        return new ByteBufferAsShortBufferL(bb, -1, 0, rem, rem, off);
+        return new ByteBufferAsShortBuffer(bb, -1, 0, rem, rem, off, order, isReadOnly);
     }
 
     public ShortBuffer duplicate() {
-        return new ByteBufferAsShortBufferL(bb,
-                                                    this.markValue(),
-                                                    this.position(),
-                                                    this.limit(),
-                                                    this.capacity(),
-                                                    offset);
+        return new ByteBufferAsShortBuffer(bb,
+                                           this.markValue(),
+                                           this.position(),
+                                           this.limit(),
+                                           this.capacity(),
+                                           offset, order, isReadOnly);
     }
 
     public ShortBuffer asReadOnlyBuffer() {
-
-        return new ByteBufferAsShortBufferRL(bb,
-                                                 this.markValue(),
-                                                 this.position(),
-                                                 this.limit(),
-                                                 this.capacity(),
-                                                 offset);
-
-
-
+        return new ByteBufferAsShortBuffer(bb,
+                                           this.markValue(),
+                                           this.position(),
+                                           this.limit(),
+                                           this.capacity(),
+                                           offset, order, true);
     }
-
-
 
     protected int ix(int i) {
         return (i << 1) + offset;
     }
 
     public short get() {
-        return Bits.getShortL(bb, ix(nextGetIndex()));
+        if (order == ByteOrder.LITTLE_ENDIAN) {
+            return Bits.getShortL(bb, ix(nextGetIndex()));
+        } else {
+            return Bits.getShortB(bb, ix(nextGetIndex()));
+        }
     }
 
     public short get(int i) {
-        return Bits.getShortL(bb, ix(checkIndex(i)));
+        if (order == ByteOrder.LITTLE_ENDIAN) {
+            return Bits.getShortL(bb, ix(checkIndex(i)));
+        } else {
+            return Bits.getShortB(bb, ix(checkIndex(i)));
+        }
     }
 
-
-
     public ShortBuffer put(short x) {
-
-        Bits.putShortL(bb, ix(nextPutIndex()), x);
+        if (isReadOnly) {
+            throw new ReadOnlyBufferException();
+        }
+        if (order == ByteOrder.LITTLE_ENDIAN) {
+            Bits.putShortL(bb, ix(nextPutIndex()), x);
+        } else {
+            Bits.putShortB(bb, ix(nextPutIndex()), x);
+        }
         return this;
-
-
-
     }
 
     public ShortBuffer put(int i, short x) {
-
-        Bits.putShortL(bb, ix(checkIndex(i)), x);
+        if (isReadOnly) {
+            throw new ReadOnlyBufferException();
+        }
+        if (order == ByteOrder.LITTLE_ENDIAN) {
+            Bits.putShortL(bb, ix(checkIndex(i)), x);
+        } else {
+            Bits.putShortB(bb, ix(checkIndex(i)), x);
+        }
         return this;
-
-
-
     }
 
     public ShortBuffer compact() {
-
+        if (isReadOnly) {
+            throw new ReadOnlyBufferException();
+        }
         int pos = position();
         int lim = limit();
         assert (pos <= lim);
         int rem = (pos <= lim ? lim - pos : 0);
-
         ByteBuffer db = bb.duplicate();
         db.limit(ix(lim));
         db.position(ix(0));
@@ -152,9 +156,6 @@ class ByteBufferAsShortBufferL                  // package-private
         limit(capacity());
         discardMark();
         return this;
-
-
-
     }
 
     public boolean isDirect() {
@@ -162,58 +163,10 @@ class ByteBufferAsShortBufferL                  // package-private
     }
 
     public boolean isReadOnly() {
-        return false;
+        return isReadOnly;
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     public ByteOrder order() {
-
-
-
-
-        return ByteOrder.LITTLE_ENDIAN;
-
+        return order;
     }
-
 }

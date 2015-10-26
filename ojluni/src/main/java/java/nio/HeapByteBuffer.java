@@ -298,35 +298,14 @@ class HeapByteBuffer extends ByteBuffer {
     public ShortBuffer asShortBuffer() {
         int size = this.remaining() >> 1;
         int off = offset + position();
-        if (isReadOnly) {
-            return (bigEndian
-                    ? (ShortBuffer)(new ByteBufferAsShortBufferRB(this,
-                                                                  -1,
-                                                                  0,
-                                                                  size,
-                                                                  size,
-                                                                  off))
-                    : (ShortBuffer)(new ByteBufferAsShortBufferRL(this,
-                                                                  -1,
-                                                                  0,
-                                                                  size,
-                                                                  size,
-                                                                  off)));
-        } else {
-            return (bigEndian
-                    ? (ShortBuffer)(new ByteBufferAsShortBufferB(this,
-                                                                 -1,
-                                                                 0,
-                                                                 size,
-                                                                 size,
-                                                                 off))
-                    : (ShortBuffer)(new ByteBufferAsShortBufferL(this,
-                                                                 -1,
-                                                                 0,
-                                                                 size,
-                                                                 size,
-                                                                 off)));
-        }
+        return new ByteBufferAsShortBuffer(this,
+                                           -1,
+                                           0,
+                                           size,
+                                           size,
+                                           off,
+                                           order(),
+                                           isReadOnly);
     }
 
     public int getInt() {
@@ -358,13 +337,13 @@ class HeapByteBuffer extends ByteBuffer {
         int off = offset + position();
 
         return (IntBuffer)(new ByteBufferAsIntBuffer(this,
-                                              -1,
-                                              0,
-                                              size,
-                                              size,
-                                              off,
-                                              order(),
-                                              isReadOnly));
+                                                     -1,
+                                                     0,
+                                                     size,
+                                                     size,
+                                                     off,
+                                                     order(),
+                                                     isReadOnly));
     }
 
     public long getLong() {
