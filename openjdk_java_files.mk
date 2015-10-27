@@ -318,10 +318,7 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/java/nio/Buffer.java \
     ojluni/src/main/java/java/nio/BufferOverflowException.java \
     ojluni/src/main/java/java/nio/BufferUnderflowException.java \
-    ojluni/src/main/java/java/nio/ByteBufferAsCharBufferB.java \
-    ojluni/src/main/java/java/nio/ByteBufferAsCharBufferL.java \
-    ojluni/src/main/java/java/nio/ByteBufferAsCharBufferRB.java \
-    ojluni/src/main/java/java/nio/ByteBufferAsCharBufferRL.java \
+    ojluni/src/main/java/java/nio/ByteBufferAsCharBuffer.java \
     ojluni/src/main/java/java/nio/ByteBufferAsDoubleBuffer.java \
     ojluni/src/main/java/java/nio/ByteBufferAsFloatBuffer.java \
     ojluni/src/main/java/java/nio/ByteBufferAsIntBuffer.java \
