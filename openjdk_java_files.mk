@@ -321,10 +321,7 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/java/nio/ByteBufferAsCharBufferRB.java \
     ojluni/src/main/java/java/nio/ByteBufferAsCharBufferRL.java \
     ojluni/src/main/java/java/nio/ByteBufferAsDoubleBuffer.java \
-    ojluni/src/main/java/java/nio/ByteBufferAsFloatBufferB.java \
-    ojluni/src/main/java/java/nio/ByteBufferAsFloatBufferL.java \
-    ojluni/src/main/java/java/nio/ByteBufferAsFloatBufferRB.java \
-    ojluni/src/main/java/java/nio/ByteBufferAsFloatBufferRL.java \
+    ojluni/src/main/java/java/nio/ByteBufferAsFloatBuffer.java \
     ojluni/src/main/java/java/nio/ByteBufferAsIntBuffer.java \
     ojluni/src/main/java/java/nio/ByteBufferAsLongBuffer.java \
     ojluni/src/main/java/java/nio/ByteBufferAsShortBuffer.java \
