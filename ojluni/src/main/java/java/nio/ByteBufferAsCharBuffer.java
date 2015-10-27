@@ -23,50 +23,47 @@
  * questions.
  */
 
-// -- This file was mechanically generated: Do not edit! -- //
-
 package java.nio;
 
-
-class ByteBufferAsCharBufferL                  // package-private
-    extends CharBuffer
-{
-
-
+class ByteBufferAsCharBuffer extends CharBuffer {      // package-private
 
     protected final ByteBuffer bb;
     protected final int offset;
+    private final boolean isReadOnly;
+    private final ByteOrder order;
 
+    ByteBufferAsCharBuffer(ByteBuffer bb, ByteOrder order) {
+        this(bb, order, false);
+    }
 
-
-    ByteBufferAsCharBufferL(ByteBuffer bb) {   // package-private
-
+    ByteBufferAsCharBuffer(ByteBuffer bb, ByteOrder order, boolean isReadOnly) {   // package-private
         super(-1, 0,
               bb.remaining() >> 1,
               bb.remaining() >> 1);
         this.bb = bb;
-        // enforce limit == capacity
+        this.order = order;
+        this.isReadOnly = isReadOnly;
         int cap = this.capacity();
         this.limit(cap);
         int pos = this.position();
         assert (pos <= cap);
         offset = pos;
-
-
-
     }
 
-    ByteBufferAsCharBufferL(ByteBuffer bb,
-                                     int mark, int pos, int lim, int cap,
-                                     int off)
-    {
+    ByteBufferAsCharBuffer(ByteBuffer bb,
+                           int mark, int pos, int lim, int cap,
+                           int off, ByteOrder order) {
+        this(bb, mark, pos, lim, cap, off, order, false);
+    }
 
+    ByteBufferAsCharBuffer(ByteBuffer bb,
+                           int mark, int pos, int lim, int cap,
+                           int off, ByteOrder order, boolean isReadOnly) {
         super(mark, pos, lim, cap);
         this.bb = bb;
+        this.order = order;
+        this.isReadOnly = isReadOnly;
         offset = off;
-
-
-
     }
 
     public CharBuffer slice() {
@@ -76,72 +73,83 @@ class ByteBufferAsCharBufferL                  // package-private
         int rem = (pos <= lim ? lim - pos : 0);
         int off = (pos << 1) + offset;
         assert (off >= 0);
-        return new ByteBufferAsCharBufferL(bb, -1, 0, rem, rem, off);
+        return new ByteBufferAsCharBuffer(bb, -1, 0, rem, rem, off, order, isReadOnly);
     }
 
     public CharBuffer duplicate() {
-        return new ByteBufferAsCharBufferL(bb,
-                                                    this.markValue(),
-                                                    this.position(),
-                                                    this.limit(),
-                                                    this.capacity(),
-                                                    offset);
+        return new ByteBufferAsCharBuffer(bb,
+                                          this.markValue(),
+                                          this.position(),
+                                          this.limit(),
+                                          this.capacity(),
+                                          offset,
+                                          order,
+                                          isReadOnly);
     }
 
     public CharBuffer asReadOnlyBuffer() {
-
-        return new ByteBufferAsCharBufferRL(bb,
-                                                 this.markValue(),
-                                                 this.position(),
-                                                 this.limit(),
-                                                 this.capacity(),
-                                                 offset);
-
-
-
+        return new ByteBufferAsCharBuffer(bb,
+                                          this.markValue(),
+                                          this.position(),
+                                          this.limit(),
+                                          this.capacity(),
+                                          offset,
+                                          order,
+                                          true);
     }
-
-
 
     protected int ix(int i) {
         return (i << 1) + offset;
     }
 
     public char get() {
-        return Bits.getCharL(bb, ix(nextGetIndex()));
+        if (order == ByteOrder.LITTLE_ENDIAN) {
+            return Bits.getCharL(bb, ix(nextGetIndex()));
+        } else {
+            return Bits.getCharB(bb, ix(nextGetIndex()));
+        }
     }
 
     public char get(int i) {
-        return Bits.getCharL(bb, ix(checkIndex(i)));
+        if (order == ByteOrder.LITTLE_ENDIAN) {
+            return Bits.getCharL(bb, ix(checkIndex(i)));
+        } else {
+            return Bits.getCharB(bb, ix(checkIndex(i)));
+        }
     }
 
-
-
     public CharBuffer put(char x) {
-
-        Bits.putCharL(bb, ix(nextPutIndex()), x);
+        if (isReadOnly) {
+            throw new ReadOnlyBufferException();
+        }
+        if (order == ByteOrder.LITTLE_ENDIAN) {
+            Bits.putCharL(bb, ix(nextPutIndex()), x);
+        } else {
+            Bits.putCharB(bb, ix(nextPutIndex()), x);
+        }
         return this;
-
-
-
     }
 
     public CharBuffer put(int i, char x) {
-
-        Bits.putCharL(bb, ix(checkIndex(i)), x);
+        if (isReadOnly) {
+            throw new ReadOnlyBufferException();
+        }
+        if (order == ByteOrder.LITTLE_ENDIAN) {
+            Bits.putCharL(bb, ix(checkIndex(i)), x);
+        } else {
+            Bits.putCharB(bb, ix(checkIndex(i)), x);
+        }
         return this;
-
-
-
     }
 
     public CharBuffer compact() {
-
+        if (isReadOnly) {
+            throw new ReadOnlyBufferException();
+        }
         int pos = position();
         int lim = limit();
         assert (pos <= lim);
         int rem = (pos <= lim ? lim - pos : 0);
-
         ByteBuffer db = bb.duplicate();
         db.limit(ix(lim));
         db.position(ix(0));
@@ -152,9 +160,6 @@ class ByteBufferAsCharBufferL                  // package-private
         limit(capacity());
         discardMark();
         return this;
-
-
-
     }
 
     public boolean isDirect() {
@@ -162,10 +167,8 @@ class ByteBufferAsCharBufferL                  // package-private
     }
 
     public boolean isReadOnly() {
-        return false;
+        return isReadOnly;
     }
-
-
 
     public String toString(int start, int end) {
         if ((end > limit()) || (start > end))
@@ -184,7 +187,6 @@ class ByteBufferAsCharBufferL                  // package-private
         }
     }
 
-
     // --- Methods to support CharSequence ---
 
     public CharBuffer subSequence(int start, int end) {
@@ -196,24 +198,17 @@ class ByteBufferAsCharBufferL                  // package-private
 
         if ((start < 0) || (end > len) || (start > end))
             throw new IndexOutOfBoundsException();
-        return new ByteBufferAsCharBufferL(bb,
-                                                  -1,
-                                                  pos + start,
-                                                  pos + end,
-                                                  capacity(),
-                                                  offset);
+        return new ByteBufferAsCharBuffer(bb,
+                                          -1,
+                                          pos + start,
+                                          pos + end,
+                                          capacity(),
+                                          offset,
+                                          order,
+                                          isReadOnly);
     }
-
-
-
 
     public ByteOrder order() {
-
-
-
-
-        return ByteOrder.LITTLE_ENDIAN;
-
+        return order;
     }
-
 }

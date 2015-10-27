@@ -546,19 +546,14 @@ class DirectByteBuffer
 
         int size = rem >> 1;
         if (!unaligned() && ((address + off) % (1 << 1) != 0)) {
-            return (bigEndian
-                    ? (CharBuffer)(new ByteBufferAsCharBufferB(this,
-                                                               -1,
-                                                               0,
-                                                               size,
-                                                               size,
-                                                               off))
-                    : (CharBuffer)(new ByteBufferAsCharBufferL(this,
-                                                               -1,
-                                                               0,
-                                                               size,
-                                                               size,
-                                                               off)));
+            return  (CharBuffer)(new ByteBufferAsCharBuffer(this,
+                                                            -1,
+                                                            0,
+                                                            size,
+                                                            size,
+                                                            off,
+                                                            order(),
+                                                            false));
         } else {
             return (nativeByteOrder
                     ? (CharBuffer)(new DirectCharBufferU(this,

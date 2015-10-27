@@ -240,35 +240,14 @@ class HeapByteBuffer extends ByteBuffer {
     public CharBuffer asCharBuffer() {
         int size = this.remaining() >> 1;
         int off = offset + position();
-        if (isReadOnly) {
-            return (bigEndian
-                    ? (CharBuffer)(new ByteBufferAsCharBufferRB(this,
-                                                                -1,
-                                                                0,
-                                                                size,
-                                                                size,
-                                                                off))
-                    : (CharBuffer)(new ByteBufferAsCharBufferRL(this,
-                                                                -1,
-                                                                0,
-                                                                size,
-                                                                size,
-                                                                off)));
-        } else {
-            return (bigEndian
-                    ? (CharBuffer)(new ByteBufferAsCharBufferB(this,
-                                                               -1,
-                                                               0,
-                                                               size,
-                                                               size,
-                                                               off))
-                    : (CharBuffer)(new ByteBufferAsCharBufferL(this,
-                                                               -1,
-                                                               0,
-                                                               size,
-                                                               size,
-                                                               off)));
-        }
+        return (CharBuffer)(new ByteBufferAsCharBuffer(this,
+                                                       -1,
+                                                       0,
+                                                       size,
+                                                       size,
+                                                       off,
+                                                       order(),
+                                                       isReadOnly));
     }
 
     public short getShort() {
