@@ -310,6 +310,7 @@ public final class OsConstants {
     public static final int IP_MULTICAST_IF = placeholder();
     public static final int IP_MULTICAST_LOOP = placeholder();
     public static final int IP_MULTICAST_TTL = placeholder();
+    /** @hide */ public static final int IP_RECVTOS = placeholder();
     public static final int IP_TOS = placeholder();
     public static final int IP_TTL = placeholder();
     public static final int MAP_FIXED = placeholder();
