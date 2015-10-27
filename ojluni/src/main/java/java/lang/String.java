@@ -36,6 +36,7 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import libcore.util.EmptyArray;
 
 /**
  * The <code>String</code> class represents character strings. All
@@ -2283,33 +2284,41 @@ public final class String
             int off = 0;
             int next = 0;
             boolean limited = limit > 0;
-            ArrayList<String> list = new ArrayList<>();
-            while ((next = indexOf(ch, off)) != -1) {
-                if (!limited || list.size() < limit - 1) {
-                    list.add(substring(off, next));
-                    off = next + 1;
-                } else {    // last one
-                    //assert (list.size() == limit - 1);
-                    list.add(substring(off, count));
-                    off = count;
-                    break;
-                }
+
+            int sepCount = 0;
+            while (sepCount != limit-1 && (next = indexOf(ch, off)) != -1) {
+              sepCount += 1;
+              off = next + 1;
             }
             // If no match was found, return this
-            if (off == 0)
+            if (off == 0) {
                 return new String[]{this};
+            }
 
-            // Add remaining segment
-            if (!limited || list.size() < limit)
-                list.add(substring(off, count));
+            int end = count;
 
-            // Construct result
-            int resultSize = list.size();
-            if (limit == 0)
-                while (resultSize > 0 && list.get(resultSize - 1).length() == 0)
-                    resultSize--;
-            String[] result = new String[resultSize];
-            return list.subList(0, resultSize).toArray(result);
+            // Remove trailing separators
+            if (!limited && off == end) {
+                if (sepCount == end) {
+                    return EmptyArray.STRING;
+                }
+                while (charAt(off - 1) == ch) {
+                    --off;
+                }
+                sepCount -= count - off;
+                end = off;
+            }
+
+            off = 0;
+            String[] result = new String[sepCount + 1];
+            for (int i = 0;i < sepCount; i++) {
+                next = indexOf(ch, off);
+                result[i] = substring(off, next);
+                off = next + 1;
+            }
+
+            result[sepCount] = substring(off, end);
+            return result;
         }
         return Pattern.compile(regex).split(this, limit);
     }
