@@ -412,35 +412,14 @@ class HeapByteBuffer extends ByteBuffer {
     public FloatBuffer asFloatBuffer() {
         int size = this.remaining() >> 2;
         int off = offset + position();
-        if (isReadOnly) {
-            return (bigEndian
-                    ? (FloatBuffer)(new ByteBufferAsFloatBufferRB(this,
-                                                                  -1,
-                                                                  0,
-                                                                  size,
-                                                                  size,
-                                                                  off))
-                    : (FloatBuffer)(new ByteBufferAsFloatBufferRL(this,
-                                                                  -1,
-                                                                  0,
-                                                                  size,
-                                                                  size,
-                                                                  off)));
-        } else {
-            return (bigEndian
-                    ? (FloatBuffer)(new ByteBufferAsFloatBufferB(this,
-                                                                 -1,
-                                                                 0,
-                                                                 size,
-                                                                 size,
-                                                                 off))
-                    : (FloatBuffer)(new ByteBufferAsFloatBufferL(this,
-                                                                 -1,
-                                                                 0,
-                                                                 size,
-                                                                 size,
-                                                                 off)));
-        }
+        return (FloatBuffer)(new ByteBufferAsFloatBuffer(this,
+                                                         -1,
+                                                         0,
+                                                         size,
+                                                         size,
+                                                         off,
+                                                         order(),
+                                                         isReadOnly));
     }
 
     public double getDouble() {
