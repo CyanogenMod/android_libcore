@@ -25,7 +25,6 @@
 
 package java.lang;
 
-import sun.misc.FloatingDecimal;
 import java.util.Arrays;
 
 /**
@@ -108,7 +107,7 @@ abstract class AbstractStringBuilder implements Appendable, CharSequence {
      * This method has the same contract as ensureCapacity, but is
      * never synchronized.
      */
-    private void ensureCapacityInternal(int minimumCapacity) {
+    void ensureCapacityInternal(int minimumCapacity) {
         // overflow-conscious code
         if (minimumCapacity - value.length > 0)
             expandCapacity(minimumCapacity);
@@ -553,17 +552,19 @@ abstract class AbstractStringBuilder implements Appendable, CharSequence {
     public AbstractStringBuilder append(boolean b) {
         if (b) {
             ensureCapacityInternal(count + 4);
-            value[count++] = 't';
-            value[count++] = 'r';
-            value[count++] = 'u';
-            value[count++] = 'e';
+            value[count] = 't';
+            value[count+1] = 'r';
+            value[count+2] = 'u';
+            value[count+3] = 'e';
+            count += 4;
         } else {
             ensureCapacityInternal(count + 5);
-            value[count++] = 'f';
-            value[count++] = 'a';
-            value[count++] = 'l';
-            value[count++] = 's';
-            value[count++] = 'e';
+            value[count] = 'f';
+            value[count+1] = 'a';
+            value[count+2] = 'l';
+            value[count+3] = 's';
+            value[count+4] = 'e';
+            count += 5;
         }
         return this;
     }
@@ -654,7 +655,9 @@ abstract class AbstractStringBuilder implements Appendable, CharSequence {
      * @return  a reference to this object.
      */
     public AbstractStringBuilder append(float f) {
-        new FloatingDecimal(f).appendTo(this);
+        FloatingDecimal.getThreadLocalInstance()
+            .loadFloat(f)
+            .appendTo(this);
         return this;
     }
 
@@ -671,7 +674,9 @@ abstract class AbstractStringBuilder implements Appendable, CharSequence {
      * @return  a reference to this object.
      */
     public AbstractStringBuilder append(double d) {
-        new FloatingDecimal(d).appendTo(this);
+        FloatingDecimal.getThreadLocalInstance()
+            .loadDouble(d)
+            .appendTo(this);
         return this;
     }
 
