@@ -471,4 +471,8 @@ public class SocketAdaptor
         return !sc.isOutputOpen();
     }
 
+    @Override
+    public FileDescriptor getFileDescriptor$() {
+        return sc.getFD();
+    }
 }
