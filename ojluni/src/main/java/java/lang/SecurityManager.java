@@ -27,20 +27,7 @@ package java.lang;
 
 import java.security.*;
 import java.io.FileDescriptor;
-import java.io.File;
-import java.io.FilePermission;
-import java.awt.AWTPermission;
-import java.util.PropertyPermission;
-import java.lang.RuntimePermission;
-import java.net.SocketPermission;
-import java.net.NetPermission;
-import java.util.Hashtable;
 import java.net.InetAddress;
-import java.lang.reflect.Member;
-import java.lang.reflect.*;
-import java.net.URL;
-
-import sun.security.util.SecurityConstants;
 
 /**
  * The security manager is a class that allows
@@ -237,25 +224,6 @@ class SecurityManager {
     @Deprecated
     protected boolean inCheck;
 
-    /*
-     * Have we been initialized. Effective against finalizer attacks.
-     */
-    private boolean initialized = false;
-
-
-    /**
-     * returns true if the current context has been granted AllPermission
-     */
-    private boolean hasAllPermission()
-    {
-        try {
-            checkPermission(SecurityConstants.ALL_PERMISSION);
-            return true;
-        } catch (SecurityException se) {
-            return false;
-        }
-    }
-
     /**
      * Tests if there is a security check in progress.
      *
@@ -291,16 +259,7 @@ class SecurityManager {
      * @see java.lang.RuntimePermission
      */
     public SecurityManager() {
-        synchronized(SecurityManager.class) {
-            SecurityManager sm = System.getSecurityManager();
-            if (sm != null) {
-                // ask the currently installed security manager if we
-                // can create a new one.
-                sm.checkPermission(new RuntimePermission
-                                   ("createSecurityManager"));
-            }
-            initialized = true;
-        }
+
     }
 
     /**
@@ -313,7 +272,9 @@ class SecurityManager {
      *
      * @return  the execution stack.
      */
-    protected native Class[] getClassContext();
+    protected Class[] getClassContext() {
+        return null;
+    }
 
     /**
      * Returns the class loader of the most recently executing method from
@@ -354,13 +315,8 @@ class SecurityManager {
     @Deprecated
     protected ClassLoader currentClassLoader()
     {
-        ClassLoader cl = currentClassLoader0();
-        if ((cl != null) && hasAllPermission())
-            cl = null;
-        return cl;
+        return null;
     }
-
-    private native ClassLoader currentClassLoader0();
 
     /**
      * Returns the class of the most recently executing method from
@@ -400,10 +356,7 @@ class SecurityManager {
      */
     @Deprecated
     protected Class<?> currentLoadedClass() {
-        Class c = currentLoadedClass0();
-        if ((c != null) && hasAllPermission())
-            c = null;
-        return c;
+        return null;
     }
 
     /**
@@ -419,7 +372,9 @@ class SecurityManager {
      *
      */
     @Deprecated
-    protected native int classDepth(String name);
+    protected int classDepth(String name) {
+        return -1;
+    }
 
     /**
      * Returns the stack depth of the most recently executing method
@@ -459,17 +414,8 @@ class SecurityManager {
     @Deprecated
     protected int classLoaderDepth()
     {
-        int depth = classLoaderDepth0();
-        if (depth != -1) {
-            if (hasAllPermission())
-                depth = -1;
-            else
-                depth--; // make sure we don't include ourself
-        }
-        return depth;
+        return -1;
     }
-
-    private native int classLoaderDepth0();
 
     /**
      * Tests if a method from a class with the specified
@@ -484,7 +430,7 @@ class SecurityManager {
      */
     @Deprecated
     protected boolean inClass(String name) {
-        return classDepth(name) >= 0;
+        return false;
     }
 
     /**
@@ -501,7 +447,7 @@ class SecurityManager {
      */
     @Deprecated
     protected boolean inClassLoader() {
-        return currentClassLoader() != null;
+        return false;
     }
 
     /**
@@ -527,7 +473,7 @@ class SecurityManager {
      * @see     java.security.AccessControlContext AccessControlContext
      */
     public Object getSecurityContext() {
-        return AccessController.getContext();
+        return null;
     }
 
     /**
@@ -546,7 +492,7 @@ class SecurityManager {
      * @since     1.2
      */
     public void checkPermission(Permission perm) {
-        java.security.AccessController.checkPermission(perm);
+
     }
 
     /**
@@ -581,11 +527,7 @@ class SecurityManager {
      * @since      1.2
      */
     public void checkPermission(Permission perm, Object context) {
-        if (context instanceof AccessControlContext) {
-            ((AccessControlContext)context).checkPermission(perm);
-        } else {
-            throw new SecurityException();
-        }
+
     }
 
     /**
@@ -608,22 +550,7 @@ class SecurityManager {
      * @see        #checkPermission(java.security.Permission) checkPermission
      */
     public void checkCreateClassLoader() {
-        checkPermission(SecurityConstants.CREATE_CLASSLOADER_PERMISSION);
-    }
 
-    /**
-     * reference to the root thread group, used for the checkAccess
-     * methods.
-     */
-
-    private static ThreadGroup rootGroup = getRootGroup();
-
-    private static ThreadGroup getRootGroup() {
-        ThreadGroup root =  Thread.currentThread().getThreadGroup();
-        while (root.getParent() != null) {
-            root = root.getParent();
-        }
-        return root;
     }
 
     /**
@@ -668,16 +595,8 @@ class SecurityManager {
      * @see        java.lang.Thread#suspend() suspend
      * @see        #checkPermission(java.security.Permission) checkPermission
      */
-    public void checkAccess(Thread t) {
-        if (t == null) {
-            throw new NullPointerException("thread can't be null");
-        }
-        if (t.getThreadGroup() == rootGroup) {
-            checkPermission(SecurityConstants.MODIFY_THREAD_PERMISSION);
-        } else {
-            // just return
-        }
-    }
+    public void checkAccess(Thread t) { }
+
     /**
      * Throws a <code>SecurityException</code> if the
      * calling thread is not allowed to modify the thread group argument.
@@ -721,16 +640,7 @@ class SecurityManager {
      * @see        java.lang.ThreadGroup#suspend() suspend
      * @see        #checkPermission(java.security.Permission) checkPermission
      */
-    public void checkAccess(ThreadGroup g) {
-        if (g == null) {
-            throw new NullPointerException("thread group can't be null");
-        }
-        if (g == rootGroup) {
-            checkPermission(SecurityConstants.MODIFY_THREADGROUP_PERMISSION);
-        } else {
-            // just return
-        }
-    }
+    public void checkAccess(ThreadGroup g) { }
 
     /**
      * Throws a <code>SecurityException</code> if the
@@ -757,9 +667,7 @@ class SecurityManager {
      * @see        java.lang.Runtime#exit(int) exit
      * @see        #checkPermission(java.security.Permission) checkPermission
      */
-    public void checkExit(int status) {
-        checkPermission(new RuntimePermission("exitVM."+status));
-    }
+    public void checkExit(int status) { }
 
     /**
      * Throws a <code>SecurityException</code> if the
@@ -790,16 +698,7 @@ class SecurityManager {
      * @see     java.lang.Runtime#exec(java.lang.String[], java.lang.String[])
      * @see     #checkPermission(java.security.Permission) checkPermission
      */
-    public void checkExec(String cmd) {
-        File f = new File(cmd);
-        if (f.isAbsolute()) {
-            checkPermission(new FilePermission(cmd,
-                SecurityConstants.FILE_EXECUTE_ACTION));
-        } else {
-            checkPermission(new FilePermission("<<ALL FILES>>",
-                SecurityConstants.FILE_EXECUTE_ACTION));
-        }
-    }
+    public void checkExec(String cmd) { }
 
     /**
      * Throws a <code>SecurityException</code> if the
@@ -828,12 +727,7 @@ class SecurityManager {
      * @see        java.lang.Runtime#loadLibrary(java.lang.String)
      * @see        #checkPermission(java.security.Permission) checkPermission
      */
-    public void checkLink(String lib) {
-        if (lib == null) {
-            throw new NullPointerException("library can't be null");
-        }
-        checkPermission(new RuntimePermission("loadLibrary."+lib));
-    }
+    public void checkLink(String lib) { }
 
     /**
      * Throws a <code>SecurityException</code> if the
@@ -857,12 +751,7 @@ class SecurityManager {
      * @see        java.io.FileDescriptor
      * @see        #checkPermission(java.security.Permission) checkPermission
      */
-    public void checkRead(FileDescriptor fd) {
-        if (fd == null) {
-            throw new NullPointerException("file descriptor can't be null");
-        }
-        checkPermission(new RuntimePermission("readFileDescriptor"));
-    }
+    public void checkRead(FileDescriptor fd) { }
 
     /**
      * Throws a <code>SecurityException</code> if the
@@ -884,10 +773,7 @@ class SecurityManager {
      *             <code>null</code>.
      * @see        #checkPermission(java.security.Permission) checkPermission
      */
-    public void checkRead(String file) {
-        checkPermission(new FilePermission(file,
-            SecurityConstants.FILE_READ_ACTION));
-    }
+    public void checkRead(String file) { }
 
     /**
      * Throws a <code>SecurityException</code> if the
@@ -919,11 +805,7 @@ class SecurityManager {
      * @see        java.lang.SecurityManager#getSecurityContext()
      * @see        java.security.AccessControlContext#checkPermission(java.security.Permission)
      */
-    public void checkRead(String file, Object context) {
-        checkPermission(
-            new FilePermission(file, SecurityConstants.FILE_READ_ACTION),
-            context);
-    }
+    public void checkRead(String file, Object context) { }
 
     /**
      * Throws a <code>SecurityException</code> if the
@@ -947,13 +829,7 @@ class SecurityManager {
      * @see        java.io.FileDescriptor
      * @see        #checkPermission(java.security.Permission) checkPermission
      */
-    public void checkWrite(FileDescriptor fd) {
-        if (fd == null) {
-            throw new NullPointerException("file descriptor can't be null");
-        }
-        checkPermission(new RuntimePermission("writeFileDescriptor"));
-
-    }
+    public void checkWrite(FileDescriptor fd) { }
 
     /**
      * Throws a <code>SecurityException</code> if the
@@ -975,10 +851,7 @@ class SecurityManager {
      *             <code>null</code>.
      * @see        #checkPermission(java.security.Permission) checkPermission
      */
-    public void checkWrite(String file) {
-        checkPermission(new FilePermission(file,
-            SecurityConstants.FILE_WRITE_ACTION));
-    }
+    public void checkWrite(String file) { }
 
     /**
      * Throws a <code>SecurityException</code> if the
@@ -1003,10 +876,7 @@ class SecurityManager {
      * @see        java.io.File#delete()
      * @see        #checkPermission(java.security.Permission) checkPermission
      */
-    public void checkDelete(String file) {
-        checkPermission(new FilePermission(file,
-            SecurityConstants.FILE_DELETE_ACTION));
-    }
+    public void checkDelete(String file) { }
 
     /**
      * Throws a <code>SecurityException</code> if the
@@ -1037,21 +907,7 @@ class SecurityManager {
      *             <code>null</code>.
      * @see        #checkPermission(java.security.Permission) checkPermission
      */
-    public void checkConnect(String host, int port) {
-        if (host == null) {
-            throw new NullPointerException("host can't be null");
-        }
-        if (!host.startsWith("[") && host.indexOf(':') != -1) {
-            host = "[" + host + "]";
-        }
-        if (port == -1) {
-            checkPermission(new SocketPermission(host,
-                SecurityConstants.SOCKET_RESOLVE_ACTION));
-        } else {
-            checkPermission(new SocketPermission(host+":"+port,
-                SecurityConstants.SOCKET_CONNECT_ACTION));
-        }
-    }
+    public void checkConnect(String host, int port) { }
 
     /**
      * Throws a <code>SecurityException</code> if the
@@ -1092,22 +948,7 @@ class SecurityManager {
      * @see        java.lang.SecurityManager#getSecurityContext()
      * @see        java.security.AccessControlContext#checkPermission(java.security.Permission)
      */
-    public void checkConnect(String host, int port, Object context) {
-        if (host == null) {
-            throw new NullPointerException("host can't be null");
-        }
-        if (!host.startsWith("[") && host.indexOf(':') != -1) {
-            host = "[" + host + "]";
-        }
-        if (port == -1)
-            checkPermission(new SocketPermission(host,
-                SecurityConstants.SOCKET_RESOLVE_ACTION),
-                context);
-        else
-            checkPermission(new SocketPermission(host+":"+port,
-                SecurityConstants.SOCKET_CONNECT_ACTION),
-                context);
-    }
+    public void checkConnect(String host, int port, Object context) { }
 
     /**
      * Throws a <code>SecurityException</code> if the
@@ -1130,14 +971,7 @@ class SecurityManager {
      *             permission to listen on the specified port.
      * @see        #checkPermission(java.security.Permission) checkPermission
      */
-    public void checkListen(int port) {
-        if (port == 0) {
-            checkPermission(SecurityConstants.LOCAL_LISTEN_PERMISSION);
-        } else {
-            checkPermission(new SocketPermission("localhost:"+port,
-                SecurityConstants.SOCKET_LISTEN_ACTION));
-        }
-    }
+    public void checkListen(int port) { }
 
     /**
      * Throws a <code>SecurityException</code> if the
@@ -1164,16 +998,7 @@ class SecurityManager {
      * @see        java.net.ServerSocket#accept()
      * @see        #checkPermission(java.security.Permission) checkPermission
      */
-    public void checkAccept(String host, int port) {
-        if (host == null) {
-            throw new NullPointerException("host can't be null");
-        }
-        if (!host.startsWith("[") && host.indexOf(':') != -1) {
-            host = "[" + host + "]";
-        }
-        checkPermission(new SocketPermission(host+":"+port,
-            SecurityConstants.SOCKET_ACCEPT_ACTION));
-    }
+    public void checkAccept(String host, int port) { }
 
     /**
      * Throws a <code>SecurityException</code> if the
@@ -1197,14 +1022,7 @@ class SecurityManager {
      * @since      JDK1.1
      * @see        #checkPermission(java.security.Permission) checkPermission
      */
-    public void checkMulticast(InetAddress maddr) {
-        String host = maddr.getHostAddress();
-        if (!host.startsWith("[") && host.indexOf(':') != -1) {
-            host = "[" + host + "]";
-        }
-        checkPermission(new SocketPermission(host,
-            SecurityConstants.SOCKET_CONNECT_ACCEPT_ACTION));
-    }
+    public void checkMulticast(InetAddress maddr) { }
 
     /**
      * Throws a <code>SecurityException</code> if the
@@ -1233,14 +1051,7 @@ class SecurityManager {
      * @see        #checkPermission(java.security.Permission) checkPermission
      */
     @Deprecated
-    public void checkMulticast(InetAddress maddr, byte ttl) {
-        String host = maddr.getHostAddress();
-        if (!host.startsWith("[") && host.indexOf(':') != -1) {
-            host = "[" + host + "]";
-        }
-        checkPermission(new SocketPermission(host,
-            SecurityConstants.SOCKET_CONNECT_ACCEPT_ACTION));
-    }
+    public void checkMulticast(InetAddress maddr, byte ttl) { }
 
     /**
      * Throws a <code>SecurityException</code> if the
@@ -1265,10 +1076,7 @@ class SecurityManager {
      * @see        java.lang.System#setProperties(java.util.Properties)
      * @see        #checkPermission(java.security.Permission) checkPermission
      */
-    public void checkPropertiesAccess() {
-        checkPermission(new PropertyPermission("*",
-            SecurityConstants.PROPERTY_RW_ACTION));
-    }
+    public void checkPropertiesAccess() { }
 
     /**
      * Throws a <code>SecurityException</code> if the
@@ -1298,10 +1106,7 @@ class SecurityManager {
      * @see        java.lang.System#getProperty(java.lang.String)
      * @see        #checkPermission(java.security.Permission) checkPermission
      */
-    public void checkPropertyAccess(String key) {
-        checkPermission(new PropertyPermission(key,
-            SecurityConstants.PROPERTY_READ_ACTION));
-    }
+    public void checkPropertyAccess(String key) { }
 
     /**
      * Returns <code>false</code> if the calling
@@ -1337,18 +1142,8 @@ class SecurityManager {
      * @see        #checkPermission(java.security.Permission) checkPermission
      */
     public boolean checkTopLevelWindow(Object window) {
-        if (window == null) {
-            throw new NullPointerException("window can't be null");
-        }
-        try {
-            checkPermission(SecurityConstants.AWT.TOPLEVEL_WINDOW_PERMISSION);
-            return true;
-        } catch (SecurityException se) {
-            // just return false
-        }
         return false;
     }
-
     /**
      * Throws a <code>SecurityException</code> if the
      * calling thread is not allowed to initiate a print job request.
@@ -1368,9 +1163,7 @@ class SecurityManager {
      * @since   JDK1.1
      * @see        #checkPermission(java.security.Permission) checkPermission
      */
-    public void checkPrintJobAccess() {
-        checkPermission(new RuntimePermission("queuePrintJob"));
-    }
+    public void checkPrintJobAccess() { }
 
     /**
      * Throws a <code>SecurityException</code> if the
@@ -1390,9 +1183,7 @@ class SecurityManager {
      *             permission to access the system clipboard.
      * @see        #checkPermission(java.security.Permission) checkPermission
      */
-    public void checkSystemClipboardAccess() {
-        checkPermission(SecurityConstants.AWT.ACCESS_CLIPBOARD_PERMISSION);
-    }
+    public void checkSystemClipboardAccess() { }
 
     /**
      * Throws a <code>SecurityException</code> if the
@@ -1411,54 +1202,7 @@ class SecurityManager {
      *             permission to access the AWT event queue.
      * @see        #checkPermission(java.security.Permission) checkPermission
      */
-    public void checkAwtEventQueueAccess() {
-        checkPermission(SecurityConstants.AWT.CHECK_AWT_EVENTQUEUE_PERMISSION);
-    }
-
-    /*
-     * We have an initial invalid bit (initially false) for the class
-     * variables which tell if the cache is valid.  If the underlying
-     * java.security.Security property changes via setProperty(), the
-     * Security class uses reflection to change the variable and thus
-     * invalidate the cache.
-     *
-     * Locking is handled by synchronization to the
-     * packageAccessLock/packageDefinitionLock objects.  They are only
-     * used in this class.
-     *
-     * Note that cache invalidation as a result of the property change
-     * happens without using these locks, so there may be a delay between
-     * when a thread updates the property and when other threads updates
-     * the cache.
-     */
-    private static boolean packageAccessValid = false;
-    private static String[] packageAccess;
-    private static final Object packageAccessLock = new Object();
-
-    private static boolean packageDefinitionValid = false;
-    private static String[] packageDefinition;
-    private static final Object packageDefinitionLock = new Object();
-
-    private static String[] getPackages(String p) {
-        String packages[] = null;
-        if (p != null && !p.equals("")) {
-            java.util.StringTokenizer tok =
-                new java.util.StringTokenizer(p, ",");
-            int n = tok.countTokens();
-            if (n > 0) {
-                packages = new String[n];
-                int i = 0;
-                while (tok.hasMoreElements()) {
-                    String s = tok.nextToken().trim();
-                    packages[i++] = s;
-                }
-            }
-        }
-
-        if (packages == null)
-            packages = new String[0];
-        return packages;
-    }
+    public void checkAwtEventQueueAccess() { }
 
     /**
      * Throws a <code>SecurityException</code> if the
@@ -1492,46 +1236,7 @@ class SecurityManager {
      * @see        java.security.Security#getProperty getProperty
      * @see        #checkPermission(java.security.Permission) checkPermission
      */
-    public void checkPackageAccess(String pkg) {
-        if (pkg == null) {
-            throw new NullPointerException("package name can't be null");
-        }
-
-        String[] pkgs;
-        synchronized (packageAccessLock) {
-            /*
-             * Do we need to update our property array?
-             */
-            if (!packageAccessValid) {
-                String tmpPropertyStr =
-                    AccessController.doPrivileged(
-                        new PrivilegedAction<String>() {
-                            public String run() {
-                                return java.security.Security.getProperty(
-                                    "package.access");
-                            }
-                        }
-                    );
-                packageAccess = getPackages(tmpPropertyStr);
-                packageAccessValid = true;
-            }
-
-            // Using a snapshot of packageAccess -- don't care if static field
-            // changes afterwards; array contents won't change.
-            pkgs = packageAccess;
-        }
-
-        /*
-         * Traverse the list of packages, check for any matches.
-         */
-        for (int i = 0; i < pkgs.length; i++) {
-            if (pkg.startsWith(pkgs[i]) || pkgs[i].equals(pkg + ".")) {
-                checkPermission(
-                    new RuntimePermission("accessClassInPackage."+pkg));
-                break;  // No need to continue; only need to check this once
-            }
-        }
-    }
+    public void checkPackageAccess(String pkg) { }
 
     /**
      * Throws a <code>SecurityException</code> if the
@@ -1561,45 +1266,7 @@ class SecurityManager {
      * @see        java.security.Security#getProperty getProperty
      * @see        #checkPermission(java.security.Permission) checkPermission
      */
-    public void checkPackageDefinition(String pkg) {
-        if (pkg == null) {
-            throw new NullPointerException("package name can't be null");
-        }
-
-        String[] pkgs;
-        synchronized (packageDefinitionLock) {
-            /*
-             * Do we need to update our property array?
-             */
-            if (!packageDefinitionValid) {
-                String tmpPropertyStr =
-                    AccessController.doPrivileged(
-                        new PrivilegedAction<String>() {
-                            public String run() {
-                                return java.security.Security.getProperty(
-                                    "package.definition");
-                            }
-                        }
-                    );
-                packageDefinition = getPackages(tmpPropertyStr);
-                packageDefinitionValid = true;
-            }
-            // Using a snapshot of packageDefinition -- don't care if static
-            // field changes afterwards; array contents won't change.
-            pkgs = packageDefinition;
-        }
-
-        /*
-         * Traverse the list of packages, check for any matches.
-         */
-        for (int i = 0; i < pkgs.length; i++) {
-            if (pkg.startsWith(pkgs[i]) || pkgs[i].equals(pkg + ".")) {
-                checkPermission(
-                    new RuntimePermission("defineClassInPackage."+pkg));
-                break; // No need to continue; only need to check this once
-            }
-        }
-    }
+    public void checkPackageDefinition(String pkg) { }
 
     /**
      * Throws a <code>SecurityException</code> if the
@@ -1625,9 +1292,7 @@ class SecurityManager {
      * @see        java.net.URL#setURLStreamHandlerFactory(java.net.URLStreamHandlerFactory) setURLStreamHandlerFactory
      * @see        #checkPermission(java.security.Permission) checkPermission
      */
-    public void checkSetFactory() {
-        checkPermission(new RuntimePermission("setFactory"));
-    }
+    public void checkSetFactory() { }
 
     /**
      * Throws a <code>SecurityException</code> if the
@@ -1657,29 +1322,7 @@ class SecurityManager {
      * @since JDK1.1
      * @see        #checkPermission(java.security.Permission) checkPermission
      */
-    public void checkMemberAccess(Class<?> clazz, int which) {
-        if (clazz == null) {
-            throw new NullPointerException("class can't be null");
-        }
-        if (which != Member.PUBLIC) {
-            Class stack[] = getClassContext();
-            /*
-             * stack depth of 4 should be the caller of one of the
-             * methods in java.lang.Class that invoke checkMember
-             * access. The stack should look like:
-             *
-             * someCaller                        [3]
-             * java.lang.Class.someReflectionAPI [2]
-             * java.lang.Class.checkMemberAccess [1]
-             * SecurityManager.checkMemberAccess [0]
-             *
-             */
-            if ((stack.length<4) ||
-                (stack[3].getClassLoader() != clazz.getClassLoader())) {
-                checkPermission(SecurityConstants.CHECK_MEMBER_ACCESS_PERMISSION);
-            }
-        }
-    }
+    public void checkMemberAccess(Class<?> clazz, int which) { }
 
     /**
      * Determines whether the permission with the specified permission target
@@ -1711,11 +1354,7 @@ class SecurityManager {
      * @since   JDK1.1
      * @see        #checkPermission(java.security.Permission) checkPermission
      */
-    public void checkSecurityAccess(String target) {
-        checkPermission(new SecurityPermission(target));
-    }
-
-    private native Class currentLoadedClass0();
+    public void checkSecurityAccess(String target) { }
 
     /**
      * Returns the thread group into which to instantiate any new
