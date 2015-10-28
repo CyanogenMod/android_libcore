@@ -131,6 +131,7 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/java/lang/Cloneable.java \
     ojluni/src/main/java/java/lang/CloneNotSupportedException.java \
     ojluni/src/main/java/java/lang/Comparable.java \
+    ojluni/src/main/java/java/lang/Compiler.java \
     ojluni/src/main/java/java/lang/ConditionalSpecialCasing.java \
     ojluni/src/main/java/java/lang/Deprecated.java \
     ojluni/src/main/java/java/lang/Double.java \
@@ -210,6 +211,7 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/java/lang/RuntimePermission.java \
     ojluni/src/main/java/java/lang/SafeVarargs.java \
     ojluni/src/main/java/java/lang/SecurityException.java \
+    ojluni/src/main/java/java/lang/SecurityManager.java \
     ojluni/src/main/java/java/lang/Short.java \
     ojluni/src/main/java/java/lang/StackOverflowError.java \
     ojluni/src/main/java/java/lang/StackTraceElement.java \
@@ -528,7 +530,9 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/java/nio/ReadOnlyBufferException.java \
     ojluni/src/main/java/java/nio/ShortBuffer.java \
     ojluni/src/main/java/java/nio/StringCharBuffer.java \
+    ojluni/src/main/java/java/security/AccessControlContext.java \
     ojluni/src/main/java/java/security/AccessControlException.java \
+    ojluni/src/main/java/java/security/AccessController.java \
     ojluni/src/main/java/java/security/acl/AclEntry.java \
     ojluni/src/main/java/java/security/acl/Acl.java \
     ojluni/src/main/java/java/security/acl/AclNotFoundException.java \

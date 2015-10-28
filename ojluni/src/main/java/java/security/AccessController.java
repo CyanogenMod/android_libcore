@@ -25,9 +25,7 @@
 
 package java.security;
 
-import sun.security.util.Debug;
 import sun.reflect.CallerSensitive;
-import sun.reflect.Reflection;
 
 /**
  * <p> The AccessController class is used for access control operations
@@ -238,9 +236,6 @@ import sun.reflect.Reflection;
 
 public final class AccessController {
 
-    /**
-     * Don't allow anyone to instantiate an AccessController
-     */
     private AccessController() { }
 
     /**
@@ -267,7 +262,9 @@ public final class AccessController {
      */
 
     @CallerSensitive
-    public static native <T> T doPrivileged(PrivilegedAction<T> action);
+    public static <T> T doPrivileged(PrivilegedAction<T> action) {
+        return null;
+    }
 
     /**
      * Performs the specified <code>PrivilegedAction</code> with privileges
@@ -293,12 +290,7 @@ public final class AccessController {
      */
     @CallerSensitive
     public static <T> T doPrivilegedWithCombiner(PrivilegedAction<T> action) {
-        AccessControlContext acc = getStackAccessControlContext();
-        if (acc == null) {
-            return AccessController.doPrivileged(action);
-        }
-        DomainCombiner dc = acc.getAssignedCombiner();
-        return AccessController.doPrivileged(action, preserveCombiner(dc, Reflection.getCallerClass()));
+        return action.run();
     }
 
 
@@ -330,8 +322,10 @@ public final class AccessController {
      * @see #doPrivileged(PrivilegedExceptionAction,AccessControlContext)
      */
     @CallerSensitive
-    public static native <T> T doPrivileged(PrivilegedAction<T> action,
-                                            AccessControlContext context);
+    public static <T> T doPrivileged(PrivilegedAction<T> action,
+                                     AccessControlContext context) {
+        return action.run();
+    }
 
     /**
      * Performs the specified <code>PrivilegedExceptionAction</code> with
@@ -358,9 +352,17 @@ public final class AccessController {
      * @see java.security.DomainCombiner
      */
     @CallerSensitive
-    public static native <T> T
+    public static <T> T
         doPrivileged(PrivilegedExceptionAction<T> action)
-        throws PrivilegedActionException;
+        throws PrivilegedActionException {
+        try {
+            return action.run();
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new PrivilegedActionException(e);
+        }
+    }
 
 
     /**
@@ -391,36 +393,7 @@ public final class AccessController {
     @CallerSensitive
     public static <T> T doPrivilegedWithCombiner
         (PrivilegedExceptionAction<T> action) throws PrivilegedActionException {
-
-        AccessControlContext acc = getStackAccessControlContext();
-        if (acc == null) {
-            return AccessController.doPrivileged(action);
-        }
-        DomainCombiner dc = acc.getAssignedCombiner();
-        return AccessController.doPrivileged(action, preserveCombiner(dc, Reflection.getCallerClass()));
-    }
-
-    /**
-     * preserve the combiner across the doPrivileged call
-     */
-    private static AccessControlContext preserveCombiner(DomainCombiner combiner,
-                                                         final Class<?> caller) {
-        ProtectionDomain callerPd = doPrivileged
-            (new PrivilegedAction<ProtectionDomain>() {
-            public ProtectionDomain run() {
-                return caller.getProtectionDomain();
-            }
-        });
-
-        // perform 'combine' on the caller of doPrivileged,
-        // even if the caller is from the bootclasspath
-        ProtectionDomain[] pds = new ProtectionDomain[] {callerPd};
-        if (combiner == null) {
-            return new AccessControlContext(pds);
-        } else {
-            return new AccessControlContext(combiner.combine(pds, null),
-                                            combiner);
-        }
+        return doPrivileged(action);
     }
 
 
@@ -454,30 +427,12 @@ public final class AccessController {
      * @see #doPrivileged(PrivilegedExceptionAction,AccessControlContext)
      */
     @CallerSensitive
-    public static native <T> T
+    public static <T> T
         doPrivileged(PrivilegedExceptionAction<T> action,
                      AccessControlContext context)
-        throws PrivilegedActionException;
-
-    /**
-     * Returns the AccessControl context. i.e., it gets
-     * the protection domains of all the callers on the stack,
-     * starting at the first class with a non-null
-     * ProtectionDomain.
-     *
-     * @return the access control context based on the current stack or
-     *         null if there was only privileged system code.
-     */
-
-    private static native AccessControlContext getStackAccessControlContext();
-
-    /**
-     * Returns the "inherited" AccessControl context. This is the context
-     * that existed when the thread was created. Package private so
-     * AccessControlContext can use it.
-     */
-
-    static native AccessControlContext getInheritedAccessControlContext();
+        throws PrivilegedActionException {
+        return doPrivileged(action);
+    }
 
     /**
      * This method takes a "snapshot" of the current calling context, which
@@ -490,16 +445,8 @@ public final class AccessController {
      * @return the AccessControlContext based on the current context.
      */
 
-    public static AccessControlContext getContext()
-    {
-        AccessControlContext acc = getStackAccessControlContext();
-        if (acc == null) {
-            // all we had was privileged system code. We don't want
-            // to return null though, so we construct a real ACC.
-            return new AccessControlContext(null, true);
-        } else {
-            return acc.optimize();
-        }
+    public static AccessControlContext getContext() {
+        return new AccessControlContext(null);
     }
 
     /**
@@ -521,41 +468,6 @@ public final class AccessController {
      */
 
     public static void checkPermission(Permission perm)
-                 throws AccessControlException
-    {
-        //System.err.println("checkPermission "+perm);
-        //Thread.currentThread().dumpStack();
-
-        if (perm == null) {
-            throw new NullPointerException("permission can't be null");
-        }
-
-        AccessControlContext stack = getStackAccessControlContext();
-        // if context is null, we had privileged system code on the stack.
-        if (stack == null) {
-            Debug debug = AccessControlContext.getDebug();
-            boolean dumpDebug = false;
-            if (debug != null) {
-                dumpDebug = !Debug.isOn("codebase=");
-                dumpDebug &= !Debug.isOn("permission=") ||
-                    Debug.isOn("permission=" + perm.getClass().getCanonicalName());
-            }
-
-            if (dumpDebug && Debug.isOn("stack")) {
-                Thread.currentThread().dumpStack();
-            }
-
-            if (dumpDebug && Debug.isOn("domain")) {
-                debug.println("domain (context is null)");
-            }
-
-            if (dumpDebug) {
-                debug.println("access allowed "+perm);
-            }
-            return;
-        }
-
-        AccessControlContext acc = stack.optimize();
-        acc.checkPermission(perm);
+                 throws AccessControlException {
     }
 }

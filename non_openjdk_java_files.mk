@@ -63,11 +63,9 @@ non_openjdk_javadoc_files := \
   libart/src/main/java/dalvik/system/VMStack.java \
   libart/src/main/java/dalvik/system/TransactionAbortError.java \
   dalvik/src/main/java/dalvik/system/ZygoteHooks.java \
-  luni/src/main/java/java/lang/Compiler.java \
   libart/src/main/java/java/lang/Daemons.java \
   libart/src/main/java/java/lang/DexCache.java \
   luni/src/main/java/java/lang/FindBugsSuppressWarnings.java \
-  luni/src/main/java/java/lang/SecurityManager.java \
   libart/src/main/java/java/lang/VMClassLoader.java \
   luni/src/main/java/java/lang/ref/FinalizerReference.java \
   libart/src/main/java/java/lang/reflect/AbstractMethod.java \
@@ -91,8 +89,6 @@ non_openjdk_javadoc_files := \
   luni/src/main/java/java/nio/charset/CharsetEncoderICU.java \
   luni/src/main/java/java/nio/charset/CharsetICU.java \
   luni/src/main/java/java/nio/charset/ModifiedUtf8.java \
-  luni/src/main/java/java/security/AccessControlContext.java \
-  luni/src/main/java/java/security/AccessController.java \
   luni/src/main/java/java/util/concurrent/AbstractExecutorService.java \
   luni/src/main/java/java/util/concurrent/ArrayBlockingQueue.java \
   luni/src/main/java/java/util/concurrent/BlockingDeque.java \
