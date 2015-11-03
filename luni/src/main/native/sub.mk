@@ -16,7 +16,6 @@ LOCAL_SRC_FILES := \
     cbigint.cpp \
     java_lang_StringToReal.cpp \
     java_math_NativeBN.cpp \
-    java_util_jar_StrictJarFile.cpp \
     java_util_regex_Matcher.cpp \
     java_util_regex_Pattern.cpp \
     libcore_icu_ICU.cpp \
