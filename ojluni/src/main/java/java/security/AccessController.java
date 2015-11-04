@@ -263,7 +263,7 @@ public final class AccessController {
 
     @CallerSensitive
     public static <T> T doPrivileged(PrivilegedAction<T> action) {
-        return null;
+        return action.run();
     }
 
     /**
