@@ -169,8 +169,11 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      */
     private transient Class<? super T> superClass;
 
-    /** If class verify fails, we must return same error on subsequent tries. */
-    private transient Class<?> verifyErrorClass;
+    /**
+     * If class verify fails, we must return same error on subsequent tries. We may store either
+     * the class of the error, or an actual instance of Throwable here.
+     */
+    private transient Object verifyError;
 
     /**
      * Virtual method table (vtable), for use by "invoke-virtual". The vtable from the superclass
