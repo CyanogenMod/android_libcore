@@ -165,7 +165,7 @@ public final class FileDescriptor {
      * @hide internal use only
      */
     // Android-added.
-    public boolean isSocket() {
+    public boolean isSocket$() {
         return isSocket(descriptor);
     }
 
