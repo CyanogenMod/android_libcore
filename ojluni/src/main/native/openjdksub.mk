@@ -57,7 +57,6 @@ LOCAL_SRC_FILES := \
     DefaultProxySelector.c \
     Float.c \
     Double.c \
-    String.c \
     StrictMath.c \
     ProcessEnvironment_md.c \
     System.c \
