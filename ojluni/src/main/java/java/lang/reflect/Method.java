@@ -28,6 +28,7 @@ package java.lang.reflect;
 import sun.reflect.CallerSensitive;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.AnnotationFormatError;
+import com.android.dex.Dex;
 import java.util.Comparator;
 import java.util.List;
 import libcore.reflect.AnnotationAccess;
@@ -69,8 +70,7 @@ public final
             }
             int comparison = a.getName().compareTo(b.getName());
             if (comparison == 0) {
-                comparison = a.artMethod.findOverriddenMethodIfProxy().compareParameters(
-                        b.getParameterTypes());
+                comparison = a.compareParameters(b.getParameterTypes());
                 if (comparison == 0) {
                     // This is necessary for methods that have covariant return types.
                     Class<?> aReturnType = a.getReturnType();
@@ -86,32 +86,9 @@ public final
         }
     };
 
-    /**
-     * @hide
-     */
-    public Method(ArtMethod artMethod) {
-        super(artMethod);
+    private Method() {
     }
 
-    ArtMethod getArtMethod() {
-        return artMethod;
-    }
-
-    /**
-     * Package-private routine (exposed to java.lang.Class via
-     * ReflectAccess) which returns a copy of this Method. The copy's
-     * "root" field points to this Method.
-     */
-    Method copy() {
-        // This routine enables sharing of MethodAccessor objects
-        // among Method objects which refer to the same underlying
-        // method in the VM. (All of this contortion is only necessary
-        // because of the "accessibility" bit in AccessibleObject,
-        // which implicitly requires that new java.lang.reflect
-        // objects be fabricated for each reflective call on Class
-        // objects.)
-        return new Method(artMethod);
-    }
 
     /**
      * Returns the {@code Class} object representing the class or interface
@@ -126,7 +103,9 @@ public final
      * object, as a {@code String}.
      */
     public String getName() {
-        return ArtMethod.getMethodName(artMethod);
+        Dex dex = declaringClassOfOverriddenMethod.getDex();
+        int nameIndex = dex.nameIndexFromMethodIndex(dexMethodIndex);
+        return declaringClassOfOverriddenMethod.getDexCacheString(dex, nameIndex);
     }
 
     /**
@@ -167,7 +146,10 @@ public final
      * @return the return type for the method this object represents
      */
     public Class<?> getReturnType() {
-        return artMethod.findOverriddenMethodIfProxy().getReturnType();
+        Dex dex = declaringClassOfOverriddenMethod.getDex();
+        int returnTypeIndex = dex.returnTypeIndexFromMethodIndex(dexMethodIndex);
+        // Note, in the case of a Proxy the dex cache types are equal.
+        return declaringClassOfOverriddenMethod.getDexCacheType(dex, returnTypeIndex);
     }
 
     /**
@@ -209,7 +191,7 @@ public final
      * represents
      */
     public Class<?>[] getParameterTypes() {
-        return artMethod.findOverriddenMethodIfProxy().getParameterTypes();
+        return super.getParameterTypes();
     }
 
     /**
@@ -535,12 +517,7 @@ public final
      * @exception ExceptionInInitializerError if the initialization
      * provoked by this method fails.
      */
-    public Object invoke(Object receiver, Object... args)
-            throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-        return invoke(receiver, args, isAccessible());
-    }
-
-    private native Object invoke(Object receiver, Object[] args, boolean accessible)
+    public native Object invoke(Object receiver, Object... args)
             throws IllegalAccessException, IllegalArgumentException, InvocationTargetException;
 
     /**
@@ -634,7 +611,8 @@ public final
      * @since 1.5
      */
     public Annotation[][] getParameterAnnotations() {
-        return artMethod.findOverriddenMethodIfProxy().getParameterAnnotations();
+        return AnnotationAccess.getParameterAnnotations(
+            declaringClassOfOverriddenMethod, dexMethodIndex);
     }
 
     /**
@@ -666,7 +644,6 @@ public final
      * @hide needed by Proxy
      */
     boolean equalNameAndParameters(Method m) {
-        return getName().equals(m.getName()) &&
-                ArtMethod.equalMethodParameters(artMethod,m.getParameterTypes());
+        return getName().equals(m.getName()) && equalMethodParameters(m.getParameterTypes());
     }
 }

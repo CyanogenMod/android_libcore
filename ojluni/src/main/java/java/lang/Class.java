@@ -63,8 +63,6 @@ import java.io.Serializable;
 import java.lang.reflect.AccessibleObject;
 import com.android.dex.Dex;
 import dalvik.system.VMStack;
-import java.lang.reflect.ArtField;
-import java.lang.reflect.ArtMethod;
 import libcore.reflect.AnnotationAccess;
 import libcore.reflect.InternalNames;
 import libcore.reflect.GenericSignatureParser;
@@ -73,6 +71,7 @@ import libcore.util.BasicLruCache;
 import libcore.util.CollectionUtils;
 import libcore.util.EmptyArray;
 import libcore.util.SneakyThrow;
+import java.util.Collections;
 
 /**
  * Instances of the class {@code Class} represent classes and
@@ -124,6 +123,144 @@ public final
                               java.lang.reflect.GenericDeclaration,
                               java.lang.reflect.Type,
                               java.lang.reflect.AnnotatedElement {
+    /** use serialVersionUID from JDK 1.1 for interoperability */
+    private static final long serialVersionUID = 3206093459760846163L;
+
+    /** defining class loader, or null for the "bootstrap" system loader. */
+    private transient ClassLoader classLoader;
+
+    /**
+     * For array classes, the component class object for instanceof/checkcast (for String[][][],
+     * this will be String[][]). null for non-array classes.
+     */
+    private transient Class<?> componentType;
+    /**
+     * DexCache of resolved constant pool entries. Will be null for certain runtime-generated classes
+     * e.g. arrays and primitive classes.
+     */
+    private transient DexCache dexCache;
+
+    /** Short-cut to dexCache.strings */
+    private transient String[] dexCacheStrings;
+
+    /**
+     * The interface table (iftable_) contains pairs of a interface class and an array of the
+     * interface methods. There is one pair per interface supported by this class.  That
+     * means one pair for each interface we support directly, indirectly via superclass, or
+     * indirectly via a superinterface.  This will be null if neither we nor our superclass
+     * implement any interfaces.
+     *
+     * Why we need this: given "class Foo implements Face", declare "Face faceObj = new Foo()".
+     * Invoke faceObj.blah(), where "blah" is part of the Face interface.  We can't easily use a
+     * single vtable.
+     *
+     * For every interface a concrete class implements, we create an array of the concrete vtable_
+     * methods for the methods in the interface.
+     */
+    private transient Object[] ifTable;
+
+    /** Lazily computed name of this class; always prefer calling getName(). */
+    private transient String name;
+
+    /** The superclass, or null if this is java.lang.Object, an interface or primitive type. */
+    private transient Class<? super T> superClass;
+
+    /** If class verify fails, we must return same error on subsequent tries. */
+    private transient Class<?> verifyErrorClass;
+
+    /**
+     * Virtual method table (vtable), for use by "invoke-virtual". The vtable from the superclass
+     * is copied in, and virtual methods from our class either replace those from the super or are
+     * appended. For abstract classes, methods may be created in the vtable that aren't in
+     * virtual_ methods_ for miranda methods.
+     */
+    private transient Object vtable;
+
+    /** access flags; low 16 bits are defined by VM spec */
+    private transient int accessFlags;
+
+    /** static, private, and &lt;init&gt; methods. */
+    private transient long directMethods;
+
+    /**
+     * Instance fields. These describe the layout of the contents of an Object. Note that only the
+     * fields directly declared by this class are listed in iFields; fields declared by a
+     * superclass are listed in the superclass's Class.iFields.
+     *
+     * All instance fields that refer to objects are guaranteed to be at the beginning of the field
+     * list.  {@link Class#numReferenceInstanceFields} specifies the number of reference fields.
+     */
+    private transient long iFields;
+
+    /** Static fields */
+    private transient long sFields;
+
+    /** Virtual methods defined in this class; invoked through vtable. */
+    private transient long virtualMethods;
+
+    /**
+     * Total size of the Class instance; used when allocating storage on GC heap.
+     * See also {@link Class#objectSize}.
+     */
+    private transient int classSize;
+
+    /**
+     * tid used to check for recursive static initializer invocation.
+     */
+    private transient int clinitThreadId;
+
+    /**
+     * Class def index from dex file. An index of 65535 indicates that there is no class definition,
+     * for example for an array type.
+     * TODO: really 16bits as type indices are 16bit.
+     */
+    private transient int dexClassDefIndex;
+
+    /**
+     * Class type index from dex file, lazily computed. An index of 65535 indicates that the type
+     * index isn't known. Volatile to avoid double-checked locking bugs.
+     * TODO: really 16bits as type indices are 16bit.
+     */
+    private transient volatile int dexTypeIndex;
+
+    /** Number of direct methods. */
+    private transient int numDirectMethods;
+
+    /** Number of instance fields. */
+    private transient int numInstanceFields;
+
+    /** Number of instance fields that are object references. */
+    private transient int numReferenceInstanceFields;
+
+    /** Number of static fields that are object references. */
+    private transient int numReferenceStaticFields;
+
+    /** Number of static fields. */
+    private transient int numStaticFields;
+
+    /** Number of virtual methods. */
+    private transient int numVirtualMethods;
+
+    /**
+     * Total object size; used when allocating storage on GC heap. For interfaces and abstract
+     * classes this will be zero. See also {@link Class#classSize}.
+     */
+    private transient int objectSize;
+
+    /**
+     * The lower 16 bits is the primitive type value, or 0 if not a primitive type; set for
+     * generated primitive classes.
+     */
+    private transient int primitiveType;
+
+    /** Bitmap of offsets of iFields. */
+    private transient int referenceInstanceOffsets;
+
+    /** State of class initialization */
+    private transient int status;
+
+    private AnnotationType annotationType;
+
     private static final int ANNOTATION= 0x00002000;
     private static final int ENUM      = 0x00004000;
     private static final int SYNTHETIC = 0x00001000;
@@ -324,35 +461,7 @@ public final
      *
      */
     @CallerSensitive
-    public T newInstance()
-        throws InstantiationException, IllegalAccessException
-    {
-        if (isPrimitive() || isInterface() || isArray() || Modifier.isAbstract(accessFlags)) {
-            throw new InstantiationException(this + " cannot be instantiated");
-        }
-        Class<?> caller = VMStack.getStackClass1();
-        if (!caller.canAccess(this)) {
-          throw new IllegalAccessException(this + " is not accessible from " + caller);
-        }
-        Constructor<T> init;
-        try {
-            init = getDeclaredConstructor();
-        } catch (NoSuchMethodException e) {
-            InstantiationException t =
-                new InstantiationException(this + " has no zero argument constructor");
-            t.initCause(e);
-            throw t;
-        }
-        if (!caller.canAccessMember(this, init.getAccessFlags())) {
-          throw new IllegalAccessException(init + " is not accessible from " + caller);
-        }
-        try {
-          return init.newInstance(null, init.isAccessible());
-        } catch (InvocationTargetException e) {
-          SneakyThrow.sneakyThrow(e.getCause());
-          return null;  // Unreachable.
-        }
-    }
+    public native T newInstance() throws InstantiationException, IllegalAccessException;
 
     /**
      * Determines if the specified {@code Object} is assignment-compatible
@@ -428,8 +537,7 @@ public final
             Object[] iftable = c.ifTable;
             if (iftable != null) {
                 for (int i = 0; i < iftable.length; i += 2) {
-                    Class<?> ifc = (Class<?>) iftable[i];
-                    if (ifc == this) {
+                    if (iftable[i] == this) {
                         return true;
                     }
                 }
@@ -501,7 +609,7 @@ public final
      * @since JDK1.1
      */
     public boolean isPrimitive() {
-        return primitiveType != 0;
+      return (primitiveType & 0xFFFF) != 0;
     }
 
     /**
@@ -585,9 +693,6 @@ public final
             this.name = name = getNameNative();
         return name;
     }
-
-    // cache the name to reduce the number of calls into the VM
-    private transient String name;
 
     private native String getNameNative();
 
@@ -1238,18 +1343,15 @@ public final
      */
     @CallerSensitive
     public Class<?>[] getClasses() {
-                    List<Class<?>> list = new ArrayList<>();
-                    Class<?> currentClass = Class.this;
-                    while (currentClass != null) {
-                        Class<?>[] members = currentClass.getDeclaredClasses();
-                        for (int i = 0; i < members.length; i++) {
-                            if (Modifier.isPublic(members[i].getModifiers())) {
-                                list.add(members[i]);
-                            }
-                        }
-                        currentClass = currentClass.getSuperclass();
-                    }
-                    return list.toArray(new Class[0]);
+        List<Class<?>> result = new ArrayList<Class<?>>();
+        for (Class<?> c = this; c != null; c = c.superClass) {
+            for (Class<?> member : c.getDeclaredClasses()) {
+                if (Modifier.isPublic(member.getModifiers())) {
+                    result.add(member);
+                }
+            }
+        }
+        return result.toArray(new Class[result.size()]);
     }
 
 
@@ -1299,24 +1401,27 @@ public final
     @CallerSensitive
     public Field[] getFields() throws SecurityException {
         List<Field> fields = new ArrayList<Field>();
+        getPublicFieldsRecursive(fields);
+        return fields.toArray(new Field[fields.size()]);
+    }
+
+    /**
+     * Populates {@code result} with public fields defined by this class, its
+     * superclasses, and all implemented interfaces.
+     */
+    private void getPublicFieldsRecursive(List<Field> result) {
         // search superclasses
         for (Class<?> c = this; c != null; c = c.superClass) {
-            c.getDeclaredFieldsUnchecked(true, fields);
+            Collections.addAll(result, c.getPublicDeclaredFields());
         }
 
         // search iftable which has a flattened and uniqued list of interfaces
         Object[] iftable = ifTable;
         if (iftable != null) {
             for (int i = 0; i < iftable.length; i += 2) {
-                Class<?> ifc = (Class<?>) iftable[i];
-                ifc.getDeclaredFieldsUnchecked(true, fields);
+                Collections.addAll(result, ((Class<?>) iftable[i]).getPublicDeclaredFields());
             }
         }
-        Field[] result = fields.toArray(new Field[fields.size()]);
-        for (Field f : result) {
-            f.getType();  // Throw NoClassDefFoundError if type cannot be resolved.
-        }
-        return result;
     }
 
     /**
@@ -1364,21 +1469,7 @@ public final
     @CallerSensitive
     public Method[] getMethods() throws SecurityException {
         List<Method> methods = new ArrayList<Method>();
-        getDeclaredMethodsUnchecked(true, methods);
-        if (!isInterface()) {
-            // Search superclasses, for interfaces don't search java.lang.Object.
-            for (Class<?> c = superClass; c != null; c = c.superClass) {
-                c.getDeclaredMethodsUnchecked(true, methods);
-            }
-        }
-        // Search iftable which has a flattened and uniqued list of interfaces.
-        Object[] iftable = ifTable;
-        if (iftable != null) {
-            for (int i = 0; i < iftable.length; i += 2) {
-                Class<?> ifc = (Class<?>) iftable[i];
-                ifc.getDeclaredMethodsUnchecked(true, methods);
-            }
-        }
+        getPublicMethodsInternal(methods);
         /*
          * Remove duplicate methods defined by superclasses and
          * interfaces, preferring to keep methods declared by derived
@@ -1386,6 +1477,28 @@ public final
          */
         CollectionUtils.removeDuplicates(methods, Method.ORDER_BY_SIGNATURE);
         return methods.toArray(new Method[methods.size()]);
+    }
+
+    /**
+     * Populates {@code result} with public methods defined by this class, its
+     * superclasses, and all implemented interfaces, including overridden methods.
+     */
+    private void getPublicMethodsInternal(List<Method> result) {
+        Collections.addAll(result, getDeclaredMethodsUnchecked(true));
+        if (!isInterface()) {
+            // Search superclasses, for interfaces don't search java.lang.Object.
+            for (Class<?> c = superClass; c != null; c = c.superClass) {
+                Collections.addAll(result, c.getDeclaredMethodsUnchecked(true));
+            }
+        }
+        // Search iftable which has a flattened and uniqued list of interfaces.
+        Object[] iftable = ifTable;
+        if (iftable != null) {
+            for (int i = 0; i < iftable.length; i += 2) {
+                Class<?> ifc = (Class<?>) iftable[i];
+                Collections.addAll(result, ifc.getDeclaredMethodsUnchecked(true));
+            }
+        }
     }
 
 
@@ -1431,9 +1544,7 @@ public final
      */
     @CallerSensitive
     public Constructor<?>[] getConstructors() throws SecurityException {
-        ArrayList<Constructor<T>> constructors = new ArrayList();
-        getDeclaredConstructors(true, constructors);
-        return constructors.toArray(new Constructor[constructors.size()]);
+        return getDeclaredConstructorsInternal(true);
     }
 
 
@@ -1723,37 +1834,17 @@ public final
      *
      * @since JDK1.1
      */
-    @CallerSensitive
-    public Field[] getDeclaredFields() throws SecurityException {
-        int initial_size = sFields == null ? 0 : sFields.length;
-        initial_size += iFields == null ? 0 : iFields.length;
-        ArrayList<Field> fields = new ArrayList(initial_size);
-        getDeclaredFieldsUnchecked(false, fields);
-        Field[] result = fields.toArray(new Field[fields.size()]);
-        for (Field f : result) {
-            f.getType();  // Throw NoClassDefFoundError if type cannot be resolved.
-        }
-        return result;
-    }
+    public native Field[] getDeclaredFields();
 
-    /** @hide */
-    public void getDeclaredFieldsUnchecked(boolean publicOnly, List<Field> fields) {
-        if (iFields != null) {
-            for (ArtField f : iFields) {
-                if (!publicOnly || Modifier.isPublic(f.getAccessFlags())) {
-                    fields.add(new Field(f));
-                }
-            }
-        }
-        if (sFields != null) {
-            for (ArtField f : sFields) {
-                if (!publicOnly || Modifier.isPublic(f.getAccessFlags())) {
-                    fields.add(new Field(f));
-                }
-            }
-        }
-    }
-
+    /**
+     * Populates a list of fields without performing any security or type
+     * resolution checks first. If no fields exist, the list is not modified.
+     *
+     * @param publicOnly Whether to return only public fields.
+     * @param fields A list to populate with declared fields.
+     * @hide
+     */
+    public native Field[] getDeclaredFieldsUnchecked(boolean publicOnly);
 
     /**
      * Returns an array of {@code Method} objects reflecting all the
@@ -1796,11 +1887,7 @@ public final
      */
     @CallerSensitive
     public Method[] getDeclaredMethods() throws SecurityException {
-        int initial_size = virtualMethods == null ? 0 : virtualMethods.length;
-        initial_size += directMethods == null ? 0 : directMethods.length;
-        ArrayList<Method> methods = new ArrayList<Method>(initial_size);
-        getDeclaredMethodsUnchecked(false, methods);
-        Method[] result = methods.toArray(new Method[methods.size()]);
+        Method[] result = getDeclaredMethodsUnchecked(false);
         for (Method m : result) {
             // Throw NoClassDefFoundError if types cannot be resolved.
             m.getReturnType();
@@ -1809,31 +1896,15 @@ public final
         return result;
     }
 
-    /** @hide */
-    public void getDeclaredMethodsUnchecked(boolean publicOnly, List<Method> methods) {
-        if (virtualMethods != null) {
-            for (ArtMethod m : virtualMethods) {
-                int modifiers = m.getAccessFlags();
-                if (!publicOnly || Modifier.isPublic(modifiers)) {
-                    // Add non-miranda virtual methods.
-                    if ((modifiers & Modifier.MIRANDA) == 0) {
-                        methods.add(new Method(m));
-                    }
-                }
-            }
-        }
-        if (directMethods != null) {
-            for (ArtMethod m : directMethods) {
-                int modifiers = m.getAccessFlags();
-                if (!publicOnly || Modifier.isPublic(modifiers)) {
-                    // Add non-constructor direct/static methods.
-                    if (!Modifier.isConstructor(modifiers)) {
-                        methods.add(new Method(m));
-                    }
-                }
-            }
-        }
-    }
+    /**
+     * Populates a list of methods without performing any security or type
+     * resolution checks first. If no methods exist, the list is not modified.
+     *
+     * @param publicOnly Whether to return only public methods.
+     * @param methods A list to populate with declared methods.
+     * @hide
+     */
+    public native Method[] getDeclaredMethodsUnchecked(boolean publicOnly);
 
 
     /**
@@ -1874,27 +1945,17 @@ public final
      */
     @CallerSensitive
     public Constructor<?>[] getDeclaredConstructors() throws SecurityException {
-        ArrayList<Constructor<T>> constructors = new ArrayList();
-        getDeclaredConstructors(false, constructors);
-        return constructors.toArray(new Constructor[constructors.size()]);
+        return getDeclaredConstructorsInternal(false);
     }
 
-    private void getDeclaredConstructors(boolean publicOnly, List<Constructor<T>> constructors) {
-        if (directMethods != null) {
-            for (ArtMethod m : directMethods) {
-                int modifiers = m.getAccessFlags();
-                if (!publicOnly || Modifier.isPublic(modifiers)) {
-                    if (Modifier.isStatic(modifiers)) {
-                        // skip <clinit> which is a static constructor
-                        continue;
-                    }
-                    if (Modifier.isConstructor(modifiers)) {
-                        constructors.add(new Constructor<T>(m));
-                    }
-                }
-            }
-        }
-    }
+
+    /**
+     * Returns the constructor with the given parameters if it is defined by this class;
+     * {@code null} otherwise. This may return a non-public member.
+     *
+     * @param args the types of the parameters to the constructor.
+     */
+    private native Constructor<?>[] getDeclaredConstructorsInternal(boolean publicOnly);
 
 
     /**
@@ -1932,35 +1993,18 @@ public final
      * @since JDK1.1
      */
     @CallerSensitive
-    public Field getDeclaredField(String name)
-        throws NoSuchFieldException, SecurityException {
-        if (name == null) {
-            throw new NullPointerException("name == null");
-        }
-        Field field = getDeclaredFieldInternal(name);
-        if (field == null) {
-            throw new NoSuchFieldException(name);
-        }
-        return field;
-    }
+    public native Field getDeclaredField(String name) throws NoSuchFieldException;
 
-    private Field getDeclaredFieldInternal(String name) {
-        if (iFields != null) {
-            for (ArtField f : iFields) {
-                if (f.getName().equals(name)) {
-                    return new Field(f);
-                }
-            }
-        }
-        if (sFields != null) {
-            for (ArtField f : sFields) {
-                if (f.getName().equals(name)) {
-                    return new Field(f);
-                }
-            }
-        }
-        return null;
-    }
+    /**
+     * Returns the field if it is defined by this class; {@code null} otherwise. This
+     * may return a non-public member.
+     */
+    private native Field getDeclaredFieldInternal(String name);
+
+    /**
+     * Returns the subset of getDeclaredFields which are public.
+     */
+    private native Field[] getPublicDeclaredFields();
 
 
     /**
@@ -2256,29 +2300,15 @@ public final
         return result;
     }
 
-    private Constructor<T> getDeclaredConstructorInternal(Class<?>[] args) {
-        if (directMethods != null) {
-            for (ArtMethod m : directMethods) {
-                int modifiers = m.getAccessFlags();
-                if (Modifier.isStatic(modifiers)) {
-                    // skip <clinit> which is a static constructor
-                    continue;
-                }
-                if (!Modifier.isConstructor(modifiers)) {
-                    continue;
-                }
-                if (!ArtMethod.equalConstructorParameters(m, args)) {
-                    continue;
-                }
-                return new Constructor<T>(m);
-            }
-        }
-        return null;
-    }
+    /**
+     * Returns the constructor with the given parameters if it is defined by this class;
+     * {@code null} otherwise. This may return a non-public member.
+     *
+     * @param args the types of the parameters to the constructor.
+     */
+    private native Constructor<T> getDeclaredConstructorInternal(Class<?>[] args);
 
 
-    /** use serialVersionUID from JDK 1.1 for interoperability */
-    private static final long serialVersionUID = 3206093459760846163L;
 
     /**
      * Returns the assertion status that would be assigned to this
@@ -2444,8 +2474,6 @@ public final
 
     // Annotation types cache their internal (AnnotationType) form
 
-    private AnnotationType annotationType;
-
     /** @hide */
     public void setAnnotationType(AnnotationType type) {
         annotationType = type;
@@ -2604,62 +2632,15 @@ public final
         return accessFlags;
     }
 
-    private Method getDeclaredMethodInternal(String name, Class<?>[] args) {
-        // Covariant return types permit the class to define multiple
-        // methods with the same name and parameter types. Prefer to
-        // return a non-synthetic method in such situations. We may
-        // still return a synthetic method to handle situations like
-        // escalated visibility. We never return miranda methods that
-        // were synthesized by the VM.
-        int skipModifiers = Modifier.MIRANDA | Modifier.SYNTHETIC;
-        ArtMethod artMethodResult = null;
-        if (virtualMethods != null) {
-            for (ArtMethod m : virtualMethods) {
-                String methodName = ArtMethod.getMethodName(m);
-                if (!name.equals(methodName)) {
-                    continue;
-                }
-                if (!ArtMethod.equalMethodParameters(m, args)) {
-                    continue;
-                }
-                int modifiers = m.getAccessFlags();
-                if ((modifiers & skipModifiers) == 0) {
-                    return new Method(m);
-                }
-                if ((modifiers & Modifier.MIRANDA) == 0) {
-                    // Remember as potential result if it's not a miranda method.
-                    artMethodResult = m;
-                }
-            }
-        }
-        if (artMethodResult == null) {
-            if (directMethods != null) {
-                for (ArtMethod m : directMethods) {
-                    int modifiers = m.getAccessFlags();
-                    if (Modifier.isConstructor(modifiers)) {
-                        continue;
-                    }
-                    String methodName = ArtMethod.getMethodName(m);
-                    if (!name.equals(methodName)) {
-                        continue;
-                    }
-                    if (!ArtMethod.equalMethodParameters(m, args)) {
-                        continue;
-                    }
-                    if ((modifiers & skipModifiers) == 0) {
-                        return new Method(m);
-                    }
-                    // Direct methods cannot be miranda methods,
-                    // so this potential result must be synthetic.
-                    artMethodResult = m;
-                }
-            }
-        }
-        if (artMethodResult == null) {
-            return null;
-        }
-        return new Method(artMethodResult);
-    }
+
+    /**
+     * Returns the method if it is defined by this class; {@code null} otherwise. This may return a
+     * non-public member.
+     *
+     * @param name the method name
+     * @param args the method's parameter types
+     */
+    private native Method getDeclaredMethodInternal(String name, Class<?>[] args);
 
     /**
      * The class def of this class in its own Dex, or -1 if there is no class def.
@@ -2680,123 +2661,4 @@ public final
         private static final BasicLruCache<Class, Type[]> genericInterfaces
             = new BasicLruCache<Class, Type[]>(8);
     }
-
-    /** defining class loader, or NULL for the "bootstrap" system loader. */
-    private transient ClassLoader classLoader;
-
-    /**
-     * For array classes, the component class object for instanceof/checkcast (for String[][][],
-     * this will be String[][]). NULL for non-array classes.
-     */
-    private transient Class<?> componentType;
-
-    /**
-     * DexCache of resolved constant pool entries. Will be null for certain VM-generated classes
-     * e.g. arrays and primitive classes.
-     */
-    private transient DexCache dexCache;
-
-    /** Short-cut to dexCache.strings */
-    private transient String[] dexCacheStrings;
-
-    /** The superclass, or NULL if this is java.lang.Object, an interface or primitive type. */
-    private transient Class<? super T> superClass;
-
-    /** static, private, and &lt;init&gt; methods. */
-    private transient ArtMethod[] directMethods;
-
-    /** Virtual methods defined in this class; invoked through vtable. */
-    private transient ArtMethod[] virtualMethods;
-
-    /**
-     * Instance fields. These describe the layout of the contents of an Object. Note that only the
-     * fields directly declared by this class are listed in iFields; fields declared by a
-     * superclass are listed in the superclass's Class.iFields.
-     *
-     * All instance fields that refer to objects are guaranteed to be at the beginning of the field
-     * list.  {@link Class#numReferenceInstanceFields} specifies the number of reference fields.
-     */
-    private transient ArtField[] iFields;
-
-    /**
-     * The interface table (iftable_) contains pairs of a interface class and an array of the
-     * interface methods. There is one pair per interface supported by this class.  That
-     * means one pair for each interface we support directly, indirectly via superclass, or
-     * indirectly via a superinterface.  This will be null if neither we nor our superclass
-     * implement any interfaces.
-     *
-     * Why we need this: given "class Foo implements Face", declare "Face faceObj = new Foo()".
-     * Invoke faceObj.blah(), where "blah" is part of the Face interface.  We can't easily use a
-     * single vtable.
-     *
-     * For every interface a concrete class implements, we create an array of the concrete vtable_
-     * methods for the methods in the interface.
-     */
-    private transient Object[] ifTable;
-
-    /**
-     * Virtual method table (vtable), for use by "invoke-virtual". The vtable from the superclass
-     * is copied in, and virtual methods from our class either replace those from the super or are
-     * appended. For abstract classes, methods may be created in the vtable that aren't in
-     * virtual_ methods_ for miranda methods.
-     */
-    private transient ArtMethod[] vtable;
-
-    /** Static fields */
-    private transient ArtField[] sFields;
-
-    /** access flags; low 16 bits are defined by VM spec */
-    private transient int accessFlags;
-
-    /**
-     * Class def index from dex file. An index of 65535 indicates that there is no class definition,
-     * for example for an array type.
-     * TODO: really 16bits as type indices are 16bit.
-     */
-    private transient int dexClassDefIndex;
-
-    /**
-     * Class type index from dex file, lazily computed. An index of 65535 indicates that the type
-     * index isn't known. Volatile to avoid double-checked locking bugs.
-     * TODO: really 16bits as type indices are 16bit.
-     */
-    private transient volatile int dexTypeIndex;
-
-    /** Primitive type value, or 0 if not a primitive type; set for generated primitive classes. */
-    private transient int primitiveType;
-
-    /**
-     * Total size of the Class instance; used when allocating storage on GC heap.
-     * See also {@link Class#objectSize}.
-     */
-    private transient int classSize;
-
-    /**
-     * Total object size; used when allocating storage on GC heap. For interfaces and abstract
-     * classes this will be zero. See also {@link Class#classSize}.
-     */
-    private transient int objectSize;
-
-    /** Number of instance fields that are object references. */
-    private transient int numReferenceInstanceFields;
-
-    /** Number of static fields that are object references. */
-    private transient int numReferenceStaticFields;
-
-    /** Bitmap of offsets of iFields. */
-    private transient int referenceInstanceOffsets;
-
-    /** Bitmap of offsets of sFields. */
-    private transient int referenceStaticOffsets;
-
-    /** If class verify fails, we must return same error on subsequent tries. */
-    private transient Class<?> verifyErrorClass;
-
-    /** State of class initialization */
-    private transient int status;
-
-    /**
-     * tid used to check for recursive static initializer invocation.
-     */
-    private transient int clinitThreadId;
 }

@@ -61,16 +61,13 @@ public final
     private final Class<?> serializationClass;
     private final Class<?> serializationCtor;
 
-    /**
-     * @hide
-     */
-    public Constructor(ArtMethod artMethod) {
-        this(artMethod, null, null);
+    private Constructor() {
+      this(null, null);
     }
 
-    private Constructor(ArtMethod artMethod, Class<?> serializationCtor, Class<?> serializationClass) {
-        super(artMethod);
-        this. serializationCtor = serializationCtor;
+    private Constructor(Class<?> serializationCtor,
+        Class<?> serializationClass) {
+        this.serializationCtor = serializationCtor;
         this.serializationClass = serializationClass;
     }
 
@@ -78,23 +75,7 @@ public final
      * @hide
      */
     public Constructor<T> serializationCopy(Class<?> ctor, Class<?> cl) {
-        return new Constructor<T>(artMethod, ctor, cl);
-    }
-
-    /**
-     * Package-private routine (exposed to java.lang.Class via
-     * ReflectAccess) which returns a copy of this Constructor. The copy's
-     * "root" field points to this Constructor.
-     */
-    Constructor<T> copy() {
-        // This routine enables sharing of ConstructorAccessor objects
-        // among Constructor objects which refer to the same underlying
-        // method in the VM. (All of this contortion is only necessary
-        // because of the "accessibility" bit in AccessibleObject,
-        // which implicitly requires that new java.lang.reflect
-        // objects be fabricated for each reflective call on Class
-        // objects.)
-        return new Constructor<T>(artMethod);
+        return new Constructor<T>(ctor, cl);
     }
 
     /**
@@ -455,12 +436,10 @@ public final
       }
     }
 
-    /** @hide */
-    public static native Object newInstance0(Class<?> ctorClass, Class<?> allocClass)
+    private static native Object newInstanceFromSerialization(Class<?> ctorClass, Class<?> allocClass)
         throws InstantiationException, IllegalArgumentException, InvocationTargetException;
 
-    /** @hide */
-    public native T newInstance(Object[] args, boolean accessible) throws InstantiationException,
+    private native T newInstance0(Object... args) throws InstantiationException,
             IllegalAccessException, IllegalArgumentException, InvocationTargetException;
 
     /**
@@ -538,6 +517,7 @@ public final
      * @since 1.5
      */
     public Annotation[][] getParameterAnnotations() {
-        return artMethod.getParameterAnnotations();
+        return AnnotationAccess.getParameterAnnotations(
+            declaringClassOfOverriddenMethod, dexMethodIndex);
     }
 }

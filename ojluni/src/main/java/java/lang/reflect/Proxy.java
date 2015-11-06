@@ -619,10 +619,7 @@ public class Proxy implements java.io.Serializable {
                 validateReturnTypes(methods);
                 List<Class<?>[]> exceptions = deduplicateAndGetExceptions(methods);
 
-                ArtMethod[] methodsArray = new ArtMethod[methods.size()];
-                for (int i = 0; i < methodsArray.length; i++) {
-                    methodsArray[i] = methods.get(i).getArtMethod();
-                }
+                Method[] methodsArray = methods.toArray(new Method[methods.size()]);
                 Class<?>[][] exceptionsArray = exceptions.toArray(new Class<?>[exceptions.size()][]);
                 proxyClass = generateProxy(proxyName, interfaces, loader, methodsArray,
                         exceptionsArray);
@@ -860,21 +857,19 @@ public class Proxy implements java.io.Serializable {
         /*
          * Verify that the object is actually a proxy instance.
          */
-        if (!isProxyClass(proxy.getClass())) {
+        if (!(proxy instanceof Proxy)) {
             throw new IllegalArgumentException("not a proxy instance");
         }
-
-        Proxy p = (Proxy) proxy;
-        return p.h;
+        return ((Proxy) proxy).h;
     }
 
-    static Object invoke(Proxy proxy, ArtMethod method, Object[] args) throws Throwable {
+    private static Object invoke(Proxy proxy, Method method, Object[] args) throws Throwable {
         InvocationHandler h = proxy.h;
-        return h.invoke(proxy, new Method(method), args);
+        return h.invoke(proxy, method, args);
     }
 
     private static native Class<?> generateProxy(String name, Class<?>[] interfaces,
-                                                 ClassLoader loader, ArtMethod[] methods,
+                                                 ClassLoader loader, Method[] methods,
                                                  Class<?>[][] exceptions);
 
     // Temporary methods.
