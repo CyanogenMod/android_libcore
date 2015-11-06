@@ -1198,27 +1198,12 @@ public final class System {
 
     private static String lineSeparator;
 
+
+    // Comment replaced with android one.
     /**
-     * Sets the system properties to the <code>Properties</code>
-     * argument.
-     * <p>
-     * First, if there is a security manager, its
-     * <code>checkPropertiesAccess</code> method is called with no
-     * arguments. This may result in a security exception.
-     * <p>
-     * The argument becomes the current set of system properties for use
-     * by the {@link #getProperty(String)} method. If the argument is
-     * <code>null</code>, then the current set of system properties is
-     * forgotten.
-     *
-     * @param      props   the new system properties.
-     * @exception  SecurityException  if a security manager exists and its
-     *             <code>checkPropertiesAccess</code> method doesn't allow access
-     *              to the system properties.
-     * @see        #getProperties
-     * @see        java.util.Properties
-     * @see        java.lang.SecurityException
-     * @see        java.lang.SecurityManager#checkPropertiesAccess()
+     * Attempts to set all system properties. Copies all properties from
+     * {@code p} and discards system properties that are read only and cannot
+     * be modified. See {@link #getProperty} for a list of such properties.
      */
     public static void setProperties(Properties props) {
         Properties baseProperties = new PropertiesWithNonOverrideableDefaults(unchangeableProps);
