@@ -127,6 +127,7 @@ public final
     private static final int ANNOTATION= 0x00002000;
     private static final int ENUM      = 0x00004000;
     private static final int SYNTHETIC = 0x00001000;
+    private static final int FINALIZABLE = 0x80000000;
 
     /*
      * Constructor. Only the Java Virtual Machine creates Class
@@ -502,6 +503,18 @@ public final
      */
     public boolean isPrimitive() {
         return primitiveType != 0;
+    }
+
+    /**
+     * Indicates whether this {@code Class} or its parents override finalize.
+     *
+     * @return {@code true} if and if this class or its parents override
+     *         finalize;
+     *
+     * @hide
+     */
+    public boolean isFinalizable() {
+        return (getModifiers() & FINALIZABLE) != 0;
     }
 
     /**
