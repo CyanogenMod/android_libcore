@@ -57,8 +57,7 @@ public class WeakHashMapTest extends junit.framework.TestCase {
         for (int i = 0; i < 100; i++)
             whm.put(keyArray[i], valueArray[i]);
         for (int i = 0; i < 100; i++)
-            assertTrue("Incorrect value retrieved",
-                    whm.get(keyArray[i]) == valueArray[i]);
+            assertTrue("Incorrect value retrieved", whm.get(keyArray[i]) == valueArray[i]);
 
     }
 
@@ -71,8 +70,7 @@ public class WeakHashMapTest extends junit.framework.TestCase {
         for (int i = 0; i < 100; i++)
             whm.put(keyArray[i], valueArray[i]);
         for (int i = 0; i < 100; i++)
-            assertTrue("Incorrect value retrieved",
-                    whm.get(keyArray[i]) == valueArray[i]);
+            assertTrue("Incorrect value retrieved", whm.get(keyArray[i]) == valueArray[i]);
 
         WeakHashMap empty = new WeakHashMap(0);
         assertNull("Empty weakhashmap access", empty.get("nothing"));
@@ -96,8 +94,7 @@ public class WeakHashMapTest extends junit.framework.TestCase {
         for (int i = 0; i < 100; i++)
             whm.put(keyArray[i], valueArray[i]);
         for (int i = 0; i < 100; i++)
-            assertTrue("Incorrect value retrieved",
-                    whm.get(keyArray[i]) == valueArray[i]);
+            assertTrue("Incorrect value retrieved", whm.get(keyArray[i]) == valueArray[i]);
 
         WeakHashMap empty = new WeakHashMap(0, 0.75f);
         assertNull("Empty hashtable access", empty.get("nothing"));
@@ -139,8 +136,7 @@ public class WeakHashMapTest extends junit.framework.TestCase {
         whm.clear();
         assertTrue("Cleared map should be empty", whm.isEmpty());
         for (int i = 0; i < 100; i++)
-            assertNull("Cleared map should only return null", whm
-                    .get(keyArray[i]));
+            assertNull("Cleared map should only return null", whm.get(keyArray[i]));
 
     }
 
@@ -153,8 +149,7 @@ public class WeakHashMapTest extends junit.framework.TestCase {
         for (int i = 0; i < 100; i++)
             whm.put(keyArray[i], valueArray[i]);
         for (int i = 0; i < 100; i++)
-            assertTrue("Should contain referenced key", whm
-                    .containsKey(keyArray[i]));
+            assertTrue("Should contain referenced key", whm.containsKey(keyArray[i]));
         keyArray[25] = null;
         keyArray[50] = null;
     }
@@ -168,8 +163,7 @@ public class WeakHashMapTest extends junit.framework.TestCase {
         for (int i = 0; i < 100; i++)
             whm.put(keyArray[i], valueArray[i]);
         for (int i = 0; i < 100; i++)
-            assertTrue("Should contain referenced value", whm
-                    .containsValue(valueArray[i]));
+            assertTrue("Should contain referenced value", whm.containsValue(valueArray[i]));
         keyArray[25] = null;
         keyArray[50] = null;
     }
@@ -185,15 +179,13 @@ public class WeakHashMapTest extends junit.framework.TestCase {
         List keys = Arrays.asList(keyArray);
         List values = Arrays.asList(valueArray);
         Set entrySet = whm.entrySet();
-        assertTrue("Incorrect number of entries returned--wanted 100, got: "
-                + entrySet.size(), entrySet.size() == 100);
+        assertTrue("Incorrect number of entries returned--wanted 100, got: " + entrySet.size(),
+            entrySet.size() == 100);
         Iterator it = entrySet.iterator();
         while (it.hasNext()) {
             Map.Entry entry = (Map.Entry) it.next();
-            assertTrue("Invalid map entry returned--bad key", keys
-                    .contains(entry.getKey()));
-            assertTrue("Invalid map entry returned--bad key", values
-                    .contains(entry.getValue()));
+            assertTrue("Invalid map entry returned--bad key", keys.contains(entry.getKey()));
+            assertTrue("Invalid map entry returned--bad key", values.contains(entry.getValue()));
         }
         keys = null;
         values = null;
@@ -201,7 +193,7 @@ public class WeakHashMapTest extends junit.framework.TestCase {
 
         FinalizationTester.induceFinalization();
         long startTime = System.currentTimeMillis();
-        // We use a busy wait loop here since we can not know when the ReferenceQueue
+        // We use a busy wait loop here since we cannot know when the ReferenceQueue
         // daemon will enqueue the cleared references on their internal reference
         // queues. The current timeout is 5 seconds.
         do {
@@ -212,9 +204,7 @@ public class WeakHashMapTest extends junit.framework.TestCase {
         } while (entrySet.size() != 99 &&
                  System.currentTimeMillis() - startTime < 5000);
 
-        assertTrue(
-                "Incorrect number of entries returned after gc--wanted 99, got: "
-                        + entrySet.size(), entrySet.size() == 99);
+        assertEquals("Incorrect number of keys returned after gc,", 99, entrySet.size());
     }
 
     /**
@@ -273,10 +263,8 @@ public class WeakHashMapTest extends junit.framework.TestCase {
         for (int i = 0; i < 100; i++)
             whm.put(keyArray[i], valueArray[i]);
 
-        assertTrue("Remove returned incorrect value",
-                whm.remove(keyArray[25]) == valueArray[25]);
-        assertNull("Remove returned incorrect value",
-                whm.remove(keyArray[25]));
+        assertTrue("Remove returned incorrect value", whm.remove(keyArray[25]) == valueArray[25]);
+        assertNull("Remove returned incorrect value", whm.remove(keyArray[25]));
         assertEquals("Size should be 99 after remove", 99, whm.size());
     }
 
@@ -305,23 +293,26 @@ public class WeakHashMapTest extends junit.framework.TestCase {
         Iterator it = keySet.iterator();
         while (it.hasNext()) {
             Object key = it.next();
-            assertTrue("Invalid map entry returned--bad key", keys
-                    .contains(key));
+            assertTrue("Invalid map entry returned--bad key", keys.contains(key));
         }
         keys = null;
         values = null;
         keyArray[50] = null;
 
-        int count = 0;
+        FinalizationTester.induceFinalization();
+        long startTime = System.currentTimeMillis();
+        // We use a busy wait loop here since we cannot know when the ReferenceQueue
+        // daemon will enqueue the cleared references on their internal reference
+        // queues. The current timeout is 5 seconds.
         do {
-            System.gc();
-            System.gc();
-            FinalizationTester.induceFinalization();
-            count++;
-        } while (count <= 5 && keySet.size() == 100);
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+            }
+        } while (keySet.size() != 99 &&
+                 System.currentTimeMillis() - startTime < 5000);
 
-        assertEquals("Incorrect number of keys returned after gc,", 99, keySet
-                .size());
+        assertEquals("Incorrect number of keys returned after gc,", 99, keySet.size());
     }
 
     /**
@@ -378,28 +369,30 @@ public class WeakHashMapTest extends junit.framework.TestCase {
         List values = Arrays.asList(valueArray);
 
         Collection valuesCollection = whm.values();
-        assertEquals("Incorrect number of keys returned,", 100,
-                valuesCollection.size());
+        assertEquals("Incorrect number of keys returned,", 100, valuesCollection.size());
         Iterator it = valuesCollection.iterator();
         while (it.hasNext()) {
             Object value = it.next();
-            assertTrue("Invalid map entry returned--bad value", values
-                    .contains(value));
+            assertTrue("Invalid map entry returned--bad value", values.contains(value));
         }
         keys = null;
         values = null;
         keyArray[50] = null;
 
-        int count = 0;
+        FinalizationTester.induceFinalization();
+        long startTime = System.currentTimeMillis();
+        // We use a busy wait loop here since we cannot know when the ReferenceQueue
+        // daemon will enqueue the cleared references on their internal reference
+        // queues. The current timeout is 5 seconds.
         do {
-            System.gc();
-            System.gc();
-            FinalizationTester.induceFinalization();
-            count++;
-        } while (count <= 5 && valuesCollection.size() == 100);
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+            }
+        } while (valuesCollection.size() != 99 &&
+                 System.currentTimeMillis() - startTime < 5000);
 
-        assertEquals("Incorrect number of keys returned after gc,", 99,
-                valuesCollection.size());
+        assertEquals("Incorrect number of keys returned after gc,", 99, valuesCollection.size());
     }
 
     /**
