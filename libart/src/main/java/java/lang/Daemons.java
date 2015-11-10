@@ -177,7 +177,8 @@ public final class Daemons {
         private static final FinalizerDaemon INSTANCE = new FinalizerDaemon();
         private final ReferenceQueue<Object> queue = FinalizerReference.queue;
         private final AtomicInteger progressCounter = new AtomicInteger(0);
-        private FinalizerReference<?> finalizingObject = null;  // Accesses may race!
+        // Object (not reference!) being finalized. Accesses may race!
+        private Object finalizingObject = null;
 
         FinalizerDaemon() {
             super("FinalizerDaemon");
@@ -202,16 +203,21 @@ public final class Daemons {
                 try {
                     // Use non-blocking poll to avoid FinalizerWatchdogDaemon communication
                     // when busy.
-                    finalizingObject = (FinalizerReference<?>)queue.poll();
-                    progressCounter.lazySet(++localProgressCounter);
-                    if (finalizingObject == null) {
+                    FinalizerReference<?> finalizingReference = (FinalizerReference<?>)queue.poll();
+                    if (finalizingReference != null) {
+                        finalizingObject = finalizingReference.get();
+                        progressCounter.lazySet(++localProgressCounter);
+                    } else {
+                        finalizingObject = null;
+                        progressCounter.lazySet(++localProgressCounter);
                         // Slow path; block.
                         FinalizerWatchdogDaemon.INSTANCE.goToSleep();
-                        finalizingObject = (FinalizerReference<?>)queue.remove();
+                        finalizingReference = (FinalizerReference<?>)queue.remove();
+                        finalizingObject = finalizingReference.get();
                         progressCounter.set(++localProgressCounter);
                         FinalizerWatchdogDaemon.INSTANCE.wakeUp();
                     }
-                    doFinalize(finalizingObject);
+                    doFinalize(finalizingReference);
                 } catch (InterruptedException ignored) {
                 } catch (OutOfMemoryError ignored) {
                 }
@@ -252,7 +258,7 @@ public final class Daemons {
                     // We have been interrupted, need to see if this daemon has been stopped.
                     continue;
                 }
-                final FinalizerReference<?> finalizing = waitForFinalization();
+                final Object finalizing = waitForFinalization();
                 if (finalizing != null && !VMRuntime.getRuntime().isDebuggerActive()) {
                     finalizerTimedOut(finalizing);
                     break;
@@ -262,7 +268,7 @@ public final class Daemons {
 
         /**
          * Wait until something is ready to be finalized.
-         * Return false if we have been interrupted.
+         * Return false if we have been interrupted
          * See also http://code.google.com/p/android/issues/detail?id=22778.
          */
         private synchronized boolean sleepUntilNeeded() {
@@ -299,24 +305,28 @@ public final class Daemons {
             return needToWork;
         }
 
-        private void sleepFor(long durationNanos) {
+        /**
+         * Sleep for the given number of nanoseconds.
+         * @return false if we were interrupted.
+         */
+        private boolean sleepFor(long durationNanos) {
             long startNanos = System.nanoTime();
             while (true) {
                 long elapsedNanos = System.nanoTime() - startNanos;
                 long sleepNanos = durationNanos - elapsedNanos;
                 long sleepMills = sleepNanos / NANOS_PER_MILLI;
                 if (sleepMills <= 0) {
-                    return;
+                    return true;
                 }
                 try {
                     Thread.sleep(sleepMills);
                 } catch (InterruptedException e) {
                     if (!isRunning()) {
-                        return;
+                        return false;
                     }
                 } catch (OutOfMemoryError ignored) {
                     if (!isRunning()) {
-                        return;
+                        return false;
                     }
                 }
             }
@@ -324,14 +334,17 @@ public final class Daemons {
 
 
         /**
-         * Return a FinalizerReference that took too long to process or null.
+         * Return an object that took too long to finalize or return null.
          * Wait MAX_FINALIZE_NANOS.  If the FinalizerDaemon took essentially the whole time
          * processing a single reference, return that reference.  Otherwise return null.
          */
-        private FinalizerReference<?> waitForFinalization() {
+        private Object waitForFinalization() {
             long startCount = FinalizerDaemon.INSTANCE.progressCounter.get();
             // Avoid remembering object being finalized, so as not to keep it alive.
-            sleepFor(MAX_FINALIZE_NANOS);
+            if (!sleepFor(MAX_FINALIZE_NANOS)) {
+                // Don't report possibly spurious timeout if we are interrupted.
+                return null;
+            }
             if (getNeedToWork() && FinalizerDaemon.INSTANCE.progressCounter.get() == startCount) {
                 // We assume that only remove() and doFinalize() may take time comparable to
                 // MAX_FINALIZE_NANOS.
@@ -348,8 +361,8 @@ public final class Daemons {
                 // are guaranteed to get the correct finalizing value below, unless doFinalize()
                 // just finished as we were timing out, in which case we may get null or a later
                 // one.  In this last case, we are very likely to discard it below.
-                FinalizerReference<?> finalizing = FinalizerDaemon.INSTANCE.finalizingObject;
-                sleepFor(NANOS_PER_SECOND);
+                Object finalizing = FinalizerDaemon.INSTANCE.finalizingObject;
+                sleepFor(NANOS_PER_SECOND / 2);
                 // Recheck to make it even less likely we report the wrong finalizing object in
                 // the case which a very slow finalization just finished as we were timing out.
                 if (getNeedToWork()
