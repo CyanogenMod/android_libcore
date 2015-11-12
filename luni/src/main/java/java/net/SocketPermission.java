@@ -29,4 +29,14 @@ public final class SocketPermission extends Permission implements Serializable {
     @Override public String getActions() { return null; }
 
     @Override public boolean implies(Permission permission) { return true; }
+
+    @Override
+    public int hashCode() {
+        return System.identityHashCode(this);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return this == obj;
+    }
 }

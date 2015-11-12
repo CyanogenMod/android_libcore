@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import org.apache.harmony.security.asn1.ObjectIdentifier;
-import org.apache.harmony.security.fortress.Services;
 
 /**
  * Provides Algorithm Name to OID and OID to Algorithm Name mappings. Some known
@@ -100,7 +99,7 @@ public class AlgNameMapper {
     }
 
     private static synchronized void checkCacheVersion() {
-        int newCacheVersion = Services.getCacheVersion();
+        int newCacheVersion = Security.getVersion();
         if (newCacheVersion != cacheVersion) {
             //
             // Now search providers for mappings like

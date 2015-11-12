@@ -104,8 +104,8 @@ public class FileChannelTest extends junit.framework.TestCase {
 
         fc.write(ByteBuffer.wrap("hello".getBytes("US-ASCII")));
         fc.position(0);
-        // The RI reports whatever position you set...
-        assertEquals(0, fc.position());
+        // The RI reports end of file
+        assertEquals(5, fc.position());
         // ...but writes to the end of the file.
         fc.write(ByteBuffer.wrap(" world".getBytes("US-ASCII")));
         fos.close();

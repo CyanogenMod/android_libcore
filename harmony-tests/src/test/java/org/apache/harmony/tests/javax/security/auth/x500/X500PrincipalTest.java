@@ -1510,7 +1510,8 @@ public class X500PrincipalTest extends TestCase {
         byte[] enc = principal.getEncoded();
         X500Principal principal2 = new X500Principal(enc);
         String s = principal2.getName(X500Principal.RFC1779);
-        assertEquals("OID.2.16.4.3=B + CN=A", s);
+        assertTrue("OID.2.16.4.3=B + CN=A".equals(s) ||
+            "CN=A + OID.2.16.4.3=B".equals(s));
 
     }
 
@@ -1528,7 +1529,8 @@ public class X500PrincipalTest extends TestCase {
         byte[] enc = principal.getEncoded();
         X500Principal principal2 = new X500Principal(enc);
         String s = principal2.getName(X500Principal.RFC2253);
-        assertEquals("2.16.4.3=#130142+CN=A", s);
+        assertTrue("2.16.4.3=#130142+CN=A".equals(s) ||
+            "CN=A+2.16.4.3=#130142".equals(s));
 
     }
 
@@ -1690,17 +1692,11 @@ public class X500PrincipalTest extends TestCase {
     /**
      * Inits X500Principal with the string with special characters - \\nB
      * gets Name in RFC2253 format
-     * compares with expected value of name - \\nB
+     * compares with expected value of name - \nB
      */
     public void testNameSpecialChars_RFC2253_01() throws Exception {
-
-        try {
-            // compatibility issue:
-            // don't accept escaped \n because it is not a special char
-            new X500Principal("CN=\\\nB");
-            fail("No expected IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-        }
+        X500Principal p = new X500Principal("CN=\\\nB");
+        assertEquals("CN=\nB", p.getName(X500Principal.RFC2253));
     }
 
     /**
@@ -2208,7 +2204,7 @@ public class X500PrincipalTest extends TestCase {
         String dn = "CN=A\nB";
         X500Principal principal = new X500Principal(dn);
         String s = principal.getName(X500Principal.RFC1779);
-        assertEquals("CN=A\nB", s);
+        assertEquals("CN=\"A\nB\"", s);
     }
 
     /**

@@ -23,7 +23,6 @@ import libcore.io.Memory;
 import libcore.io.SizeOf;
 import org.apache.harmony.security.fortress.Engine;
 import org.apache.harmony.security.fortress.Services;
-import org.apache.harmony.security.provider.crypto.SHA1PRNG_SecureRandomImpl;
 
 /**
  * This class generates cryptographically secure pseudo-random numbers.
@@ -86,12 +85,8 @@ public class SecureRandom extends Random {
      */
     public SecureRandom() {
         super(0);
-        Provider.Service service = Services.getSecureRandomService();
-        if (service == null) {
-            this.provider = null;
-            this.secureRandomSpi = new SHA1PRNG_SecureRandomImpl();
-            this.algorithm = "SHA1PRNG";
-        } else {
+        final Provider.Service service = Services.getSecureRandomService();
+        if (service != null) {
             try {
                 this.provider = service.getProvider();
                 this.secureRandomSpi = (SecureRandomSpi)service.newInstance(null);
@@ -99,6 +94,8 @@ public class SecureRandom extends Random {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
+        } else {
+            throw new AssertionError("Services.getSecureRandomService() == null");
         }
     }
 

@@ -37,12 +37,11 @@
 #
 # All subdirectories are optional (hence the "2> /dev/null"s below).
 
-define all-main-java-files-under
-$(foreach dir,$(1),$(patsubst ./%,%,$(shell cd $(LOCAL_PATH) && find $(dir)/src/main/java -name "*.java" 2> /dev/null)))
-endef
+include $(LOCAL_PATH)/openjdk_java_files.mk
+include $(LOCAL_PATH)/non_openjdk_java_files.mk
 
 define all-test-java-files-under
-$(foreach dir,$(1),$(patsubst ./%,%,$(shell cd $(LOCAL_PATH) && find $(dir)/src/test/java -name "*.java" 2> /dev/null)))
+$(foreach dir,$(1),$(patsubst ./%,%,$(shell cd $(LOCAL_PATH) && (find $(dir)/src/test/java -name "*.java" 2> /dev/null) | grep -v -f java_tests_blacklist)))
 endef
 
 define all-core-resource-dirs
@@ -50,23 +49,50 @@ $(shell cd $(LOCAL_PATH) && ls -d */src/$(1)/{java,resources} 2> /dev/null)
 endef
 
 # The Java files and their associated resources.
-common_core_src_files := $(call all-main-java-files-under,dalvik dex dom json luni xml)
-core_resource_dirs := $(call all-core-resource-dirs,main)
+core_resource_dirs := \
+  luni/src/main/java \
+  ojluni/src/main/resources/
 test_resource_dirs := $(call all-core-resource-dirs,test)
 test_src_files := $(call all-test-java-files-under,dalvik dom harmony-tests json luni xml)
 
 ifeq ($(EMMA_INSTRUMENT),true)
 ifneq ($(EMMA_INSTRUMENT_STATIC),true)
-    common_core_src_files += $(call all-java-files-under, ../external/emma/core ../external/emma/pregenerated)
+    nojcore_src_files += $(call all-java-files-under, ../external/emma/core ../external/emma/pregenerated)
     core_resource_dirs += ../external/emma/core/res ../external/emma/pregenerated/res
 endif
 endif
 
-libart_core_src_files += $(common_core_src_files) $(call all-main-java-files-under,libart)
-
 local_javac_flags=-encoding UTF-8
 #local_javac_flags+=-Xlint:all -Xlint:-serial,-deprecation,-unchecked
 local_javac_flags+=-Xmaxwarns 9999999
+
+
+#
+# ICU4J related rules.
+#
+# We compile icu4j along with core-libart because we're implementing parts of core-libart
+# in terms of icu4j.
+icu4j_root := ../external/icu/icu4j/
+icu4j_src_files := $(call all-java-files-under,$(icu4j_root)/main/classes)
+
+# Filter out bits of ICU4J we don't use yet : the SPIs (which we have limited support for),
+# and the charset encoders
+icu4j_src_files := $(filter-out $(icu4j_root)/main/classes/localespi/%, $(icu4j_src_files))
+icu4j_src_files := $(filter-out $(icu4j_root)/main/classes/charset/%, $(icu4j_src_files))
+
+# Not all src dirs contain resources, some instead contain other random files
+# that should not be included as resources. The ones that should be included
+# can be identifed by the fact that they contain particular subdir trees.
+#
+define all-icu-subdir-with-subdir
+$(patsubst $(LOCAL_PATH)/%/$(2),%,$(wildcard $(LOCAL_PATH)/$(1)/$(2)))
+endef
+
+icu4j_resource_dirs := $(call all-icu-subdir-with-subdir,$(icu4j_root)/main/classes/*/src,com/ibm/icu)
+icu4j_resource_dirs := $(filter-out $(icu4j_root)/main/classes/localespi/%, $(icu4j_resource_dirs))
+icu4j_resource_dirs := $(filter-out $(icu4j_root)/main/classes/charset/%, $(icu4j_resource_dirs))
+
+
 
 #
 # ICU4J related rules.
@@ -101,17 +127,88 @@ icu4j_resource_dirs := $(filter-out $(icu4j_root)/main/classes/translit/%, $(icu
 # Build for the target (device).
 #
 
-# Definitions to make the core library.
-
 include $(CLEAR_VARS)
-LOCAL_SRC_FILES := $(libart_core_src_files) $(icu4j_src_files)
+LOCAL_SRC_FILES := $(openjdk_java_files) $(non_openjdk_java_files) $(icu4j_src_files)
 LOCAL_JAVA_RESOURCE_DIRS := $(core_resource_dirs) $(icu4j_resource_dirs)
 LOCAL_NO_STANDARD_LIBRARIES := true
 LOCAL_JAVACFLAGS := $(local_javac_flags)
 LOCAL_DX_FLAGS := --core-library
 LOCAL_MODULE_TAGS := optional
-LOCAL_MODULE := core-libart
+ifeq ($(ANDROID_DISABLE_CORE_OBFUSCATION),)
+LOCAL_PROGUARD_ENABLED := obfuscation nosystem
+LOCAL_PROGUARD_FLAG_FILES := proguard/proguard.flags
+endif
+LOCAL_MODULE := core-all
 LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
+LOCAL_REQUIRED_MODULES := tzdata
+LOCAL_CORE_LIBRARY := true
+LOCAL_UNINSTALLABLE_MODULE := true
+LOCAL_JARJAR_RULES := $(LOCAL_PATH)/jarjar-rules.txt
+include $(BUILD_JAVA_LIBRARY)
+
+core_all_intermediates := $(call intermediates-dir-for,JAVA_LIBRARIES,core-all,,COMMON)
+core_proguard_obfuscation_flags := \
+    -renamesourcefileattribute SourceFile \
+    -keepattributes Exceptions,InnerClasses,Signature,Deprecated,SourceFile,LineNumberTable,*Annotation*,EnclosingMethod \
+    -dontwarn \*\* \
+    -dontshrink \
+    -dontoptimize \
+    -applymapping $(core_all_intermediates)/proguard_dictionary
+
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES := $(openjdk_java_files) $(non_openjdk_java_files) $(icu4j_src_files)
+LOCAL_JAVA_RESOURCE_DIRS := $(core_resource_dirs) $(icu4j_resource_dirs)
+LOCAL_NO_STANDARD_LIBRARIES := true
+LOCAL_JAVACFLAGS := $(local_javac_flags)
+LOCAL_DX_FLAGS := --core-library
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE := core-all-unobfuscated
+LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
+LOCAL_REQUIRED_MODULES := tzdata
+LOCAL_CORE_LIBRARY := true
+LOCAL_UNINSTALLABLE_MODULE := true
+include $(BUILD_JAVA_LIBRARY)
+
+
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES := $(openjdk_java_files)
+LOCAL_JAVA_RESOURCE_DIRS := $(core_resource_dirs)
+LOCAL_NO_STANDARD_LIBRARIES := true
+LOCAL_JAVACFLAGS := $(local_javac_flags)
+LOCAL_DX_FLAGS := --core-library
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE := core-oj
+LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
+ifeq ($(ANDROID_DISABLE_CORE_OBFUSCATION),)
+LOCAL_PROGUARD_ENABLED := obfuscation nosystem
+LOCAL_PROGUARD_FLAGS := $(core_proguard_obfuscation_flags)
+LOCAL_ADDITIONAL_DEPENDENCIES += $(core_all_intermediates)/proguard.classes.jar
+endif
+LOCAL_JAVA_LIBRARIES := core-all-unobfuscated
+LOCAL_REQUIRED_MODULES := tzdata
+LOCAL_CORE_LIBRARY := true
+LOCAL_REQUIRED_MODULES := currency.data-target
+LOCAL_JARJAR_RULES := $(LOCAL_PATH)/jarjar-rules.txt
+include $(BUILD_JAVA_LIBRARY)
+
+# Definitions to make the core library.
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES := $(non_openjdk_java_files) $(icu4j_src_files)
+LOCAL_JAVA_RESOURCE_DIRS := $(icu4j_resource_dirs)
+LOCAL_NO_STANDARD_LIBRARIES := true
+LOCAL_JAVACFLAGS := $(local_javac_flags)
+LOCAL_DX_FLAGS := --core-library
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE := core-libart
+ifeq ($(ANDROID_DISABLE_CORE_OBFUSCATION),)
+LOCAL_PROGUARD_ENABLED := obfuscation nosystem
+LOCAL_PROGUARD_FLAGS := $(core_proguard_obfuscation_flags)
+LOCAL_ADDITIONAL_DEPENDENCIES += $(core_all_intermediates)/proguard.classes.jar
+endif
+LOCAL_ADDITIONAL_DEPENDENCIES += $(LOCAL_PATH)/JavaLibrary.mk
+LOCAL_JAVA_LIBRARIES := core-all-unobfuscated
+LOCAL_CORE_LIBRARY := true
+LOCAL_JARJAR_RULES := $(LOCAL_PATH)/jarjar-rules.txt
 LOCAL_REQUIRED_MODULES := tzdata
 LOCAL_JARJAR_RULES := $(LOCAL_PATH)/jarjar-rules.txt
 include $(BUILD_JAVA_LIBRARY)
@@ -132,7 +229,7 @@ include $(CLEAR_VARS)
 LOCAL_SRC_FILES := $(test_src_files)
 LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
 LOCAL_NO_STANDARD_LIBRARIES := true
-LOCAL_JAVA_LIBRARIES := core-libart okhttp core-junit bouncycastle
+LOCAL_JAVA_LIBRARIES := core-oj core-libart okhttp core-junit bouncycastle
 LOCAL_STATIC_JAVA_LIBRARIES := core-tests-support sqlite-jdbc mockwebserver nist-pkix-tests
 LOCAL_JAVACFLAGS := $(local_javac_flags)
 LOCAL_MODULE := core-tests
@@ -146,7 +243,7 @@ include $(CLEAR_VARS)
 LOCAL_SRC_FILES := $(call all-test-java-files-under,support)
 LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
 LOCAL_NO_STANDARD_LIBRARIES := true
-LOCAL_JAVA_LIBRARIES := core-libart core-junit bouncycastle
+LOCAL_JAVA_LIBRARIES := core-oj core-libart core-junit bouncycastle
 LOCAL_JAVACFLAGS := $(local_javac_flags)
 LOCAL_MODULE := core-tests-support
 LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
@@ -159,7 +256,7 @@ include $(CLEAR_VARS)
 LOCAL_SRC_FILES :=  $(call all-test-java-files-under, jsr166-tests)
 LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
 LOCAL_NO_STANDARD_LIBRARIES := true
-LOCAL_JAVA_LIBRARIES := core-libart core-junit
+LOCAL_JAVA_LIBRARIES := core-oj core-libart core-junit
 LOCAL_JAVACFLAGS := $(local_javac_flags)
 LOCAL_MODULE := jsr166-tests
 LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
@@ -173,21 +270,52 @@ endif
 ifeq ($(HOST_OS),linux)
 
 include $(CLEAR_VARS)
-LOCAL_SRC_FILES := $(call all-main-java-files-under, dex)
+LOCAL_SRC_FILES := $(call all-java-files-under, dex/src/main)
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := dex-host
 include $(BUILD_HOST_JAVA_LIBRARY)
 
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES := $(non_openjdk_java_files) $(openjdk_java_files) $(icu4j_src_files)
+LOCAL_JAVA_RESOURCE_DIRS := $(core_resource_dirs) $(icu4j_resource_dirs)
+LOCAL_NO_STANDARD_LIBRARIES := true
+LOCAL_JAVACFLAGS := $(local_javac_flags)
+LOCAL_DX_FLAGS := --core-library
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE := core-all-hostdex
+LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
+LOCAL_REQUIRED_MODULES := tzdata-host
+LOCAL_CORE_LIBRARY := true
+LOCAL_UNINSTALLABLE_MODULE := true
+include $(BUILD_HOST_DALVIK_JAVA_LIBRARY)
+
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES := $(openjdk_java_files)
+LOCAL_JAVA_RESOURCE_DIRS := $(core_resource_dirs)
+LOCAL_NO_STANDARD_LIBRARIES := true
+LOCAL_JAVACFLAGS := $(local_javac_flags)
+LOCAL_DX_FLAGS := --core-library
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE := core-oj-hostdex
+LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
+LOCAL_JAVA_LIBRARIES := core-all-hostdex
+LOCAL_REQUIRED_MODULES := tzdata-host
+LOCAL_CORE_LIBRARY := true
+LOCAL_REQUIRED_MODULES := currency.data-host
+LOCAL_JARJAR_RULES := $(LOCAL_PATH)/jarjar-rules.txt
+include $(BUILD_HOST_DALVIK_JAVA_LIBRARY)
+
 # Definitions to make the core library.
 include $(CLEAR_VARS)
-LOCAL_SRC_FILES := $(libart_core_src_files) $(icu4j_src_files)
-LOCAL_JAVA_RESOURCE_DIRS := $(core_resource_dirs) $(icu4j_resource_dirs)
+LOCAL_SRC_FILES := $(non_openjdk_java_files) $(icu4j_src_files)
+LOCAL_JAVA_RESOURCE_DIRS := $(icu4j_resource_dirs)
 LOCAL_NO_STANDARD_LIBRARIES := true
 LOCAL_JAVACFLAGS := $(local_javac_flags)
 LOCAL_DX_FLAGS := --core-library
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := core-libart-hostdex
 LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
+LOCAL_JAVA_LIBRARIES := core-oj-hostdex
 LOCAL_REQUIRED_MODULES := tzdata-host
 LOCAL_JARJAR_RULES := $(LOCAL_PATH)/jarjar-rules.txt
 include $(BUILD_HOST_DALVIK_JAVA_LIBRARY)
@@ -198,7 +326,7 @@ ifeq ($(LIBCORE_SKIP_TESTS),)
     LOCAL_SRC_FILES := $(test_src_files)
     LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
     LOCAL_NO_STANDARD_LIBRARIES := true
-    LOCAL_JAVA_LIBRARIES := core-libart-hostdex okhttp-hostdex bouncycastle-hostdex core-junit-hostdex core-tests-support-hostdex
+    LOCAL_JAVA_LIBRARIES := core-oj-hostdex core-libart-hostdex okhttp-hostdex bouncycastle-hostdex core-junit-hostdex core-tests-support-hostdex
     LOCAL_STATIC_JAVA_LIBRARIES := sqlite-jdbc-host mockwebserver-host nist-pkix-tests-host
     LOCAL_JAVACFLAGS := $(local_javac_flags)
     LOCAL_MODULE_TAGS := optional
@@ -213,7 +341,7 @@ ifeq ($(LIBCORE_SKIP_TESTS),)
     LOCAL_SRC_FILES := $(call all-test-java-files-under,support)
     LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
     LOCAL_NO_STANDARD_LIBRARIES := true
-    LOCAL_JAVA_LIBRARIES := core-libart-hostdex core-junit-hostdex bouncycastle-hostdex
+    LOCAL_JAVA_LIBRARIES := core-oj-hostdex core-libart-hostdex core-junit-hostdex bouncycastle-hostdex
     LOCAL_JAVACFLAGS := $(local_javac_flags)
     LOCAL_MODULE_TAGS := optional
     LOCAL_MODULE := core-tests-support-hostdex
@@ -266,3 +394,6 @@ LOCAL_DROIDDOC_OPTIONS := \
 LOCAL_DROIDDOC_CUSTOM_TEMPLATE_DIR:=build/tools/droiddoc/templates-sdk
 
 include $(BUILD_DROIDDOC)
+
+openjdk_java_files :=
+non_openjdk_java_files :=

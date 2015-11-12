@@ -404,8 +404,16 @@ public class FileIOInterruptTest extends TestCase {
 
     // Test for expected behavior in the writer thread.
     waitToDie(channelWriterThread);
-    // The RI throws ChannelClosedException. AsynchronousCloseException is more correct according to
-    // the docs.
+    // // The RI throws ChannelClosedException. AsynchronousCloseException is more correct according to
+    // // the docs.
+    //
+    // Lies. RI throws AsynchronousCloseException only if NO data was written before interrupt.
+    // I altered the ChannelWriter to write exactly 32k bytes and this triggers this behavior.
+    // the AsynchronousCloseException. If some of data is written, the #write will return the number
+    // of bytes written, and then the FOLLOWING #write will throw ChannelClosedException because
+    // file has been closed. Android is actually doing a wrong thing by always throwing the
+    // AsynchronousCloseException. Client application have no idea that SOME data
+    //  was written in this case.
     assertSame(AsynchronousCloseException.class, channelWriter.ioe.getClass());
     assertFalse(channelWriter.wasInterrupted);
 
@@ -585,8 +593,8 @@ public class FileIOInterruptTest extends TestCase {
 
     @Override
     public void run() {
-      ByteBuffer buffer1 = ByteBuffer.allocateDirect(10000);
-      ByteBuffer buffer2 = ByteBuffer.allocateDirect(10000);
+      ByteBuffer buffer1 = ByteBuffer.allocateDirect(32000);
+      ByteBuffer buffer2 = ByteBuffer.allocateDirect(32000);
       // Writes to FIFOs are buffered. We try to fill the buffer and induce blocking (the
       // buffer is typically 64k).
       while (true) {

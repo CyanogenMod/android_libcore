@@ -636,8 +636,7 @@ public class FileChannelTest extends TestCase {
         writeDataToFile(fileOfReadWriteFileChannel);
 
         int truncateLength = CONTENT_LENGTH + 2;
-        assertEquals(readWriteFileChannel, readWriteFileChannel
-                .truncate(truncateLength));
+        assertEquals(readWriteFileChannel, readWriteFileChannel.truncate(truncateLength));
         assertEquals(CONTENT_LENGTH, fileOfReadWriteFileChannel.length());
 
         truncateLength = CONTENT_LENGTH;
@@ -1618,8 +1617,8 @@ public class FileChannelTest extends TestCase {
         fos.flush();
         fos.close();
         FileOutputStream f = new FileOutputStream(tmpfile, true);
-        // Harmony expected 10, but the RI and Android report 0.
-        assertEquals(0, f.getChannel().position());
+        // We're in append mode, so we should be positioned at the end of the file.
+        assertEquals(10, f.getChannel().position());
     }
 
 

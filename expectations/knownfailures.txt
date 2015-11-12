@@ -1429,6 +1429,7 @@
   names: [
     "com.android.org.apache.harmony.beans.tests.java.beans.PropertyChangeSupportTest#testSerialization",
     "com.android.org.apache.harmony.beans.tests.java.beans.PropertyChangeSupportTest#testGetPropertyChangeListener_String_Normal",
+    "com.android.org.apache.harmony.beans.tests.java.beans.PropertyChangeSupportTest#testAddPropertyChangeListener_PropertyChangeListener_String_Duplicate",
     "com.android.org.apache.harmony.beans.tests.java.beans.PropertyChangeSupportTest#testAddPropertyChangeListener_PropertyChangeListener_String_Normal",
     "com.android.org.apache.harmony.beans.tests.java.beans.PropertyChangeSupportTest#testAddPropertyChangeListener_PropertyChangeListener_Normal"
   ]
@@ -1525,6 +1526,15 @@
   names: [
     "com.android.org.conscrypt.NativeCryptoTest#test_SSL_renegotiate",
     "com.android.org.conscrypt.NativeCryptoTest#test_SSL_do_handshake_clientCertificateRequested_throws_after_renegotiate"
+  ]
+},
+{
+  description: "Failures in OldSHA1PRNGSecureRandomTest",
+  result: EXEC_FAILED,
+  names: [
+    "org.apache.harmony.tests.javax.security.OldSHA1PRNGSecureRandomTest#testNextBytesbyteArray02",
+    "org.apache.harmony.tests.javax.security.OldSHA1PRNGSecureRandomTest#testNextBytesbyteArray04",
+    "org.apache.harmony.tests.javax.security.OldSHA1PRNGSecureRandomTest#testSetSeedbyteArray03"
   ]
 }
 ]

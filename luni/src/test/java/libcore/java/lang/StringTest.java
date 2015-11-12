@@ -173,6 +173,7 @@ public class StringTest extends TestCase {
     }
 
     /**
+
      * Test that strings interned manually and then later loaded as literals
      * maintain reference equality. http://b/3098960
      */

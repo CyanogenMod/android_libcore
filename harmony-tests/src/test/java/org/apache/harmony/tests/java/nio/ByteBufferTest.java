@@ -33,12 +33,12 @@ import java.util.Arrays;
 
 /**
  * Tests java.nio.ByteBuffer
- * 
+ *
  */
 public class ByteBufferTest extends AbstractBufferTest {
     protected static final int SMALL_TEST_LENGTH = 5;
     protected static final int BUFFER_LENGTH = 250;
-    
+
     protected ByteBuffer buf;
 
     protected void setUp() throws Exception {
@@ -74,7 +74,7 @@ public class ByteBufferTest extends AbstractBufferTest {
                     fail("Should throw Exception"); //$NON-NLS-1$
                 } catch (UnsupportedOperationException e) {
                     // expected
-                    // Note:can not tell when to throw 
+                    // Note:can not tell when to throw
                     // UnsupportedOperationException
                     // or ReadOnlyBufferException, so catch all.
                 }
@@ -112,7 +112,7 @@ public class ByteBufferTest extends AbstractBufferTest {
                     fail("Should throw Exception"); //$NON-NLS-1$
                 } catch (UnsupportedOperationException e) {
                     // expected
-                    // Note:can not tell when to throw 
+                    // Note:can not tell when to throw
                     // UnsupportedOperationException
                     // or ReadOnlyBufferException, so catch all.
                 }
@@ -236,7 +236,7 @@ public class ByteBufferTest extends AbstractBufferTest {
             assertTrue(buf.compareTo(other) > 0);
             assertTrue(other.compareTo(buf) < 0);
         }
-        
+
         assertTrue(ByteBuffer.wrap(new byte[21]).compareTo(ByteBuffer.allocateDirect(21)) == 0);
     }
 
@@ -437,7 +437,7 @@ public class ByteBufferTest extends AbstractBufferTest {
                     fail("Should throw Exception"); //$NON-NLS-1$
                 } catch (UnsupportedOperationException e) {
                     // expected
-                    // Note:can not tell when to throw 
+                    // Note:can not tell when to throw
                     // UnsupportedOperationException
                     // or ReadOnlyBufferException, so catch all.
                 }
@@ -462,10 +462,10 @@ public class ByteBufferTest extends AbstractBufferTest {
         duplicate.position(buf.capacity()/2);
         assertTrue(buf.hashCode()!= duplicate.hashCode());
     }
-    
+
     //for the testHashCode() method of readonly subclasses
     protected void readOnlyHashCode() {
-        //create a new buffer initiated with some data 
+        //create a new buffer initiated with some data
         ByteBuffer buf = ByteBuffer.allocate(BUFFER_LENGTH);
         loadTestData1(buf);
         buf = buf.asReadOnlyBuffer();
@@ -487,14 +487,14 @@ public class ByteBufferTest extends AbstractBufferTest {
 
         buf.order(ByteOrder.LITTLE_ENDIAN);
         assertEquals(ByteOrder.LITTLE_ENDIAN, buf.order());
-        
+
         buf.order(ByteOrder.BIG_ENDIAN);
         assertEquals(ByteOrder.BIG_ENDIAN, buf.order());
 
         // Regression test for HARMONY-798
         buf.order((ByteOrder)null);
         assertEquals(ByteOrder.LITTLE_ENDIAN, buf.order());
-        
+
         buf.order(ByteOrder.BIG_ENDIAN);
     }
 
@@ -633,7 +633,7 @@ public class ByteBufferTest extends AbstractBufferTest {
         } catch (NullPointerException e) {
             // expected
         }
-        
+
         assertEquals(buf.position(), 0);
 
         loadTestData2(array, 0, array.length);
@@ -678,7 +678,7 @@ public class ByteBufferTest extends AbstractBufferTest {
         } catch (BufferOverflowException e) {
             // expected
         }
-        
+
         try {
             buf.put((ByteBuffer)null);
             fail("Should throw Exception"); //$NON-NLS-1$
@@ -1258,7 +1258,7 @@ public class ByteBufferTest extends AbstractBufferTest {
         try {
         	ByteBuffer.allocateDirect(16).putChar(Integer.MAX_VALUE, 'h');
         } catch (IndexOutOfBoundsException e) {
-        	//expected 
+        	//expected
         }
     }
 
@@ -1327,7 +1327,7 @@ public class ByteBufferTest extends AbstractBufferTest {
         try {
         	ByteBuffer.allocateDirect(16).getDouble(Integer.MAX_VALUE);
         } catch (IndexOutOfBoundsException e) {
-        	//expected 
+        	//expected
         }
     }
 
@@ -1612,7 +1612,7 @@ public class ByteBufferTest extends AbstractBufferTest {
         try {
         	ByteBuffer.allocateDirect(16).getInt(Integer.MAX_VALUE);
         } catch (IndexOutOfBoundsException e) {
-        	//expected 
+        	//expected
         }
     }
 
@@ -1969,7 +1969,7 @@ public class ByteBufferTest extends AbstractBufferTest {
 
         buf.order(ByteOrder.BIG_ENDIAN);
     }
-    
+
     /**
      * @tests java.nio.ByteBuffer.wrap(byte[],int,int)
      */

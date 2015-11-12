@@ -619,7 +619,7 @@ public class BufferTest extends TestCase {
     // http://b/16449607
     public void testDirectByteBufferAlignment() throws Exception {
         ByteBuffer b = ByteBuffer.allocateDirect(10);
-        Field addressField = Buffer.class.getDeclaredField("effectiveDirectAddress");
+        Field addressField = Buffer.class.getDeclaredField("address");
         assertTrue(addressField != null);
         addressField.setAccessible(true);
         long address = addressField.getLong(b);
@@ -884,27 +884,12 @@ public class BufferTest extends TestCase {
         mapped.get();
     }
 
-    public void testElementSizeShifts() {
-        // Element size shifts are the log base 2 of the element size
-        // of this buffer.
-        assertEquals(1, 1 << ByteBuffer.allocate(0).getElementSizeShift());
-
-        assertEquals(SizeOf.CHAR, 1 << CharBuffer.allocate(0).getElementSizeShift());
-        assertEquals(SizeOf.SHORT, 1 << ShortBuffer.allocate(0).getElementSizeShift());
-
-        assertEquals(SizeOf.INT, 1 << IntBuffer.allocate(0).getElementSizeShift());
-        assertEquals(SizeOf.FLOAT, 1 << FloatBuffer.allocate(0).getElementSizeShift());
-
-        assertEquals(SizeOf.LONG, 1 << LongBuffer.allocate(0).getElementSizeShift());
-        assertEquals(SizeOf.DOUBLE, 1 << DoubleBuffer.allocate(0).getElementSizeShift());
-    }
-
     public void testFreed() {
         ByteBuffer b1 = ByteBuffer.allocateDirect(1);
         ByteBuffer b2 = b1.duplicate();
         NioUtils.freeDirectBuffer(b1);
         for (ByteBuffer b: new ByteBuffer[] { b1, b2 }) {
-            assertFalse(b.isAccessible());
+          //assertFalse(b.isAccessible());
             try {
                 b.compact();
                 fail();
@@ -922,6 +907,7 @@ public class BufferTest extends TestCase {
         }
     }
 
+    /* setAccessible is not available in OpenJdk's buffers.
     public void testAccess() {
         ByteBuffer b1 = ByteBuffer.allocate(1);
         ByteBuffer b2 = b1.duplicate();
@@ -1005,7 +991,7 @@ public class BufferTest extends TestCase {
             testAsMethods(b);
             testGetMethods(b);
         }
-    }
+        }*/
 
     private void testPutMethods(ByteBuffer b) {
         b.position(0);

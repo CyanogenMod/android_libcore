@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package tests.api.org.xml.sax.support;
+package org.apache.harmony.tests.org.xml.sax.support;
 
 import org.xml.sax.AttributeList;
 import org.xml.sax.Attributes;

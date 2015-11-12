@@ -90,8 +90,7 @@ public final class Security {
     private static void registerDefaultProviders() {
         secprops.put("security.provider.1", "com.android.org.conscrypt.OpenSSLProvider");
         secprops.put("security.provider.2", "com.android.org.bouncycastle.jce.provider.BouncyCastleProvider");
-        secprops.put("security.provider.3", "org.apache.harmony.security.provider.crypto.CryptoProvider");
-        secprops.put("security.provider.4", "com.android.org.conscrypt.JSSEProvider");
+        secprops.put("security.provider.3", "com.android.org.conscrypt.JSSEProvider");
     }
 
     /**

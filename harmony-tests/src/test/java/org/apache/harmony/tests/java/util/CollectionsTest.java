@@ -1984,17 +1984,19 @@ public class CollectionsTest extends junit.framework.TestCase {
         }
     }
 
-    public void test_checkType_Ljava_lang_Object_Ljava_lang_Class() throws Exception {
-        Method m = Collections.class.getDeclaredMethod("checkType", Object.class, Class.class);
-        m.setAccessible(true);
-        m.invoke(null, new Object(), Object.class);
-
-        try {
-            m.invoke(null, new Object(), int.class);
-            fail();
-        } catch (InvocationTargetException expected) {
-        }
-    }
+    // Test on a non-public method that isn't guaranteed to exist.
+    //
+    // public void test_checkType_Ljava_lang_Object_Ljava_lang_Class() throws Exception {
+    //     Method m = Collections.class.getDeclaredMethod("checkType", Object.class, Class.class);
+    //    m.setAccessible(true);
+    //     m.invoke(null, new Object(), Object.class);
+    //
+    //     try {
+    //         m.invoke(null, new Object(), int.class);
+    //         fail();
+    //     } catch (InvocationTargetException expected) {
+    //     }
+    // }
 
     public void test_binarySearch_asymmetry_with_comparator() throws Exception {
         List list = new ArrayList();

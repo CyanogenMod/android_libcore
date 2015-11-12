@@ -558,7 +558,9 @@ public class TreeMapTest extends junit.framework.TestCase {
         try {
             t.subMap(null, new Object());
             fail("Should throw a ClassCastException");
-        } catch (ClassCastException npe) {
+        } catch (ClassCastException cce) {
+            // expected
+        } catch (NullPointerException npe) {
             // expected
         }
     }
@@ -1453,7 +1455,7 @@ public class TreeMapTest extends junit.framework.TestCase {
         treeMapWithNull.put("key1", "value1"); //$NON-NLS-1$ //$NON-NLS-2$
         treeMapWithNull.put(null, "value2"); //$NON-NLS-1$
         SortedMap<String, String> subMapWithNull = treeMapWithNull.subMap(null,
-                true, "key1", true); //$NON-NLS-1$ 
+                true, "key1", true); //$NON-NLS-1$
 
         // RI fails here
         assertEquals("Size of subMap should be 2:", 2, subMapWithNull.size()); //$NON-NLS-1$
@@ -1569,7 +1571,7 @@ public class TreeMapTest extends junit.framework.TestCase {
         treeMapWithNull.put("key1", "value1"); //$NON-NLS-1$ //$NON-NLS-2$
         treeMapWithNull.put(null, "value2"); //$NON-NLS-1$
         SortedMap<String, String> subMapWithNull = treeMapWithNull.headMap(
-                null, true); //$NON-NLS-1$ 
+                null, true); //$NON-NLS-1$
         assertEquals("Size of subMap should be 1:", 1, subMapWithNull.size()); //$NON-NLS-1$
         assertEquals(null, subMapWithNull.get("key1"));
         assertEquals("value2", subMapWithNull.get(null));
@@ -1689,7 +1691,7 @@ public class TreeMapTest extends junit.framework.TestCase {
         treeMapWithNull.put("key1", "value1"); //$NON-NLS-1$ //$NON-NLS-2$
         treeMapWithNull.put(null, "value2"); //$NON-NLS-1$
         SortedMap<String, String> subMapWithNull = treeMapWithNull.tailMap(
-                "key1", true); //$NON-NLS-1$ 
+                "key1", true); //$NON-NLS-1$
         assertEquals("Size of subMap should be 1:", 1, subMapWithNull.size()); //$NON-NLS-1$
         assertEquals("value1", subMapWithNull.get("key1"));
         assertEquals(null, subMapWithNull.get(null));

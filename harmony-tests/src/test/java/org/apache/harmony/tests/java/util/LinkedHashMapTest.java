@@ -453,7 +453,7 @@ public class LinkedHashMapTest extends junit.framework.TestCase {
         LinkedHashMap<String, String> map
                 = new LinkedHashMap<String, String>(6, 0.75F, true) {
             @Override
-            protected boolean removeEldestEntry(Entry<String, String> e) {
+            protected boolean removeEldestEntry(Map.Entry<String, String> e) {
                 return true;
             }
         };
