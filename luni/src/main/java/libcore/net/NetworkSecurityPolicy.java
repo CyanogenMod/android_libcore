@@ -16,8 +16,6 @@
 
 package libcore.net;
 
-import libcore.net.url.FtpURLConnection;
-
 /**
  * Network security policy for this process/application.
  *
@@ -47,8 +45,6 @@ public class NetworkSecurityPolicy {
      * can be made to honor this flag. Platform-provided network stacks (e.g. HTTP and FTP) honor
      * this flag from day one, and well-established third-party network stacks will eventually
      * honor it.
-     *
-     * <p>See {@link FtpURLConnection} for an example of honoring this flag.
      */
     public static boolean isCleartextTrafficPermitted() {
         return cleartextTrafficPermitted;

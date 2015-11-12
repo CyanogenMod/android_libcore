@@ -47,6 +47,13 @@ define include-core-native-dir
     LOCAL_SRC_FILES :=
 endef
 
+define include-openjdk-native-dir
+    LOCAL_SRC_FILES :=
+    include $(LOCAL_PATH)/$(1)/openjdksub.mk
+    openjdk_core_src_files += $$(addprefix $(1)/,$$(LOCAL_SRC_FILES))
+    LOCAL_SRC_FILES :=
+endef
+
 # Set up the default state. Note: We use CLEAR_VARS here, even though
 # we aren't quite defining a new rule yet, to make sure that the
 # sub.mk files don't see anything stray from the last rule that was
@@ -56,6 +63,12 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := $(core_magic_local_target)
 LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/NativeCode.mk
 core_src_files :=
+openjdk_core_src_files :=
+
+#Include the sub.mk for openjdk.
+$(foreach dir, \
+    ojluni/src/main/native, \
+    $(eval $(call include-openjdk-native-dir,$(dir))))
 
 # Include the sub.mk files.
 $(foreach dir, \
@@ -68,6 +81,9 @@ core_shared_libraries := $(LOCAL_SHARED_LIBRARIES)
 core_static_libraries := $(LOCAL_STATIC_LIBRARIES)
 core_cflags := $(LOCAL_CFLAGS) -Wall -Wextra -Werror
 core_cppflags += -std=gnu++11 -DU_USING_ICU_NAMESPACE=0
+ifneq ($(ANDROID_DISABLE_CORE_OBFUSCATION),)
+core_cflags += -DANDROID_DISABLE_CORE_OBFUSCATION
+endif
 
 core_test_files := \
   luni/src/test/native/dalvik_system_JniTest.cpp \
@@ -86,6 +102,27 @@ LOCAL_STATIC_LIBRARIES += $(core_static_libraries) libziparchive libbase
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := libjavacore
 LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/NativeCode.mk
+LOCAL_CXX_STL := libc++
+include $(BUILD_SHARED_LIBRARY)
+
+include $(CLEAR_VARS)
+
+LOCAL_CFLAGS += -Wall
+LOCAL_CFLAGS += $(core_cflags)
+LOCAL_CPPFLAGS += $(core_cppflags)
+ifeq ($(TARGET_ARCH),arm)
+# Ignore "note: the mangling of 'va_list' has changed in GCC 4.4"
+LOCAL_CFLAGS += -Wno-psabi
+endif
+
+# Define the rules.
+LOCAL_SRC_FILES := $(openjdk_core_src_files)
+LOCAL_C_INCLUDES := $(core_c_includes)
+LOCAL_SHARED_LIBRARIES := $(core_shared_libraries) libcrypto libssl libz
+LOCAL_SHARED_LIBRARIES += libart libnativehelper libdl
+LOCAL_STATIC_LIBRARIES := $(core_static_libraries) libfdlibm
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE := libxxavacore
 LOCAL_CXX_STL := libc++
 include $(BUILD_SHARED_LIBRARY)
 
@@ -148,6 +185,8 @@ include $(CLEAR_VARS)
 LOCAL_CLANG := true
 LOCAL_SRC_FILES += $(core_src_files)
 LOCAL_CFLAGS += $(core_cflags)
+# We don't run the host jar files through proguard.
+LOCAL_CFLAGS += -DANDROID_DISABLE_CORE_OBFUSCATION
 LOCAL_C_INCLUDES += $(core_c_includes)
 LOCAL_CPPFLAGS += $(core_cppflags)
 LOCAL_LDLIBS += -ldl -lpthread
@@ -161,6 +200,21 @@ LOCAL_SHARED_LIBRARIES += $(core_shared_libraries) libexpat-host libicuuc-host l
 LOCAL_STATIC_LIBRARIES += $(core_static_libraries)
 LOCAL_MULTILIB := both
 LOCAL_CXX_STL := libc++
+include $(BUILD_HOST_SHARED_LIBRARY)
+
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES := $(openjdk_core_src_files)
+LOCAL_C_INCLUDES := $(core_c_includes)
+LOCAL_CFLAGS := -D_LARGEFILE64_SOURCE -D_GNU_SOURCE -DLINUX -D__GLIBC__ # Sigh.
+# We don't run the host jar files through proguard.
+LOCAL_CFLAGS += -DANDROID_DISABLE_CORE_OBFUSCATION
+LOCAL_SHARED_LIBRARIES := $(core_shared_libraries) libcrypto-host libz-host
+LOCAL_SHARED_LIBRARIES += libart libnativehelper
+LOCAL_STATIC_LIBRARIES := $(core_static_libraries) libfdlibm
+LOCAL_MODULE_TAGS := optional
+LOCAL_LDLIBS += -ldl -lpthread
+LOCAL_MODULE := libxxavacore
+LOCAL_MULTILIB := both
 include $(BUILD_HOST_SHARED_LIBRARY)
 
 ifeq ($(LIBCORE_SKIP_TESTS),)

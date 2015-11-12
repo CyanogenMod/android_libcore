@@ -19,7 +19,8 @@ package libcore.java.util.prefs;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
-import java.util.prefs.FilePreferencesImpl;
+import java.io.IOException;
+import java.util.prefs.FileSystemPreferences;
 import java.util.prefs.Preferences;
 import java.util.prefs.PreferencesFactory;
 import junit.framework.TestCase;
@@ -34,10 +35,16 @@ public final class PreferencesTest extends TestCase {
         private final Preferences userPrefs;
         private final Preferences systemPrefs;
 
-        public TestPreferencesFactory(String root) {
-            userPrefs = new FilePreferencesImpl(root + "/user", true);
-            systemPrefs = new FilePreferencesImpl(root + "/system", false);
-        }
+        private final File userLockFile;
+        private final File systemLockFile;
+
+        public TestPreferencesFactory(String root) throws IOException {
+            userLockFile = new File(root, "user.lock");
+            systemLockFile = new File(root, "system.lock");
+            assertTrue(userLockFile.createNewFile());
+            assertTrue(systemLockFile.createNewFile());
+            userPrefs = new FileSystemPreferences(root + "/user", userLockFile, true);
+            systemPrefs = new FileSystemPreferences(root + "/system", systemLockFile, false);        }
 
         public Preferences userRoot() {
             return userPrefs;
@@ -69,6 +76,7 @@ public final class PreferencesTest extends TestCase {
      */
     public void testPreferencesClobbersExistingFiles() throws Exception {
         final File userPrefsDir = new File(temporaryDirectory + "/user");
+        assertTrue(userPrefsDir.mkdir());
         final File userPrefs = new File(userPrefsDir, "prefs.xml");
         assertTrue(userPrefs.createNewFile());
         FileWriter writer = new FileWriter(userPrefs);

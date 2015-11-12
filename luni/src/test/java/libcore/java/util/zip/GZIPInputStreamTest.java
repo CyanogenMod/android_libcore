@@ -24,6 +24,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.zip.GZIPInputStream;
@@ -131,17 +132,15 @@ public final class GZIPInputStreamTest extends TestCase {
         System.arraycopy(HELLO_WORLD_GZIPPED, 0, data, 0, length);
         System.arraycopy(HELLO_WORLD_GZIPPED, 0, data, length, 10);
 
-        try {
-            gunzip(data);
-            fail();
-        } catch (EOFException expected) {
-        }
+        // The trailing data is ignored since the amount of data available is
+        // less than the size of a header + trailer (which is the absolute minimum required).
+        byte[] unzipped = gunzip(data);
+        assertEquals("Hello World", new String(unzipped, StandardCharsets.UTF_8));
 
-        // Copy just the header from HELLO_WORLD_GZIPPED so that our input
-        // stream becomes one complete member + a header member.
-        data = new byte[length  + 18];
+        // Must fail here because the data contains a full header and partial data.
+        data = new byte[length*2 - 4];
         System.arraycopy(HELLO_WORLD_GZIPPED, 0, data, 0, length);
-        System.arraycopy(HELLO_WORLD_GZIPPED, 0, data, length, 18);
+        System.arraycopy(HELLO_WORLD_GZIPPED, 0, data, length, length - 4);
 
         try {
             gunzip(data);

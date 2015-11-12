@@ -1,0 +1,72 @@
+-dontshrink
+-flattenpackagehierarchy
+-packageobfuscationdictionary package_obfuscation_dictionary.proguard
+-applymapping mapping.proguard
+-ignorewarnings
+-renamesourcefileattribute SourceFile
+-keepattributes Exceptions,InnerClasses,Signature,Deprecated,SourceFile,LineNumberTable,*Annotation*,EnclosingMethod
+
+-keepnames class com.ibm.** {
+*;
+}
+
+-keepnames class java.** {
+*;
+}
+
+-keepnames class javax.** {
+*;
+}
+
+-keepnames class org.w3c.dom.** {
+*;
+}
+
+-keepnames class org.json.** {
+*;
+}
+
+-keepnames class org.xml.** {
+*;
+}
+
+-keepnames class org.apache.harmony.** {
+*;
+}
+
+-keepnames class org.kxml2.** {
+*;
+}
+
+-keepnames class org.xmlpull.** {
+*;
+}
+
+-keepnames class libcore.** {
+*;
+}
+
+-keepnames class android.** {
+*;
+}
+
+-keepnames class com.android.** {
+*;
+}
+
+-keepnames class dalvik.** {
+*;
+}
+
+-keepnames class sun.misc.Unsafe {
+*;
+}
+
+# Useful only for
+-keepnames class sun.text.resources.** {
+*;
+}
+
+-keepnames class org.apache.harmony.dalvik.** {
+*;
+}

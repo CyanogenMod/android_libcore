@@ -320,10 +320,12 @@ static jobjectArray ICU_getAvailableNumberFormatLocalesNative(JNIEnv* env, jclas
     return toStringArray(env, unum_countAvailable, unum_getAvailable);
 }
 
-static void setIntegerField(JNIEnv* env, jobject obj, const char* fieldName, int value) {
+static bool setIntegerField(JNIEnv* env, jobject obj, const char* fieldName, int value) {
     ScopedLocalRef<jobject> integerValue(env, integerValueOf(env, value));
+    if (integerValue.get() == NULL) return false;
     jfieldID fid = env->GetFieldID(JniConstants::localeDataClass, fieldName, "Ljava/lang/Integer;");
     env->SetObjectField(obj, fid, integerValue.get());
+    return true;
 }
 
 static void setStringField(JNIEnv* env, jobject obj, const char* fieldName, jstring value) {
@@ -589,9 +591,12 @@ static jboolean ICU_initLocaleDataNative(JNIEnv* env, jclass, jstring javaLangua
     if (U_FAILURE(status)) {
         return JNI_FALSE;
     }
-
-    setIntegerField(env, localeData, "firstDayOfWeek", cal->getFirstDayOfWeek());
-    setIntegerField(env, localeData, "minimalDaysInFirstWeek", cal->getMinimalDaysInFirstWeek());
+    if (!setIntegerField(env, localeData, "firstDayOfWeek", cal->getFirstDayOfWeek())) {
+      return JNI_FALSE;
+    }
+    if (!setIntegerField(env, localeData, "minimalDaysInFirstWeek", cal->getMinimalDaysInFirstWeek())) {
+      return JNI_FALSE;
+    }
 
     // Get DateFormatSymbols.
     status = U_ZERO_ERROR;

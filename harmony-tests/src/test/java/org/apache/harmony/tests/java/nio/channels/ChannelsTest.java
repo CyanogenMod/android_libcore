@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -40,7 +40,7 @@ import junit.framework.TestCase;
 /**
  * Note: the test case uses a temp text file named "test" which contains 31
  * characters : "P@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]"
- * 
+ *
  */
 
 public class ChannelsTest extends TestCase {
@@ -57,7 +57,7 @@ public class ChannelsTest extends TestCase {
     private final int testNum = 10;
 
     private final int fileSize = 31;// the file size
-    
+
     private File tmpFile;
 
     protected void setUp() throws Exception {
@@ -157,11 +157,11 @@ public class ChannelsTest extends TestCase {
         readres = this.fins.read(byteArray);
 
         assertEquals(bufSize, readres);
-        assertFalse(0 == this.fins.available());
+        assertTrue(fins.available() > 0);
 
         ReadableByteChannel rbChannel = Channels.newChannel(this.fins);
         // fins still reads.
-        assertFalse(0 == this.fins.available());
+        assertTrue(fins.available() > 0);
         readres = this.fins.read(byteArray);
         assertEquals(bufSize, readres);
 
@@ -172,7 +172,11 @@ public class ChannelsTest extends TestCase {
         assertEquals(bufSize, readres);
         InputStream ins = Channels.newInputStream(rbChannel);
         assertNotNull(ins);
-        assertEquals(0, ins.available());
+        // Channels.newChannel has a special case for FileInputStream, which means
+        // they become SeekableByteChannels that can correctly predict the number of
+        // bytes they have left
+        // The file written is 31 bytes in size and we've read 30 bytes already.
+        assertEquals(1, ins.available());
     }
 
     // test if fout to change is null
@@ -272,7 +276,7 @@ public class ChannelsTest extends TestCase {
         assertTrue(readbc.isOpen());
 
         try {
-            InputStream testins = Channels.newInputStream(null);
+            InputStream testins = Channels.newInputStream((ReadableByteChannel) null);
             assertNotNull(testins);
             testins.read(readbuf);
             fail();
@@ -311,7 +315,7 @@ public class ChannelsTest extends TestCase {
             throws Exception {
         byte[] writebuf = new byte[this.testNum];
         try {
-            OutputStream testouts = Channels.newOutputStream(null);
+            OutputStream testouts = Channels.newOutputStream((WritableByteChannel) null);
             assertNotNull(testouts);
             testouts.write(writebuf);
             fail();
@@ -470,8 +474,8 @@ public class ChannelsTest extends TestCase {
 
         assertEquals(this.fileSize, this.fins.available());
         // not ready...
-        assertFalse(testReader.ready());
-        assertFalse(testReader_s.ready());
+        assertTrue(testReader.ready());
+        assertTrue(testReader_s.ready());
         // still reads
         readres = testReader.read(charBuf);
         assertEquals(bufSize, readres);
@@ -487,7 +491,7 @@ public class ChannelsTest extends TestCase {
         readres = testReader_s.read(charBuf);
         assertEquals(0, readres);
         assertTrue(testReader.ready());
-        assertFalse(testReader_s.ready());
+        assertTrue(testReader_s.ready());
     }
 
     /*
@@ -579,7 +583,7 @@ public class ChannelsTest extends TestCase {
         testWriter.flush();
         this.assertFileSizeSame(tmpFile, this.writebufSize / 2 + 1);
     }
-	
+
     /**
 	 * @tests java.nio.channels.Channels#newReader(ReadableByteChannel channel,
 	 *        String charsetName)

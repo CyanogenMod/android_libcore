@@ -509,11 +509,22 @@ public class BufferedInputStreamTest extends TestCase {
     public void test_skipJ() throws IOException {
         byte[] buf1 = new byte[10];
         is.mark(2000);
-        is.skip(1000);
-        is.read(buf1, 0, buf1.length);
+        // This fails with OpenJdk. The first call to skip() will skip |bufferSize|
+        // bytes, and the second call will potentially resize the buffer. Users need
+        // to be aware. The API behaviour is correct, obviously, but it remains to
+        // be seen whether anybody blindly expects skip to always skip the number
+        // of bytes requested.
+        //
+        // assertEquals(1000, is.skip(1000));
+        int bytesLeft = 1000;
+        while (bytesLeft > 0) {
+            bytesLeft -= is.skip(bytesLeft);
+        }
+
+        assertEquals(buf1.length, is.read(buf1, 0, buf1.length));
         is.reset();
-        assertTrue("Failed to skip to correct position", new String(buf1, 0,
-                buf1.length).equals(INPUT.substring(1000, 1010)));
+        assertEquals("Failed to skip to correct position", new String(buf1, 0,
+                buf1.length), INPUT.substring(1000, 1010));
 
         // regression for HARMONY-667
         try {

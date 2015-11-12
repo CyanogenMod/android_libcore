@@ -65,6 +65,13 @@ import java.util.Map;
 public abstract class ClassLoader {
 
     /**
+     * @hide
+     */
+    protected static boolean registerAsParallelCapable() {
+        return true;
+    }
+
+    /**
      * The 'System' ClassLoader - the one that is responsible for loading
      * classes from the classpath. It is not equal to the bootstrap class loader -
      * that one handles the built-in classes.

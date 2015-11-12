@@ -192,7 +192,7 @@ public class FloatBufferTest extends AbstractBufferTest {
 
         assertEquals("Failed equal comparison with NaN entry", 0, fbuffer1
                 .compareTo(fbuffer2));
-        assertEquals("Failed greater than comparison with NaN entry", 1, fbuffer3
+        assertEquals("Failed greater than comparison with NaN entry", -1, fbuffer3
                 .compareTo(fbuffer1));
         assertEquals("Failed greater than comparison with NaN entry", 1, fbuffer1
                 .compareTo(fbuffer3));

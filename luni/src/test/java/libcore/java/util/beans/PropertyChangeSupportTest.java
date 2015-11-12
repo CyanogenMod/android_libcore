@@ -93,10 +93,10 @@ public final class PropertyChangeSupportTest extends TestCase {
         assertEquals(Arrays.asList(eventA, eventB, eventC), all.log);
         assertEquals(Arrays.asList(eventA), proxiedA.log);
         assertEquals(Arrays.asList(eventA), addA.log);
-        assertEquals(Arrays.<PropertyChangeEvent>asList(), addAProxiedB.log);
-        assertEquals(Arrays.<PropertyChangeEvent>asList(), proxiedAB.log);
-        assertEquals(Arrays.<PropertyChangeEvent>asList(eventA), proxiedAA.log);
-        assertEquals(Arrays.<PropertyChangeEvent>asList(), proxiedAAC.log);
+        assertEquals(Arrays.asList(eventA), addAProxiedB.log);
+        assertEquals(Arrays.asList(eventA), proxiedAB.log);
+        assertEquals(Arrays.asList(eventA), proxiedAA.log);
+        assertEquals(Arrays.asList(eventA), proxiedAAC.log);
     }
 
     /**
@@ -148,14 +148,8 @@ public final class PropertyChangeSupportTest extends TestCase {
         assertEquals(1, support.getPropertyChangeListeners().length);
 
         support.removePropertyChangeListener(proxiedAAC);
-        support.removePropertyChangeListener(new PropertyChangeListenerProxy("a", proxiedAAC));
-        support.removePropertyChangeListener("a", new PropertyChangeListenerProxy("c", proxiedAAC));
-        support.removePropertyChangeListener("a", new PropertyChangeListenerProxy("c",
-                new PropertyChangeListenerProxy("a", proxiedAAC)));
         assertEquals(1, support.getPropertyChangeListeners().length);
-
-        support.removePropertyChangeListener("a", new PropertyChangeListenerProxy("a",
-                new PropertyChangeListenerProxy("c", proxiedAAC)));
+        support.removePropertyChangeListener(new PropertyChangeListenerProxy("a", proxiedAAC));
         assertEquals(0, support.getPropertyChangeListeners().length);
     }
 
@@ -208,11 +202,8 @@ public final class PropertyChangeSupportTest extends TestCase {
         assertEquals(PropertyChangeListenerProxy.class, p1.getClass());
         assertEquals("b", p1.getPropertyName());
 
-        // this proxy sets us up to receive 'a' events
-        PropertyChangeListenerProxy p2 = (PropertyChangeListenerProxy) p1.getListener();
-        assertEquals(PropertyChangeListenerProxy.class, p2.getClass());
-        assertEquals("a", p2.getPropertyName());
-        assertEquals(listener, p2.getListener());
+        // there's no more proxy on 'a'.
+        assertEquals(listener, p1.getListener());
     }
 
     public void testSerialize() {

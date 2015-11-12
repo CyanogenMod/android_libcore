@@ -176,8 +176,8 @@ public class PreferencesTest extends TestCase {
     public void testImportPreferencesException() throws Exception {
         try {
             Preferences.importPreferences(null);
-            fail("should throw MalformedURLException");
-        } catch (MalformedURLException expected) {
+            fail("should throw InvalidPreferencesFormatException");
+        } catch (InvalidPreferencesFormatException expected) {
         }
 
         byte[] source = new byte[0];

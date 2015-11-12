@@ -85,7 +85,11 @@ public class CharsetDecoderTest extends junit.framework.TestCase {
 
     private static byte[] encode(String charsetName, String s) throws Exception {
         CharsetEncoder encoder = Charset.forName(charsetName).newEncoder();
-        return encoder.encode(CharBuffer.wrap(s)).array();
+        ByteBuffer buf = encoder.encode(CharBuffer.wrap(s));
+        byte[] out = new byte[buf.remaining()];
+        buf.get(out);
+        assertEquals(0, buf.remaining());
+        return out;
     }
 
     public void testUtf8BytesSplitAcrossMultipleWrites() throws Exception {

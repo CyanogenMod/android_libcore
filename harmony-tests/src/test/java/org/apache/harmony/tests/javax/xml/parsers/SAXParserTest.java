@@ -13,20 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package tests.api.javax.xml.parsers;
+package org.apache.harmony.tests.javax.xml.parsers;
 
 import dalvik.annotation.KnownFailure;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.HashMap;
-import java.util.Vector;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
+
 import junit.framework.TestCase;
+
+import org.apache.harmony.tests.javax.xml.parsers.SAXParserTestSupport.MyDefaultHandler;
+import org.apache.harmony.tests.javax.xml.parsers.SAXParserTestSupport.MyHandler;
+import org.apache.harmony.tests.org.xml.sax.support.BrokenInputStream;
+import org.apache.harmony.tests.org.xml.sax.support.MethodLogger;
+import org.apache.harmony.tests.org.xml.sax.support.MockHandler;
 import org.xml.sax.HandlerBase;
 import org.xml.sax.InputSource;
 import org.xml.sax.Parser;
@@ -36,12 +33,20 @@ import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.helpers.DefaultHandler;
-import tests.api.javax.xml.parsers.SAXParserTestSupport.MyDefaultHandler;
-import tests.api.javax.xml.parsers.SAXParserTestSupport.MyHandler;
-import tests.api.org.xml.sax.support.BrokenInputStream;
-import tests.api.org.xml.sax.support.MethodLogger;
-import tests.api.org.xml.sax.support.MockHandler;
+
 import tests.support.resource.Support_Resources;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.Vector;
+
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 
 @SuppressWarnings("deprecation")
 public class SAXParserTest extends TestCase {

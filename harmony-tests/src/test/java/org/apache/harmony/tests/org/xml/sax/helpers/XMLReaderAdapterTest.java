@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 
-package tests.api.org.xml.sax.helpers;
+package org.apache.harmony.tests.org.xml.sax.helpers;
 
 import java.io.IOException;
 import java.util.Locale;
 
 import junit.framework.TestCase;
 
+import org.apache.harmony.tests.org.xml.sax.support.MethodLogger;
+import org.apache.harmony.tests.org.xml.sax.support.MockHandler;
+import org.apache.harmony.tests.org.xml.sax.support.MockReader;
+import org.apache.harmony.tests.org.xml.sax.support.MockResolver;
 import org.xml.sax.AttributeList;
 import org.xml.sax.Attributes;
 import org.xml.sax.DTDHandler;
@@ -34,11 +38,6 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.AttributesImpl;
 import org.xml.sax.helpers.LocatorImpl;
 import org.xml.sax.helpers.XMLReaderAdapter;
-
-import tests.api.org.xml.sax.support.MethodLogger;
-import tests.api.org.xml.sax.support.MockHandler;
-import tests.api.org.xml.sax.support.MockReader;
-import tests.api.org.xml.sax.support.MockResolver;
 
 @SuppressWarnings("deprecation")
 public class XMLReaderAdapterTest extends TestCase {
@@ -75,7 +74,7 @@ public class XMLReaderAdapterTest extends TestCase {
 
     public void testXMLReaderAdapter() {
         System.setProperty("org.xml.sax.driver",
-                "tests.api.org.xml.sax.support.DoNothingXMLReader");
+                "org.apache.harmony.tests.org.xml.sax.support.DoNothingXMLReader");
 
         try {
             new XMLReaderAdapter();

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package tests.api.org.xml.sax.support;
+package org.apache.harmony.tests.org.xml.sax.support;
 
 import java.io.IOException;
 import java.util.Locale;
