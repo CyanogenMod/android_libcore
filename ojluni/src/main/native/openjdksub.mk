@@ -1,4 +1,4 @@
-\# -*- mode: makefile -*-
+# -*- mode: makefile -*-
 # This file is included by the top-level libcore Android.mk.
 # It's not a normal makefile, so we don't include CLEAR_VARS
 # or BUILD_*_LIBRARY.
@@ -65,12 +65,10 @@ LOCAL_SRC_FILES := \
     Shutdown.c \
     UNIXProcess_md.c \
     Bits.c \
-    Character.cpp \
     Register.cpp \
 
 LOCAL_C_INCLUDES += \
        libcore/$(srcdir) \
        external/fdlibm \
        external/openssl/include \
-       external/zlib \
-       external/icu/icu4c/source/common \
+       external/zlib

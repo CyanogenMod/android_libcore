@@ -2990,7 +2990,7 @@ public final class Character implements Serializable, Comparable<Character> {
         return isSpaceCharImpl(codePoint);
     }
 
-    static nativeByteOrder boolean isSpaceCharImpl(int codePoint);
+    private static native boolean isSpaceCharImpl(int codePoint);
 
     /**
      * Indicates whether the specified character is a titlecase character.

@@ -580,23 +580,6 @@ class Character implements java.io.Serializable, Comparable<Character> {
      */
     public static final int MAX_CODE_POINT = 0X10FFFF;
 
-    private static final byte[] DIRECTIONALITY = new byte[] {
-            DIRECTIONALITY_LEFT_TO_RIGHT, DIRECTIONALITY_RIGHT_TO_LEFT,
-            DIRECTIONALITY_EUROPEAN_NUMBER,
-            DIRECTIONALITY_EUROPEAN_NUMBER_SEPARATOR,
-            DIRECTIONALITY_EUROPEAN_NUMBER_TERMINATOR,
-            DIRECTIONALITY_ARABIC_NUMBER,
-            DIRECTIONALITY_COMMON_NUMBER_SEPARATOR,
-            DIRECTIONALITY_PARAGRAPH_SEPARATOR,
-            DIRECTIONALITY_SEGMENT_SEPARATOR, DIRECTIONALITY_WHITESPACE,
-            DIRECTIONALITY_OTHER_NEUTRALS,
-            DIRECTIONALITY_LEFT_TO_RIGHT_EMBEDDING,
-            DIRECTIONALITY_LEFT_TO_RIGHT_OVERRIDE,
-            DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC,
-            DIRECTIONALITY_RIGHT_TO_LEFT_EMBEDDING,
-            DIRECTIONALITY_RIGHT_TO_LEFT_OVERRIDE,
-            DIRECTIONALITY_POP_DIRECTIONAL_FORMAT,
-            DIRECTIONALITY_NONSPACING_MARK, DIRECTIONALITY_BOUNDARY_NEUTRAL };
 
     /**
      * Instances of this class represent particular subsets of the Unicode
@@ -5280,10 +5263,9 @@ class Character implements java.io.Serializable, Comparable<Character> {
      * @since   1.5
      */
     public static boolean isLowerCase(int codePoint) {
-        return isLowerCaseImpl(codePoint);
+        return getType(codePoint) == Character.LOWERCASE_LETTER ||
+               CharacterData.of(codePoint).isOtherLowercase(codePoint);
     }
-
-    static native boolean isLowerCaseImpl(int codePoint);
 
     /**
      * Determines if the specified character is an uppercase character.
@@ -5347,11 +5329,9 @@ class Character implements java.io.Serializable, Comparable<Character> {
      * @since   1.5
      */
     public static boolean isUpperCase(int codePoint) {
-        return isUpperCaseImpl(codePoint);
+        return getType(codePoint) == Character.UPPERCASE_LETTER ||
+               CharacterData.of(codePoint).isOtherUppercase(codePoint);
     }
-
-    static native boolean isUpperCaseImpl(int codePoint);
-
 
     /**
      * Determines if the specified character is a titlecase character.
@@ -5427,10 +5407,8 @@ class Character implements java.io.Serializable, Comparable<Character> {
      * @since   1.5
      */
     public static boolean isTitleCase(int codePoint) {
-        return isTitleCaseImpl(codePoint);
+        return getType(codePoint) == Character.TITLECASE_LETTER;
     }
-
-    static native boolean isTitleCaseImpl(int codePoint);
 
     /**
      * Determines if the specified character is a digit.
@@ -5502,10 +5480,8 @@ class Character implements java.io.Serializable, Comparable<Character> {
      * @since   1.5
      */
     public static boolean isDigit(int codePoint) {
-        return isDigitImpl(codePoint);
+        return getType(codePoint) == Character.DECIMAL_DIGIT_NUMBER;
     }
-
-    static native boolean isDigitImpl(int codePoint);
 
     /**
      * Determines if a character is defined in Unicode.
@@ -5557,10 +5533,8 @@ class Character implements java.io.Serializable, Comparable<Character> {
      * @since   1.5
      */
     public static boolean isDefined(int codePoint) {
-        return isDefinedImpl(codePoint);
+        return getType(codePoint) != Character.UNASSIGNED;
     }
-
-    static native boolean isDefinedImpl(int codePoint);
 
     /**
      * Determines if the specified character is a letter.
@@ -5631,10 +5605,13 @@ class Character implements java.io.Serializable, Comparable<Character> {
      * @since   1.5
      */
     public static boolean isLetter(int codePoint) {
-        return isLetterImpl(codePoint);
+        return ((((1 << Character.UPPERCASE_LETTER) |
+            (1 << Character.LOWERCASE_LETTER) |
+            (1 << Character.TITLECASE_LETTER) |
+            (1 << Character.MODIFIER_LETTER) |
+            (1 << Character.OTHER_LETTER)) >> getType(codePoint)) & 1)
+            != 0;
     }
-
-    static native boolean isLetterImpl(int codePoint);
 
     /**
      * Determines if the specified character is a letter or digit.
@@ -5682,10 +5659,14 @@ class Character implements java.io.Serializable, Comparable<Character> {
      * @since   1.5
      */
     public static boolean isLetterOrDigit(int codePoint) {
-        return isLetterOrDigitImpl(codePoint);
+        return ((((1 << Character.UPPERCASE_LETTER) |
+            (1 << Character.LOWERCASE_LETTER) |
+            (1 << Character.TITLECASE_LETTER) |
+            (1 << Character.MODIFIER_LETTER) |
+            (1 << Character.OTHER_LETTER) |
+            (1 << Character.DECIMAL_DIGIT_NUMBER)) >> getType(codePoint)) & 1)
+            != 0;
     }
-
-    static native boolean isLetterOrDigitImpl(int codePoint);
 
     /**
      * Determines if the specified character is permissible as the first
@@ -5776,11 +5757,14 @@ class Character implements java.io.Serializable, Comparable<Character> {
      * @since   1.7
      */
     public static boolean isAlphabetic(int codePoint) {
-        return isAlphabeticImpl(codePoint);
+        return (((((1 << Character.UPPERCASE_LETTER) |
+            (1 << Character.LOWERCASE_LETTER) |
+            (1 << Character.TITLECASE_LETTER) |
+            (1 << Character.MODIFIER_LETTER) |
+            (1 << Character.OTHER_LETTER) |
+            (1 << Character.LETTER_NUMBER)) >> getType(codePoint)) & 1) != 0) ||
+            CharacterData.of(codePoint).isOtherAlphabetic(codePoint);
     }
-
-    static native boolean isAlphabeticImpl(int codePoint);
-
 
     /**
      * Determines if the specified character (Unicode code point) is a CJKV
@@ -5793,10 +5777,8 @@ class Character implements java.io.Serializable, Comparable<Character> {
      * @since   1.7
      */
     public static boolean isIdeographic(int codePoint) {
-        return isIdeographicImpl(codePoint);
+        return CharacterData.of(codePoint).isIdeographic(codePoint);
     }
-
-    static native boolean isIdeographicImpl(int codePoint);
 
     /**
      * Determines if the specified character is
@@ -5855,21 +5837,7 @@ class Character implements java.io.Serializable, Comparable<Character> {
      * @since   1.5
      */
     public static boolean isJavaIdentifierStart(int codePoint) {
-        // Use precomputed bitmasks to optimize the ASCII range.
-        if (codePoint < 64) {
-            return (codePoint == '$'); // There's only one character in this range.
-        } else if (codePoint < 128) {
-            return (0x7fffffe87fffffeL & (1L << (codePoint - 64))) != 0;
-        }
-        return ((1 << getType(codePoint))
-                & ((1 << UPPERCASE_LETTER)
-                   | (1 << LOWERCASE_LETTER)
-                   | (1  << TITLECASE_LETTER)
-                   | (1  << MODIFIER_LETTER)
-                   | (1  << OTHER_LETTER)
-                   | (1  << CURRENCY_SYMBOL)
-                   | (1  << CONNECTOR_PUNCTUATION)
-                   | (1  << LETTER_NUMBER))) != 0;
+        return CharacterData.of(codePoint).isJavaIdentifierStart(codePoint);
     }
 
     /**
@@ -5939,27 +5907,7 @@ class Character implements java.io.Serializable, Comparable<Character> {
      * @since   1.5
      */
     public static boolean isJavaIdentifierPart(int codePoint) {
-        // Use precomputed bitmasks to optimize the ASCII range.
-        if (codePoint < 64) {
-            return (0x3ff00100fffc1ffL & (1L << codePoint)) != 0;
-        } else if (codePoint < 128) {
-            return (0x87fffffe87fffffeL & (1L << (codePoint - 64))) != 0;
-        }
-        return ((1 << getType(codePoint))
-                & ((1 << UPPERCASE_LETTER)
-                   | (1 << LOWERCASE_LETTER)
-                   | (1 << TITLECASE_LETTER)
-                   | (1 << MODIFIER_LETTER)
-                   | (1 << OTHER_LETTER)
-                   | (1 << CURRENCY_SYMBOL)
-                   | (1 << CONNECTOR_PUNCTUATION)
-                   | (1 << DECIMAL_DIGIT_NUMBER)
-                   | (1 << LETTER_NUMBER)
-                   | (1 << FORMAT)
-                   | (1 << COMBINING_SPACING_MARK)
-                   | (1 << NON_SPACING_MARK))) != 0
-                || (codePoint >= 0 && codePoint <= 8) || (codePoint >= 0xe && codePoint <= 0x1b)
-                || (codePoint >= 0x7f && codePoint <= 0x9f);
+        return CharacterData.of(codePoint).isJavaIdentifierPart(codePoint);
     }
 
     /**
@@ -6012,10 +5960,8 @@ class Character implements java.io.Serializable, Comparable<Character> {
      * @since   1.5
      */
     public static boolean isUnicodeIdentifierStart(int codePoint) {
-        return isUnicodeIdentifierStartImpl(codePoint);
+        return CharacterData.of(codePoint).isUnicodeIdentifierStart(codePoint);
     }
-
-    static native boolean isUnicodeIdentifierStartImpl(int codePoint);
 
     /**
      * Determines if the specified character may be part of a Unicode
@@ -6078,10 +6024,8 @@ class Character implements java.io.Serializable, Comparable<Character> {
      * @since   1.5
      */
     public static boolean isUnicodeIdentifierPart(int codePoint) {
-        return isUnicodeIdentifierPartImpl(codePoint);
+        return CharacterData.of(codePoint).isUnicodeIdentifierPart(codePoint);
     }
-
-    static native boolean isUnicodeIdentifierPartImpl(int codePoint);
 
     /**
      * Determines if the specified character should be regarded as
@@ -6145,10 +6089,8 @@ class Character implements java.io.Serializable, Comparable<Character> {
      * @since   1.5
      */
     public static boolean isIdentifierIgnorable(int codePoint) {
-        return isIdentifierIgnorableImpl(codePoint);
+        return CharacterData.of(codePoint).isIdentifierIgnorable(codePoint);
     }
-
-    static native boolean isIdentifierIgnorableImpl(int codePoint);
 
     /**
      * Converts the character argument to lowercase using case
@@ -6207,10 +6149,8 @@ class Character implements java.io.Serializable, Comparable<Character> {
      * @since   1.5
      */
     public static int toLowerCase(int codePoint) {
-        return toLowerCaseImpl(codePoint);
+        return CharacterData.of(codePoint).toLowerCase(codePoint);
     }
-
-    static native int toLowerCaseImpl(int codePoint);
 
     /**
      * Converts the character argument to uppercase using case mapping
@@ -6269,10 +6209,8 @@ class Character implements java.io.Serializable, Comparable<Character> {
      * @since   1.5
      */
     public static int toUpperCase(int codePoint) {
-        return toUpperCaseImpl(codePoint);
+        return CharacterData.of(codePoint).toUpperCase(codePoint);
     }
-
-    static native int toUpperCaseImpl(int codePoint);
 
     /**
      * Converts the character argument to titlecase using case mapping
@@ -6330,10 +6268,8 @@ class Character implements java.io.Serializable, Comparable<Character> {
      * @since   1.5
      */
     public static int toTitleCase(int codePoint) {
-        return toTitleCaseImpl(codePoint);
+        return CharacterData.of(codePoint).toTitleCase(codePoint);
     }
-
-    static native int toTitleCaseImpl(int codePoint);
 
     /**
      * Returns the numeric value of the character {@code ch} in the
@@ -6438,10 +6374,8 @@ class Character implements java.io.Serializable, Comparable<Character> {
      * @since   1.5
      */
     public static int digit(int codePoint, int radix) {
-        return digitImpl(codePoint, radix);
+        return CharacterData.of(codePoint).digit(codePoint, radix);
     }
-
-    native static int digitImpl(int codePoint, int radix);
 
     /**
      * Returns the {@code int} value that the specified Unicode
@@ -6511,31 +6445,8 @@ class Character implements java.io.Serializable, Comparable<Character> {
      * @since   1.5
      */
     public static int getNumericValue(int codePoint) {
-        // This is both an optimization and papers over differences between Java and ICU.
-        if (codePoint < 128) {
-            if (codePoint >= '0' && codePoint <= '9') {
-                return codePoint - '0';
-            }
-            if (codePoint >= 'a' && codePoint <= 'z') {
-                return codePoint - ('a' - 10);
-            }
-            if (codePoint >= 'A' && codePoint <= 'Z') {
-                return codePoint - ('A' - 10);
-            }
-            return -1;
-        }
-        // Full-width uppercase A-Z.
-        if (codePoint >= 0xff21 && codePoint <= 0xff3a) {
-            return codePoint - 0xff17;
-        }
-        // Full-width lowercase a-z.
-        if (codePoint >= 0xff41 && codePoint <= 0xff5a) {
-            return codePoint - 0xff37;
-        }
-        return getNumericValueImpl(codePoint);
+        return CharacterData.of(codePoint).getNumericValue(codePoint);
     }
-
-    native static int getNumericValueImpl(int codePoint);
 
     /**
      * Determines if the specified character is ISO-LATIN-1 white space.
@@ -6619,31 +6530,11 @@ class Character implements java.io.Serializable, Comparable<Character> {
      * @since   1.5
      */
     public static boolean isSpaceChar(int codePoint) {
-        // We don't just call into icu4c because of the JNI overhead. Ideally we'd fix that.
-        // SPACE or NO-BREAK SPACE?
-        if (codePoint == 0x20 || codePoint == 0xa0) {
-            return true;
-        }
-        if (codePoint < 0x1000) {
-            return false;
-        }
-        // OGHAM SPACE MARK or MONGOLIAN VOWEL SEPARATOR?
-        if (codePoint == 0x1680 || codePoint == 0x180e) {
-            return true;
-        }
-        if (codePoint < 0x2000) {
-            return false;
-        }
-        if (codePoint <= 0xffff) {
-            // Other whitespace from General Punctuation...
-            return codePoint <= 0x200a || codePoint == 0x2028 || codePoint == 0x2029 || codePoint == 0x202f || codePoint == 0x205f ||
-                codePoint == 0x3000; // ...or CJK Symbols and Punctuation?
-        }
-        // Let icu4c worry about non-BMP code points.
-        return isSpaceCharImpl(codePoint);
+        return ((((1 << Character.SPACE_SEPARATOR) |
+                  (1 << Character.LINE_SEPARATOR) |
+                  (1 << Character.PARAGRAPH_SEPARATOR)) >> getType(codePoint)) & 1)
+            != 0;
     }
-
-    static native boolean isSpaceCharImpl(int codePoint);
 
     /**
      * Determines if the specified character is white space according to Java.
@@ -6709,35 +6600,8 @@ class Character implements java.io.Serializable, Comparable<Character> {
      * @since   1.5
      */
     public static boolean isWhitespace(int codePoint) {
-        // We don't just call into icu4c because of the JNI overhead. Ideally we'd fix that.
-        // Any ASCII whitespace character?
-        if ((codePoint >= 0x1c && codePoint <= 0x20) || (codePoint >= 0x09 && codePoint <= 0x0d)) {
-            return true;
-        }
-        if (codePoint < 0x1000) {
-            return false;
-        }
-        // OGHAM SPACE MARK or MONGOLIAN VOWEL SEPARATOR?
-        if (codePoint == 0x1680 || codePoint == 0x180e) {
-            return true;
-        }
-        if (codePoint < 0x2000) {
-            return false;
-        }
-        // Exclude General Punctuation's non-breaking spaces (which includes FIGURE SPACE).
-        if (codePoint == 0x2007 || codePoint == 0x202f) {
-            return false;
-        }
-        if (codePoint <= 0xffff) {
-            // Other whitespace from General Punctuation...
-            return codePoint <= 0x200a || codePoint == 0x2028 || codePoint == 0x2029 || codePoint == 0x205f ||
-                codePoint == 0x3000; // ...or CJK Symbols and Punctuation?
-        }
-        // Let icu4c worry about non-BMP code points.
-        return isWhitespaceImpl(codePoint);
+        return CharacterData.of(codePoint).isWhitespace(codePoint);
     }
-
-    native static boolean isWhitespaceImpl(int codePoint);
 
     /**
      * Determines if the specified character is an ISO control
@@ -6871,15 +6735,8 @@ class Character implements java.io.Serializable, Comparable<Character> {
      * @since   1.5
      */
     public static int getType(int codePoint) {
-        int type = getTypeImpl(codePoint);
-        // The type values returned by ICU are not RI-compatible. The RI skips the value 17.
-        if (type <= Character.FORMAT) {
-            return type;
-        }
-        return (type + 1);
+        return CharacterData.of(codePoint).getType(codePoint);
     }
-
-    static native int getTypeImpl(int codePoint);
 
     /**
      * Determines the character representation for a specific digit in
@@ -6993,18 +6850,9 @@ class Character implements java.io.Serializable, Comparable<Character> {
      * @since    1.5
      */
     public static byte getDirectionality(int codePoint) {
-        if (getType(codePoint) == Character.UNASSIGNED) {
-            return Character.DIRECTIONALITY_UNDEFINED;
-        }
-
-        byte directionality = getDirectionalityImpl(codePoint);
-        if (directionality >= 0 && directionality < DIRECTIONALITY.length) {
-            return DIRECTIONALITY[directionality];
-        }
-        return Character.DIRECTIONALITY_UNDEFINED;
+        return CharacterData.of(codePoint).getDirectionality(codePoint);
     }
 
-    native static byte getDirectionalityImpl(int codePoint);
     /**
      * Determines whether the character is mirrored according to the
      * Unicode specification.  Mirrored characters should have their
@@ -7044,10 +6892,9 @@ class Character implements java.io.Serializable, Comparable<Character> {
      * @since   1.5
      */
     public static boolean isMirrored(int codePoint) {
-        return isMirroredImpl(codePoint);
+        return CharacterData.of(codePoint).isMirrored(codePoint);
     }
 
-    native static boolean isMirroredImpl(int codePoint);
     /**
      * Compares two {@code Character} objects numerically.
      *
@@ -7083,6 +6930,43 @@ class Character implements java.io.Serializable, Comparable<Character> {
      */
     public static int compare(char x, char y) {
         return x - y;
+    }
+
+    /**
+     * Converts the character (Unicode code point) argument to uppercase using
+     * information from the UnicodeData file.
+     * <p>
+     *
+     * @param   codePoint   the character (Unicode code point) to be converted.
+     * @return  either the uppercase equivalent of the character, if
+     *          any, or an error flag ({@code Character.ERROR})
+     *          that indicates that a 1:M {@code char} mapping exists.
+     * @see     Character#isLowerCase(char)
+     * @see     Character#isUpperCase(char)
+     * @see     Character#toLowerCase(char)
+     * @see     Character#toTitleCase(char)
+     * @since 1.4
+     */
+    static int toUpperCaseEx(int codePoint) {
+        assert isValidCodePoint(codePoint);
+        return CharacterData.of(codePoint).toUpperCaseEx(codePoint);
+    }
+
+    /**
+     * Converts the character (Unicode code point) argument to uppercase using case
+     * mapping information from the SpecialCasing file in the Unicode
+     * specification. If a character has no explicit uppercase
+     * mapping, then the {@code char} itself is returned in the
+     * {@code char[]}.
+     *
+     * @param   codePoint   the character (Unicode code point) to be converted.
+     * @return a {@code char[]} with the uppercased character.
+     * @since 1.4
+     */
+    static char[] toUpperCaseCharArray(int codePoint) {
+        // As of Unicode 6.0, 1:M uppercasings only happen in the BMP.
+        assert isBmpCodePoint(codePoint);
+        return CharacterData.of(codePoint).toUpperCaseCharArray(codePoint);
     }
 
     /**
@@ -7137,7 +7021,7 @@ class Character implements java.io.Serializable, Comparable<Character> {
         if (!isValidCodePoint(codePoint)) {
             throw new IllegalArgumentException();
         }
-        String name = getNameImpl(codePoint);
+        String name = CharacterName.get(codePoint);
         if (name != null)
             return name;
         if (getType(codePoint) == UNASSIGNED)
@@ -7149,6 +7033,4 @@ class Character implements java.io.Serializable, Comparable<Character> {
         // should never come here
         return Integer.toHexString(codePoint).toUpperCase(Locale.ENGLISH);
     }
-
-    private static native String getNameImpl(int codePoint);
 }
