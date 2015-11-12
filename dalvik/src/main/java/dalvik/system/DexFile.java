@@ -63,6 +63,17 @@ public final class DexFile {
     public DexFile(File file) throws IOException {
         this(file.getPath());
     }
+    /*
+     * Private version with class loader argument.
+     *
+     * @param file
+     *            the File object referencing the actual DEX file
+     * @param loader
+     *            the class loader object creating the DEX file object
+     */
+    DexFile(File file, ClassLoader loader) throws IOException {
+        this(file.getPath(), loader);
+    }
 
     /**
      * Opens a DEX file from a given filename. This will usually be a ZIP/JAR
@@ -82,7 +93,19 @@ public final class DexFile {
      *             access rights missing for opening it
      */
     public DexFile(String fileName) throws IOException {
-        mCookie = openDexFile(fileName, null, 0);
+        this(fileName, null);
+    }
+
+    /*
+     * Private version with class loader argument.
+     *
+     * @param fileName
+     *            the filename of the DEX file
+     * @param loader
+     *            the class loader creating the DEX file object
+     */
+    DexFile(String fileName, ClassLoader loader) throws IOException {
+        mCookie = openDexFile(fileName, null, 0, loader);
         mInternalCookie = mCookie;
         mFileName = fileName;
         guard.open("close");
@@ -99,8 +122,11 @@ public final class DexFile {
      *  File that will hold the optimized form of the DEX data.
      * @param flags
      *  Enable optional features.
+     * @param loader
+     *  The class loader creating the DEX file object.
      */
-    private DexFile(String sourceName, String outputName, int flags) throws IOException {
+    private DexFile(String sourceName, String outputName, int flags, ClassLoader loader)
+            throws IOException {
         if (outputName != null) {
             try {
                 String parent = new File(outputName).getParent();
@@ -114,7 +140,7 @@ public final class DexFile {
             }
         }
 
-        mCookie = openDexFile(sourceName, outputName, flags);
+        mCookie = openDexFile(sourceName, outputName, flags, loader);
         mFileName = sourceName;
         //System.out.println("DEX FILE cookie is " + mCookie + " sourceName=" + sourceName + " outputName=" + outputName);
     }
@@ -153,7 +179,37 @@ public final class DexFile {
          * decided to open it multiple times.  In practice this may not
          * be a real issue.
          */
-        return new DexFile(sourcePathName, outputPathName, flags);
+        return loadDex(sourcePathName, outputPathName, flags, null);
+    }
+
+    /*
+     * Private version of loadDex that also takes a class loader.
+     *
+     * @param sourcePathName
+     *  Jar or APK file with "classes.dex".  (May expand this to include
+     *  "raw DEX" in the future.)
+     * @param outputPathName
+     *  File that will hold the optimized form of the DEX data.
+     * @param flags
+     *  Enable optional features.  (Currently none defined.)
+     * @param loader
+     *  Class loader that is aloading the DEX file.
+     * @return
+     *  A new or previously-opened DexFile.
+     * @throws IOException
+     *  If unable to open the source or output file.
+     */
+    static DexFile loadDex(String sourcePathName, String outputPathName,
+        int flags, ClassLoader loader) throws IOException {
+
+        /*
+         * TODO: we may want to cache previously-opened DexFile objects.
+         * The cache would be synchronized with close().  This would help
+         * us avoid mapping the same DEX more than once when an app
+         * decided to open it multiple times.  In practice this may not
+         * be a real issue.
+         */
+        return new DexFile(sourcePathName, outputPathName, flags, loader);
     }
 
     /**
@@ -302,11 +358,15 @@ public final class DexFile {
      * Open a DEX file.  The value returned is a magic VM cookie.  On
      * failure, an IOException is thrown.
      */
-    private static Object openDexFile(String sourceName, String outputName, int flags) throws IOException {
+    private static Object openDexFile(String sourceName, String outputName, int flags,
+            ClassLoader loader) throws IOException {
         // Use absolute paths to enable the use of relative paths when testing on host.
         return openDexFileNative(new File(sourceName).getAbsolutePath(),
-                                 (outputName == null) ? null : new File(outputName).getAbsolutePath(),
-                                 flags);
+                                 (outputName == null)
+                                     ? null
+                                     : new File(outputName).getAbsolutePath(),
+                                 flags,
+                                 loader);
     }
 
     /*
@@ -321,7 +381,8 @@ public final class DexFile {
      * Open a DEX file.  The value returned is a magic VM cookie.  On
      * failure, an IOException is thrown.
      */
-    private static native Object openDexFileNative(String sourceName, String outputName, int flags);
+    private static native Object openDexFileNative(String sourceName, String outputName, int flags,
+            ClassLoader loader);
 
     /**
      * Returns true if the VM believes that the apk/jar file is out of date
