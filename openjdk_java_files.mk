@@ -111,16 +111,7 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/java/lang/AutoCloseable.java \
     ojluni/src/main/java/java/lang/Boolean.java \
     ojluni/src/main/java/java/lang/Byte.java \
-    ojluni/src/main/java/java/lang/CharacterData00.java \
-    ojluni/src/main/java/java/lang/CharacterData01.java \
-    ojluni/src/main/java/java/lang/CharacterData02.java \
-    ojluni/src/main/java/java/lang/CharacterData0E.java \
-    ojluni/src/main/java/java/lang/CharacterData.java \
-    ojluni/src/main/java/java/lang/CharacterDataLatin1.java \
-    ojluni/src/main/java/java/lang/CharacterDataPrivateUse.java \
-    ojluni/src/main/java/java/lang/CharacterDataUndefined.java \
     ojluni/src/main/java/java/lang/Character.java \
-    ojluni/src/main/java/java/lang/CharacterName.java \
     ojluni/src/main/java/java/lang/CharSequence.java \
     ojluni/src/main/java/java/lang/ClassCastException.java \
     ojluni/src/main/java/java/lang/ClassCircularityError.java \
@@ -132,7 +123,6 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/java/lang/CloneNotSupportedException.java \
     ojluni/src/main/java/java/lang/Comparable.java \
     ojluni/src/main/java/java/lang/Compiler.java \
-    ojluni/src/main/java/java/lang/ConditionalSpecialCasing.java \
     ojluni/src/main/java/java/lang/Deprecated.java \
     ojluni/src/main/java/java/lang/Double.java \
     ojluni/src/main/java/java/lang/EnumConstantNotPresentException.java \
