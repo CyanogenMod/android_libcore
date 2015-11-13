@@ -119,7 +119,7 @@ endif
 # Define the rules.
 LOCAL_SRC_FILES := $(openjdk_core_src_files)
 LOCAL_C_INCLUDES := $(core_c_includes)
-LOCAL_SHARED_LIBRARIES := $(core_shared_libraries) libcrypto libssl libz
+LOCAL_SHARED_LIBRARIES := $(core_shared_libraries) libcrypto libicuuc libssl libz
 LOCAL_SHARED_LIBRARIES += libart libnativehelper libdl
 LOCAL_STATIC_LIBRARIES := $(core_static_libraries) libfdlibm
 LOCAL_MODULE_TAGS := optional
@@ -175,7 +175,7 @@ LOCAL_C_INCLUDES := $(core_c_includes)
 LOCAL_CFLAGS := -D_LARGEFILE64_SOURCE -D_GNU_SOURCE -DLINUX -D__GLIBC__ # Sigh.
 # We don't run the host jar files through proguard.
 LOCAL_CFLAGS += -DANDROID_DISABLE_CORE_OBFUSCATION
-LOCAL_SHARED_LIBRARIES := $(core_shared_libraries) libcrypto-host libz-host
+LOCAL_SHARED_LIBRARIES := $(core_shared_libraries) libicuuc-host libcrypto-host libz-host
 LOCAL_SHARED_LIBRARIES += libart libnativehelper
 LOCAL_STATIC_LIBRARIES := $(core_static_libraries) libfdlibm
 LOCAL_MODULE_TAGS := optional

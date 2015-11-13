@@ -76,6 +76,8 @@ extern jint net_JNI_OnLoad(JavaVM*, void*);
 
 }
 
+extern void register_java_lang_Character(JNIEnv*);
+
 // DalvikVM calls this on startup, so we can statically register all our native methods.
 jint JNI_OnLoad(JavaVM* vm, void*) { JNIEnv* env;
     if (vm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6) != JNI_OK) {
@@ -112,6 +114,7 @@ jint JNI_OnLoad(JavaVM* vm, void*) { JNIEnv* env;
     register_java_net_SocketInputStream(env);
     register_java_net_SocketOutputStream(env);
     register_sun_net_spi_DefaultProxySelector(env);
+    register_java_lang_Character(env);
     register_java_lang_Float(env);
     register_java_lang_Double(env);
     register_java_lang_String(env);
