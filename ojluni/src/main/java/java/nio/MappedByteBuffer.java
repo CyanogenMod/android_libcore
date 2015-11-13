@@ -85,6 +85,11 @@ public abstract class MappedByteBuffer
         this.fd = fd;
     }
 
+    MappedByteBuffer(int mark, int pos, int lim, int cap, byte[] buf, int offset) {
+        super(mark, pos, lim, cap, buf, 0);
+        this.fd = null;
+    }
+
     MappedByteBuffer(int mark, int pos, int lim, int cap) { // package-private
         super(mark, pos, lim, cap);
         this.fd = null;
