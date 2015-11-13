@@ -399,7 +399,6 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/java/nio/charset/UnmappableCharacterException.java \
     ojluni/src/main/java/java/nio/charset/UnsupportedCharsetException.java \
     ojluni/src/main/java/java/nio/DirectByteBuffer.java \
-    ojluni/src/main/java/java/nio/DirectByteBufferR.java \
     ojluni/src/main/java/java/nio/DirectCharBufferRS.java \
     ojluni/src/main/java/java/nio/DirectCharBufferRU.java \
     ojluni/src/main/java/java/nio/DirectCharBufferS.java \

@@ -50,8 +50,6 @@ class DirectByteBuffer extends MappedByteBuffer
         return unalignedCache;
     }
 
-
-
     // Base address, used in all indexing calculations
     // NOTE: moved up to Buffer.java for speed in JNI GetDirectBufferAddress
     //    protected long address;
@@ -86,6 +84,7 @@ class DirectByteBuffer extends MappedByteBuffer
         VMRuntime runtime = VMRuntime.getRuntime();
         address = runtime.addressOf(hb);
         cleaner = Cleaner.create(this, new Deallocator());
+        this.isReadOnly = false;
         att = null;
     }
 
@@ -110,7 +109,15 @@ class DirectByteBuffer extends MappedByteBuffer
     protected DirectByteBuffer(int cap, long addr,
                                FileDescriptor fd,
                                Runnable unmapper) {
+        this(cap, addr, fd, unmapper, false);
+    }
+
+    protected DirectByteBuffer(int cap, long addr,
+                               FileDescriptor fd,
+                               Runnable unmapper,
+                               boolean isReadOnly) {
         super(-1, 0, cap, cap, fd);
+        this.isReadOnly = isReadOnly;
         address = addr;
         cleaner = Cleaner.create(this, unmapper);
         att = null;
@@ -121,7 +128,14 @@ class DirectByteBuffer extends MappedByteBuffer
     DirectByteBuffer(DirectBuffer db,         // package-private
                      int mark, int pos, int lim, int cap,
                      int off) {
+        this(db, mark, pos, lim, cap, off, false);
+    }
+
+    DirectByteBuffer(DirectBuffer db,         // package-private
+                     int mark, int pos, int lim, int cap,
+                     int off, boolean isReadOnly) {
         super(mark, pos, lim, cap);
+        this.isReadOnly = isReadOnly;
         address = db.address() + off;
         cleaner = null;
         att = db;
@@ -134,7 +148,7 @@ class DirectByteBuffer extends MappedByteBuffer
         int rem = (pos <= lim ? lim - pos : 0);
         int off = (pos << 0);
         assert (off >= 0);
-        return new DirectByteBuffer(this, -1, 0, rem, rem, off);
+        return new DirectByteBuffer(this, -1, 0, rem, rem, off, isReadOnly);
     }
 
     public ByteBuffer duplicate() {
@@ -143,17 +157,19 @@ class DirectByteBuffer extends MappedByteBuffer
                                     this.position(),
                                     this.limit(),
                                     this.capacity(),
-                                    0);
+                                    0,
+                                    isReadOnly);
     }
 
     public ByteBuffer asReadOnlyBuffer() {
 
-        return new DirectByteBufferR(this,
-                                     this.markValue(),
-                                     this.position(),
-                                     this.limit(),
-                                     this.capacity(),
-                                     0);
+        return new DirectByteBuffer(this,
+                                    this.markValue(),
+                                    this.position(),
+                                    this.limit(),
+                                    this.capacity(),
+                                    0,
+                                    true);
     }
 
     public long address() {
@@ -165,20 +181,27 @@ class DirectByteBuffer extends MappedByteBuffer
     }
 
     public byte get(long a) {
-        checkIfFreed();
         return Memory.peekByte(a);
     }
 
     public byte get() {
+        if (freed) {
+            throw new IllegalStateException("buffer was freed");
+        }
         return get(address + nextGetIndex());
     }
 
     public byte get(int i) {
+        if (freed) {
+            throw new IllegalStateException("buffer was freed");
+        }
         return get(address + checkIndex(i));
     }
 
     public ByteBuffer get(byte[] dst, int dstOffset, int length) {
-        checkIfFreed();
+        if (freed) {
+            throw new IllegalStateException("buffer was freed");
+        }
         checkBounds(dstOffset, length, dst.length);
         int pos = position();
         int lim = limit();
@@ -193,22 +216,39 @@ class DirectByteBuffer extends MappedByteBuffer
     }
 
     public ByteBuffer put(long a, byte x) {
-        checkIfFreed();
         Memory.pokeByte(a, x);
         return this;
     }
 
     public ByteBuffer put(byte x) {
+        if (isReadOnly) {
+            throw new ReadOnlyBufferException();
+        }
+        if (freed) {
+            throw new IllegalStateException("buffer was freed");
+        }
         put(ix(nextPutIndex()), x);
         return this;
     }
 
     public ByteBuffer put(int i, byte x) {
+        if (isReadOnly) {
+            throw new ReadOnlyBufferException();
+        }
+        if (freed) {
+            throw new IllegalStateException("buffer was freed");
+        }
         put(ix(checkIndex(i)), x);
         return this;
     }
 
     public ByteBuffer put(ByteBuffer src) {
+        if (isReadOnly) {
+            throw new ReadOnlyBufferException();
+        }
+        if (freed) {
+            throw new IllegalStateException("buffer was freed");
+        }
         if (src instanceof DirectByteBuffer) {
             if (src == this)
                 throw new IllegalArgumentException();
@@ -229,7 +269,12 @@ class DirectByteBuffer extends MappedByteBuffer
     }
 
     public ByteBuffer put(byte[] src, int srcOffset, int length) {
-        checkIfFreed();
+        if (isReadOnly) {
+            throw new ReadOnlyBufferException();
+        }
+        if (freed) {
+            throw new IllegalStateException("buffer was freed");
+        }
         checkBounds(srcOffset, length, src.length);
         int pos = position();
         int lim = limit();
@@ -244,7 +289,12 @@ class DirectByteBuffer extends MappedByteBuffer
     }
 
     public ByteBuffer compact() {
-        checkIfFreed();
+        if (isReadOnly) {
+            throw new ReadOnlyBufferException();
+        }
+        if (freed) {
+            throw new IllegalStateException("buffer was freed");
+        }
         int pos = position();
         int lim = limit();
         assert (pos <= lim);
@@ -261,24 +311,28 @@ class DirectByteBuffer extends MappedByteBuffer
     }
 
     public boolean isReadOnly() {
-        return false;
+        return isReadOnly;
     }
 
     byte _get(int i) {                          // package-private
-        return get(address + i);
+        return get(i);
     }
 
     void _put(int i, byte b) {                  // package-private
-        put(address + i, b);
+        put(i, b);
     }
 
     private char getChar(long a) {
-        checkIfFreed();
+        if (freed) {
+            throw new IllegalStateException("buffer was freed");
+        }
         return (char) Memory.peekShort(position, !nativeByteOrder);
     }
 
     public char getChar() {
-        checkIfFreed();
+        if (freed) {
+            throw new IllegalStateException("buffer was freed");
+        }
         int newPosition = position + SizeOf.CHAR;
         if (newPosition > limit()) {
             throw new BufferUnderflowException();
@@ -289,24 +343,37 @@ class DirectByteBuffer extends MappedByteBuffer
     }
 
     public char getChar(int i) {
-        checkIfFreed();
+        if (freed) {
+            throw new IllegalStateException("buffer was freed");
+        }
         checkIndex(i, SizeOf.CHAR);
         char x = (char)Memory.peekShort(address + i, !nativeByteOrder);
         return x;
     }
 
     private ByteBuffer putChar(long a, char x) {
-        checkIfFreed();
         Memory.pokeShort(a, (short) x, !nativeByteOrder);
         return this;
     }
 
     public ByteBuffer putChar(char x) {
+        if (isReadOnly) {
+            throw new ReadOnlyBufferException();
+        }
+        if (freed) {
+            throw new IllegalStateException("buffer was freed");
+        }
         putChar(ix(nextPutIndex(SizeOf.CHAR)), x);
         return this;
     }
 
     public ByteBuffer putChar(int i, char x) {
+        if (isReadOnly) {
+            throw new ReadOnlyBufferException();
+        }
+        if (freed) {
+            throw new IllegalStateException("buffer was freed");
+        }
         putChar(ix(checkIndex(i, SizeOf.CHAR)), x);
         return this;
     }
@@ -326,7 +393,7 @@ class DirectByteBuffer extends MappedByteBuffer
                                                             size,
                                                             off,
                                                             order(),
-                                                            false));
+                                                            isReadOnly));
         } else {
             return (nativeByteOrder
                     ? (CharBuffer)(new DirectCharBufferU(this,
@@ -345,30 +412,46 @@ class DirectByteBuffer extends MappedByteBuffer
     }
 
     private short getShort(long a) {
-        checkIfFreed();
         return Memory.peekShort(a, !nativeByteOrder);
     }
 
     public short getShort() {
+        if (freed) {
+            throw new IllegalStateException("buffer was freed");
+        }
         return getShort(ix(nextGetIndex(SizeOf.SHORT)));
     }
 
     public short getShort(int i) {
+        if (freed) {
+            throw new IllegalStateException("buffer was freed");
+        }
         return getShort(ix(checkIndex(i, SizeOf.SHORT)));
     }
 
     private ByteBuffer putShort(long a, short x) {
-        checkIfFreed();
         Memory.pokeShort(a, x, !nativeByteOrder);
         return this;
     }
 
     public ByteBuffer putShort(short x) {
+        if (isReadOnly) {
+            throw new ReadOnlyBufferException();
+        }
+        if (freed) {
+            throw new IllegalStateException("buffer was freed");
+        }
         putShort(ix(nextPutIndex(SizeOf.SHORT)), x);
         return this;
     }
 
     public ByteBuffer putShort(int i, short x) {
+        if (isReadOnly) {
+            throw new ReadOnlyBufferException();
+        }
+        if (freed) {
+            throw new IllegalStateException("buffer was freed");
+        }
         putShort(ix(checkIndex(i, SizeOf.SHORT)), x);
         return this;
     }
@@ -388,7 +471,7 @@ class DirectByteBuffer extends MappedByteBuffer
                                                              size,
                                                              off,
                                                              order(),
-                                                             false));
+                                                             isReadOnly));
         } else {
             return (nativeByteOrder
                     ? (ShortBuffer)(new DirectShortBufferU(this,
@@ -407,30 +490,46 @@ class DirectByteBuffer extends MappedByteBuffer
     }
 
     private int getInt(long a) {
-        checkIfFreed();
         return  Memory.peekInt(a, !nativeByteOrder);
     }
 
     public int getInt() {
+        if (freed) {
+            throw new IllegalStateException("buffer was freed");
+        }
         return getInt(ix(nextGetIndex(SizeOf.INT)));
     }
 
     public int getInt(int i) {
+        if (freed) {
+            throw new IllegalStateException("buffer was freed");
+        }
         return getInt(ix(checkIndex(i, (SizeOf.INT))));
     }
 
     private ByteBuffer putInt(long a, int x) {
-        checkIfFreed();
         Memory.pokeInt(a, x, !nativeByteOrder);
         return this;
     }
 
     public ByteBuffer putInt(int x) {
+        if (isReadOnly) {
+            throw new ReadOnlyBufferException();
+        }
+        if (freed) {
+            throw new IllegalStateException("buffer was freed");
+        }
         putInt(ix(nextPutIndex(SizeOf.INT)), x);
         return this;
     }
 
     public ByteBuffer putInt(int i, int x) {
+        if (isReadOnly) {
+            throw new ReadOnlyBufferException();
+        }
+        if (freed) {
+            throw new IllegalStateException("buffer was freed");
+        }
         putInt(ix(checkIndex(i, SizeOf.INT)), x);
         return this;
     }
@@ -440,7 +539,6 @@ class DirectByteBuffer extends MappedByteBuffer
         int lim = this.limit();
         assert (off <= lim);
         int rem = (off <= lim ? lim - off : 0);
-
         int size = rem >> 2;
         if (!unaligned() && ((address + off) % SizeOf.INT != 0)) {
             return (IntBuffer)(new ByteBufferAsIntBuffer(this,
@@ -450,7 +548,7 @@ class DirectByteBuffer extends MappedByteBuffer
                                                          size,
                                                          off,
                                                          order(),
-                                                         false));
+                                                         isReadOnly));
         } else {
             return (nativeByteOrder
                     ? (IntBuffer)(new DirectIntBufferU(this,
@@ -469,30 +567,46 @@ class DirectByteBuffer extends MappedByteBuffer
     }
 
     private long getLong(long a) {
-        checkIfFreed();
         return Memory.peekLong(a, !nativeByteOrder);
     }
 
     public long getLong() {
+        if (freed) {
+            throw new IllegalStateException("buffer was freed");
+        }
         return getLong(ix(nextGetIndex(SizeOf.LONG)));
     }
 
     public long getLong(int i) {
+        if (freed) {
+            throw new IllegalStateException("buffer was freed");
+        }
         return getLong(ix(checkIndex(i, SizeOf.LONG)));
     }
 
     private ByteBuffer putLong(long a, long x) {
-        checkIfFreed();
         Memory.pokeLong(a, x, !nativeByteOrder);
         return this;
     }
 
     public ByteBuffer putLong(long x) {
+        if (isReadOnly) {
+            throw new ReadOnlyBufferException();
+        }
+        if (freed) {
+            throw new IllegalStateException("buffer was freed");
+        }
         putLong(ix(nextPutIndex(SizeOf.LONG)), x);
         return this;
     }
 
     public ByteBuffer putLong(int i, long x) {
+        if (isReadOnly) {
+            throw new ReadOnlyBufferException();
+        }
+        if (freed) {
+            throw new IllegalStateException("buffer was freed");
+        }
         putLong(ix(checkIndex(i, SizeOf.LONG)), x);
         return this;
     }
@@ -502,7 +616,6 @@ class DirectByteBuffer extends MappedByteBuffer
         int lim = this.limit();
         assert (off <= lim);
         int rem = (off <= lim ? lim - off : 0);
-
         int size = rem >> 3;
         if (!unaligned() && ((address + off) % SizeOf.LONG != 0)) {
             return (LongBuffer)(new ByteBufferAsLongBuffer(this,
@@ -512,7 +625,7 @@ class DirectByteBuffer extends MappedByteBuffer
                                                            size,
                                                            off,
                                                            order(),
-                                                           false));
+                                                           isReadOnly));
         } else {
             return (nativeByteOrder
                     ? (LongBuffer)(new DirectLongBufferU(this,
@@ -531,32 +644,48 @@ class DirectByteBuffer extends MappedByteBuffer
     }
 
     private float getFloat(long a) {
-        checkIfFreed();
         int x = Memory.peekInt(a, !nativeByteOrder);
         return Float.intBitsToFloat(x);
     }
 
     public float getFloat() {
+        if (freed) {
+            throw new IllegalStateException("buffer was freed");
+        }
         return getFloat(ix(nextGetIndex(SizeOf.FLOAT)));
     }
 
     public float getFloat(int i) {
+        if (freed) {
+            throw new IllegalStateException("buffer was freed");
+        }
         return getFloat(ix(checkIndex(i, SizeOf.FLOAT)));
     }
 
     private ByteBuffer putFloat(long a, float x) {
-        checkIfFreed();
         int y = Float.floatToRawIntBits(x);
         Memory.pokeInt(a, y, !nativeByteOrder);
         return this;
     }
 
     public ByteBuffer putFloat(float x) {
+        if (isReadOnly) {
+            throw new ReadOnlyBufferException();
+        }
+        if (freed) {
+            throw new IllegalStateException("buffer was freed");
+        }
         putFloat(ix(nextPutIndex(SizeOf.FLOAT)), x);
         return this;
     }
 
     public ByteBuffer putFloat(int i, float x) {
+        if (isReadOnly) {
+            throw new ReadOnlyBufferException();
+        }
+        if (freed) {
+            throw new IllegalStateException("buffer was freed");
+        }
         putFloat(ix(checkIndex(i, SizeOf.FLOAT)), x);
         return this;
     }
@@ -575,7 +704,7 @@ class DirectByteBuffer extends MappedByteBuffer
                                                              size,
                                                              off,
                                                              order(),
-                                                             false));
+                                                             isReadOnly));
         } else {
             return (nativeByteOrder
                     ? (FloatBuffer)(new DirectFloatBufferU(this,
@@ -594,32 +723,48 @@ class DirectByteBuffer extends MappedByteBuffer
     }
 
     private double getDouble(long a) {
-        checkIfFreed();
         long x = Memory.peekLong(a, !nativeByteOrder);
         return Double.longBitsToDouble(x);
     }
 
     public double getDouble() {
+        if (freed) {
+            throw new IllegalStateException("buffer was freed");
+        }
         return getDouble(ix(nextGetIndex(SizeOf.DOUBLE)));
     }
 
     public double getDouble(int i) {
+        if (freed) {
+            throw new IllegalStateException("buffer was freed");
+        }
         return getDouble(ix(checkIndex(i, SizeOf.DOUBLE)));
     }
 
     private ByteBuffer putDouble(long a, double x) {
-        checkIfFreed();
         long y = Double.doubleToRawLongBits(x);
         Memory.pokeLong(a, y, !nativeByteOrder);
         return this;
     }
 
     public ByteBuffer putDouble(double x) {
+        if (isReadOnly) {
+            throw new ReadOnlyBufferException();
+        }
+        if (freed) {
+            throw new IllegalStateException("buffer was freed");
+        }
         putDouble(ix(nextPutIndex(SizeOf.DOUBLE)), x);
         return this;
     }
 
     public ByteBuffer putDouble(int i, double x) {
+        if (isReadOnly) {
+            throw new ReadOnlyBufferException();
+        }
+        if (freed) {
+            throw new IllegalStateException("buffer was freed");
+        }
         putDouble(ix(checkIndex(i, SizeOf.DOUBLE)), x);
         return this;
     }
@@ -632,20 +777,14 @@ class DirectByteBuffer extends MappedByteBuffer
 
         int size = rem >> 3;
         if (!unaligned() && ((address + off) % SizeOf.DOUBLE != 0)) {
-            return (bigEndian
-                    ? (DoubleBuffer)(new ByteBufferAsDoubleBuffer(this,
-                                                                  -1,
-                                                                  0,
-                                                                  size,
-                                                                  size,
-                                                                  off, ByteOrder.BIG_ENDIAN))
-                    : (DoubleBuffer)(new ByteBufferAsDoubleBuffer(this,
-                                                                  -1,
-                                                                  0,
-                                                                  size,
-                                                                  size,
-                                                                  off,
-                                                                  ByteOrder.LITTLE_ENDIAN)));
+            return (DoubleBuffer)(new ByteBufferAsDoubleBuffer(this,
+                                                               -1,
+                                                               0,
+                                                               size,
+                                                               size,
+                                                               off,
+                                                               order(),
+                                                               isReadOnly));
         } else {
             return (nativeByteOrder
                     ? (DoubleBuffer)(new DirectDoubleBufferU(this,
@@ -668,7 +807,8 @@ class DirectByteBuffer extends MappedByteBuffer
     }
 
     private final void checkIfFreed() {
-        if (freed)
+        if (freed) {
             throw new IllegalStateException("buffer was freed");
+        }
     }
 }
