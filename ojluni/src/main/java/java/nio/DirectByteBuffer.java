@@ -383,32 +383,14 @@ class DirectByteBuffer extends MappedByteBuffer
         int lim = this.limit();
         assert (off <= lim);
         int rem = (off <= lim ? lim - off : 0);
-
         int size = rem >> 1;
-        if (!unaligned() && ((address + off) % SizeOf.CHAR != 0)) {
-            return  (CharBuffer)(new ByteBufferAsCharBuffer(this,
-                                                            -1,
-                                                            0,
-                                                            size,
-                                                            size,
-                                                            off,
-                                                            order(),
-                                                            isReadOnly));
-        } else {
-            return (nativeByteOrder
-                    ? (CharBuffer)(new DirectCharBufferU(this,
-                                                         -1,
-                                                         0,
-                                                         size,
-                                                         size,
-                                                         off))
-                    : (CharBuffer)(new DirectCharBufferS(this,
-                                                         -1,
-                                                         0,
-                                                         size,
-                                                         size,
-                                                         off)));
-        }
+        return  (CharBuffer)(new ByteBufferAsCharBuffer(this,
+                                                        -1,
+                                                        0,
+                                                        size,
+                                                        size,
+                                                        off,
+                                                        order()));
     }
 
     private short getShort(long a) {
@@ -461,32 +443,14 @@ class DirectByteBuffer extends MappedByteBuffer
         int lim = this.limit();
         assert (off <= lim);
         int rem = (off <= lim ? lim - off : 0);
-
         int size = rem >> 1;
-        if (!unaligned() && ((address + off) % SizeOf.SHORT != 0)) {
-            return (ShortBuffer)(new ByteBufferAsShortBuffer(this,
-                                                             -1,
-                                                             0,
-                                                             size,
-                                                             size,
-                                                             off,
-                                                             order(),
-                                                             isReadOnly));
-        } else {
-            return (nativeByteOrder
-                    ? (ShortBuffer)(new DirectShortBufferU(this,
-                                                           -1,
-                                                           0,
-                                                           size,
-                                                           size,
-                                                           off))
-                    : (ShortBuffer)(new DirectShortBufferS(this,
-                                                           -1,
-                                                           0,
-                                                           size,
-                                                           size,
-                                                           off)));
-        }
+        return (ShortBuffer)(new ByteBufferAsShortBuffer(this,
+                                                         -1,
+                                                         0,
+                                                         size,
+                                                         size,
+                                                         off,
+                                                         order()));
     }
 
     private int getInt(long a) {
@@ -540,30 +504,13 @@ class DirectByteBuffer extends MappedByteBuffer
         assert (off <= lim);
         int rem = (off <= lim ? lim - off : 0);
         int size = rem >> 2;
-        if (!unaligned() && ((address + off) % SizeOf.INT != 0)) {
-            return (IntBuffer)(new ByteBufferAsIntBuffer(this,
-                                                         -1,
-                                                         0,
-                                                         size,
-                                                         size,
-                                                         off,
-                                                         order(),
-                                                         isReadOnly));
-        } else {
-            return (nativeByteOrder
-                    ? (IntBuffer)(new DirectIntBufferU(this,
-                                                       -1,
-                                                       0,
-                                                       size,
-                                                       size,
-                                                       off))
-                    : (IntBuffer)(new DirectIntBufferS(this,
-                                                       -1,
-                                                       0,
-                                                       size,
-                                                       size,
-                                                       off)));
-        }
+        return (IntBuffer)(new ByteBufferAsIntBuffer(this,
+                                                     -1,
+                                                     0,
+                                                     size,
+                                                     size,
+                                                     off,
+                                                     order()));
     }
 
     private long getLong(long a) {
@@ -617,30 +564,13 @@ class DirectByteBuffer extends MappedByteBuffer
         assert (off <= lim);
         int rem = (off <= lim ? lim - off : 0);
         int size = rem >> 3;
-        if (!unaligned() && ((address + off) % SizeOf.LONG != 0)) {
-            return (LongBuffer)(new ByteBufferAsLongBuffer(this,
-                                                           -1,
-                                                           0,
-                                                           size,
-                                                           size,
-                                                           off,
-                                                           order(),
-                                                           isReadOnly));
-        } else {
-            return (nativeByteOrder
-                    ? (LongBuffer)(new DirectLongBufferU(this,
-                                                         -1,
-                                                         0,
-                                                         size,
-                                                         size,
-                                                         off))
-                    : (LongBuffer)(new DirectLongBufferS(this,
-                                                         -1,
-                                                         0,
-                                                         size,
-                                                         size,
-                                                         off)));
-        }
+        return (LongBuffer)(new ByteBufferAsLongBuffer(this,
+                                                       -1,
+                                                       0,
+                                                       size,
+                                                       size,
+                                                       off,
+                                                       order()));
     }
 
     private float getFloat(long a) {
@@ -696,30 +626,13 @@ class DirectByteBuffer extends MappedByteBuffer
         assert (off <= lim);
         int rem = (off <= lim ? lim - off : 0);
         int size = rem >> 2;
-        if (!unaligned() && ((address + off) % SizeOf.FLOAT != 0)) {
-            return (FloatBuffer)(new ByteBufferAsFloatBuffer(this,
-                                                             -1,
-                                                             0,
-                                                             size,
-                                                             size,
-                                                             off,
-                                                             order(),
-                                                             isReadOnly));
-        } else {
-            return (nativeByteOrder
-                    ? (FloatBuffer)(new DirectFloatBufferU(this,
-                                                           -1,
-                                                           0,
-                                                           size,
-                                                           size,
-                                                           off))
-                    : (FloatBuffer)(new DirectFloatBufferS(this,
-                                                           -1,
-                                                           0,
-                                                           size,
-                                                           size,
-                                                           off)));
-        }
+        return (FloatBuffer)(new ByteBufferAsFloatBuffer(this,
+                                                         -1,
+                                                         0,
+                                                         size,
+                                                         size,
+                                                         off,
+                                                         order()));
     }
 
     private double getDouble(long a) {
@@ -776,30 +689,13 @@ class DirectByteBuffer extends MappedByteBuffer
         int rem = (off <= lim ? lim - off : 0);
 
         int size = rem >> 3;
-        if (!unaligned() && ((address + off) % SizeOf.DOUBLE != 0)) {
-            return (DoubleBuffer)(new ByteBufferAsDoubleBuffer(this,
-                                                               -1,
-                                                               0,
-                                                               size,
-                                                               size,
-                                                               off,
-                                                               order(),
-                                                               isReadOnly));
-        } else {
-            return (nativeByteOrder
-                    ? (DoubleBuffer)(new DirectDoubleBufferU(this,
-                                                             -1,
-                                                             0,
-                                                             size,
-                                                             size,
-                                                             off))
-                    : (DoubleBuffer)(new DirectDoubleBufferS(this,
-                                                             -1,
-                                                             0,
-                                                             size,
-                                                             size,
-                                                             off)));
-        }
+        return (DoubleBuffer)(new ByteBufferAsDoubleBuffer(this,
+                                                           -1,
+                                                           0,
+                                                           size,
+                                                           size,
+                                                           off,
+                                                           order()));
     }
 
     public final void free() {

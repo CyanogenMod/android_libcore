@@ -25,24 +25,21 @@
 
 package java.nio;
 
+import libcore.io.Memory;
+
 class ByteBufferAsLongBuffer extends LongBuffer {                 // package-private
 
     protected final ByteBuffer bb;
     protected final int offset;
-    private final boolean isReadOnly;
     private final ByteOrder order;
 
     ByteBufferAsLongBuffer(ByteBuffer bb, ByteOrder order) {
-        this(bb, order, false);
-    }
-
-    ByteBufferAsLongBuffer(ByteBuffer bb, ByteOrder order, boolean isReadOnly) {   // package-privaet8
         super(-1, 0,
               bb.remaining() >> 3,
               bb.remaining() >> 3);
         this.bb = bb;
+        this.address = bb.address;
         this.order = order;
-        this.isReadOnly = isReadOnly;
         int cap = this.capacity();
         this.limit(cap);
         int pos = this.position();
@@ -53,16 +50,10 @@ class ByteBufferAsLongBuffer extends LongBuffer {                 // package-pri
     ByteBufferAsLongBuffer(ByteBuffer bb,
                            int mark, int pos, int lim, int cap,
                            int off, ByteOrder order) {
-        this(bb, mark, pos, lim, cap, off, order, false);
-    }
-
-    ByteBufferAsLongBuffer(ByteBuffer bb,
-                           int mark, int pos, int lim, int cap,
-                           int off, ByteOrder order, boolean isReadOnly) {
         super(mark, pos, lim, cap);
         this.bb = bb;
+        this.address = bb.address;
         this.order = order;
-        this.isReadOnly = isReadOnly;
         offset = off;
     }
 
@@ -73,7 +64,7 @@ class ByteBufferAsLongBuffer extends LongBuffer {                 // package-pri
         int rem = (pos <= lim ? lim - pos : 0);
         int off = (pos << 3) + offset;
         assert (off >= 0);
-        return new ByteBufferAsLongBuffer(bb, -1, 0, rem, rem, off, order, isReadOnly);
+        return new ByteBufferAsLongBuffer(bb, -1, 0, rem, rem, off, order);
     }
 
     public LongBuffer duplicate() {
@@ -83,19 +74,17 @@ class ByteBufferAsLongBuffer extends LongBuffer {                 // package-pri
                                           this.limit(),
                                           this.capacity(),
                                           offset,
-                                          order,
-                                          isReadOnly);
+                                          order);
     }
 
     public LongBuffer asReadOnlyBuffer() {
-        return new ByteBufferAsLongBuffer(bb,
+        return new ByteBufferAsLongBuffer(bb.asReadOnlyBuffer(),
                                           this.markValue(),
                                           this.position(),
                                           this.limit(),
                                           this.capacity(),
                                           offset,
-                                          order,
-                                          true);
+                                          order);
     }
 
     protected int ix(int i) {
@@ -103,42 +92,20 @@ class ByteBufferAsLongBuffer extends LongBuffer {                 // package-pri
     }
 
     public long get() {
-        if (order == ByteOrder.LITTLE_ENDIAN) {
-            return Bits.getLongL(bb, ix(nextGetIndex()));
-        } else {
-            return Bits.getLongB(bb, ix(nextGetIndex()));
-        }
+        return get(nextGetIndex());
     }
 
     public long get(int i) {
-        if (order == ByteOrder.LITTLE_ENDIAN) {
-            return Bits.getLongL(bb, ix(checkIndex(i)));
-        } else {
-            return Bits.getLongB(bb, ix(checkIndex(i)));
-        }
+        return bb.getLong(ix(i));
     }
 
     public LongBuffer put(long x) {
-        if (isReadOnly) {
-            throw new ReadOnlyBufferException();
-        }
-        if (order == ByteOrder.LITTLE_ENDIAN) {
-            Bits.putLongL(bb, ix(nextPutIndex()), x);
-        } else {
-            Bits.putLongB(bb, ix(nextPutIndex()), x);
-        }
+        put(nextPutIndex(), x);
         return this;
     }
 
     public LongBuffer put(int i, long x) {
-        if (isReadOnly) {
-            throw new ReadOnlyBufferException();
-        }
-        if (order == ByteOrder.LITTLE_ENDIAN) {
-            Bits.putLongL(bb, ix(checkIndex(i)), x);
-        } else {
-            Bits.putLongB(bb, ix(checkIndex(i)), x);
-        }
+        bb.putLong(ix(i), x);
         return this;
     }
 
@@ -150,12 +117,11 @@ class ByteBufferAsLongBuffer extends LongBuffer {                 // package-pri
         int lim = limit();
         assert (pos <= lim);
         int rem = (pos <= lim ? lim - pos : 0);
-        ByteBuffer db = bb.duplicate();
-        db.limit(ix(lim));
-        db.position(ix(0));
-        ByteBuffer sb = db.slice();
-        sb.position(pos << 3);
-        sb.compact();
+        if (!(bb instanceof DirectByteBuffer)) {
+            System.arraycopy(bb.array(), ix(pos), bb.array(), ix(0), rem << 3);
+        } else {
+            Memory.memmove(this, ix(0), this, ix(pos), rem << 3);
+        }
         position(rem);
         limit(capacity());
         discardMark();
@@ -167,7 +133,7 @@ class ByteBufferAsLongBuffer extends LongBuffer {                 // package-pri
     }
 
     public boolean isReadOnly() {
-        return isReadOnly;
+        return bb.isReadOnly;
     }
 
     public ByteOrder order() {

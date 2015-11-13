@@ -246,8 +246,7 @@ class HeapByteBuffer extends ByteBuffer {
                                                        size,
                                                        size,
                                                        off,
-                                                       order(),
-                                                       isReadOnly));
+                                                       order()));
     }
 
     public short getShort() {
@@ -283,8 +282,7 @@ class HeapByteBuffer extends ByteBuffer {
                                            size,
                                            size,
                                            off,
-                                           order(),
-                                           isReadOnly);
+                                           order());
     }
 
     public int getInt() {
@@ -321,8 +319,7 @@ class HeapByteBuffer extends ByteBuffer {
                                                      size,
                                                      size,
                                                      off,
-                                                     order(),
-                                                     isReadOnly));
+                                                     order()));
     }
 
     public long getLong() {
@@ -358,8 +355,7 @@ class HeapByteBuffer extends ByteBuffer {
                                                        size,
                                                        size,
                                                        off,
-                                                       order(),
-                                                       isReadOnly));
+                                                       order()));
     }
 
     public float getFloat() {
@@ -397,8 +393,7 @@ class HeapByteBuffer extends ByteBuffer {
                                                          size,
                                                          size,
                                                          off,
-                                                         order(),
-                                                         isReadOnly));
+                                                         order()));
     }
 
     public double getDouble() {
@@ -430,23 +425,12 @@ class HeapByteBuffer extends ByteBuffer {
     public DoubleBuffer asDoubleBuffer() {
         int size = this.remaining() >> 3;
         int off = offset + position();
-        return (bigEndian
-                ? (DoubleBuffer)(new ByteBufferAsDoubleBuffer(this,
-                                                              -1,
-                                                              0,
-                                                              size,
-                                                              size,
-                                                              off,
-                                                              ByteOrder.BIG_ENDIAN,
-                                                              isReadOnly))
-                : (DoubleBuffer)(new ByteBufferAsDoubleBuffer(this,
-                                                              -1,
-                                                              0,
-                                                              size,
-                                                              size,
-                                                              off,
-                                                              ByteOrder.LITTLE_ENDIAN,
-                                                              isReadOnly)));
-
+        return (DoubleBuffer)(new ByteBufferAsDoubleBuffer(this,
+                                                           -1,
+                                                           0,
+                                                           size,
+                                                           size,
+                                                           off,
+                                                           order()));
     }
 }
