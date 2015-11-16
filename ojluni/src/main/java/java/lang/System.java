@@ -945,7 +945,6 @@ public final class System {
         p.put("java.class.version", "50.0");
         p.put("java.compiler", "");
         p.put("java.ext.dirs", "");
-        p.put("java.version", "0");
 
         // TODO: does this make any sense? Should we just leave java.home unset?
         String javaHome = getenv("JAVA_HOME");
@@ -967,8 +966,6 @@ public final class System {
         p.put("java.vm.vendor", projectName);
         p.put("java.vm.version", runtime.vmVersion());
 
-        p.put("java.runtime.name", "Android Runtime");
-        p.put("java.runtime.version", "0.9");
         p.put("java.vm.vendor.url", projectUrl);
 
         p.put("java.net.preferIPv6Addresses", "false");
