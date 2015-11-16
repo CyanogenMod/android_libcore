@@ -166,6 +166,7 @@ public class CookieManager extends CookieHandler {
 
             // if the cookie doesn't have a domain, set one. The policy will do validation.
             if (cookie.getDomain() == null) {
+                // RFC 2965 section 3.3.1
                 cookie.setDomain(uri.getHost());
             }
 
