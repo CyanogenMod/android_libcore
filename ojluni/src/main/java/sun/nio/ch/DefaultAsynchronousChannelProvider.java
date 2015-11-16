@@ -46,8 +46,10 @@ public class DefaultAsynchronousChannelProvider {
     public static AsynchronousChannelProvider create() {
         String osname = AccessController
             .doPrivileged(new GetPropertyAction("os.name"));
-        if (osname.equals("SunOS"))
-            return new SolarisAsynchronousChannelProvider();
+        // Android-changed: We don't compile SolarisAsynchronousChannelProvider.
+        //
+        // if (osname.equals("SunOS"))
+        //     return new SolarisAsynchronousChannelProvider();
         if (osname.equals("Linux"))
             return new LinuxAsynchronousChannelProvider();
         if (osname.contains("OS X"))

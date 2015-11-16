@@ -1273,8 +1273,6 @@ openjdk_java_files := \
     ojluni/src/main/java/sun/nio/ch/SocketChannelImpl.java \
     ojluni/src/main/java/sun/nio/ch/SocketDispatcher.java \
     ojluni/src/main/java/sun/nio/ch/SocketOptionRegistry.java \
-    ojluni/src/main/java/sun/nio/ch/SolarisAsynchronousChannelProvider.java \
-    ojluni/src/main/java/sun/nio/ch/SolarisEventPort.java \
     ojluni/src/main/java/sun/nio/ch/SourceChannelImpl.java \
     ojluni/src/main/java/sun/nio/ch/ThreadPool.java \
     ojluni/src/main/java/sun/nio/ch/UnixAsynchronousServerSocketChannelImpl.java \
