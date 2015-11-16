@@ -32,7 +32,6 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.ArrayList;
 import java.security.AccessController;
-import java.security.SecureRandom;
 import java.nio.file.Path;
 import java.nio.file.FileSystems;
 import sun.security.action.GetPropertyAction;
@@ -1876,17 +1875,18 @@ public class File
         }
 
         // file name generation
-        private static final SecureRandom random = new SecureRandom();
         static File generateFile(String prefix, String suffix, File dir)
             throws IOException
         {
-            long n = random.nextLong();
-            if (n == Long.MIN_VALUE) {
+            // Android-changed: Use Math.randomIntInternal. This (pseudo) random number
+            // is initialized post-fork 
+            int n = Math.randomIntInternal();
+            if (n == Integer.MIN_VALUE) {
                 n = 0;      // corner case
             } else {
                 n = Math.abs(n);
             }
-            String name = prefix + Long.toString(n) + suffix;
+            String name = prefix + Integer.toString(n) + suffix;
             File f = new File(dir, name);
             if (!name.equals(f.getName()))
                 throw new IOException("Unable to create temporary file");
