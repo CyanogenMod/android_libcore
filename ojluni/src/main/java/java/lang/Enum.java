@@ -234,6 +234,8 @@ public abstract class Enum<E extends Enum<E>>
                                                 String name) {
         if (enumType == null)
             throw new NullPointerException("enumType == null");
+        if (name == null)
+            throw new NullPointerException("Name is null");
         T[] values = getSharedConstants(enumType);
         T result = null;
         if (values != null) {
@@ -242,12 +244,12 @@ public abstract class Enum<E extends Enum<E>>
                     result = value;
                 }
             }
+        } else {
+            throw new IllegalArgumentException(enumType.toString() + " is not an enum type.");
         }
 
         if (result != null)
             return result;
-        if (name == null)
-            throw new NullPointerException("Name is null");
         throw new IllegalArgumentException(
             "No enum constant " + enumType.getCanonicalName() + "." + name);
     }
