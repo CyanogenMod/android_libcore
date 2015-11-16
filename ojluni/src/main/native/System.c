@@ -42,21 +42,6 @@ void android_get_LD_LIBRARY_PATH(char*, size_t);
 #define NATIVE_METHOD(className, functionName, signature) \
 { #functionName, signature, (void*)(className ## _ ## functionName) }
 
-#define OBJ "Ljava/lang/Object;"
-/* Only register the performance-critical methods */
-static JNINativeMethod methods[] = {
-    {"currentTimeMillis", "()J",              (void *)&JVM_CurrentTimeMillis},
-    {"nanoTime",          "()J",              (void *)&JVM_NanoTime},
-    {"arraycopy",     "(" OBJ "I" OBJ "II)V", (void *)&JVM_ArrayCopy},
-};
-
-#undef OBJ
-JNIEXPORT jint JNICALL
-System_identityHashCode(JNIEnv *env, jobject this, jobject x)
-{
-    return JVM_IHashCode(env, x);
-}
-
 #define PUTPROP(props, key, val) \
     if (1) { \
         jstring jkey = (*env)->NewStringUTF(env, key); \
@@ -265,19 +250,27 @@ static void System_log(JNIEnv* env, jclass ignored, jchar type, jstring javaMess
     }
 }
 
+static jlong System_nanoTime(JNIEnv* env, jclass unused) {
+  struct timespec now;
+  clock_gettime(CLOCK_MONOTONIC, &now);
+  return now.tv_sec * 1000000000LL + now.tv_nsec;
+}
+
+static jlong System_currentTimeMillis(JNIEnv* env, jclass unused) {
+  return JVM_CurrentTimeMillis(NULL, NULL);
+}
+
 static JNINativeMethod gMethods[] = {
   NATIVE_METHOD(System, mapLibraryName, "(Ljava/lang/String;)Ljava/lang/String;"),
   NATIVE_METHOD(System, setErr0, "(Ljava/io/PrintStream;)V"),
   NATIVE_METHOD(System, setOut0, "(Ljava/io/PrintStream;)V"),
   NATIVE_METHOD(System, setIn0, "(Ljava/io/InputStream;)V"),
-  NATIVE_METHOD(System, identityHashCode, "(Ljava/lang/Object;)I"),
   NATIVE_METHOD(System, specialProperties, "()[Ljava/lang/String;"),
   NATIVE_METHOD(System, log, "(CLjava/lang/String;Ljava/lang/Throwable;)V"),
+  NATIVE_METHOD(System, currentTimeMillis, "()J"),
+  NATIVE_METHOD(System, nanoTime, "()J"),
 };
 
 void register_java_lang_System(JNIEnv* env) {
   jniRegisterNativeMethods(env, "java/lang/System", gMethods, NELEM(gMethods));
-  jclass cls = (*env)->FindClass(env, "java/lang/System");
-  (*env)->RegisterNatives(env, cls,
-                          methods, sizeof(methods)/sizeof(methods[0]));
 }
