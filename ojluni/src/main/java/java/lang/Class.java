@@ -394,7 +394,7 @@ public final
         throws ClassNotFoundException
     {
         if (loader == null) {
-            loader = ClassLoader.getSystemClassLoader();
+            loader = BootClassLoader.getInstance();
         }
 
         Class<?> result;
