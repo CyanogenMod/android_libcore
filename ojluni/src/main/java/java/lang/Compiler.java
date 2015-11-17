@@ -26,85 +26,67 @@
 package java.lang;
 
 /**
- * The {@code Compiler} class is provided to support Java-to-native-code
- * compilers and related services. By design, the {@code Compiler} class does
- * nothing; it serves as a placeholder for a JIT compiler implementation.
- *
- * <p> When the Java Virtual Machine first starts, it determines if the system
- * property {@code java.compiler} exists. (System properties are accessible
- * through {@link System#getProperty(String)} and {@link
- * System#getProperty(String, String)}.  If so, it is assumed to be the name of
- * a library (with a platform-dependent exact location and type); {@link
- * System#loadLibrary} is called to load that library. If this loading
- * succeeds, the function named {@code java_lang_Compiler_start()} in that
- * library is called.
- *
- * <p> If no compiler is available, these methods do nothing.
- *
- * @author  Frank Yellin
- * @since   JDK1.0
+ * Does nothing on Android.
  */
 public final class Compiler  {
+    /**
+     * Prevent this class from being instantiated.
+     */
     private Compiler() {}               // don't make instances
 
     /**
-     * Compiles the specified class.
+     * Compiles the specified class using the JIT compiler and indicates if
+     * compilation has been successful. Does nothing and returns false on
+     * Android.
      *
-     * @param  clazz
-     *         A class
-     *
-     * @return  {@code true} if the compilation succeeded; {@code false} if the
-     *          compilation failed or no compiler is available
-     *
-     * @throws  NullPointerException
-     *          If {@code clazz} is {@code null}
+     * @param classToCompile
+     *            java.lang.Class the class to JIT compile
+     * @return {@code true} if the compilation has been successful;
+     *         {@code false} if it has failed or if there is no JIT compiler
+     *         available.
      */
-    public static boolean compileClass(Class<?> clazz) {
+    public static boolean compileClass(Class<?> classToCompile) {
         return false;
     }
 
     /**
-     * Compiles all classes whose name matches the specified string.
+     * Compiles all classes whose name matches the specified name using the JIT
+     * compiler and indicates if compilation has been successful. Does nothing
+     * and returns false on Android.
      *
-     * @param  string
-     *         The name of the classes to compile
-     *
-     * @return  {@code true} if the compilation succeeded; {@code false} if the
-     *          compilation failed or no compiler is available
-     *
-     * @throws  NullPointerException
-     *          If {@code string} is {@code null}
+     * @param nameRoot
+     *            the string to match class names with.
+     * @return {@code true} if the compilation has been successful;
+     *         {@code false} if it has failed or if there is no JIT compiler
+     *         available.
      */
-    public static boolean compileClasses(String string) {
+    public static boolean compileClasses(String nameRoot) {
         return false;
     }
 
     /**
-     * Examines the argument type and its fields and perform some documented
-     * operation.  No specific operations are required.
+     * Executes an operation according to the specified command object. This
+     * method is the low-level interface to the JIT compiler. It may return any
+     * object or {@code null} if no JIT compiler is available. Returns null
+     * on Android, whether or not the system has a JIT.
      *
-     * @param  any
-     *         An argument
-     *
-     * @return  A compiler-specific value, or {@code null} if no compiler is
-     *          available
-     *
-     * @throws  NullPointerException
-     *          If {@code any} is {@code null}
+     * @param cmd
+     *            the command object for the JIT compiler.
+     * @return the result of executing command or {@code null}.
      */
-    public static Object command(Object any) {
+    public static Object command(Object cmd) {
         return null;
     }
 
     /**
-     * Cause the Compiler to resume operation.
+     * Enables the JIT compiler. Does nothing on Android.
      */
     public static void enable() {
 
     }
 
     /**
-     * Cause the Compiler to cease operation.
+     * Disables the JIT compiler. Does nothing on Android.
      */
     public static void disable() {
 
