@@ -117,9 +117,7 @@ public final class Math {
      * @param   a   an angle, in radians.
      * @return  the sine of the argument.
      */
-    public static double sin(double a) {
-        return StrictMath.sin(a); // default impl. delegates to StrictMath
-    }
+    public static native double sin(double a);
 
     /**
      * Returns the trigonometric cosine of an angle. Special cases:
@@ -132,9 +130,7 @@ public final class Math {
      * @param   a   an angle, in radians.
      * @return  the cosine of the argument.
      */
-    public static double cos(double a) {
-        return StrictMath.cos(a); // default impl. delegates to StrictMath
-    }
+    public static native double cos(double a);
 
     /**
      * Returns the trigonometric tangent of an angle.  Special cases:
@@ -149,9 +145,7 @@ public final class Math {
      * @param   a   an angle, in radians.
      * @return  the tangent of the argument.
      */
-    public static double tan(double a) {
-        return StrictMath.tan(a); // default impl. delegates to StrictMath
-    }
+    public static native double tan(double a);
 
     /**
      * Returns the arc sine of a value; the returned angle is in the
@@ -167,9 +161,7 @@ public final class Math {
      * @param   a   the value whose arc sine is to be returned.
      * @return  the arc sine of the argument.
      */
-    public static double asin(double a) {
-        return StrictMath.asin(a); // default impl. delegates to StrictMath
-    }
+    public static native double asin(double d);
 
     /**
      * Returns the arc cosine of a value; the returned angle is in the
@@ -183,9 +175,7 @@ public final class Math {
      * @param   a   the value whose arc cosine is to be returned.
      * @return  the arc cosine of the argument.
      */
-    public static double acos(double a) {
-        return StrictMath.acos(a); // default impl. delegates to StrictMath
-    }
+    public static native double acos(double d);
 
     /**
      * Returns the arc tangent of a value; the returned angle is in the
@@ -200,9 +190,7 @@ public final class Math {
      * @param   a   the value whose arc tangent is to be returned.
      * @return  the arc tangent of the argument.
      */
-    public static double atan(double a) {
-        return StrictMath.atan(a); // default impl. delegates to StrictMath
-    }
+    public static native double atan(double d);
 
     /**
      * Converts an angle measured in degrees to an approximately
@@ -250,9 +238,7 @@ public final class Math {
      * @return  the value <i>e</i><sup>{@code a}</sup>,
      *          where <i>e</i> is the base of the natural logarithms.
      */
-    public static double exp(double a) {
-        return StrictMath.exp(a); // default impl. delegates to StrictMath
-    }
+    public static native double exp(double a);
 
     /**
      * Returns the natural logarithm (base <i>e</i>) of a {@code double}
@@ -271,9 +257,7 @@ public final class Math {
      * @return  the value ln&nbsp;{@code a}, the natural logarithm of
      *          {@code a}.
      */
-    public static double log(double a) {
-        return StrictMath.log(a); // default impl. delegates to StrictMath
-    }
+    public static native double log(double a);
 
     /**
      * Returns the base 10 logarithm of a {@code double} value.
@@ -296,9 +280,7 @@ public final class Math {
      * @return  the base 10 logarithm of  {@code a}.
      * @since 1.5
      */
-    public static double log10(double a) {
-        return StrictMath.log10(a); // default impl. delegates to StrictMath
-    }
+    public static native double log10(double a);
 
     /**
      * Returns the correctly rounded positive square root of a
@@ -317,13 +299,7 @@ public final class Math {
      * @return  the positive square root of {@code a}.
      *          If the argument is NaN or less than zero, the result is NaN.
      */
-    public static double sqrt(double a) {
-        return StrictMath.sqrt(a); // default impl. delegates to StrictMath
-                                   // Note that hardware sqrt instructions
-                                   // frequently can be directly used by JITs
-                                   // and should be much faster than doing
-                                   // Math.sqrt in software.
-    }
+    public static native double sqrt(double a);
 
 
     /**
@@ -352,9 +328,7 @@ public final class Math {
      * @return  the cube root of {@code a}.
      * @since 1.5
      */
-    public static double cbrt(double a) {
-        return StrictMath.cbrt(a);
-    }
+    public static native double cbrt(double a);
 
     /**
      * Computes the remainder operation on two arguments as prescribed
@@ -378,9 +352,7 @@ public final class Math {
      * @return  the remainder when {@code f1} is divided by
      *          {@code f2}.
      */
-    public static double IEEEremainder(double f1, double f2) {
-        return StrictMath.IEEEremainder(f1, f2); // delegate to StrictMath
-    }
+    public static native double IEEEremainder(double f1, double f2);
 
     /**
      * Returns the smallest (closest to negative infinity)
@@ -401,9 +373,7 @@ public final class Math {
      *          floating-point value that is greater than or equal to
      *          the argument and is equal to a mathematical integer.
      */
-    public static double ceil(double a) {
-        return StrictMath.ceil(a); // default impl. delegates to StrictMath
-    }
+    public static native double ceil(double a);
 
     /**
      * Returns the largest (closest to positive infinity)
@@ -420,9 +390,7 @@ public final class Math {
      *          floating-point value that less than or equal to the argument
      *          and is equal to a mathematical integer.
      */
-    public static double floor(double a) {
-        return StrictMath.floor(a); // default impl. delegates to StrictMath
-    }
+    public static native double floor(double a);
 
     /**
      * Returns the {@code double} value that is closest in value
@@ -439,9 +407,7 @@ public final class Math {
      * @return  the closest floating-point value to {@code a} that is
      *          equal to a mathematical integer.
      */
-    public static double rint(double a) {
-        return StrictMath.rint(a); // default impl. delegates to StrictMath
-    }
+    public static native double rint(double a);
 
     /**
      * Returns the angle <i>theta</i> from the conversion of rectangular
@@ -495,9 +461,7 @@ public final class Math {
      *          in polar coordinates that corresponds to the point
      *          (<i>x</i>,&nbsp;<i>y</i>) in Cartesian coordinates.
      */
-    public static double atan2(double y, double x) {
-        return StrictMath.atan2(y, x); // default impl. delegates to StrictMath
-    }
+    public static native double atan2(double y, double x);
 
     /**
      * Returns the value of the first argument raised to the power of the
@@ -622,9 +586,7 @@ public final class Math {
      * @param   b   the exponent.
      * @return  the value {@code a}<sup>{@code b}</sup>.
      */
-    public static double pow(double a, double b) {
-        return StrictMath.pow(a, b); // default impl. delegates to StrictMath
-    }
+    public static native double pow(double x, double y);
 
     /**
      * Returns the closest {@code int} to the argument, with ties
@@ -1072,9 +1034,7 @@ public final class Math {
      * @return  The hyperbolic sine of {@code x}.
      * @since 1.5
      */
-    public static double sinh(double x) {
-        return StrictMath.sinh(x);
-    }
+    public static native double sinh(double x);
 
     /**
      * Returns the hyperbolic cosine of a {@code double} value.
@@ -1100,9 +1060,7 @@ public final class Math {
      * @return  The hyperbolic cosine of {@code x}.
      * @since 1.5
      */
-    public static double cosh(double x) {
-        return StrictMath.cosh(x);
-    }
+    public static native double cosh(double x);
 
     /**
      * Returns the hyperbolic tangent of a {@code double} value.
@@ -1140,9 +1098,7 @@ public final class Math {
      * @return  The hyperbolic tangent of {@code x}.
      * @since 1.5
      */
-    public static double tanh(double x) {
-        return StrictMath.tanh(x);
-    }
+    public static native double tanh(double x);
 
     /**
      * Returns sqrt(<i>x</i><sup>2</sup>&nbsp;+<i>y</i><sup>2</sup>)
@@ -1169,9 +1125,7 @@ public final class Math {
      * without intermediate overflow or underflow
      * @since 1.5
      */
-    public static double hypot(double x, double y) {
-        return StrictMath.hypot(x, y);
-    }
+    public static native double hypot(double x, double y);
 
     /**
      * Returns <i>e</i><sup>x</sup>&nbsp;-1.  Note that for values of
@@ -1207,9 +1161,7 @@ public final class Math {
      * @return  the value <i>e</i><sup>{@code x}</sup>&nbsp;-&nbsp;1.
      * @since 1.5
      */
-    public static double expm1(double x) {
-        return StrictMath.expm1(x);
-    }
+    public static native double expm1(double x);
 
     /**
      * Returns the natural logarithm of the sum of the argument and 1.
@@ -1244,9 +1196,7 @@ public final class Math {
      * log of {@code x}&nbsp;+&nbsp;1
      * @since 1.5
      */
-    public static double log1p(double x) {
-        return StrictMath.log1p(x);
-    }
+    public static native double log1p(double x);
 
     /**
      * Returns the first floating-point argument with the sign of the
