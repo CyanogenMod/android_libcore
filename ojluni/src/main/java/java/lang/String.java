@@ -309,19 +309,6 @@ public final class String
         throw new UnsupportedOperationException("Use StringFactory instead.");
     }
 
-    /* Common private utility method used to bounds check the byte array
-     * and requested offset & length values used by the String(byte[],..)
-     * constructors.
-     */
-    private static void checkBounds(byte[] bytes, int offset, int length) {
-        if (length < 0)
-            throw new StringIndexOutOfBoundsException(length);
-        if (offset < 0)
-            throw new StringIndexOutOfBoundsException(offset);
-        if (offset > bytes.length - length)
-            throw new StringIndexOutOfBoundsException(offset + length);
-    }
-
     /**
      * Constructs a new {@code String} by decoding the specified subarray of
      * bytes using the specified charset.  The length of the new {@code String}
@@ -743,7 +730,7 @@ public final class String
 
         int count = srcEnd - srcBegin;
         if (count < 0) {
-            throw new StringIndexOutOfBoundsException(this, srcBegin, (srcEnd - srcBegin));
+            throw new StringIndexOutOfBoundsException(this, srcBegin, count);
         }
 
         if (dstBegin + count > dst.length) {
@@ -807,14 +794,15 @@ public final class String
     @Deprecated
     public void getBytes(int srcBegin, int srcEnd, byte dst[], int dstBegin) {
         if (srcBegin < 0) {
-            throw new StringIndexOutOfBoundsException(srcBegin);
+            throw new StringIndexOutOfBoundsException(this, srcBegin);
         }
         if (srcEnd > count) {
-            throw new StringIndexOutOfBoundsException(srcEnd);
+            throw new StringIndexOutOfBoundsException(this, srcEnd);
         }
         if (srcBegin > srcEnd) {
-            throw new StringIndexOutOfBoundsException(srcEnd - srcBegin);
+            throw new StringIndexOutOfBoundsException(this, (srcEnd - srcBegin));
         }
+
         int j = dstBegin;
         int n = srcEnd;
         int i = srcBegin;
@@ -1878,11 +1866,11 @@ public final class String
      */
     public String substring(int beginIndex) {
         if (beginIndex < 0) {
-            throw new StringIndexOutOfBoundsException(beginIndex);
+            throw new StringIndexOutOfBoundsException(this, beginIndex);
         }
         int subLen = count - beginIndex;
         if (subLen < 0) {
-            throw new StringIndexOutOfBoundsException(subLen);
+            throw new StringIndexOutOfBoundsException(this, beginIndex);
         }
         return (beginIndex == 0) ? this : fastSubstring(beginIndex, subLen);
     }
@@ -1911,15 +1899,14 @@ public final class String
      */
     public String substring(int beginIndex, int endIndex) {
         if (beginIndex < 0) {
-            throw new StringIndexOutOfBoundsException(beginIndex);
+            throw new StringIndexOutOfBoundsException(this, beginIndex);
         }
-        if (endIndex > count) {
-            throw new StringIndexOutOfBoundsException(endIndex);
-        }
+
         int subLen = endIndex - beginIndex;
-        if (subLen < 0) {
-            throw new StringIndexOutOfBoundsException(subLen);
+        if (endIndex > count || subLen < 0) {
+            throw new StringIndexOutOfBoundsException(this, beginIndex, subLen);
         }
+
         return ((beginIndex == 0) && (endIndex == count)) ? this
                 : fastSubstring(beginIndex, subLen);
     }
