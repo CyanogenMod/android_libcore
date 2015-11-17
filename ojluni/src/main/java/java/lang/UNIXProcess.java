@@ -233,6 +233,21 @@ final class UNIXProcess extends Process {
         try { stderr.close(); } catch (IOException ignored) {}
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("Process[pid=");
+        sb.append(pid);
+        if (hasExited) {
+            sb.append(" ,hasExited=true, exitcode=");
+            sb.append(exitcode);
+            sb.append("]");
+        } else {
+            sb.append(", hasExited=false]");
+        }
+
+        return sb.toString();
+    }
+
     /* This routine initializes JNI field offsets for the class */
     private static native void initIDs();
 
