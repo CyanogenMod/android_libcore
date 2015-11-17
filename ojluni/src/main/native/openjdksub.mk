@@ -58,6 +58,7 @@ LOCAL_SRC_FILES := \
     Float.c \
     Double.c \
     StrictMath.c \
+    Math.c \
     ProcessEnvironment_md.c \
     System.c \
     Runtime.c \
