@@ -599,8 +599,8 @@ public class Proxy implements java.io.Serializable {
             }
 
             if (proxyPkg == null) {
-                // if no non-public proxy interfaces, use com.sun.proxy package
-                proxyPkg = ReflectUtil.PROXY_PACKAGE + ".";
+                // if no non-public proxy interfaces, use the default package.
+                proxyPkg = "";
             }
 
             {

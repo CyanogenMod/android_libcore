@@ -176,8 +176,6 @@ public final class ReflectUtil {
         }
     }
 
-    public static final String PROXY_PACKAGE = "com.sun.proxy";
-
     /**
      * Test if the given class is a proxy class that implements
      * non-public interface.  Such proxy class may be in a non-restricted
@@ -187,6 +185,10 @@ public final class ReflectUtil {
         String name = cls.getName();
         int i = name.lastIndexOf('.');
         String pkg = (i != -1) ? name.substring(0, i) : "";
-        return Proxy.isProxyClass(cls) && !pkg.equals(PROXY_PACKAGE);
+
+        // NOTE: Android creates proxies in the "default" package (and not com.sun.proxy), which
+        // makes this check imprecise. However, this function is only ever called if there's
+        // a security manager installed (which is the never case on android).
+        return Proxy.isProxyClass(cls) && !pkg.isEmpty();
     }
 }
