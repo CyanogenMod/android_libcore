@@ -27,16 +27,9 @@ package java.security;
 
 import java.lang.reflect.*;
 import java.util.*;
-import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.io.*;
-import java.net.URL;
-
-import sun.security.util.Debug;
-import sun.security.util.PropertyExpander;
-
-import java.security.Provider.Service;
 
 import sun.security.jca.*;
 
@@ -51,12 +44,8 @@ public final class Security {
 
     private static final AtomicInteger version = new AtomicInteger();
 
-    /* Are we debugging? -- for developers */
-    private static final Debug sdebug =
-                        Debug.getInstance("properties");
-
     /* The java.security properties */
-    private static Properties props;
+    private static final Properties props;
 
     // An element in the cache
     private static class ProviderProperty {
@@ -65,149 +54,34 @@ public final class Security {
     }
 
     static {
-        // doPrivileged here because there are multiple
-        // things in initialize that might require privs.
-        // (the FileInputStream call and the File.exists call,
-        // the securityPropFile call, etc)
-        AccessController.doPrivileged(new PrivilegedAction<Void>() {
-            public Void run() {
-                initialize();
-                return null;
-            }
-        });
-    }
-
-    private static void initialize() {
         props = new Properties();
         boolean loadedProps = false;
-        boolean overrideAll = false;
-
-        /* ----- BEGIN android -----
-        // first load the system properties file
-        // to determine the value of security.overridePropertiesFile
-        File propFile = securityPropFile("java.security");
-        if (propFile.exists()) {
-            InputStream is = null;
-            try {
-                FileInputStream fis = new FileInputStream(propFile);
-                is = new BufferedInputStream(fis);
-                props.load(is);
-                loadedProps = true;
-
-                if (sdebug != null) {
-                    sdebug.println("reading security properties file: " +
-                                propFile);
-                }
-            } catch (IOException e) {
-                if (sdebug != null) {
-                    sdebug.println("unable to load security properties from " +
-                                propFile);
-                    e.printStackTrace();
-                }
-            } finally {
-                if (is != null) {
-                    try {
-                        is.close();
-                    } catch (IOException ioe) {
-                        if (sdebug != null) {
-                            sdebug.println("unable to close input stream");
-                        }
-                    }
-                }
-            }
-        }*/
-
+        InputStream is = null;
         try {
             /*
              * Android keeps the property file in a jar resource.
              */
-            InputStream propStream =
-                Security.class.getResourceAsStream("security.properties");
-            BufferedInputStream bufStream = new BufferedInputStream(propStream);
-            props.load(bufStream);
-            loadedProps = true;
-            bufStream.close();
-            propStream.close();
-        } catch (Exception ex) {
+            InputStream propStream = Security.class.getResourceAsStream("security.properties");
+            if (propStream == null) {
+                System.logE("Could not find 'security.properties'.");
+            } else {
+                is  = new BufferedInputStream(propStream);
+                props.load(is);
+                loadedProps = true;
+            }
+        } catch (IOException ex) {
             System.logE("Could not load 'security.properties'", ex);
-        }
-        File propFile;
-        // ----- END android -----
-
-        if ("true".equalsIgnoreCase(props.getProperty
-                ("security.overridePropertiesFile"))) {
-
-            String extraPropFile = System.getProperty
-                                        ("java.security.properties");
-            if (extraPropFile != null && extraPropFile.startsWith("=")) {
-                overrideAll = true;
-                extraPropFile = extraPropFile.substring(1);
-            }
-
-            if (overrideAll) {
-                props = new Properties();
-                if (sdebug != null) {
-                    sdebug.println
-                        ("overriding other security properties files!");
-                }
-            }
-
-            // now load the user-specified file so its values
-            // will win if they conflict with the earlier values
-            if (extraPropFile != null) {
-                BufferedInputStream bis = null;
+        } finally {
+            if (is != null) {
                 try {
-                    URL propURL;
-
-                    extraPropFile = PropertyExpander.expand(extraPropFile);
-                    propFile = new File(extraPropFile);
-                    if (propFile.exists()) {
-                        propURL = new URL
-                                ("file:" + propFile.getCanonicalPath());
-                    } else {
-                        propURL = new URL(extraPropFile);
-                    }
-                    bis = new BufferedInputStream(propURL.openStream());
-                    props.load(bis);
-                    loadedProps = true;
-
-                    if (sdebug != null) {
-                        sdebug.println("reading security properties file: " +
-                                        propURL);
-                        if (overrideAll) {
-                            sdebug.println
-                                ("overriding other security properties files!");
-                        }
-                    }
-                } catch (Exception e) {
-                    if (sdebug != null) {
-                        sdebug.println
-                                ("unable to load security properties from " +
-                                extraPropFile);
-                        e.printStackTrace();
-                    }
-                } finally {
-                    if (bis != null) {
-                        try {
-                            bis.close();
-                        } catch (IOException ioe) {
-                            if (sdebug != null) {
-                                sdebug.println("unable to close input stream");
-                            }
-                        }
-                    }
-                }
+                    is.close();
+                } catch (IOException ignored) {}
             }
         }
 
         if (!loadedProps) {
             initializeStatic();
-            if (sdebug != null) {
-                sdebug.println("unable to load security properties " +
-                        "-- using defaults");
-            }
         }
-
     }
 
     /*
