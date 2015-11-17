@@ -604,14 +604,6 @@ public class Proxy implements java.io.Serializable {
             }
 
             {
-                /*
-                 * Choose a name for the proxy class to generate.
-                 */
-                long num;
-                synchronized (nextUniqueNumberLock) {
-                    num = nextUniqueNumber++;
-                }
-                String proxyName = proxyPkg + proxyClassNamePrefix + num;
                 // Android-changed: Generate the proxy directly instead of calling
                 // through to ProxyGenerator.
                 List<Method> methods = getMethods(interfaces);
@@ -621,6 +613,16 @@ public class Proxy implements java.io.Serializable {
 
                 Method[] methodsArray = methods.toArray(new Method[methods.size()]);
                 Class<?>[][] exceptionsArray = exceptions.toArray(new Class<?>[exceptions.size()][]);
+
+                /*
+                 * Choose a name for the proxy class to generate.
+                 */
+                final long num;
+                synchronized (nextUniqueNumberLock) {
+                    num = nextUniqueNumber++;
+                }
+                String proxyName = proxyPkg + proxyClassNamePrefix + num;
+
                 proxyClass = generateProxy(proxyName, interfaces, loader, methodsArray,
                         exceptionsArray);
             }
