@@ -2295,7 +2295,7 @@ public final class String
                 return new String[]{this};
             }
 
-            int end = count;
+            int end = value.length;
 
             // Remove trailing separators
             if (!limited && off == end) {
@@ -2305,7 +2305,7 @@ public final class String
                 while (charAt(off - 1) == ch) {
                     --off;
                 }
-                sepCount -= count - off;
+                sepCount -= value.length - off;
                 end = off;
             }
 
