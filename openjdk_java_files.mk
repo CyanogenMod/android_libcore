@@ -1064,6 +1064,8 @@ openjdk_java_files := \
     ojluni/src/main/java/com/sun/security/cert/internal/x509/X509V1CertImpl.java \
     ojluni/src/main/java/java/beans/ChangeListenerMap.java \
     ojluni/src/main/java/java/lang/Shutdown.java \
+    ojluni/src/main/java/sun/misc/FDBigInt.java \
+    ojluni/src/main/java/java/lang/FloatingDecimal.java \
     ojluni/src/main/java/java/text/spi/BreakIteratorProvider.java \
     ojluni/src/main/java/java/text/spi/CollatorProvider.java \
     ojluni/src/main/java/java/text/spi/DateFormatProvider.java \
@@ -1086,7 +1088,6 @@ openjdk_java_files := \
     ojluni/src/main/java/sun/misc/DoubleConsts.java \
     ojluni/src/main/java/sun/misc/FileURLMapper.java \
     ojluni/src/main/java/sun/misc/FloatConsts.java \
-    ojluni/src/main/java/sun/misc/FloatingDecimal.java \
     ojluni/src/main/java/sun/misc/FormattedFloatingDecimal.java \
     ojluni/src/main/java/sun/misc/FpUtils.java \
     ojluni/src/main/java/sun/misc/Hashing.java \

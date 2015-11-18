@@ -1,4 +1,4 @@
-/*
+   /*
  * Copyright (c) 1996, 2011, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
@@ -23,14 +23,15 @@
  * questions.
  */
 
-package sun.misc;
+package java.lang;
 
 import sun.misc.FpUtils;
+import sun.misc.FDBigInt;
 import sun.misc.DoubleConsts;
 import sun.misc.FloatConsts;
 import java.util.regex.*;
 
-public class FloatingDecimal{
+public class FloatingDecimal {
     boolean     isExceptional;
     boolean     isNegative;
     int         decExponent;
@@ -41,15 +42,6 @@ public class FloatingDecimal{
     boolean     mustSetRoundDir = false;
     boolean     fromHex = false;
     int         roundDir = 0; // set by doubleValue
-
-    private     FloatingDecimal( boolean negSign, int decExponent, char []digits, int n,  boolean e )
-    {
-        isNegative = negSign;
-        isExceptional = e;
-        this.decExponent = decExponent;
-        this.digits = digits;
-        this.nDigits = n;
-    }
 
     /*
      * Constants of the implementation
@@ -85,7 +77,6 @@ public class FloatingDecimal{
     static final int    singleMinDecimalExponent = -45;
 
     static final int    intDecimalDigits = 9;
-
 
     /*
      * count number of bits from high-order 1 bit to low-order 1 bit,
@@ -399,15 +390,29 @@ public class FloatingDecimal{
         digits[i] = (char)(q+1);
     }
 
+    private FloatingDecimal() {}
+
+    private static final ThreadLocal<FloatingDecimal> TL_INSTANCE = new ThreadLocal<FloatingDecimal>() {
+        @Override protected FloatingDecimal initialValue() {
+            return new FloatingDecimal();
+        }
+    };
+    public static FloatingDecimal getThreadLocalInstance() {
+        return TL_INSTANCE.get();
+    }
+
     /*
-     * FIRST IMPORTANT CONSTRUCTOR: DOUBLE
+     * FIRST IMPORTANT LOAD: DOUBLE
      */
-    public FloatingDecimal( double d )
-    {
+    public FloatingDecimal loadDouble(double d) {
         long    dBits = Double.doubleToLongBits( d );
         long    fractBits;
         int     binExp;
         int     nSignificantBits;
+
+        mustSetRoundDir = false;
+        fromHex = false;
+        roundDir = 0;
 
         // discover and delete sign
         if ( (dBits&signMask) != 0 ){
@@ -429,7 +434,7 @@ public class FloatingDecimal{
                 isNegative = false; // NaN has no sign!
             }
             nDigits = digits.length;
-            return;
+            return this;
         }
         isExceptional = false;
         // Finish unpacking
@@ -442,7 +447,7 @@ public class FloatingDecimal{
                 decExponent = 0;
                 digits = zero;
                 nDigits = 1;
-                return;
+                return this;
             }
             while ( (fractBits&fractHOB) == 0L ){
                 fractBits <<= 1;
@@ -457,17 +462,21 @@ public class FloatingDecimal{
         binExp -= expBias;
         // call the routine that actually does all the hard work.
         dtoa( binExp, fractBits, nSignificantBits );
+        return this;
     }
 
     /*
-     * SECOND IMPORTANT CONSTRUCTOR: SINGLE
+     * SECOND IMPORTANT LOAD: SINGLE
      */
-    public FloatingDecimal( float f )
-    {
+    public FloatingDecimal loadFloat(float f) {
         int     fBits = Float.floatToIntBits( f );
         int     fractBits;
         int     binExp;
         int     nSignificantBits;
+
+        mustSetRoundDir = false;
+        fromHex = false;
+        roundDir = 0;
 
         // discover and delete sign
         if ( (fBits&singleSignMask) != 0 ){
@@ -489,7 +498,7 @@ public class FloatingDecimal{
                 isNegative = false; // NaN has no sign!
             }
             nDigits = digits.length;
-            return;
+            return this;
         }
         isExceptional = false;
         // Finish unpacking
@@ -502,7 +511,7 @@ public class FloatingDecimal{
                 decExponent = 0;
                 digits = zero;
                 nDigits = 1;
-                return;
+                return this;
             }
             while ( (fractBits&singleFractHOB) == 0 ){
                 fractBits <<= 1;
@@ -517,6 +526,7 @@ public class FloatingDecimal{
         binExp -= singleExpBias;
         // call the routine that actually does all the hard work.
         dtoa( binExp, ((long)fractBits)<<(expShift-singleExpShift), nSignificantBits );
+        return this;
     }
 
     private void
@@ -915,7 +925,7 @@ public class FloatingDecimal{
             i += nDigits;
         } else {
             if (decExponent > 0 && decExponent < 8) {
-                // print digits.digits.
+                // case with digits.digits
                 int charLength = Math.min(nDigits, decExponent);
                 System.arraycopy(digits, 0, result, i, charLength);
                 i += charLength;
@@ -936,6 +946,7 @@ public class FloatingDecimal{
                     }
                 }
             } else if (decExponent <=0 && decExponent > -3) {
+                // case with 0.digits
                 result[i++] = '0';
                 result[i++] = '.';
                 if (decExponent != 0) {
@@ -945,6 +956,7 @@ public class FloatingDecimal{
                 System.arraycopy(digits, 0, result, i, nDigits);
                 i += nDigits;
             } else {
+                // case with digit.digitsEexponent
                 result[i++] = digits[0];
                 result[i++] = '.';
                 if (nDigits > 1) {
@@ -985,18 +997,66 @@ public class FloatingDecimal{
             }
         };
 
-    public void appendTo(Appendable buf) {
-          char result[] = (char[])(perThreadBuffer.get());
-          int i = getChars(result);
-        if (buf instanceof StringBuilder)
-            ((StringBuilder) buf).append(result, 0, i);
-        else if (buf instanceof StringBuffer)
-            ((StringBuffer) buf).append(result, 0, i);
-        else
-            assert false;
+    public void appendTo(AbstractStringBuilder buf) {
+        if (isNegative) { buf.append('-'); }
+        if (isExceptional) {
+            buf.append(digits, 0 , nDigits);
+            return;
+        }
+        if (decExponent > 0 && decExponent < 8) {
+            // print digits.digits.
+            int charLength = Math.min(nDigits, decExponent);
+            buf.append(digits, 0 , charLength);
+            if (charLength < decExponent) {
+                charLength = decExponent-charLength;
+                buf.append(zero, 0 , charLength);
+                buf.append(".0");
+            } else {
+                buf.append('.');
+                if (charLength < nDigits) {
+                    buf.append(digits, charLength, nDigits - charLength);
+                } else {
+                    buf.append('0');
+                }
+            }
+        } else if (decExponent <=0 && decExponent > -3) {
+            buf.append("0.");
+            if (decExponent != 0) {
+                buf.append(zero, 0, -decExponent);
+            }
+            buf.append(digits, 0, nDigits);
+        } else {
+            buf.append(digits[0]);
+            buf.append('.');
+            if (nDigits > 1) {
+                buf.append(digits, 1, nDigits-1);
+            } else {
+                buf.append('0');
+            }
+            buf.append('E');
+            int e;
+            if (decExponent <= 0) {
+                buf.append('-');
+                e = -decExponent + 1;
+            } else {
+                e = decExponent - 1;
+            }
+            // decExponent has 1, 2, or 3, digits
+            if (e <= 9) {
+                buf.append((char)(e + '0'));
+            } else if (e <= 99) {
+                buf.append((char)(e/10 + '0'));
+                buf.append((char)(e%10 + '0'));
+            } else {
+                buf.append((char)(e/100 + '0'));
+                e %= 100;
+                buf.append((char)(e/10 + '0'));
+                buf.append((char)(e%10 + '0'));
+            }
+        }
     }
 
-    public static FloatingDecimal
+    public FloatingDecimal
     readJavaFormatString( String in ) throws NumberFormatException {
         boolean isNegative = false;
         boolean signSeen   = false;
@@ -1047,8 +1107,8 @@ public class FloatingDecimal{
                 // must be matched ==> j must equal targetChars.length
                 // and i must equal l
                 if( (j == targetChars.length) && (i == l) ) { // return NaN or infinity
-                    return (potentialNaN ? new FloatingDecimal(Double.NaN) // NaN has no sign
-                            : new FloatingDecimal(isNegative?
+                    return (potentialNaN ? loadDouble(Double.NaN) // NaN has no sign
+                            : loadDouble(isNegative?
                                                   Double.NEGATIVE_INFINITY:
                                                   Double.POSITIVE_INFINITY)) ;
                 }
@@ -1236,7 +1296,12 @@ public class FloatingDecimal{
                 break parseNumber; // go throw exception
             }
 
-            return new FloatingDecimal( isNegative, decExp, digits, nDigits,  false );
+            this.isNegative = isNegative;
+            this.decExponent = decExp;
+            this.digits = digits;
+            this.nDigits = nDigits;
+            this.isExceptional = false;
+            return this;
         } catch ( StringIndexOutOfBoundsException e ){ }
         throw new NumberFormatException("For input string: \"" + in + "\"");
     }
@@ -1880,7 +1945,7 @@ public class FloatingDecimal{
      * double constructor and set the roundDir variable appropriately
      * in case the value is later converted to a float.
      */
-   static FloatingDecimal parseHexString(String s) {
+    FloatingDecimal parseHexString(String s) {
         // Verify string is a member of the hexadecimal floating-point
         // string language.
         Matcher m = getHexFloatPattern().matcher(s);
@@ -2007,7 +2072,7 @@ public class FloatingDecimal{
                 // matter; return a properly signed zero.
 
                 if (signifLength == 0) { // Only zeros in input
-                    return new FloatingDecimal(sign * 0.0);
+                    return loadDouble(sign * 0.0);
                 }
             }
 
@@ -2039,8 +2104,8 @@ public class FloatingDecimal{
                 //                      +               -
                 // exponent     +       +infinity       -infinity
                 //              -       +0.0            -0.0
-                return new FloatingDecimal(sign * (positiveExponent ?
-                                                   Double.POSITIVE_INFINITY : 0.0));
+                return loadDouble(sign * (positiveExponent ?
+                                          Double.POSITIVE_INFINITY : 0.0));
             }
 
             long rawExponent =
@@ -2194,7 +2259,7 @@ public class FloatingDecimal{
 
             if (exponent > DoubleConsts.MAX_EXPONENT) {         // Infinite result
                 // overflow to properly signed infinity
-                return new FloatingDecimal(sign * Double.POSITIVE_INFINITY);
+                return loadDouble(sign * Double.POSITIVE_INFINITY);
             } else {  // Finite return value
                 if (exponent <= DoubleConsts.MAX_EXPONENT && // (Usually) normal result
                     exponent >= DoubleConsts.MIN_EXPONENT) {
@@ -2223,7 +2288,7 @@ public class FloatingDecimal{
                         // No way to round back to nonzero value
                         // regardless of significand if the exponent is
                         // less than -1075.
-                        return new FloatingDecimal(sign * 0.0);
+                        return loadDouble(sign * 0.0);
                     } else { //  -1075 <= exponent <= MIN_EXPONENT -1 = -1023
                         /*
                          * Find bit position to round to; recompute
@@ -2297,9 +2362,9 @@ public class FloatingDecimal{
                     significand++;
                 }
 
-                FloatingDecimal fd = new FloatingDecimal(FpUtils.rawCopySign(
-                                                                 Double.longBitsToDouble(significand),
-                                                                 sign));
+                loadDouble(FpUtils.rawCopySign(
+                                               Double.longBitsToDouble(significand),
+                                               sign));
 
                 /*
                  * Set roundingDir variable field of fd properly so
@@ -2363,7 +2428,7 @@ public class FloatingDecimal{
                                 // significand if round XOR sticky is
                                 // true.
                                 if (round ^ sticky) {
-                                    fd.roundDir =  1;
+                                    this.roundDir =  1;
                                 }
                             }
                             else { // prerounding lsb is 1
@@ -2375,14 +2440,14 @@ public class FloatingDecimal{
                                 // right guard and sticky bits for the
                                 // float rounding.
                                 if (round)
-                                    fd.roundDir =  -1;
+                                    this.roundDir =  -1;
                             }
                         }
                     }
                 }
 
-                fd.fromHex = true;
-                return fd;
+                this.fromHex = true;
+                return this;
             }
         }
     }
@@ -2408,471 +2473,4 @@ public class FloatingDecimal{
     }
 
 
-}
-
-/*
- * A really, really simple bigint package
- * tailored to the needs of floating base conversion.
- */
-class FDBigInt {
-    int nWords; // number of words used
-    int data[]; // value: data[0] is least significant
-
-
-    public FDBigInt( int v ){
-        nWords = 1;
-        data = new int[1];
-        data[0] = v;
-    }
-
-    public FDBigInt( long v ){
-        data = new int[2];
-        data[0] = (int)v;
-        data[1] = (int)(v>>>32);
-        nWords = (data[1]==0) ? 1 : 2;
-    }
-
-    public FDBigInt( FDBigInt other ){
-        data = new int[nWords = other.nWords];
-        System.arraycopy( other.data, 0, data, 0, nWords );
-    }
-
-    private FDBigInt( int [] d, int n ){
-        data = d;
-        nWords = n;
-    }
-
-    public FDBigInt( long seed, char digit[], int nd0, int nd ){
-        int n= (nd+8)/9;        // estimate size needed.
-        if ( n < 2 ) n = 2;
-        data = new int[n];      // allocate enough space
-        data[0] = (int)seed;    // starting value
-        data[1] = (int)(seed>>>32);
-        nWords = (data[1]==0) ? 1 : 2;
-        int i = nd0;
-        int limit = nd-5;       // slurp digits 5 at a time.
-        int v;
-        while ( i < limit ){
-            int ilim = i+5;
-            v = (int)digit[i++]-(int)'0';
-            while( i <ilim ){
-                v = 10*v + (int)digit[i++]-(int)'0';
-            }
-            multaddMe( 100000, v); // ... where 100000 is 10^5.
-        }
-        int factor = 1;
-        v = 0;
-        while ( i < nd ){
-            v = 10*v + (int)digit[i++]-(int)'0';
-            factor *= 10;
-        }
-        if ( factor != 1 ){
-            multaddMe( factor, v );
-        }
-    }
-
-    /*
-     * Left shift by c bits.
-     * Shifts this in place.
-     */
-    public void
-    lshiftMe( int c )throws IllegalArgumentException {
-        if ( c <= 0 ){
-            if ( c == 0 )
-                return; // silly.
-            else
-                throw new IllegalArgumentException("negative shift count");
-        }
-        int wordcount = c>>5;
-        int bitcount  = c & 0x1f;
-        int anticount = 32-bitcount;
-        int t[] = data;
-        int s[] = data;
-        if ( nWords+wordcount+1 > t.length ){
-            // reallocate.
-            t = new int[ nWords+wordcount+1 ];
-        }
-        int target = nWords+wordcount;
-        int src    = nWords-1;
-        if ( bitcount == 0 ){
-            // special hack, since an anticount of 32 won't go!
-            System.arraycopy( s, 0, t, wordcount, nWords );
-            target = wordcount-1;
-        } else {
-            t[target--] = s[src]>>>anticount;
-            while ( src >= 1 ){
-                t[target--] = (s[src]<<bitcount) | (s[--src]>>>anticount);
-            }
-            t[target--] = s[src]<<bitcount;
-        }
-        while( target >= 0 ){
-            t[target--] = 0;
-        }
-        data = t;
-        nWords += wordcount + 1;
-        // may have constructed high-order word of 0.
-        // if so, trim it
-        while ( nWords > 1 && data[nWords-1] == 0 )
-            nWords--;
-    }
-
-    /*
-     * normalize this number by shifting until
-     * the MSB of the number is at 0x08000000.
-     * This is in preparation for quoRemIteration, below.
-     * The idea is that, to make division easier, we want the
-     * divisor to be "normalized" -- usually this means shifting
-     * the MSB into the high words sign bit. But because we know that
-     * the quotient will be 0 < q < 10, we would like to arrange that
-     * the dividend not span up into another word of precision.
-     * (This needs to be explained more clearly!)
-     */
-    public int
-    normalizeMe() throws IllegalArgumentException {
-        int src;
-        int wordcount = 0;
-        int bitcount  = 0;
-        int v = 0;
-        for ( src= nWords-1 ; src >= 0 && (v=data[src]) == 0 ; src--){
-            wordcount += 1;
-        }
-        if ( src < 0 ){
-            // oops. Value is zero. Cannot normalize it!
-            throw new IllegalArgumentException("zero value");
-        }
-        /*
-         * In most cases, we assume that wordcount is zero. This only
-         * makes sense, as we try not to maintain any high-order
-         * words full of zeros. In fact, if there are zeros, we will
-         * simply SHORTEN our number at this point. Watch closely...
-         */
-        nWords -= wordcount;
-        /*
-         * Compute how far left we have to shift v s.t. its highest-
-         * order bit is in the right place. Then call lshiftMe to
-         * do the work.
-         */
-        if ( (v & 0xf0000000) != 0 ){
-            // will have to shift up into the next word.
-            // too bad.
-            for( bitcount = 32 ; (v & 0xf0000000) != 0 ; bitcount-- )
-                v >>>= 1;
-        } else {
-            while ( v <= 0x000fffff ){
-                // hack: byte-at-a-time shifting
-                v <<= 8;
-                bitcount += 8;
-            }
-            while ( v <= 0x07ffffff ){
-                v <<= 1;
-                bitcount += 1;
-            }
-        }
-        if ( bitcount != 0 )
-            lshiftMe( bitcount );
-        return bitcount;
-    }
-
-    /*
-     * Multiply a FDBigInt by an int.
-     * Result is a new FDBigInt.
-     */
-    public FDBigInt
-    mult( int iv ) {
-        long v = iv;
-        int r[];
-        long p;
-
-        // guess adequate size of r.
-        r = new int[ ( v * ((long)data[nWords-1]&0xffffffffL) > 0xfffffffL ) ? nWords+1 : nWords ];
-        p = 0L;
-        for( int i=0; i < nWords; i++ ) {
-            p += v * ((long)data[i]&0xffffffffL);
-            r[i] = (int)p;
-            p >>>= 32;
-        }
-        if ( p == 0L){
-            return new FDBigInt( r, nWords );
-        } else {
-            r[nWords] = (int)p;
-            return new FDBigInt( r, nWords+1 );
-        }
-    }
-
-    /*
-     * Multiply a FDBigInt by an int and add another int.
-     * Result is computed in place.
-     * Hope it fits!
-     */
-    public void
-    multaddMe( int iv, int addend ) {
-        long v = iv;
-        long p;
-
-        // unroll 0th iteration, doing addition.
-        p = v * ((long)data[0]&0xffffffffL) + ((long)addend&0xffffffffL);
-        data[0] = (int)p;
-        p >>>= 32;
-        for( int i=1; i < nWords; i++ ) {
-            p += v * ((long)data[i]&0xffffffffL);
-            data[i] = (int)p;
-            p >>>= 32;
-        }
-        if ( p != 0L){
-            data[nWords] = (int)p; // will fail noisily if illegal!
-            nWords++;
-        }
-    }
-
-    /*
-     * Multiply a FDBigInt by another FDBigInt.
-     * Result is a new FDBigInt.
-     */
-    public FDBigInt
-    mult( FDBigInt other ){
-        // crudely guess adequate size for r
-        int r[] = new int[ nWords + other.nWords ];
-        int i;
-        // I think I am promised zeros...
-
-        for( i = 0; i < this.nWords; i++ ){
-            long v = (long)this.data[i] & 0xffffffffL; // UNSIGNED CONVERSION
-            long p = 0L;
-            int j;
-            for( j = 0; j < other.nWords; j++ ){
-                p += ((long)r[i+j]&0xffffffffL) + v*((long)other.data[j]&0xffffffffL); // UNSIGNED CONVERSIONS ALL 'ROUND.
-                r[i+j] = (int)p;
-                p >>>= 32;
-            }
-            r[i+j] = (int)p;
-        }
-        // compute how much of r we actually needed for all that.
-        for ( i = r.length-1; i> 0; i--)
-            if ( r[i] != 0 )
-                break;
-        return new FDBigInt( r, i+1 );
-    }
-
-    /*
-     * Add one FDBigInt to another. Return a FDBigInt
-     */
-    public FDBigInt
-    add( FDBigInt other ){
-        int i;
-        int a[], b[];
-        int n, m;
-        long c = 0L;
-        // arrange such that a.nWords >= b.nWords;
-        // n = a.nWords, m = b.nWords
-        if ( this.nWords >= other.nWords ){
-            a = this.data;
-            n = this.nWords;
-            b = other.data;
-            m = other.nWords;
-        } else {
-            a = other.data;
-            n = other.nWords;
-            b = this.data;
-            m = this.nWords;
-        }
-        int r[] = new int[ n ];
-        for ( i = 0; i < n; i++ ){
-            c += (long)a[i] & 0xffffffffL;
-            if ( i < m ){
-                c += (long)b[i] & 0xffffffffL;
-            }
-            r[i] = (int) c;
-            c >>= 32; // signed shift.
-        }
-        if ( c != 0L ){
-            // oops -- carry out -- need longer result.
-            int s[] = new int[ r.length+1 ];
-            System.arraycopy( r, 0, s, 0, r.length );
-            s[i++] = (int)c;
-            return new FDBigInt( s, i );
-        }
-        return new FDBigInt( r, i );
-    }
-
-    /*
-     * Subtract one FDBigInt from another. Return a FDBigInt
-     * Assert that the result is positive.
-     */
-    public FDBigInt
-    sub( FDBigInt other ){
-        int r[] = new int[ this.nWords ];
-        int i;
-        int n = this.nWords;
-        int m = other.nWords;
-        int nzeros = 0;
-        long c = 0L;
-        for ( i = 0; i < n; i++ ){
-            c += (long)this.data[i] & 0xffffffffL;
-            if ( i < m ){
-                c -= (long)other.data[i] & 0xffffffffL;
-            }
-            if ( ( r[i] = (int) c ) == 0 )
-                nzeros++;
-            else
-                nzeros = 0;
-            c >>= 32; // signed shift
-        }
-        assert c == 0L : c; // borrow out of subtract
-        assert dataInRangeIsZero(i, m, other); // negative result of subtract
-        return new FDBigInt( r, n-nzeros );
-    }
-
-    private static boolean dataInRangeIsZero(int i, int m, FDBigInt other) {
-        while ( i < m )
-            if (other.data[i++] != 0)
-                return false;
-        return true;
-    }
-
-    /*
-     * Compare FDBigInt with another FDBigInt. Return an integer
-     * >0: this > other
-     *  0: this == other
-     * <0: this < other
-     */
-    public int
-    cmp( FDBigInt other ){
-        int i;
-        if ( this.nWords > other.nWords ){
-            // if any of my high-order words is non-zero,
-            // then the answer is evident
-            int j = other.nWords-1;
-            for ( i = this.nWords-1; i > j ; i-- )
-                if ( this.data[i] != 0 ) return 1;
-        }else if ( this.nWords < other.nWords ){
-            // if any of other's high-order words is non-zero,
-            // then the answer is evident
-            int j = this.nWords-1;
-            for ( i = other.nWords-1; i > j ; i-- )
-                if ( other.data[i] != 0 ) return -1;
-        } else{
-            i = this.nWords-1;
-        }
-        for ( ; i > 0 ; i-- )
-            if ( this.data[i] != other.data[i] )
-                break;
-        // careful! want unsigned compare!
-        // use brute force here.
-        int a = this.data[i];
-        int b = other.data[i];
-        if ( a < 0 ){
-            // a is really big, unsigned
-            if ( b < 0 ){
-                return a-b; // both big, negative
-            } else {
-                return 1; // b not big, answer is obvious;
-            }
-        } else {
-            // a is not really big
-            if ( b < 0 ) {
-                // but b is really big
-                return -1;
-            } else {
-                return a - b;
-            }
-        }
-    }
-
-    /*
-     * Compute
-     * q = (int)( this / S )
-     * this = 10 * ( this mod S )
-     * Return q.
-     * This is the iteration step of digit development for output.
-     * We assume that S has been normalized, as above, and that
-     * "this" has been lshift'ed accordingly.
-     * Also assume, of course, that the result, q, can be expressed
-     * as an integer, 0 <= q < 10.
-     */
-    public int
-    quoRemIteration( FDBigInt S )throws IllegalArgumentException {
-        // ensure that this and S have the same number of
-        // digits. If S is properly normalized and q < 10 then
-        // this must be so.
-        if ( nWords != S.nWords ){
-            throw new IllegalArgumentException("disparate values");
-        }
-        // estimate q the obvious way. We will usually be
-        // right. If not, then we're only off by a little and
-        // will re-add.
-        int n = nWords-1;
-        long q = ((long)data[n]&0xffffffffL) / (long)S.data[n];
-        long diff = 0L;
-        for ( int i = 0; i <= n ; i++ ){
-            diff += ((long)data[i]&0xffffffffL) -  q*((long)S.data[i]&0xffffffffL);
-            data[i] = (int)diff;
-            diff >>= 32; // N.B. SIGNED shift.
-        }
-        if ( diff != 0L ) {
-            // damn, damn, damn. q is too big.
-            // add S back in until this turns +. This should
-            // not be very many times!
-            long sum = 0L;
-            while ( sum ==  0L ){
-                sum = 0L;
-                for ( int i = 0; i <= n; i++ ){
-                    sum += ((long)data[i]&0xffffffffL) +  ((long)S.data[i]&0xffffffffL);
-                    data[i] = (int) sum;
-                    sum >>= 32; // Signed or unsigned, answer is 0 or 1
-                }
-                /*
-                 * Originally the following line read
-                 * "if ( sum !=0 && sum != -1 )"
-                 * but that would be wrong, because of the
-                 * treatment of the two values as entirely unsigned,
-                 * it would be impossible for a carry-out to be interpreted
-                 * as -1 -- it would have to be a single-bit carry-out, or
-                 * +1.
-                 */
-                assert sum == 0 || sum == 1 : sum; // carry out of division correction
-                q -= 1;
-            }
-        }
-        // finally, we can multiply this by 10.
-        // it cannot overflow, right, as the high-order word has
-        // at least 4 high-order zeros!
-        long p = 0L;
-        for ( int i = 0; i <= n; i++ ){
-            p += 10*((long)data[i]&0xffffffffL);
-            data[i] = (int)p;
-            p >>= 32; // SIGNED shift.
-        }
-        assert p == 0L : p; // Carry out of *10
-        return (int)q;
-    }
-
-    public long
-    longValue(){
-        // if this can be represented as a long, return the value
-        assert this.nWords > 0 : this.nWords; // longValue confused
-
-        if (this.nWords == 1)
-            return ((long)data[0]&0xffffffffL);
-
-        assert dataInRangeIsZero(2, this.nWords, this); // value too big
-        assert data[1] >= 0;  // value too big
-        return ((long)(data[1]) << 32) | ((long)data[0]&0xffffffffL);
-    }
-
-    public String
-    toString() {
-        StringBuffer r = new StringBuffer(30);
-        r.append('[');
-        int i = Math.min( nWords-1, data.length-1) ;
-        if ( nWords > data.length ){
-            r.append( "("+data.length+"<"+nWords+"!)" );
-        }
-        for( ; i> 0 ; i-- ){
-            r.append( Integer.toHexString( data[i] ) );
-            r.append(' ');
-        }
-        r.append( Integer.toHexString( data[0] ) );
-        r.append(']');
-        return new String( r );
-    }
 }
