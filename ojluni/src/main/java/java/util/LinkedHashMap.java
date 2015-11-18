@@ -154,7 +154,7 @@ public class LinkedHashMap<K,V>
     /**
      * The head of the doubly linked list.
      */
-    private transient Entry<K,V> header;
+    private transient LinkedHashMapEntry<K,V> header;
 
     /**
      * The iteration ordering method for this linked hash map: <tt>true</tt>
@@ -238,7 +238,7 @@ public class LinkedHashMap<K,V>
      */
     @Override
     void init() {
-        header = new Entry<>(-1, null, null, null);
+        header = new LinkedHashMapEntry<>(-1, null, null, null);
         header.before = header.after = header;
     }
 
@@ -248,9 +248,9 @@ public class LinkedHashMap<K,V>
      * faster to iterate using our linked list.
      */
     @Override
-    void transfer(HashMap.Entry[] newTable, boolean rehash) {
+    void transfer(HashMapEntry[] newTable, boolean rehash) {
         int newCapacity = newTable.length;
-        for (Entry<K,V> e = header.after; e != header; e = e.after) {
+        for (LinkedHashMapEntry<K,V> e = header.after; e != header; e = e.after) {
             if (rehash)
                 e.hash = (e.key == null) ? 0 : hash(e.key);
             int index = indexFor(e.hash, newCapacity);
@@ -271,11 +271,11 @@ public class LinkedHashMap<K,V>
     public boolean containsValue(Object value) {
         // Overridden to take advantage of faster iterator
         if (value==null) {
-            for (Entry e = header.after; e != header; e = e.after)
+            for (LinkedHashMapEntry e = header.after; e != header; e = e.after)
                 if (e.value==null)
                     return true;
         } else {
-            for (Entry e = header.after; e != header; e = e.after)
+            for (LinkedHashMapEntry e = header.after; e != header; e = e.after)
                 if (value.equals(e.value))
                     return true;
         }
@@ -298,7 +298,7 @@ public class LinkedHashMap<K,V>
      * distinguish these two cases.
      */
     public V get(Object key) {
-        Entry<K,V> e = (Entry<K,V>)getEntry(key);
+        LinkedHashMapEntry<K,V> e = (LinkedHashMapEntry<K,V>)getEntry(key);
         if (e == null)
             return null;
         e.recordAccess(this);
@@ -317,11 +317,11 @@ public class LinkedHashMap<K,V>
     /**
      * LinkedHashMap entry.
      */
-    private static class Entry<K,V> extends HashMap.Entry<K,V> {
+    private static class LinkedHashMapEntry<K,V> extends HashMapEntry<K,V> {
         // These fields comprise the doubly linked list used for iteration.
-        Entry<K,V> before, after;
+        LinkedHashMapEntry<K,V> before, after;
 
-        Entry(int hash, K key, V value, HashMap.Entry<K,V> next) {
+        LinkedHashMapEntry(int hash, K key, V value, HashMapEntry<K,V> next) {
             super(hash, key, value, next);
         }
 
@@ -336,7 +336,7 @@ public class LinkedHashMap<K,V>
         /**
          * Inserts this entry before the specified existing entry in the list.
          */
-        private void addBefore(Entry<K,V> existingEntry) {
+        private void addBefore(LinkedHashMapEntry<K,V> existingEntry) {
             after  = existingEntry;
             before = existingEntry.before;
             before.after = this;
@@ -364,8 +364,8 @@ public class LinkedHashMap<K,V>
     }
 
     private abstract class LinkedHashIterator<T> implements Iterator<T> {
-        Entry<K,V> nextEntry    = header.after;
-        Entry<K,V> lastReturned = null;
+        LinkedHashMapEntry<K,V> nextEntry    = header.after;
+        LinkedHashMapEntry<K,V> lastReturned = null;
 
         /**
          * The modCount value that the iterator believes that the backing
@@ -395,7 +395,7 @@ public class LinkedHashMap<K,V>
             if (nextEntry == header)
                 throw new NoSuchElementException();
 
-            Entry<K,V> e = lastReturned = nextEntry;
+            LinkedHashMapEntry<K,V> e = lastReturned = nextEntry;
             nextEntry = e.after;
             return e;
         }
@@ -406,7 +406,7 @@ public class LinkedHashMap<K,V>
     }
 
     private class ValueIterator extends LinkedHashIterator<V> {
-        public V next() { return nextEntry().value; }
+        public V next() { return nextEntry().getValue(); }
     }
 
     private class EntryIterator extends LinkedHashIterator<Map.Entry<K,V>> {
@@ -427,7 +427,7 @@ public class LinkedHashMap<K,V>
         super.addEntry(hash, key, value, bucketIndex);
 
         // Remove eldest entry if instructed
-        Entry<K,V> eldest = header.after;
+        LinkedHashMapEntry<K,V> eldest = header.after;
         if (removeEldestEntry(eldest)) {
             removeEntryForKey(eldest.key);
         }
@@ -450,8 +450,8 @@ public class LinkedHashMap<K,V>
      * table or remove the eldest entry.
      */
     void createEntry(int hash, K key, V value, int bucketIndex) {
-        HashMap.Entry<K,V> old = table[bucketIndex];
-        Entry<K,V> e = new Entry<>(hash, key, value, old);
+        HashMapEntry<K,V> old = table[bucketIndex];
+        LinkedHashMapEntry<K,V> e = new LinkedHashMapEntry<>(hash, key, value, old);
         table[bucketIndex] = e;
         e.addBefore(header);
         size++;
