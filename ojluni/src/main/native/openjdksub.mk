@@ -37,7 +37,6 @@ LOCAL_SRC_FILES := \
     ObjectOutputStream.c \
     ObjectInputStream.c \
     InetAddress.c \
-    InetAddressImplFactory.c \
     net_util.c \
     net_util_md.c \
     Net.c \

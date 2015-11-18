@@ -261,7 +261,6 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/java/net/HttpRetryException.java \
     ojluni/src/main/java/java/net/HttpURLConnection.java \
     ojluni/src/main/java/java/net/IDN.java \
-    ojluni/src/main/java/java/net/Inet4AddressImpl.java \
     ojluni/src/main/java/java/net/Inet4Address.java \
     ojluni/src/main/java/java/net/Inet6AddressImpl.java \
     ojluni/src/main/java/java/net/Inet6Address.java \

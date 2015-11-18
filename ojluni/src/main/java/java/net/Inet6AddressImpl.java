@@ -79,32 +79,18 @@ class Inet6AddressImpl implements InetAddressImpl {
 
     public synchronized InetAddress anyLocalAddress() {
         if (anyLocalAddress == null) {
-            // ----- BEGIN android -----
-            //if (InetAddress.preferIPv6Address) {
-            if (true) {
-            // ----- END android -----
-                anyLocalAddress = new Inet6Address();
-                anyLocalAddress.holder().hostName = "::";
-            } else {
-                anyLocalAddress = (new Inet4AddressImpl()).anyLocalAddress();
-            }
+            anyLocalAddress = new Inet6Address();
+            anyLocalAddress.holder().hostName = "::";
         }
         return anyLocalAddress;
     }
 
     public synchronized InetAddress loopbackAddress() {
         if (loopbackAddress == null) {
-          // ----- BEGIN android -----
-          // if (InetAddress.preferIPv6Address) {
-             if (true) {
-          // ----- END android -----
-                 byte[] loopback =
-                        {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01};
-                 loopbackAddress = new Inet6Address("localhost", loopback);
-             } else {
-                loopbackAddress = (new Inet4AddressImpl()).loopbackAddress();
-             }
+            byte[] loopback =
+                {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01};
+            loopbackAddress = new Inet6Address("localhost", loopback);
         }
         return loopbackAddress;
     }

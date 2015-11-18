@@ -1827,9 +1827,6 @@ class InetAddress implements java.io.Serializable {
 class InetAddressImplFactory {
 
     static InetAddressImpl create() {
-        return InetAddress.loadImpl(isIPv6Supported() ?
-                                    "Inet6AddressImpl" : "Inet4AddressImpl");
+        return InetAddress.loadImpl("Inet6AddressImpl");
     }
-
-    static native boolean isIPv6Supported();
 }
