@@ -38,6 +38,7 @@ class ByteBufferAsShortBuffer extends ShortBuffer {       // package-private
               bb.remaining() >> 1,
               bb.remaining() >> 1);
         this.bb = bb;
+        this.isReadOnly = bb.isReadOnly;
         this.address = bb.address;
         this.order = order;
         int cap = this.capacity();
@@ -52,6 +53,7 @@ class ByteBufferAsShortBuffer extends ShortBuffer {       // package-private
                             int off, ByteOrder order) {
         super(mark, pos, lim, cap);
         this.bb = bb;
+        this.isReadOnly = bb.isReadOnly;
         this.address = bb.address;
         this.order = order;
         offset = off;
@@ -131,7 +133,7 @@ class ByteBufferAsShortBuffer extends ShortBuffer {       // package-private
     }
 
     public boolean isReadOnly() {
-        return bb.isReadOnly;
+        return isReadOnly;
     }
 
     public ByteOrder order() {

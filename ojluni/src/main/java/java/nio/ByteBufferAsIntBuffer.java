@@ -38,6 +38,7 @@ class ByteBufferAsIntBuffer extends IntBuffer {        // package-private
               bb.remaining() >> 2,
               bb.remaining() >> 2);
         this.bb = bb;
+        this.isReadOnly = bb.isReadOnly;
         this.address = bb.address;
         this.order = order;
         int cap = this.capacity();
@@ -52,6 +53,7 @@ class ByteBufferAsIntBuffer extends IntBuffer {        // package-private
                           int off, ByteOrder order) {
         super(mark, pos, lim, cap);
         this.bb = bb;
+        this.isReadOnly = bb.isReadOnly;
         this.address = bb.address;
         this.order = order;
         offset = off;
@@ -110,7 +112,7 @@ class ByteBufferAsIntBuffer extends IntBuffer {        // package-private
     }
 
     public IntBuffer compact() {
-        if (bb.isReadOnly) {
+        if (isReadOnly) {
             throw new ReadOnlyBufferException();
         }
         int pos = position();
@@ -133,7 +135,7 @@ class ByteBufferAsIntBuffer extends IntBuffer {        // package-private
     }
 
     public boolean isReadOnly() {
-        return bb.isReadOnly;
+        return isReadOnly;
     }
 
     public ByteOrder order() {

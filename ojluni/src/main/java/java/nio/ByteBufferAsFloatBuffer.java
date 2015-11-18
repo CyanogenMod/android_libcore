@@ -38,6 +38,7 @@ class ByteBufferAsFloatBuffer extends FloatBuffer {       // package-private
               bb.remaining() >> 2,
               bb.remaining() >> 2);
         this.bb = bb;
+        this.isReadOnly = bb.isReadOnly;
         this.address = bb.address;
         this.order = order;
         int cap = this.capacity();
@@ -52,6 +53,7 @@ class ByteBufferAsFloatBuffer extends FloatBuffer {       // package-private
                             int off, ByteOrder order) {
         super(mark, pos, lim, cap);
         this.bb = bb;
+        this.isReadOnly = bb.isReadOnly;
         this.address = bb.address;
         this.order = order;
         offset = off;
@@ -133,7 +135,7 @@ class ByteBufferAsFloatBuffer extends FloatBuffer {       // package-private
     }
 
     public boolean isReadOnly() {
-        return bb.isReadOnly;
+        return isReadOnly;
     }
 
     public ByteOrder order() {

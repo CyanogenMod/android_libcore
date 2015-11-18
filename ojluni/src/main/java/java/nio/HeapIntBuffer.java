@@ -40,8 +40,6 @@ class HeapIntBuffer extends IntBuffer {
 
     */
 
-    private final boolean isReadOnly;
-
     HeapIntBuffer(int cap, int lim) {            // package-private
         this(cap, lim, false);
     }

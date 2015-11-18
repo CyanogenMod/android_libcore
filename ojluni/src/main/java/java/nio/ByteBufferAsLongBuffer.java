@@ -38,6 +38,7 @@ class ByteBufferAsLongBuffer extends LongBuffer {                 // package-pri
               bb.remaining() >> 3,
               bb.remaining() >> 3);
         this.bb = bb;
+        this.isReadOnly = bb.isReadOnly;
         this.address = bb.address;
         this.order = order;
         int cap = this.capacity();
@@ -52,6 +53,7 @@ class ByteBufferAsLongBuffer extends LongBuffer {                 // package-pri
                            int off, ByteOrder order) {
         super(mark, pos, lim, cap);
         this.bb = bb;
+        this.isReadOnly = bb.isReadOnly;
         this.address = bb.address;
         this.order = order;
         offset = off;
@@ -133,7 +135,7 @@ class ByteBufferAsLongBuffer extends LongBuffer {                 // package-pri
     }
 
     public boolean isReadOnly() {
-        return bb.isReadOnly;
+        return isReadOnly;
     }
 
     public ByteOrder order() {

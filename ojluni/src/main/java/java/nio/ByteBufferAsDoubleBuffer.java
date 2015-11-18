@@ -39,6 +39,7 @@ class ByteBufferAsDoubleBuffer
               bb.remaining() >> 3,
               bb.remaining() >> 3);
         this.bb = bb;
+        this.isReadOnly = bb.isReadOnly;
         this.address = bb.address;
         this.order = order;
         int cap = this.capacity();
@@ -53,6 +54,7 @@ class ByteBufferAsDoubleBuffer
                              int off, ByteOrder order) {
         super(mark, pos, lim, cap);
         this.bb = bb;
+        this.isReadOnly = bb.isReadOnly;
         this.address = bb.address;
         this.order = order;
         offset = off;
@@ -134,7 +136,7 @@ class ByteBufferAsDoubleBuffer
     }
 
     public boolean isReadOnly() {
-        return bb.isReadOnly;
+        return isReadOnly;
     }
 
     public ByteOrder order() {

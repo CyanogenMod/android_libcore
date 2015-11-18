@@ -40,8 +40,6 @@ class HeapFloatBuffer extends FloatBuffer {
 
     */
 
-    private final boolean isReadOnly;
-
     HeapFloatBuffer(int cap, int lim) {            // package-private
         this(cap, lim, false);
     }

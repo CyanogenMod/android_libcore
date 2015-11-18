@@ -27,7 +27,6 @@ package java.nio;
 
 import java.io.FileDescriptor;
 import sun.misc.Cleaner;
-import sun.misc.Unsafe;
 import sun.misc.VM;
 import sun.nio.ch.DirectBuffer;
 import libcore.io.SizeOf;
@@ -36,10 +35,6 @@ import dalvik.system.VMRuntime;
 
 class DirectByteBuffer extends MappedByteBuffer
     implements DirectBuffer {
-
-    //there is no use of it in the class. Remove it after making
-    //changes in the child classes.
-    protected static final Unsafe unsafe = Bits.unsafe();
 
     // Cached unaligned-access capability
     private static Boolean unalignedCache;
@@ -50,6 +45,8 @@ class DirectByteBuffer extends MappedByteBuffer
         return unalignedCache;
     }
 
+    private boolean isAccessible;
+
     // Base address, used in all indexing calculations
     // NOTE: moved up to Buffer.java for speed in JNI GetDirectBufferAddress
     //    protected long address;
@@ -59,9 +56,7 @@ class DirectByteBuffer extends MappedByteBuffer
     // ensure that its memory isn't freed before we are done with it.
     private final Object att;
 
-    private boolean accessible = true;
     private boolean freed = false;
-
 
     public Object attachment() {
         return att;
@@ -125,16 +120,16 @@ class DirectByteBuffer extends MappedByteBuffer
 
     // For duplicates and slices
     //
-    DirectByteBuffer(DirectBuffer db,         // package-private
+    DirectByteBuffer(DirectByteBuffer db,         // package-private
                      int mark, int pos, int lim, int cap,
                      int off) {
         this(db, mark, pos, lim, cap, off, false);
     }
 
-    DirectByteBuffer(DirectBuffer db,         // package-private
+    DirectByteBuffer(DirectByteBuffer db,         // package-private
                      int mark, int pos, int lim, int cap,
                      int off, boolean isReadOnly) {
-        super(mark, pos, lim, cap);
+        super(mark, pos, lim, cap, db.hb, off);
         this.isReadOnly = isReadOnly;
         address = db.address() + off;
         cleaner = null;
@@ -162,7 +157,6 @@ class DirectByteBuffer extends MappedByteBuffer
     }
 
     public ByteBuffer asReadOnlyBuffer() {
-
         return new DirectByteBuffer(this,
                                     this.markValue(),
                                     this.position(),
@@ -185,22 +179,22 @@ class DirectByteBuffer extends MappedByteBuffer
     }
 
     public byte get() {
-        if (freed) {
-            throw new IllegalStateException("buffer was freed");
+        if (isAccessible) {
+            throw new IllegalStateException("buffer is inaccessible");
         }
         return get(address + nextGetIndex());
     }
 
     public byte get(int i) {
-        if (freed) {
-            throw new IllegalStateException("buffer was freed");
+        if (isAccessible) {
+            throw new IllegalStateException("buffer is inaccessible");
         }
         return get(address + checkIndex(i));
     }
 
     public ByteBuffer get(byte[] dst, int dstOffset, int length) {
-        if (freed) {
-            throw new IllegalStateException("buffer was freed");
+        if (isAccessible) {
+            throw new IllegalStateException("buffer is inaccessible");
         }
         checkBounds(dstOffset, length, dst.length);
         int pos = position();
@@ -209,7 +203,7 @@ class DirectByteBuffer extends MappedByteBuffer
         int rem = (pos <= lim ? lim - pos : 0);
         if (length > rem)
             throw new BufferUnderflowException();
-        Memory.peekByteArray((int) address + pos,
+        Memory.peekByteArray(address + pos,
                              dst, dstOffset, length);
         position = pos + length;
         return this;
@@ -224,8 +218,8 @@ class DirectByteBuffer extends MappedByteBuffer
         if (isReadOnly) {
             throw new ReadOnlyBufferException();
         }
-        if (freed) {
-            throw new IllegalStateException("buffer was freed");
+        if (isAccessible) {
+            throw new IllegalStateException("buffer is inaccessible");
         }
         put(ix(nextPutIndex()), x);
         return this;
@@ -235,8 +229,8 @@ class DirectByteBuffer extends MappedByteBuffer
         if (isReadOnly) {
             throw new ReadOnlyBufferException();
         }
-        if (freed) {
-            throw new IllegalStateException("buffer was freed");
+        if (isAccessible) {
+            throw new IllegalStateException("buffer is inaccessible");
         }
         put(ix(checkIndex(i)), x);
         return this;
@@ -246,8 +240,8 @@ class DirectByteBuffer extends MappedByteBuffer
         if (isReadOnly) {
             throw new ReadOnlyBufferException();
         }
-        if (freed) {
-            throw new IllegalStateException("buffer was freed");
+        if (isAccessible) {
+            throw new IllegalStateException("buffer is inaccessible");
         }
         if (src instanceof DirectByteBuffer) {
             if (src == this)
@@ -272,8 +266,8 @@ class DirectByteBuffer extends MappedByteBuffer
         if (isReadOnly) {
             throw new ReadOnlyBufferException();
         }
-        if (freed) {
-            throw new IllegalStateException("buffer was freed");
+        if (isAccessible) {
+            throw new IllegalStateException("buffer is inaccessible");
         }
         checkBounds(srcOffset, length, src.length);
         int pos = position();
@@ -292,8 +286,8 @@ class DirectByteBuffer extends MappedByteBuffer
         if (isReadOnly) {
             throw new ReadOnlyBufferException();
         }
-        if (freed) {
-            throw new IllegalStateException("buffer was freed");
+        if (isAccessible) {
+            throw new IllegalStateException("buffer is inaccessible");
         }
         int pos = position();
         int lim = limit();
@@ -323,15 +317,15 @@ class DirectByteBuffer extends MappedByteBuffer
     }
 
     private char getChar(long a) {
-        if (freed) {
-            throw new IllegalStateException("buffer was freed");
+        if (isAccessible) {
+            throw new IllegalStateException("buffer is inaccessible");
         }
         return (char) Memory.peekShort(position, !nativeByteOrder);
     }
 
     public char getChar() {
-        if (freed) {
-            throw new IllegalStateException("buffer was freed");
+        if (isAccessible) {
+            throw new IllegalStateException("buffer is inaccessible");
         }
         int newPosition = position + SizeOf.CHAR;
         if (newPosition > limit()) {
@@ -343,8 +337,8 @@ class DirectByteBuffer extends MappedByteBuffer
     }
 
     public char getChar(int i) {
-        if (freed) {
-            throw new IllegalStateException("buffer was freed");
+        if (isAccessible) {
+            throw new IllegalStateException("buffer is inaccessible");
         }
         checkIndex(i, SizeOf.CHAR);
         char x = (char)Memory.peekShort(address + i, !nativeByteOrder);
@@ -360,8 +354,8 @@ class DirectByteBuffer extends MappedByteBuffer
         if (isReadOnly) {
             throw new ReadOnlyBufferException();
         }
-        if (freed) {
-            throw new IllegalStateException("buffer was freed");
+        if (isAccessible) {
+            throw new IllegalStateException("buffer is inaccessible");
         }
         putChar(ix(nextPutIndex(SizeOf.CHAR)), x);
         return this;
@@ -371,8 +365,8 @@ class DirectByteBuffer extends MappedByteBuffer
         if (isReadOnly) {
             throw new ReadOnlyBufferException();
         }
-        if (freed) {
-            throw new IllegalStateException("buffer was freed");
+        if (isAccessible) {
+            throw new IllegalStateException("buffer is inaccessible");
         }
         putChar(ix(checkIndex(i, SizeOf.CHAR)), x);
         return this;
@@ -398,15 +392,15 @@ class DirectByteBuffer extends MappedByteBuffer
     }
 
     public short getShort() {
-        if (freed) {
-            throw new IllegalStateException("buffer was freed");
+        if (isAccessible) {
+            throw new IllegalStateException("buffer is inaccessible");
         }
         return getShort(ix(nextGetIndex(SizeOf.SHORT)));
     }
 
     public short getShort(int i) {
-        if (freed) {
-            throw new IllegalStateException("buffer was freed");
+        if (isAccessible) {
+            throw new IllegalStateException("buffer is inaccessible");
         }
         return getShort(ix(checkIndex(i, SizeOf.SHORT)));
     }
@@ -420,8 +414,8 @@ class DirectByteBuffer extends MappedByteBuffer
         if (isReadOnly) {
             throw new ReadOnlyBufferException();
         }
-        if (freed) {
-            throw new IllegalStateException("buffer was freed");
+        if (isAccessible) {
+            throw new IllegalStateException("buffer is inaccessible");
         }
         putShort(ix(nextPutIndex(SizeOf.SHORT)), x);
         return this;
@@ -431,8 +425,8 @@ class DirectByteBuffer extends MappedByteBuffer
         if (isReadOnly) {
             throw new ReadOnlyBufferException();
         }
-        if (freed) {
-            throw new IllegalStateException("buffer was freed");
+        if (isAccessible) {
+            throw new IllegalStateException("buffer is inaccessible");
         }
         putShort(ix(checkIndex(i, SizeOf.SHORT)), x);
         return this;
@@ -458,15 +452,15 @@ class DirectByteBuffer extends MappedByteBuffer
     }
 
     public int getInt() {
-        if (freed) {
-            throw new IllegalStateException("buffer was freed");
+        if (isAccessible) {
+            throw new IllegalStateException("buffer is inaccessible");
         }
         return getInt(ix(nextGetIndex(SizeOf.INT)));
     }
 
     public int getInt(int i) {
-        if (freed) {
-            throw new IllegalStateException("buffer was freed");
+        if (isAccessible) {
+            throw new IllegalStateException("buffer is inaccessible");
         }
         return getInt(ix(checkIndex(i, (SizeOf.INT))));
     }
@@ -480,8 +474,8 @@ class DirectByteBuffer extends MappedByteBuffer
         if (isReadOnly) {
             throw new ReadOnlyBufferException();
         }
-        if (freed) {
-            throw new IllegalStateException("buffer was freed");
+        if (isAccessible) {
+            throw new IllegalStateException("buffer is inaccessible");
         }
         putInt(ix(nextPutIndex(SizeOf.INT)), x);
         return this;
@@ -491,8 +485,8 @@ class DirectByteBuffer extends MappedByteBuffer
         if (isReadOnly) {
             throw new ReadOnlyBufferException();
         }
-        if (freed) {
-            throw new IllegalStateException("buffer was freed");
+        if (isAccessible) {
+            throw new IllegalStateException("buffer is inaccessible");
         }
         putInt(ix(checkIndex(i, SizeOf.INT)), x);
         return this;
@@ -518,15 +512,15 @@ class DirectByteBuffer extends MappedByteBuffer
     }
 
     public long getLong() {
-        if (freed) {
-            throw new IllegalStateException("buffer was freed");
+        if (isAccessible) {
+            throw new IllegalStateException("buffer is inaccessible");
         }
         return getLong(ix(nextGetIndex(SizeOf.LONG)));
     }
 
     public long getLong(int i) {
-        if (freed) {
-            throw new IllegalStateException("buffer was freed");
+        if (isAccessible) {
+            throw new IllegalStateException("buffer is inaccessible");
         }
         return getLong(ix(checkIndex(i, SizeOf.LONG)));
     }
@@ -540,8 +534,8 @@ class DirectByteBuffer extends MappedByteBuffer
         if (isReadOnly) {
             throw new ReadOnlyBufferException();
         }
-        if (freed) {
-            throw new IllegalStateException("buffer was freed");
+        if (isAccessible) {
+            throw new IllegalStateException("buffer is inaccessible");
         }
         putLong(ix(nextPutIndex(SizeOf.LONG)), x);
         return this;
@@ -551,8 +545,8 @@ class DirectByteBuffer extends MappedByteBuffer
         if (isReadOnly) {
             throw new ReadOnlyBufferException();
         }
-        if (freed) {
-            throw new IllegalStateException("buffer was freed");
+        if (isAccessible) {
+            throw new IllegalStateException("buffer is inaccessible");
         }
         putLong(ix(checkIndex(i, SizeOf.LONG)), x);
         return this;
@@ -579,15 +573,15 @@ class DirectByteBuffer extends MappedByteBuffer
     }
 
     public float getFloat() {
-        if (freed) {
-            throw new IllegalStateException("buffer was freed");
+        if (isAccessible) {
+            throw new IllegalStateException("buffer is inaccessible");
         }
         return getFloat(ix(nextGetIndex(SizeOf.FLOAT)));
     }
 
     public float getFloat(int i) {
-        if (freed) {
-            throw new IllegalStateException("buffer was freed");
+        if (isAccessible) {
+            throw new IllegalStateException("buffer is inaccessible");
         }
         return getFloat(ix(checkIndex(i, SizeOf.FLOAT)));
     }
@@ -602,8 +596,8 @@ class DirectByteBuffer extends MappedByteBuffer
         if (isReadOnly) {
             throw new ReadOnlyBufferException();
         }
-        if (freed) {
-            throw new IllegalStateException("buffer was freed");
+        if (isAccessible) {
+            throw new IllegalStateException("buffer is inaccessible");
         }
         putFloat(ix(nextPutIndex(SizeOf.FLOAT)), x);
         return this;
@@ -613,8 +607,8 @@ class DirectByteBuffer extends MappedByteBuffer
         if (isReadOnly) {
             throw new ReadOnlyBufferException();
         }
-        if (freed) {
-            throw new IllegalStateException("buffer was freed");
+        if (isAccessible) {
+            throw new IllegalStateException("buffer is inaccessible");
         }
         putFloat(ix(checkIndex(i, SizeOf.FLOAT)), x);
         return this;
@@ -641,15 +635,15 @@ class DirectByteBuffer extends MappedByteBuffer
     }
 
     public double getDouble() {
-        if (freed) {
-            throw new IllegalStateException("buffer was freed");
+        if (isAccessible) {
+            throw new IllegalStateException("buffer is inaccessible");
         }
         return getDouble(ix(nextGetIndex(SizeOf.DOUBLE)));
     }
 
     public double getDouble(int i) {
-        if (freed) {
-            throw new IllegalStateException("buffer was freed");
+        if (isAccessible) {
+            throw new IllegalStateException("buffer is inaccessible");
         }
         return getDouble(ix(checkIndex(i, SizeOf.DOUBLE)));
     }
@@ -664,8 +658,8 @@ class DirectByteBuffer extends MappedByteBuffer
         if (isReadOnly) {
             throw new ReadOnlyBufferException();
         }
-        if (freed) {
-            throw new IllegalStateException("buffer was freed");
+        if (isAccessible) {
+            throw new IllegalStateException("buffer is inaccessible");
         }
         putDouble(ix(nextPutIndex(SizeOf.DOUBLE)), x);
         return this;
@@ -675,8 +669,8 @@ class DirectByteBuffer extends MappedByteBuffer
         if (isReadOnly) {
             throw new ReadOnlyBufferException();
         }
-        if (freed) {
-            throw new IllegalStateException("buffer was freed");
+        if (isAccessible) {
+            throw new IllegalStateException("buffer is inaccessible");
         }
         putDouble(ix(checkIndex(i, SizeOf.DOUBLE)), x);
         return this;
@@ -704,7 +698,15 @@ class DirectByteBuffer extends MappedByteBuffer
 
     private final void checkIfFreed() {
         if (freed) {
-            throw new IllegalStateException("buffer was freed");
+            throw new IllegalStateException("buffer is inaccessible");
         }
+    }
+
+    public boolean isAccessible() {
+        return isAccessible;
+    }
+
+    public void setAccessible(boolean value) {
+        isAccessible = value;
     }
 }

@@ -40,8 +40,6 @@ class HeapShortBuffer extends ShortBuffer {
 
     */
 
-    private final boolean isReadOnly;
-
     HeapShortBuffer(int cap, int lim) {            // package-private
         this(cap, lim, false);
     }

@@ -933,7 +933,7 @@ public abstract class ByteBuffer
      *          is backed by an array and is not read-only
      */
     public final boolean hasArray() {
-        return (hb != null) && !isReadOnly;
+        return (hb != null) && !isReadOnly();
     }
 
     /**

@@ -86,7 +86,7 @@ public abstract class MappedByteBuffer
     }
 
     MappedByteBuffer(int mark, int pos, int lim, int cap, byte[] buf, int offset) {
-        super(mark, pos, lim, cap, buf, 0);
+        super(mark, pos, lim, cap, buf, offset);
         this.fd = null;
     }
 

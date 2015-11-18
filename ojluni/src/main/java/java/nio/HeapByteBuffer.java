@@ -42,8 +42,6 @@ class HeapByteBuffer extends ByteBuffer {
 
     */
 
-    private final boolean isReadOnly;
-
     HeapByteBuffer(int cap, int lim) {            // packag-private
         this(cap, lim, false);
     }
@@ -80,31 +78,29 @@ class HeapByteBuffer extends ByteBuffer {
         return new HeapByteBuffer(hb,
                                   -1,
                                   0,
-                                  this.remaining(),
-                                  this.remaining(),
-                                  this.position() + offset);
+                                  remaining(),
+                                  remaining(),
+                                  position() + offset,
+                                  isReadOnly);
     }
 
     public ByteBuffer duplicate() {
         return new HeapByteBuffer(hb,
-                                  this.markValue(),
-                                  this.position(),
-                                  this.limit(),
-                                  this.capacity(),
-                                  offset);
+                                  markValue(),
+                                  position(),
+                                  limit(),
+                                  capacity(),
+                                  offset,
+                                  isReadOnly);
     }
 
     public ByteBuffer asReadOnlyBuffer() {
-
         return new HeapByteBuffer(hb,
                                   this.markValue(),
                                   this.position(),
                                   this.limit(),
                                   this.capacity(),
                                   offset, true);
-
-
-
     }
 
     protected int ix(int i) {
@@ -239,7 +235,7 @@ class HeapByteBuffer extends ByteBuffer {
 
     public CharBuffer asCharBuffer() {
         int size = this.remaining() >> 1;
-        int off = offset + position();
+        int off = position();
         return (CharBuffer)(new ByteBufferAsCharBuffer(this,
                                                        -1,
                                                        0,
@@ -275,7 +271,7 @@ class HeapByteBuffer extends ByteBuffer {
 
     public ShortBuffer asShortBuffer() {
         int size = this.remaining() >> 1;
-        int off = offset + position();
+        int off = position();
         return new ByteBufferAsShortBuffer(this,
                                            -1,
                                            0,
@@ -311,7 +307,7 @@ class HeapByteBuffer extends ByteBuffer {
 
     public IntBuffer asIntBuffer() {
         int size = this.remaining() >> 2;
-        int off = offset + position();
+        int off = position();
 
         return (IntBuffer)(new ByteBufferAsIntBuffer(this,
                                                      -1,
@@ -348,7 +344,7 @@ class HeapByteBuffer extends ByteBuffer {
 
     public LongBuffer asLongBuffer() {
         int size = this.remaining() >> 3;
-        int off = offset + position();
+        int off = position();
         return (LongBuffer)(new ByteBufferAsLongBuffer(this,
                                                        -1,
                                                        0,
@@ -386,7 +382,7 @@ class HeapByteBuffer extends ByteBuffer {
 
     public FloatBuffer asFloatBuffer() {
         int size = this.remaining() >> 2;
-        int off = offset + position();
+        int off = position();
         return (FloatBuffer)(new ByteBufferAsFloatBuffer(this,
                                                          -1,
                                                          0,
@@ -424,7 +420,7 @@ class HeapByteBuffer extends ByteBuffer {
 
     public DoubleBuffer asDoubleBuffer() {
         int size = this.remaining() >> 3;
-        int off = offset + position();
+        int off = position();
         return (DoubleBuffer)(new ByteBufferAsDoubleBuffer(this,
                                                            -1,
                                                            0,
