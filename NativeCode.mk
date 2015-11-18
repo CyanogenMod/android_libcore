@@ -119,7 +119,7 @@ LOCAL_SHARED_LIBRARIES := $(core_shared_libraries) libcrypto libssl libz
 LOCAL_SHARED_LIBRARIES += libart libnativehelper libdl
 LOCAL_STATIC_LIBRARIES := $(core_static_libraries) libfdlibm
 LOCAL_MODULE_TAGS := optional
-LOCAL_MODULE := libxxavacore
+LOCAL_MODULE := libopenjdk
 LOCAL_CXX_STL := libc++
 include $(BUILD_SHARED_LIBRARY)
 
@@ -206,7 +206,7 @@ LOCAL_SHARED_LIBRARIES += libart libnativehelper
 LOCAL_STATIC_LIBRARIES := $(core_static_libraries) libfdlibm
 LOCAL_MODULE_TAGS := optional
 LOCAL_LDLIBS += -ldl -lpthread
-LOCAL_MODULE := libxxavacore
+LOCAL_MODULE := libopenjdk
 LOCAL_MULTILIB := both
 include $(BUILD_HOST_SHARED_LIBRARY)
 
