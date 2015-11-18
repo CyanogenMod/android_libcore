@@ -30,7 +30,6 @@
 #include "jvm.h"
 #include "jlong.h"
 #include "sun_nio_ch_NativeThread.h"
-#include "nio.h"
 #include "nio_util.h"
 #include "JNIHelp.h"
 
@@ -92,5 +91,5 @@ static JNINativeMethod gMethods[] = {
 };
 
 void register_sun_nio_ch_NativeThread(JNIEnv* env) {
-  jniRegisterNativeMethods(env, SUN_NIO_CH(NativeThread), gMethods, NELEM(gMethods));
+  jniRegisterNativeMethods(env, "sun/nio/ch/NativeThread", gMethods, NELEM(gMethods));
 }

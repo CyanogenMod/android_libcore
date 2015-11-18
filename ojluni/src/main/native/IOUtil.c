@@ -220,5 +220,5 @@ static JNINativeMethod gMethods[] = {
 };
 
 void register_sun_nio_ch_IOUtil(JNIEnv* env) {
-  jniRegisterNativeMethods(env, SUN_NIO_CH(IOUtil), gMethods, NELEM(gMethods));
+  jniRegisterNativeMethods(env, "sun/nio/ch/IOUtil", gMethods, NELEM(gMethods));
 }

@@ -148,5 +148,5 @@ static JNINativeMethod gMethods[] = {
 };
 
 void register_sun_nio_ch_DatagramDispatcher(JNIEnv* env) {
-  jniRegisterNativeMethods(env, SUN_NIO_CH(DatagramDispatcher), gMethods, NELEM(gMethods));
+  jniRegisterNativeMethods(env, "sun/nio/ch/DatagramDispatcher", gMethods, NELEM(gMethods));
 }

@@ -27,7 +27,6 @@
 #include "jni_util.h"
 #include "jvm.h"
 #include "jlong.h"
-#include "nio.h"
 
 #include "sun_nio_ch_EPollArrayWrapper.h"
 
@@ -176,5 +175,5 @@ static JNINativeMethod gMethods[] = {
 };
 
 void register_sun_nio_ch_EPollArrayWrapper(JNIEnv* env) {
-  jniRegisterNativeMethods(env, SUN_NIO_CH(EPollArrayWrapper), gMethods, NELEM(gMethods));
+  jniRegisterNativeMethods(env, "sun/nio/ch/EPollArrayWrapper", gMethods, NELEM(gMethods));
 }

@@ -73,5 +73,5 @@ static JNINativeMethod gMethods[] = {
 };
 
 void register_sun_nio_ch_FileKey(JNIEnv* env) {
-  jniRegisterNativeMethods(env, SUN_NIO_CH(FileKey), gMethods, NELEM(gMethods));
+  jniRegisterNativeMethods(env, "sun/nio/ch/FileKey", gMethods, NELEM(gMethods));
 }

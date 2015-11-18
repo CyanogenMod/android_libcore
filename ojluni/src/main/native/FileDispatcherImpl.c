@@ -288,5 +288,5 @@ static JNINativeMethod gMethods[] = {
 };
 
 void register_sun_nio_ch_FileDispatcherImpl(JNIEnv* env) {
-  jniRegisterNativeMethods(env, SUN_NIO_CH(FileDispatcherImpl), gMethods, NELEM(gMethods));
+  jniRegisterNativeMethods(env, "sun/nio/ch/FileDispatcherImpl", gMethods, NELEM(gMethods));
 }

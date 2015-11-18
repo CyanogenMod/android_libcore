@@ -103,5 +103,5 @@ static JNINativeMethod gMethods[] = {
 };
 
 void register_sun_nio_ch_SocketChannelImpl(JNIEnv* env) {
-  jniRegisterNativeMethods(env, SUN_NIO_CH(SocketChannelImpl), gMethods, NELEM(gMethods));
+  jniRegisterNativeMethods(env, "sun/nio/ch/SocketChannelImpl", gMethods, NELEM(gMethods));
 }

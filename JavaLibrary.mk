@@ -107,10 +107,6 @@ LOCAL_NO_STANDARD_LIBRARIES := true
 LOCAL_JAVACFLAGS := $(local_javac_flags)
 LOCAL_DX_FLAGS := --core-library
 LOCAL_MODULE_TAGS := optional
-ifeq ($(ANDROID_DISABLE_CORE_OBFUSCATION),)
-LOCAL_PROGUARD_ENABLED := obfuscation nosystem
-LOCAL_PROGUARD_FLAG_FILES := proguard/proguard.flags
-endif
 LOCAL_MODULE := core-all
 LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
 LOCAL_REQUIRED_MODULES := tzdata
@@ -118,31 +114,6 @@ LOCAL_CORE_LIBRARY := true
 LOCAL_UNINSTALLABLE_MODULE := true
 LOCAL_JARJAR_RULES := $(LOCAL_PATH)/jarjar-rules.txt
 include $(BUILD_JAVA_LIBRARY)
-
-core_all_intermediates := $(call intermediates-dir-for,JAVA_LIBRARIES,core-all,,COMMON)
-core_proguard_obfuscation_flags := \
-    -renamesourcefileattribute SourceFile \
-    -keepattributes Exceptions,InnerClasses,Signature,Deprecated,SourceFile,LineNumberTable,*Annotation*,EnclosingMethod \
-    -dontwarn \*\* \
-    -dontshrink \
-    -dontoptimize \
-    -applymapping $(core_all_intermediates)/proguard_dictionary
-
-include $(CLEAR_VARS)
-LOCAL_SRC_FILES := $(openjdk_java_files) $(non_openjdk_java_files) $(icu4j_src_files)
-LOCAL_JAVA_RESOURCE_DIRS := $(core_resource_dirs) $(icu4j_resource_dirs)
-LOCAL_NO_STANDARD_LIBRARIES := true
-LOCAL_JAVACFLAGS := $(local_javac_flags)
-LOCAL_DX_FLAGS := --core-library
-LOCAL_MODULE_TAGS := optional
-LOCAL_MODULE := core-all-unobfuscated
-LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
-LOCAL_REQUIRED_MODULES := tzdata
-LOCAL_CORE_LIBRARY := true
-LOCAL_UNINSTALLABLE_MODULE := true
-LOCAL_JARJAR_RULES := $(LOCAL_PATH)/jarjar-rules.txt
-include $(BUILD_JAVA_LIBRARY)
-
 
 include $(CLEAR_VARS)
 LOCAL_SRC_FILES := $(openjdk_java_files)
@@ -153,12 +124,7 @@ LOCAL_DX_FLAGS := --core-library
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := core-oj
 LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
-ifeq ($(ANDROID_DISABLE_CORE_OBFUSCATION),)
-LOCAL_PROGUARD_ENABLED := obfuscation nosystem
-LOCAL_PROGUARD_FLAGS := $(core_proguard_obfuscation_flags)
-LOCAL_ADDITIONAL_DEPENDENCIES += $(core_all_intermediates)/proguard.classes.jar
-endif
-LOCAL_JAVA_LIBRARIES := core-all-unobfuscated
+LOCAL_JAVA_LIBRARIES := core-all
 LOCAL_REQUIRED_MODULES := tzdata
 LOCAL_CORE_LIBRARY := true
 LOCAL_REQUIRED_MODULES := currency.data-target
@@ -173,13 +139,8 @@ LOCAL_JAVACFLAGS := $(local_javac_flags)
 LOCAL_DX_FLAGS := --core-library
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := core-libart
-ifeq ($(ANDROID_DISABLE_CORE_OBFUSCATION),)
-LOCAL_PROGUARD_ENABLED := obfuscation nosystem
-LOCAL_PROGUARD_FLAGS := $(core_proguard_obfuscation_flags)
-LOCAL_ADDITIONAL_DEPENDENCIES += $(core_all_intermediates)/proguard.classes.jar
-endif
 LOCAL_ADDITIONAL_DEPENDENCIES += $(LOCAL_PATH)/JavaLibrary.mk
-LOCAL_JAVA_LIBRARIES := core-all-unobfuscated
+LOCAL_JAVA_LIBRARIES := core-all
 LOCAL_CORE_LIBRARY := true
 LOCAL_REQUIRED_MODULES := tzdata
 LOCAL_JARJAR_RULES := $(LOCAL_PATH)/jarjar-rules.txt
