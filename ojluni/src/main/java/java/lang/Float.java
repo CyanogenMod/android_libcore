@@ -25,7 +25,6 @@
 
 package java.lang;
 
-import sun.misc.FloatingDecimal;
 import sun.misc.FpUtils;
 import sun.misc.FloatConsts;
 import sun.misc.DoubleConsts;
@@ -196,7 +195,7 @@ public final class Float extends Number implements Comparable<Float> {
      * @return a string representation of the argument.
      */
     public static String toString(float f) {
-        return new FloatingDecimal(f).toJavaFormatString();
+        return FloatingDecimal.getThreadLocalInstance().loadFloat(f).toJavaFormatString();
     }
 
     /**
@@ -414,7 +413,7 @@ public final class Float extends Number implements Comparable<Float> {
      *          parsable number.
      */
     public static Float valueOf(String s) throws NumberFormatException {
-        return new Float(FloatingDecimal.readJavaFormatString(s).floatValue());
+        return new Float(FloatingDecimal.getThreadLocalInstance().readJavaFormatString(s).floatValue());
     }
 
     /**
@@ -449,7 +448,7 @@ public final class Float extends Number implements Comparable<Float> {
      * @since 1.2
      */
     public static float parseFloat(String s) throws NumberFormatException {
-        return FloatingDecimal.readJavaFormatString(s).floatValue();
+        return FloatingDecimal.getThreadLocalInstance().readJavaFormatString(s).floatValue();
     }
 
     /**
