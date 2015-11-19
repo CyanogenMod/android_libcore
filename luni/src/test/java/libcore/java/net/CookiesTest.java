@@ -44,6 +44,18 @@ public class CookiesTest extends TestCase {
 
     private static final Map<String, List<String>> EMPTY_COOKIES_MAP = Collections.emptyMap();
 
+    private CookieHandler defaultHandler;
+
+    @Override public void setUp() throws Exception {
+        super.setUp();
+        defaultHandler = CookieHandler.getDefault();
+    }
+
+    @Override public void tearDown() throws Exception {
+        CookieHandler.setDefault(defaultHandler);
+        super.tearDown();
+    }
+
     public void testNetscapeResponse() throws Exception {
         CookieManager cookieManager = new CookieManager(null, ACCEPT_ORIGINAL_SERVER);
         CookieHandler.setDefault(cookieManager);
@@ -243,19 +255,62 @@ public class CookiesTest extends TestCase {
                 || (cookieHeaders.size() == 1 && cookieHeaders.get("Cookie").isEmpty()));
     }
 
+    public void testCookieManagerGet_schemeChecks() throws Exception {
+        CookieManager cookieManager = new CookieManager();
+
+        cookieManager.put(new URI("http://a.com/"), cookieHeaders("a1=android"));
+        cookieManager.put(new URI("https://a.com/"), cookieHeaders("a2=android"));
+        cookieManager.put(new URI("https://a.com/"), cookieHeaders("a3=android; Secure"));
+
+        assertManagerCookiesMatch(cookieManager, "http://a.com/", "a1=android; a2=android");
+        assertManagerCookiesMatch(cookieManager, "https://a.com/",
+                "a1=android; a2=android; a3=android");
+    }
+
+    public void testCookieManagerGet_hostChecks() throws Exception {
+        CookieManager cookieManager = new CookieManager();
+
+        cookieManager.put(new URI("http://a.com/"), cookieHeaders("a1=android"));
+        cookieManager.put(new URI("http://b.com/"), cookieHeaders("b1=android"));
+
+        assertManagerCookiesMatch(cookieManager, "http://a.com/", "a1=android");
+        assertManagerCookiesMatch(cookieManager, "http://b.com/", "b1=android");
+    }
+
+    public void testCookieManagerGet_portChecks() throws Exception {
+        CookieManager cookieManager = new CookieManager();
+
+        cookieManager.put(new URI("http://a.com:443/"), cookieHeaders("a1=android"));
+        cookieManager.put(new URI("http://a.com:8080/"), cookieHeaders("a2=android"));
+        cookieManager.put(new URI("http://a.com:8080/"), cookieHeaders("a3=android; Port=8080"));
+
+        assertManagerCookiesMatch(cookieManager, "http://a.com/", "a1=android; a2=android");
+        assertManagerCookiesMatch(cookieManager, "http://a.com:8080/",
+                "a1=android; a2=android; a3=android");
+    }
+
+    public void testCookieManagerGet_pathChecks() throws Exception {
+        CookieManager cookieManager = new CookieManager();
+
+        cookieManager.put(new URI("http://a.com/"), cookieHeaders("a1=android"));
+        cookieManager.put(new URI("http://a.com/path1"),
+                cookieHeaders("a2=android; Path=\"/path1\""));
+        cookieManager.put(new URI("http://a.com/path2"),
+                cookieHeaders("a3=android; Path=\"/path2\""));
+
+        assertManagerCookiesMatch(cookieManager, "http://a.com/notpath", "a1=android");
+        assertManagerCookiesMatch(cookieManager, "http://a.com/path1", "a1=android; a2=android");
+    }
+
     public void testSendingCookiesFromStore() throws Exception {
         MockWebServer server = new MockWebServer();
         server.enqueue(new MockResponse());
         server.play();
 
         CookieManager cookieManager = new CookieManager(null, ACCEPT_ORIGINAL_SERVER);
-        HttpCookie cookieA = new HttpCookie("a", "android");
-        cookieA.setDomain(server.getCookieDomain());
-        cookieA.setPath("/");
+        HttpCookie cookieA = createCookie("a", "android", server.getCookieDomain(), "/");
         cookieManager.getCookieStore().add(server.getUrl("/").toURI(), cookieA);
-        HttpCookie cookieB = new HttpCookie("b", "banana");
-        cookieB.setDomain(server.getCookieDomain());
-        cookieB.setPath("/");
+        HttpCookie cookieB = createCookie("b", "banana", server.getCookieDomain(), "/");
         cookieManager.getCookieStore().add(server.getUrl("/").toURI(), cookieB);
         CookieHandler.setDefault(cookieManager);
 
@@ -280,9 +335,7 @@ public class CookiesTest extends TestCase {
         redirectSource.play();
 
         CookieManager cookieManager = new CookieManager(null, ACCEPT_ORIGINAL_SERVER);
-        HttpCookie cookie = new HttpCookie("c", "cookie");
-        cookie.setDomain(redirectSource.getCookieDomain());
-        cookie.setPath("/");
+        HttpCookie cookie = createCookie("c", "cookie", redirectSource.getCookieDomain(), "/");
         String portList = Integer.toString(redirectSource.getPort());
         cookie.setPortlist(portList);
         cookieManager.getCookieStore().add(redirectSource.getUrl("/").toURI(), cookie);
@@ -312,7 +365,8 @@ public class CookiesTest extends TestCase {
     public void testHeadersSentToCookieHandler() throws IOException, InterruptedException {
         final Map<String, List<String>> cookieHandlerHeaders = new HashMap<String, List<String>>();
         CookieHandler.setDefault(new CookieManager() {
-            @Override public Map<String, List<String>> get(URI uri,
+            @Override
+            public Map<String, List<String>> get(URI uri,
                     Map<String, List<String>> requestHeaders) throws IOException {
                 cookieHandlerHeaders.putAll(requestHeaders);
                 Map<String, List<String>> result = new HashMap<String, List<String>>();
@@ -430,12 +484,8 @@ public class CookiesTest extends TestCase {
 
     public void testCookieStoreNullUris() {
         CookieStore cookieStore = new CookieManager().getCookieStore();
-        HttpCookie cookieA = new HttpCookie("a", "android");
-        cookieA.setDomain(".android.com");
-        cookieA.setPath("/source");
-        HttpCookie cookieB = new HttpCookie("b", "banana");
-        cookieA.setDomain("code.google.com");
-        cookieA.setPath("/p/android");
+        HttpCookie cookieA = createCookie("a", "android", ".android.com", "/source");
+        HttpCookie cookieB = createCookie("b", "banana", "code.google.com", "/p/android");
 
         try {
             cookieStore.add(null, cookieA);
@@ -477,9 +527,7 @@ public class CookiesTest extends TestCase {
 
     public void testCookieStoreAddAcceptsConflictingUri() throws URISyntaxException {
         CookieStore cookieStore = new CookieManager().getCookieStore();
-        HttpCookie cookieA = new HttpCookie("a", "android");
-        cookieA.setDomain(".android.com");
-        cookieA.setPath("/source/");
+        HttpCookie cookieA = createCookie("a", "android", ".android.com", "/source/");
         cookieStore.add(new URI("http://google.com/source/"), cookieA);
         assertEquals(Arrays.asList(cookieA), cookieStore.getCookies());
     }
@@ -535,6 +583,128 @@ public class CookiesTest extends TestCase {
         assertEquals(Arrays.asList(new URI("http://a.com")), cookieStore.getURIs());
     }
 
+    public void testCookieStoreGet() throws Exception {
+        CookieStore cookieStore = new CookieManager().getCookieStore();
+        HttpCookie cookiePort1 = createCookie("a1", "android", "a.com", "/path1");
+        HttpCookie cookiePort2 = createCookie("a2", "android", "a.com", "/path2");
+        HttpCookie secureCookie = createCookie("a3", "android", "a.com", "/path3");
+        secureCookie.setSecure(true);
+        HttpCookie notSecureCookie = createCookie("a4", "android", "a.com", "/path4");
+
+        HttpCookie bCookie = createCookie("b1", "android", "b.com", "/path5");
+
+        cookieStore.add(new URI("http://a.com:443/path1"), cookiePort1);
+        cookieStore.add(new URI("http://a.com:8080/path2"), cookiePort2);
+        cookieStore.add(new URI("https://a.com:443/path3"), secureCookie);
+        cookieStore.add(new URI("https://a.com:443/path4"), notSecureCookie);
+        cookieStore.add(new URI("https://b.com:8080/path5"), bCookie);
+
+        List<HttpCookie> expectedStoreCookies = new ArrayList<>();
+        expectedStoreCookies.add(cookiePort1);
+        expectedStoreCookies.add(cookiePort2);
+        expectedStoreCookies.add(secureCookie);
+        expectedStoreCookies.add(notSecureCookie);
+
+        // The default CookieStore implementation on Android is currently responsible for matching
+        // the host/domain but not handling other cookie rules: it ignores the scheme (e.g. "secure"
+        // checks), port and path.
+        // The tests below fail on the RI. It looks like in the RI it is CookieStoreImpl that is
+        // enforcing "secure" checks.
+        assertEquals(expectedStoreCookies, cookieStore.get(new URI("http://a.com:443/anypath")));
+        assertEquals(expectedStoreCookies, cookieStore.get(new URI("http://a.com:8080/anypath")));
+        assertEquals(expectedStoreCookies, cookieStore.get(new URI("https://a.com/anypath")));
+        assertEquals(expectedStoreCookies, cookieStore.get(new URI("http://a.com/anypath")));
+    }
+
+    /**
+     * Regression test for http://b/25682357 /
+     * https://code.google.com/p/android/issues/detail?id=193475
+     * CookieStoreImpl.get(URI) not handling ports properly in the absence of an explicit cookie
+     * Domain.
+     */
+    public void testCookieStoreGetWithPort() throws Exception {
+        CookieStore cookieStore = new CookieManager().getCookieStore();
+        HttpCookie cookie = new HttpCookie("theme", "light");
+        // Deliberately not setting the cookie domain or path.
+        cookieStore.add(new URI("http://a.com:12345"), cookie);
+
+        // CookieStoreImpl must ignore the port during retrieval when domain is not set.
+        assertEquals(1, cookieStore.get(new URI("http://a.com:12345/path1")).size());
+        assertEquals(1, cookieStore.get(new URI("http://a.com/path1")).size());
+    }
+
+    public void testCookieStoreGetWithSecure() throws Exception {
+        CookieStore cookieStore = new CookieManager().getCookieStore();
+        HttpCookie cookie = createCookie("theme", "light", "a.com", "/path");
+        cookie.setSecure(true);
+        cookieStore.add(new URI("https://a.com/path"), cookie);
+
+        // CookieStoreImpl on Android ignores the "Secure" attribute. The RI implements the secure
+        // check in CookieStoreImpl. For safety / app compatibility, if this is changed Android
+        // should probably implement it in both places.
+        assertEquals(1, cookieStore.get(new URI("http://a.com/path")).size());
+        assertEquals(1, cookieStore.get(new URI("https://a.com/path")).size());
+    }
+
+    public void testCookieStoreEviction() throws Exception {
+        CookieStore cookieStore = new CookieManager().getCookieStore();
+        HttpCookie themeCookie = createCookie("theme", "light", "a.com", "/");
+        cookieStore.add(new URI("http://a.com/"), themeCookie);
+
+        HttpCookie sidCookie = createCookie("sid", "mysid", "a.com", "/");
+        cookieStore.add(new URI("http://a.com/"), sidCookie);
+
+        HttpCookie replacementThemeCookie = createCookie("theme", "dark", "a.com", "/");
+        cookieStore.add(new URI("http://a.com/"), replacementThemeCookie);
+
+        // toString() is used below to avoid confusion with assertEquals():
+        // HttpCookie.equals() is implemented so that it only checks name, path and domain
+        // attributes but we also want to check the value.
+        assertEquals(
+                "[sid=\"mysid\";$Path=\"/\";$Domain=\"a.com\", "
+                        + "theme=\"dark\";$Path=\"/\";$Domain=\"a.com\"]",
+                cookieStore.get(new URI("http://a.com/")).toString());
+
+        HttpCookie replacementSidCookie = createCookie("sid", "mynewsid", "A.cOm", "/");
+        cookieStore.add(new URI("http://a.com/"), replacementSidCookie);
+
+        assertEquals(
+                "[theme=\"dark\";$Path=\"/\";$Domain=\"a.com\", "
+                        + "sid=\"mynewsid\";$Path=\"/\";$Domain=\"a.com\"]",
+                cookieStore.get(new URI("http://a.com/")).toString());
+    }
+
+    /**
+     * CookieStoreImpl has a strict requirement on HttpCookie.equals() to enable replacement of
+     * cookies with the same name.
+     */
+    public void testCookieEquality() throws Exception {
+        HttpCookie baseCookie = createCookie("theme", "light", "a.com", "/");
+
+        // None of the attributes immediately below should affect equality otherwise CookieStoreImpl
+        // eviction will not work as intended.
+        HttpCookie valueCookie = createCookie("theme", "light", "a.com", "/");
+        valueCookie.setValue("dark");
+        valueCookie.setPortlist("1234");
+        valueCookie.setSecure(true);
+        valueCookie.setComment("comment");
+        valueCookie.setCommentURL("commentURL");
+        valueCookie.setDiscard(true);
+        valueCookie.setMaxAge(12345L);
+        valueCookie.setVersion(1);
+        assertEquals(baseCookie, valueCookie);
+
+        // Changing any of the 3 main identity attributes should render cookies unequal.
+        assertNotEquals(createCookie("theme2", "light", "a.com", "/"), baseCookie);
+        assertNotEquals(createCookie("theme", "light", "b.com", "/"), baseCookie);
+        assertNotEquals(createCookie("theme", "light", "a.com", "/path"), baseCookie);
+    }
+
+    private static void assertNotEquals(HttpCookie one, HttpCookie two) {
+        assertFalse(one.equals(two));
+        assertFalse(two.equals(one));
+    }
+
     private void assertContains(Collection<String> collection, String element) {
         for (String c : collection) {
             if (c != null && c.equalsIgnoreCase(element)) {
@@ -567,7 +737,7 @@ public class CookiesTest extends TestCase {
         return headers;
     }
 
-    private Map<String, List<String>> cookieHeaders(String... headers) {
+    private static Map<String, List<String>> cookieHeaders(String... headers) {
         return Collections.singletonMap("Set-Cookie", Arrays.asList(headers));
     }
 
@@ -606,5 +776,38 @@ public class CookiesTest extends TestCase {
         public boolean removeAll() {
             throw new UnsupportedOperationException();
         }
+    }
+
+    private static void assertManagerCookiesMatch(CookieManager cookieManager, String url,
+        String expectedCookieRequestHeader) throws Exception {
+
+        Map<String, List<String>> cookieHeaders =
+                cookieManager.get(new URI(url), EMPTY_COOKIES_MAP);
+        if (expectedCookieRequestHeader == null) {
+            assertTrue(cookieHeaders.isEmpty());
+            return;
+        }
+
+        assertEquals(1, cookieHeaders.size());
+        List<String> actualCookieHeaderStrings = cookieHeaders.get("Cookie");
+
+        // For simplicity, we concatenate the cookie header strings if there are multiple ones.
+        String actualCookieRequestHeader = actualCookieHeaderStrings.get(0);
+        for (int i = 1; i < actualCookieHeaderStrings.size(); i++) {
+            actualCookieRequestHeader += "; " + actualCookieHeaderStrings.get(i);
+        }
+        assertEquals(expectedCookieRequestHeader, actualCookieRequestHeader);
+    }
+
+    /**
+     * Creates a well-formed cookie. The behavior when domain is unset varies between
+     * RFC 2965 and RFC 6265. CookieStoreImpl assumes these values are set "correctly" by the time
+     * it receives the HttpCookie instance.
+     */
+    private static HttpCookie createCookie(String name, String value, String domain, String path) {
+        HttpCookie cookie = new HttpCookie(name, value);
+        cookie.setDomain(domain);
+        cookie.setPath(path);
+        return cookie;
     }
 }

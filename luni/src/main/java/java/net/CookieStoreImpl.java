@@ -42,6 +42,8 @@ final class CookieStoreImpl implements CookieStore {
             cookies = new ArrayList<HttpCookie>();
             map.put(uri, cookies);
         } else {
+            // This call to remove() relies on HttpCookie.equals() only checking the cookie identity
+            // attributes: name, path and domain (ignoring case).
             cookies.remove(cookie);
         }
         cookies.add(cookie);
@@ -66,7 +68,8 @@ final class CookieStoreImpl implements CookieStore {
         List<HttpCookie> result = new ArrayList<HttpCookie>();
 
         // get cookies associated with given URI. If none, returns an empty list
-        List<HttpCookie> cookiesForUri = map.get(uri);
+        URI uriKey = cookiesUri(uri);
+        List<HttpCookie> cookiesForUri = map.get(uriKey);
         if (cookiesForUri != null) {
             for (Iterator<HttpCookie> i = cookiesForUri.iterator(); i.hasNext(); ) {
                 HttpCookie cookie = i.next();
@@ -80,14 +83,14 @@ final class CookieStoreImpl implements CookieStore {
 
         // get all cookies that domain matches the URI
         for (Map.Entry<URI, List<HttpCookie>> entry : map.entrySet()) {
-            if (uri.equals(entry.getKey())) {
+            if (uriKey.equals(entry.getKey())) {
                 continue; // skip the given URI; we've already handled it
             }
 
             List<HttpCookie> entryCookies = entry.getValue();
             for (Iterator<HttpCookie> i = entryCookies.iterator(); i.hasNext(); ) {
                 HttpCookie cookie = i.next();
-                if (!HttpCookie.domainMatches(cookie.getDomain(), uri.getHost())) {
+                if (!HttpCookie.domainMatches(cookie.getDomain(), uriKey.getHost())) {
                     continue;
                 }
                 if (cookie.hasExpired()) {
