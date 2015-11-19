@@ -67,17 +67,17 @@ public final class HttpCookie implements Cloneable {
     private static final Set<String> RESERVED_NAMES = new HashSet<String>();
 
     static {
-        RESERVED_NAMES.add("comment");    //           RFC 2109  RFC 2965  RFC 6265
-        RESERVED_NAMES.add("commenturl"); //                     RFC 2965  RFC 6265
-        RESERVED_NAMES.add("discard");    //                     RFC 2965  RFC 6265
+        RESERVED_NAMES.add("comment");    //           RFC 2109  RFC 2965
+        RESERVED_NAMES.add("commenturl"); //                     RFC 2965
+        RESERVED_NAMES.add("discard");    //                     RFC 2965
         RESERVED_NAMES.add("domain");     // Netscape  RFC 2109  RFC 2965  RFC 6265
-        RESERVED_NAMES.add("expires");    // Netscape
+        RESERVED_NAMES.add("expires");    // Netscape                      RFC 6265
         RESERVED_NAMES.add("httponly");   //                               RFC 6265
         RESERVED_NAMES.add("max-age");    //           RFC 2109  RFC 2965  RFC 6265
         RESERVED_NAMES.add("path");       // Netscape  RFC 2109  RFC 2965  RFC 6265
-        RESERVED_NAMES.add("port");       //                     RFC 2965  RFC 6265
+        RESERVED_NAMES.add("port");       //                     RFC 2965
         RESERVED_NAMES.add("secure");     // Netscape  RFC 2109  RFC 2965  RFC 6265
-        RESERVED_NAMES.add("version");    //           RFC 2109  RFC 2965  RFC 6265
+        RESERVED_NAMES.add("version");    //           RFC 2109  RFC 2965
     }
 
     /**
