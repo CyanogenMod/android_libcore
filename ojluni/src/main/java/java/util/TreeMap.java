@@ -115,7 +115,7 @@ public class TreeMap<K,V>
      */
     private final Comparator<? super K> comparator;
 
-    private transient Entry<K,V> root = null;
+    private transient TreeMapEntry<K,V> root = null;
 
     /**
      * The number of entries in the tree
@@ -241,7 +241,7 @@ public class TreeMap<K,V>
      * @since 1.2
      */
     public boolean containsValue(Object value) {
-        for (Entry<K,V> e = getFirstEntry(); e != null; e = successor(e))
+        for (TreeMapEntry<K,V> e = getFirstEntry(); e != null; e = successor(e))
             if (valEquals(value, e.value))
                 return true;
         return false;
@@ -270,7 +270,7 @@ public class TreeMap<K,V>
      *         does not permit null keys
      */
     public V get(Object key) {
-        Entry<K,V> p = getEntry(key);
+        TreeMapEntry<K,V> p = getEntry(key);
         return (p==null ? null : p.value);
     }
 
@@ -334,14 +334,14 @@ public class TreeMap<K,V>
      *         and this map uses natural ordering, or its comparator
      *         does not permit null keys
      */
-    final Entry<K,V> getEntry(Object key) {
+    final TreeMapEntry<K,V> getEntry(Object key) {
         // Offload comparator-based version for sake of performance
         if (comparator != null)
             return getEntryUsingComparator(key);
         if (key == null)
             throw new NullPointerException();
         Comparable<? super K> k = (Comparable<? super K>) key;
-        Entry<K,V> p = root;
+        TreeMapEntry<K,V> p = root;
         while (p != null) {
             int cmp = k.compareTo(p.key);
             if (cmp < 0)
@@ -360,11 +360,11 @@ public class TreeMap<K,V>
      * that are less dependent on comparator performance, but is
      * worthwhile here.)
      */
-    final Entry<K,V> getEntryUsingComparator(Object key) {
+    final TreeMapEntry<K,V> getEntryUsingComparator(Object key) {
         K k = (K) key;
         Comparator<? super K> cpr = comparator;
         if (cpr != null) {
-            Entry<K,V> p = root;
+            TreeMapEntry<K,V> p = root;
             while (p != null) {
                 int cmp = cpr.compare(k, p.key);
                 if (cmp < 0)
@@ -384,8 +384,8 @@ public class TreeMap<K,V>
      * key; if no such entry exists (i.e., the greatest key in the Tree is less
      * than the specified key), returns {@code null}.
      */
-    final Entry<K,V> getCeilingEntry(K key) {
-        Entry<K,V> p = root;
+    final TreeMapEntry<K,V> getCeilingEntry(K key) {
+        TreeMapEntry<K,V> p = root;
         while (p != null) {
             int cmp = compare(key, p.key);
             if (cmp < 0) {
@@ -397,8 +397,8 @@ public class TreeMap<K,V>
                 if (p.right != null) {
                     p = p.right;
                 } else {
-                    Entry<K,V> parent = p.parent;
-                    Entry<K,V> ch = p;
+                    TreeMapEntry<K,V> parent = p.parent;
+                    TreeMapEntry<K,V> ch = p;
                     while (parent != null && ch == parent.right) {
                         ch = parent;
                         parent = parent.parent;
@@ -416,8 +416,8 @@ public class TreeMap<K,V>
      * exists, returns the entry for the greatest key less than the specified
      * key; if no such entry exists, returns {@code null}.
      */
-    final Entry<K,V> getFloorEntry(K key) {
-        Entry<K,V> p = root;
+    final TreeMapEntry<K,V> getFloorEntry(K key) {
+        TreeMapEntry<K,V> p = root;
         while (p != null) {
             int cmp = compare(key, p.key);
             if (cmp > 0) {
@@ -429,8 +429,8 @@ public class TreeMap<K,V>
                 if (p.left != null) {
                     p = p.left;
                 } else {
-                    Entry<K,V> parent = p.parent;
-                    Entry<K,V> ch = p;
+                    TreeMapEntry<K,V> parent = p.parent;
+                    TreeMapEntry<K,V> ch = p;
                     while (parent != null && ch == parent.left) {
                         ch = parent;
                         parent = parent.parent;
@@ -450,8 +450,8 @@ public class TreeMap<K,V>
      * key greater than the specified key; if no such entry exists
      * returns {@code null}.
      */
-    final Entry<K,V> getHigherEntry(K key) {
-        Entry<K,V> p = root;
+    final TreeMapEntry<K,V> getHigherEntry(K key) {
+        TreeMapEntry<K,V> p = root;
         while (p != null) {
             int cmp = compare(key, p.key);
             if (cmp < 0) {
@@ -463,8 +463,8 @@ public class TreeMap<K,V>
                 if (p.right != null) {
                     p = p.right;
                 } else {
-                    Entry<K,V> parent = p.parent;
-                    Entry<K,V> ch = p;
+                    TreeMapEntry<K,V> parent = p.parent;
+                    TreeMapEntry<K,V> ch = p;
                     while (parent != null && ch == parent.right) {
                         ch = parent;
                         parent = parent.parent;
@@ -481,8 +481,8 @@ public class TreeMap<K,V>
      * no such entry exists (i.e., the least key in the Tree is greater than
      * the specified key), returns {@code null}.
      */
-    final Entry<K,V> getLowerEntry(K key) {
-        Entry<K,V> p = root;
+    final TreeMapEntry<K,V> getLowerEntry(K key) {
+        TreeMapEntry<K,V> p = root;
         while (p != null) {
             int cmp = compare(key, p.key);
             if (cmp > 0) {
@@ -494,8 +494,8 @@ public class TreeMap<K,V>
                 if (p.left != null) {
                     p = p.left;
                 } else {
-                    Entry<K,V> parent = p.parent;
-                    Entry<K,V> ch = p;
+                    TreeMapEntry<K,V> parent = p.parent;
+                    TreeMapEntry<K,V> ch = p;
                     while (parent != null && ch == parent.left) {
                         ch = parent;
                         parent = parent.parent;
@@ -526,17 +526,17 @@ public class TreeMap<K,V>
      *         does not permit null keys
      */
     public V put(K key, V value) {
-        Entry<K,V> t = root;
+        TreeMapEntry<K,V> t = root;
         if (t == null) {
             compare(key, key); // type (and possibly null) check
 
-            root = new Entry<>(key, value, null);
+            root = new TreeMapEntry<>(key, value, null);
             size = 1;
             modCount++;
             return null;
         }
         int cmp;
-        Entry<K,V> parent;
+        TreeMapEntry<K,V> parent;
         // split comparator and comparable paths
         Comparator<? super K> cpr = comparator;
         if (cpr != null) {
@@ -566,7 +566,7 @@ public class TreeMap<K,V>
                     return t.setValue(value);
             } while (t != null);
         }
-        Entry<K,V> e = new Entry<>(key, value, parent);
+        TreeMapEntry<K,V> e = new TreeMapEntry<>(key, value, parent);
         if (cmp < 0)
             parent.left = e;
         else
@@ -592,7 +592,7 @@ public class TreeMap<K,V>
      *         does not permit null keys
      */
     public V remove(Object key) {
-        Entry<K,V> p = getEntry(key);
+        TreeMapEntry<K,V> p = getEntry(key);
         if (p == null)
             return null;
 
@@ -663,7 +663,7 @@ public class TreeMap<K,V>
      * @since 1.6
      */
     public Map.Entry<K,V> pollFirstEntry() {
-        Entry<K,V> p = getFirstEntry();
+        TreeMapEntry<K,V> p = getFirstEntry();
         Map.Entry<K,V> result = exportEntry(p);
         if (p != null)
             deleteEntry(p);
@@ -674,7 +674,7 @@ public class TreeMap<K,V>
      * @since 1.6
      */
     public Map.Entry<K,V> pollLastEntry() {
-        Entry<K,V> p = getLastEntry();
+        TreeMapEntry<K,V> p = getLastEntry();
         Map.Entry<K,V> result = exportEntry(p);
         if (p != null)
             deleteEntry(p);
@@ -956,7 +956,7 @@ public class TreeMap<K,V>
         }
 
         public boolean remove(Object o) {
-            for (Entry<K,V> e = getFirstEntry(); e != null; e = successor(e)) {
+            for (TreeMapEntry<K,V> e = getFirstEntry(); e != null; e = successor(e)) {
                 if (valEquals(e.getValue(), o)) {
                     deleteEntry(e);
                     return true;
@@ -980,7 +980,7 @@ public class TreeMap<K,V>
                 return false;
             Map.Entry<K,V> entry = (Map.Entry<K,V>) o;
             V value = entry.getValue();
-            Entry<K,V> p = getEntry(entry.getKey());
+            TreeMapEntry<K,V> p = getEntry(entry.getKey());
             return p != null && valEquals(p.getValue(), value);
         }
 
@@ -989,7 +989,7 @@ public class TreeMap<K,V>
                 return false;
             Map.Entry<K,V> entry = (Map.Entry<K,V>) o;
             V value = entry.getValue();
-            Entry<K,V> p = getEntry(entry.getKey());
+            TreeMapEntry<K,V> p = getEntry(entry.getKey());
             if (p != null && valEquals(p.getValue(), value)) {
                 deleteEntry(p);
                 return true;
@@ -1093,11 +1093,11 @@ public class TreeMap<K,V>
      * Base class for TreeMap Iterators
      */
     abstract class PrivateEntryIterator<T> implements Iterator<T> {
-        Entry<K,V> next;
-        Entry<K,V> lastReturned;
+        TreeMapEntry<K,V> next;
+        TreeMapEntry<K,V> lastReturned;
         int expectedModCount;
 
-        PrivateEntryIterator(Entry<K,V> first) {
+        PrivateEntryIterator(TreeMapEntry<K,V> first) {
             expectedModCount = modCount;
             lastReturned = null;
             next = first;
@@ -1107,8 +1107,8 @@ public class TreeMap<K,V>
             return next != null;
         }
 
-        final Entry<K,V> nextEntry() {
-            Entry<K,V> e = next;
+        final TreeMapEntry<K,V> nextEntry() {
+            TreeMapEntry<K,V> e = next;
             if (e == null)
                 throw new NoSuchElementException();
             if (modCount != expectedModCount)
@@ -1118,8 +1118,8 @@ public class TreeMap<K,V>
             return e;
         }
 
-        final Entry<K,V> prevEntry() {
-            Entry<K,V> e = next;
+        final TreeMapEntry<K,V> prevEntry() {
+            TreeMapEntry<K,V> e = next;
             if (e == null)
                 throw new NoSuchElementException();
             if (modCount != expectedModCount)
@@ -1144,7 +1144,7 @@ public class TreeMap<K,V>
     }
 
     final class EntryIterator extends PrivateEntryIterator<Map.Entry<K,V>> {
-        EntryIterator(Entry<K,V> first) {
+        EntryIterator(TreeMapEntry<K,V> first) {
             super(first);
         }
         public Map.Entry<K,V> next() {
@@ -1153,7 +1153,7 @@ public class TreeMap<K,V>
     }
 
     final class ValueIterator extends PrivateEntryIterator<V> {
-        ValueIterator(Entry<K,V> first) {
+        ValueIterator(TreeMapEntry<K,V> first) {
             super(first);
         }
         public V next() {
@@ -1162,7 +1162,7 @@ public class TreeMap<K,V>
     }
 
     final class KeyIterator extends PrivateEntryIterator<K> {
-        KeyIterator(Entry<K,V> first) {
+        KeyIterator(TreeMapEntry<K,V> first) {
             super(first);
         }
         public K next() {
@@ -1171,7 +1171,7 @@ public class TreeMap<K,V>
     }
 
     final class DescendingKeyIterator extends PrivateEntryIterator<K> {
-        DescendingKeyIterator(Entry<K,V> first) {
+        DescendingKeyIterator(TreeMapEntry<K,V> first) {
             super(first);
         }
         public K next() {
@@ -1200,7 +1200,7 @@ public class TreeMap<K,V>
     /**
      * Return SimpleImmutableEntry for entry, or null if null
      */
-    static <K,V> Map.Entry<K,V> exportEntry(TreeMap.Entry<K,V> e) {
+    static <K,V> Map.Entry<K,V> exportEntry(TreeMapEntry<K,V> e) {
         return (e == null) ? null :
             new AbstractMap.SimpleImmutableEntry<>(e);
     }
@@ -1208,7 +1208,7 @@ public class TreeMap<K,V>
     /**
      * Return key for entry, or null if null
      */
-    static <K,V> K keyOrNull(TreeMap.Entry<K,V> e) {
+    static <K,V> K keyOrNull(TreeMapEntry<K,V> e) {
         return (e == null) ? null : e.key;
     }
 
@@ -1216,7 +1216,7 @@ public class TreeMap<K,V>
      * Returns the key corresponding to the specified Entry.
      * @throws NoSuchElementException if the Entry is null
      */
-    static <K> K key(Entry<K,?> e) {
+    static <K> K key(TreeMapEntry<K,?> e) {
         if (e==null)
             throw new NoSuchElementException();
         return e.key;
@@ -1314,59 +1314,59 @@ public class TreeMap<K,V>
          * versions that invert senses for descending maps
          */
 
-        final TreeMap.Entry<K,V> absLowest() {
-            TreeMap.Entry<K,V> e =
+        final TreeMapEntry<K,V> absLowest() {
+            TreeMapEntry<K,V> e =
                 (fromStart ?  m.getFirstEntry() :
                  (loInclusive ? m.getCeilingEntry(lo) :
                                 m.getHigherEntry(lo)));
             return (e == null || tooHigh(e.key)) ? null : e;
         }
 
-        final TreeMap.Entry<K,V> absHighest() {
-            TreeMap.Entry<K,V> e =
+        final TreeMapEntry<K,V> absHighest() {
+            TreeMapEntry<K,V> e =
                 (toEnd ?  m.getLastEntry() :
                  (hiInclusive ?  m.getFloorEntry(hi) :
                                  m.getLowerEntry(hi)));
             return (e == null || tooLow(e.key)) ? null : e;
         }
 
-        final TreeMap.Entry<K,V> absCeiling(K key) {
+        final TreeMapEntry<K,V> absCeiling(K key) {
             if (tooLow(key))
                 return absLowest();
-            TreeMap.Entry<K,V> e = m.getCeilingEntry(key);
+            TreeMapEntry<K,V> e = m.getCeilingEntry(key);
             return (e == null || tooHigh(e.key)) ? null : e;
         }
 
-        final TreeMap.Entry<K,V> absHigher(K key) {
+        final TreeMapEntry<K,V> absHigher(K key) {
             if (tooLow(key))
                 return absLowest();
-            TreeMap.Entry<K,V> e = m.getHigherEntry(key);
+            TreeMapEntry<K,V> e = m.getHigherEntry(key);
             return (e == null || tooHigh(e.key)) ? null : e;
         }
 
-        final TreeMap.Entry<K,V> absFloor(K key) {
+        final TreeMapEntry<K,V> absFloor(K key) {
             if (tooHigh(key))
                 return absHighest();
-            TreeMap.Entry<K,V> e = m.getFloorEntry(key);
+            TreeMapEntry<K,V> e = m.getFloorEntry(key);
             return (e == null || tooLow(e.key)) ? null : e;
         }
 
-        final TreeMap.Entry<K,V> absLower(K key) {
+        final TreeMapEntry<K,V> absLower(K key) {
             if (tooHigh(key))
                 return absHighest();
-            TreeMap.Entry<K,V> e = m.getLowerEntry(key);
+            TreeMapEntry<K,V> e = m.getLowerEntry(key);
             return (e == null || tooLow(e.key)) ? null : e;
         }
 
         /** Returns the absolute high fence for ascending traversal */
-        final TreeMap.Entry<K,V> absHighFence() {
+        final TreeMapEntry<K,V> absHighFence() {
             return (toEnd ? null : (hiInclusive ?
                                     m.getHigherEntry(hi) :
                                     m.getCeilingEntry(hi)));
         }
 
         /** Return the absolute low fence for descending traversal  */
-        final TreeMap.Entry<K,V> absLowFence() {
+        final TreeMapEntry<K,V> absLowFence() {
             return (fromStart ? null : (loInclusive ?
                                         m.getLowerEntry(lo) :
                                         m.getFloorEntry(lo)));
@@ -1375,12 +1375,12 @@ public class TreeMap<K,V>
         // Abstract methods defined in ascending vs descending classes
         // These relay to the appropriate absolute versions
 
-        abstract TreeMap.Entry<K,V> subLowest();
-        abstract TreeMap.Entry<K,V> subHighest();
-        abstract TreeMap.Entry<K,V> subCeiling(K key);
-        abstract TreeMap.Entry<K,V> subHigher(K key);
-        abstract TreeMap.Entry<K,V> subFloor(K key);
-        abstract TreeMap.Entry<K,V> subLower(K key);
+        abstract TreeMapEntry<K,V> subLowest();
+        abstract TreeMapEntry<K,V> subHighest();
+        abstract TreeMapEntry<K,V> subCeiling(K key);
+        abstract TreeMapEntry<K,V> subHigher(K key);
+        abstract TreeMapEntry<K,V> subFloor(K key);
+        abstract TreeMapEntry<K,V> subLower(K key);
 
         /** Returns ascending iterator from the perspective of this submap */
         abstract Iterator<K> keyIterator();
@@ -1465,7 +1465,7 @@ public class TreeMap<K,V>
         }
 
         public final Map.Entry<K,V> pollFirstEntry() {
-            TreeMap.Entry<K,V> e = subLowest();
+            TreeMapEntry<K,V> e = subLowest();
             Map.Entry<K,V> result = exportEntry(e);
             if (e != null)
                 m.deleteEntry(e);
@@ -1473,7 +1473,7 @@ public class TreeMap<K,V>
         }
 
         public final Map.Entry<K,V> pollLastEntry() {
-            TreeMap.Entry<K,V> e = subHighest();
+            TreeMapEntry<K,V> e = subHighest();
             Map.Entry<K,V> result = exportEntry(e);
             if (e != null)
                 m.deleteEntry(e);
@@ -1532,7 +1532,7 @@ public class TreeMap<K,V>
             }
 
             public boolean isEmpty() {
-                TreeMap.Entry<K,V> n = absLowest();
+                TreeMapEntry<K,V> n = absLowest();
                 return n == null || tooHigh(n.key);
             }
 
@@ -1543,7 +1543,7 @@ public class TreeMap<K,V>
                 K key = entry.getKey();
                 if (!inRange(key))
                     return false;
-                TreeMap.Entry node = m.getEntry(key);
+                TreeMapEntry node = m.getEntry(key);
                 return node != null &&
                     valEquals(node.getValue(), entry.getValue());
             }
@@ -1555,7 +1555,7 @@ public class TreeMap<K,V>
                 K key = entry.getKey();
                 if (!inRange(key))
                     return false;
-                TreeMap.Entry<K,V> node = m.getEntry(key);
+                TreeMapEntry<K,V> node = m.getEntry(key);
                 if (node!=null && valEquals(node.getValue(),
                                             entry.getValue())) {
                     m.deleteEntry(node);
@@ -1569,13 +1569,13 @@ public class TreeMap<K,V>
          * Iterators for SubMaps
          */
         abstract class SubMapIterator<T> implements Iterator<T> {
-            TreeMap.Entry<K,V> lastReturned;
-            TreeMap.Entry<K,V> next;
+            TreeMapEntry<K,V> lastReturned;
+            TreeMapEntry<K,V> next;
             final Object fenceKey;
             int expectedModCount;
 
-            SubMapIterator(TreeMap.Entry<K,V> first,
-                           TreeMap.Entry<K,V> fence) {
+            SubMapIterator(TreeMapEntry<K,V> first,
+                           TreeMapEntry<K,V> fence) {
                 expectedModCount = m.modCount;
                 lastReturned = null;
                 next = first;
@@ -1586,8 +1586,8 @@ public class TreeMap<K,V>
                 return next != null && next.key != fenceKey;
             }
 
-            final TreeMap.Entry<K,V> nextEntry() {
-                TreeMap.Entry<K,V> e = next;
+            final TreeMapEntry<K,V> nextEntry() {
+                TreeMapEntry<K,V> e = next;
                 if (e == null || e.key == fenceKey)
                     throw new NoSuchElementException();
                 if (m.modCount != expectedModCount)
@@ -1597,8 +1597,8 @@ public class TreeMap<K,V>
                 return e;
             }
 
-            final TreeMap.Entry<K,V> prevEntry() {
-                TreeMap.Entry<K,V> e = next;
+            final TreeMapEntry<K,V> prevEntry() {
+                TreeMapEntry<K,V> e = next;
                 if (e == null || e.key == fenceKey)
                     throw new NoSuchElementException();
                 if (m.modCount != expectedModCount)
@@ -1634,8 +1634,8 @@ public class TreeMap<K,V>
         }
 
         final class SubMapEntryIterator extends SubMapIterator<Map.Entry<K,V>> {
-            SubMapEntryIterator(TreeMap.Entry<K,V> first,
-                                TreeMap.Entry<K,V> fence) {
+            SubMapEntryIterator(TreeMapEntry<K,V> first,
+                                TreeMapEntry<K,V> fence) {
                 super(first, fence);
             }
             public Map.Entry<K,V> next() {
@@ -1647,8 +1647,8 @@ public class TreeMap<K,V>
         }
 
         final class SubMapKeyIterator extends SubMapIterator<K> {
-            SubMapKeyIterator(TreeMap.Entry<K,V> first,
-                              TreeMap.Entry<K,V> fence) {
+            SubMapKeyIterator(TreeMapEntry<K,V> first,
+                              TreeMapEntry<K,V> fence) {
                 super(first, fence);
             }
             public K next() {
@@ -1660,8 +1660,8 @@ public class TreeMap<K,V>
         }
 
         final class DescendingSubMapEntryIterator extends SubMapIterator<Map.Entry<K,V>> {
-            DescendingSubMapEntryIterator(TreeMap.Entry<K,V> last,
-                                          TreeMap.Entry<K,V> fence) {
+            DescendingSubMapEntryIterator(TreeMapEntry<K,V> last,
+                                          TreeMapEntry<K,V> fence) {
                 super(last, fence);
             }
 
@@ -1674,8 +1674,8 @@ public class TreeMap<K,V>
         }
 
         final class DescendingSubMapKeyIterator extends SubMapIterator<K> {
-            DescendingSubMapKeyIterator(TreeMap.Entry<K,V> last,
-                                        TreeMap.Entry<K,V> fence) {
+            DescendingSubMapKeyIterator(TreeMapEntry<K,V> last,
+                                        TreeMapEntry<K,V> fence) {
                 super(last, fence);
             }
             public K next() {
@@ -1768,12 +1768,12 @@ public class TreeMap<K,V>
             return (es != null) ? es : new AscendingEntrySetView();
         }
 
-        TreeMap.Entry<K,V> subLowest()       { return absLowest(); }
-        TreeMap.Entry<K,V> subHighest()      { return absHighest(); }
-        TreeMap.Entry<K,V> subCeiling(K key) { return absCeiling(key); }
-        TreeMap.Entry<K,V> subHigher(K key)  { return absHigher(key); }
-        TreeMap.Entry<K,V> subFloor(K key)   { return absFloor(key); }
-        TreeMap.Entry<K,V> subLower(K key)   { return absLower(key); }
+        TreeMapEntry<K,V> subLowest()       { return absLowest(); }
+        TreeMapEntry<K,V> subHighest()      { return absHighest(); }
+        TreeMapEntry<K,V> subCeiling(K key) { return absCeiling(key); }
+        TreeMapEntry<K,V> subHigher(K key)  { return absHigher(key); }
+        TreeMapEntry<K,V> subFloor(K key)   { return absFloor(key); }
+        TreeMapEntry<K,V> subLower(K key)   { return absLower(key); }
     }
 
     /**
@@ -1859,12 +1859,12 @@ public class TreeMap<K,V>
             return (es != null) ? es : new DescendingEntrySetView();
         }
 
-        TreeMap.Entry<K,V> subLowest()       { return absHighest(); }
-        TreeMap.Entry<K,V> subHighest()      { return absLowest(); }
-        TreeMap.Entry<K,V> subCeiling(K key) { return absFloor(key); }
-        TreeMap.Entry<K,V> subHigher(K key)  { return absLower(key); }
-        TreeMap.Entry<K,V> subFloor(K key)   { return absCeiling(key); }
-        TreeMap.Entry<K,V> subLower(K key)   { return absHigher(key); }
+        TreeMapEntry<K,V> subLowest()       { return absHighest(); }
+        TreeMapEntry<K,V> subHighest()      { return absLowest(); }
+        TreeMapEntry<K,V> subCeiling(K key) { return absFloor(key); }
+        TreeMapEntry<K,V> subHigher(K key)  { return absLower(key); }
+        TreeMapEntry<K,V> subFloor(K key)   { return absCeiling(key); }
+        TreeMapEntry<K,V> subLower(K key)   { return absHigher(key); }
     }
 
     /**
@@ -1906,19 +1906,19 @@ public class TreeMap<K,V>
      * user (see Map.Entry).
      */
 
-    static final class Entry<K,V> implements Map.Entry<K,V> {
+    static final class TreeMapEntry<K,V> implements Map.Entry<K,V> {
         K key;
         V value;
-        Entry<K,V> left = null;
-        Entry<K,V> right = null;
-        Entry<K,V> parent;
+        TreeMapEntry<K,V> left = null;
+        TreeMapEntry<K,V> right = null;
+        TreeMapEntry<K,V> parent;
         boolean color = BLACK;
 
         /**
          * Make a new cell with given key, value, and parent, and with
          * {@code null} child links, and BLACK color.
          */
-        Entry(K key, V value, Entry<K,V> parent) {
+        TreeMapEntry(K key, V value, TreeMapEntry<K,V> parent) {
             this.key = key;
             this.value = value;
             this.parent = parent;
@@ -1978,8 +1978,8 @@ public class TreeMap<K,V>
      * Returns the first Entry in the TreeMap (according to the TreeMap's
      * key-sort function).  Returns null if the TreeMap is empty.
      */
-    final Entry<K,V> getFirstEntry() {
-        Entry<K,V> p = root;
+    final TreeMapEntry<K,V> getFirstEntry() {
+        TreeMapEntry<K,V> p = root;
         if (p != null)
             while (p.left != null)
                 p = p.left;
@@ -1990,8 +1990,8 @@ public class TreeMap<K,V>
      * Returns the last Entry in the TreeMap (according to the TreeMap's
      * key-sort function).  Returns null if the TreeMap is empty.
      */
-    final Entry<K,V> getLastEntry() {
-        Entry<K,V> p = root;
+    final TreeMapEntry<K,V> getLastEntry() {
+        TreeMapEntry<K,V> p = root;
         if (p != null)
             while (p.right != null)
                 p = p.right;
@@ -2001,17 +2001,17 @@ public class TreeMap<K,V>
     /**
      * Returns the successor of the specified Entry, or null if no such.
      */
-    static <K,V> TreeMap.Entry<K,V> successor(Entry<K,V> t) {
+    static <K,V> TreeMapEntry<K,V> successor(TreeMapEntry<K,V> t) {
         if (t == null)
             return null;
         else if (t.right != null) {
-            Entry<K,V> p = t.right;
+            TreeMapEntry<K,V> p = t.right;
             while (p.left != null)
                 p = p.left;
             return p;
         } else {
-            Entry<K,V> p = t.parent;
-            Entry<K,V> ch = t;
+            TreeMapEntry<K,V> p = t.parent;
+            TreeMapEntry<K,V> ch = t;
             while (p != null && ch == p.right) {
                 ch = p;
                 p = p.parent;
@@ -2023,17 +2023,17 @@ public class TreeMap<K,V>
     /**
      * Returns the predecessor of the specified Entry, or null if no such.
      */
-    static <K,V> Entry<K,V> predecessor(Entry<K,V> t) {
+    static <K,V> TreeMapEntry<K,V> predecessor(TreeMapEntry<K,V> t) {
         if (t == null)
             return null;
         else if (t.left != null) {
-            Entry<K,V> p = t.left;
+            TreeMapEntry<K,V> p = t.left;
             while (p.right != null)
                 p = p.right;
             return p;
         } else {
-            Entry<K,V> p = t.parent;
-            Entry<K,V> ch = t;
+            TreeMapEntry<K,V> p = t.parent;
+            TreeMapEntry<K,V> ch = t;
             while (p != null && ch == p.left) {
                 ch = p;
                 p = p.parent;
@@ -2052,31 +2052,31 @@ public class TreeMap<K,V>
      * algorithms.
      */
 
-    private static <K,V> boolean colorOf(Entry<K,V> p) {
+    private static <K,V> boolean colorOf(TreeMapEntry<K,V> p) {
         return (p == null ? BLACK : p.color);
     }
 
-    private static <K,V> Entry<K,V> parentOf(Entry<K,V> p) {
+    private static <K,V> TreeMapEntry<K,V> parentOf(TreeMapEntry<K,V> p) {
         return (p == null ? null: p.parent);
     }
 
-    private static <K,V> void setColor(Entry<K,V> p, boolean c) {
+    private static <K,V> void setColor(TreeMapEntry<K,V> p, boolean c) {
         if (p != null)
             p.color = c;
     }
 
-    private static <K,V> Entry<K,V> leftOf(Entry<K,V> p) {
+    private static <K,V> TreeMapEntry<K,V> leftOf(TreeMapEntry<K,V> p) {
         return (p == null) ? null: p.left;
     }
 
-    private static <K,V> Entry<K,V> rightOf(Entry<K,V> p) {
+    private static <K,V> TreeMapEntry<K,V> rightOf(TreeMapEntry<K,V> p) {
         return (p == null) ? null: p.right;
     }
 
     /** From CLR */
-    private void rotateLeft(Entry<K,V> p) {
+    private void rotateLeft(TreeMapEntry<K,V> p) {
         if (p != null) {
-            Entry<K,V> r = p.right;
+            TreeMapEntry<K,V> r = p.right;
             p.right = r.left;
             if (r.left != null)
                 r.left.parent = p;
@@ -2093,9 +2093,9 @@ public class TreeMap<K,V>
     }
 
     /** From CLR */
-    private void rotateRight(Entry<K,V> p) {
+    private void rotateRight(TreeMapEntry<K,V> p) {
         if (p != null) {
-            Entry<K,V> l = p.left;
+            TreeMapEntry<K,V> l = p.left;
             p.left = l.right;
             if (l.right != null) l.right.parent = p;
             l.parent = p.parent;
@@ -2110,12 +2110,12 @@ public class TreeMap<K,V>
     }
 
     /** From CLR */
-    private void fixAfterInsertion(Entry<K,V> x) {
+    private void fixAfterInsertion(TreeMapEntry<K,V> x) {
         x.color = RED;
 
         while (x != null && x != root && x.parent.color == RED) {
             if (parentOf(x) == leftOf(parentOf(parentOf(x)))) {
-                Entry<K,V> y = rightOf(parentOf(parentOf(x)));
+                TreeMapEntry<K,V> y = rightOf(parentOf(parentOf(x)));
                 if (colorOf(y) == RED) {
                     setColor(parentOf(x), BLACK);
                     setColor(y, BLACK);
@@ -2131,7 +2131,7 @@ public class TreeMap<K,V>
                     rotateRight(parentOf(parentOf(x)));
                 }
             } else {
-                Entry<K,V> y = leftOf(parentOf(parentOf(x)));
+                TreeMapEntry<K,V> y = leftOf(parentOf(parentOf(x)));
                 if (colorOf(y) == RED) {
                     setColor(parentOf(x), BLACK);
                     setColor(y, BLACK);
@@ -2154,21 +2154,21 @@ public class TreeMap<K,V>
     /**
      * Delete node p, and then rebalance the tree.
      */
-    private void deleteEntry(Entry<K,V> p) {
+    private void deleteEntry(TreeMapEntry<K,V> p) {
         modCount++;
         size--;
 
         // If strictly internal, copy successor's element to p and then make p
         // point to successor.
         if (p.left != null && p.right != null) {
-            Entry<K,V> s = successor(p);
+            TreeMapEntry<K,V> s = successor(p);
             p.key = s.key;
             p.value = s.value;
             p = s;
         } // p has 2 children
 
         // Start fixup at replacement node, if it exists.
-        Entry<K,V> replacement = (p.left != null ? p.left : p.right);
+        TreeMapEntry<K,V> replacement = (p.left != null ? p.left : p.right);
 
         if (replacement != null) {
             // Link replacement to parent
@@ -2203,10 +2203,10 @@ public class TreeMap<K,V>
     }
 
     /** From CLR */
-    private void fixAfterDeletion(Entry<K,V> x) {
+    private void fixAfterDeletion(TreeMapEntry<K,V> x) {
         while (x != root && colorOf(x) == BLACK) {
             if (x == leftOf(parentOf(x))) {
-                Entry<K,V> sib = rightOf(parentOf(x));
+                TreeMapEntry<K,V> sib = rightOf(parentOf(x));
 
                 if (colorOf(sib) == RED) {
                     setColor(sib, BLACK);
@@ -2233,7 +2233,7 @@ public class TreeMap<K,V>
                     x = root;
                 }
             } else { // symmetric
-                Entry<K,V> sib = leftOf(parentOf(x));
+                TreeMapEntry<K,V> sib = leftOf(parentOf(x));
 
                 if (colorOf(sib) == RED) {
                     setColor(sib, BLACK);
@@ -2379,7 +2379,7 @@ public class TreeMap<K,V>
      * @param redLevel the level at which nodes should be red.
      *        Must be equal to computeRedLevel for tree of this size.
      */
-    private final Entry<K,V> buildFromSorted(int level, int lo, int hi,
+    private final TreeMapEntry<K,V> buildFromSorted(int level, int lo, int hi,
                                              int redLevel,
                                              Iterator it,
                                              java.io.ObjectInputStream str,
@@ -2401,7 +2401,7 @@ public class TreeMap<K,V>
 
         int mid = (lo + hi) >>> 1;
 
-        Entry<K,V> left  = null;
+        TreeMapEntry<K,V> left  = null;
         if (lo < mid)
             left = buildFromSorted(level+1, lo, mid - 1, redLevel,
                                    it, str, defaultVal);
@@ -2423,7 +2423,7 @@ public class TreeMap<K,V>
             value = (defaultVal != null ? defaultVal : (V) str.readObject());
         }
 
-        Entry<K,V> middle =  new Entry<>(key, value, null);
+        TreeMapEntry<K,V> middle =  new TreeMapEntry<>(key, value, null);
 
         // color nodes in non-full bottommost level red
         if (level == redLevel)
@@ -2435,7 +2435,7 @@ public class TreeMap<K,V>
         }
 
         if (mid < hi) {
-            Entry<K,V> right = buildFromSorted(level+1, mid+1, hi, redLevel,
+            TreeMapEntry<K,V> right = buildFromSorted(level+1, mid+1, hi, redLevel,
                                                it, str, defaultVal);
             middle.right = right;
             right.parent = middle;
