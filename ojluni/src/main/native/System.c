@@ -244,9 +244,9 @@ static void System_log(JNIEnv* env, jclass ignored, jchar type, jstring javaMess
     case 'W': case 'w': priority = ANDROID_LOG_WARN;    break;
     default:            priority = ANDROID_LOG_DEFAULT; break;
     }
-    LOG_PRI(priority, LOG_TAG, "%s", message);
+    LOG_PRI(priority, "System", "%s", message);
     if (exception != NULL) {
-        jniLogException(env, priority, LOG_TAG, exception);
+        jniLogException(env, priority, "System", exception);
     }
 }
 
