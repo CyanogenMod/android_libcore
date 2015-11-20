@@ -240,7 +240,8 @@ import static android.system.OsConstants.S_ISDIR;
                                           List<IOException> suppressedExceptions,
                                           boolean ignoreDexFiles,
                                           ClassLoader loader) {
-        List<Element> elements = new ArrayList<>();
+        Element[] elements = new Element[files.size()];
+        int elementsPos = 0;
         /*
          * Open all files and load the (direct or contained) dex files
          * up front.
@@ -259,12 +260,12 @@ import static android.system.OsConstants.S_ISDIR;
             } else if (file.isDirectory()) {
                 // We support directories for looking up resources and native libraries.
                 // Looking up resources in directories is useful for running libcore tests.
-                elements.add(new Element(file, true, null, null));
+                elements[elementsPos++] = new Element(file, true, null, null);
             } else if (file.isFile()) {
                 if (!ignoreDexFiles && name.endsWith(DEX_SUFFIX)) {
                     // Raw dex file (not inside a zip/jar).
                     try {
-                        dex = loadDexFile(file, optimizedDirectory, loader);
+                        dex = loadDexFile(file, optimizedDirectory, loader, elements);
                     } catch (IOException ex) {
                         System.logE("Unable to load dex file: " + file, ex);
                     }
@@ -273,7 +274,7 @@ import static android.system.OsConstants.S_ISDIR;
 
                     if (!ignoreDexFiles) {
                         try {
-                            dex = loadDexFile(file, optimizedDirectory, loader);
+                            dex = loadDexFile(file, optimizedDirectory, loader, elements);
                         } catch (IOException suppressed) {
                             /*
                              * IOException might get thrown "legitimately" by the DexFile constructor if
@@ -291,11 +292,13 @@ import static android.system.OsConstants.S_ISDIR;
             }
 
             if ((zip != null) || (dex != null)) {
-                elements.add(new Element(dir, false, zip, dex));
+                elements[elementsPos++] = new Element(dir, false, zip, dex);
             }
         }
-
-        return elements.toArray(new Element[elements.size()]);
+        if (elementsPos != elements.length) {
+            elements = Arrays.copyOf(elements, elementsPos);
+        }
+        return elements;
     }
 
     /**
@@ -303,13 +306,14 @@ import static android.system.OsConstants.S_ISDIR;
      * {@code optimizedDirectory} is {@code null}. An application image file may be associated with
      * the {@code loader} if it is not null.
      */
-    private static DexFile loadDexFile(File file, File optimizedDirectory, ClassLoader loader)
+    private static DexFile loadDexFile(File file, File optimizedDirectory, ClassLoader loader,
+                                       Element[] elements)
             throws IOException {
         if (optimizedDirectory == null) {
-            return new DexFile(file, loader);
+            return new DexFile(file, loader, elements);
         } else {
             String optimizedPath = optimizedPathFor(file, optimizedDirectory);
-            return DexFile.loadDex(file.getPath(), optimizedPath, 0, loader);
+            return DexFile.loadDex(file.getPath(), optimizedPath, 0, loader, elements);
         }
     }
 
