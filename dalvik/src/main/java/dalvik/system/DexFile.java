@@ -70,9 +70,12 @@ public final class DexFile {
      *            the File object referencing the actual DEX file
      * @param loader
      *            the class loader object creating the DEX file object
+     * @param elements
+     *            the temporary dex path list elements from DexPathList.makeElements
      */
-    DexFile(File file, ClassLoader loader) throws IOException {
-        this(file.getPath(), loader);
+    DexFile(File file, ClassLoader loader, DexPathList.Element[] elements)
+            throws IOException {
+        this(file.getPath(), loader, elements);
     }
 
     /**
@@ -93,7 +96,7 @@ public final class DexFile {
      *             access rights missing for opening it
      */
     public DexFile(String fileName) throws IOException {
-        this(fileName, null);
+        this(fileName, null, null);
     }
 
     /*
@@ -103,9 +106,11 @@ public final class DexFile {
      *            the filename of the DEX file
      * @param loader
      *            the class loader creating the DEX file object
+     * @param elements
+     *            the temporary dex path list elements from DexPathList.makeElements
      */
-    DexFile(String fileName, ClassLoader loader) throws IOException {
-        mCookie = openDexFile(fileName, null, 0, loader);
+    DexFile(String fileName, ClassLoader loader, DexPathList.Element[] elements) throws IOException {
+        mCookie = openDexFile(fileName, null, 0, loader, elements);
         mInternalCookie = mCookie;
         mFileName = fileName;
         guard.open("close");
@@ -124,9 +129,11 @@ public final class DexFile {
      *  Enable optional features.
      * @param loader
      *  The class loader creating the DEX file object.
+     * @param elements
+     *  The temporary dex path list elements from DexPathList.makeElements
      */
-    private DexFile(String sourceName, String outputName, int flags, ClassLoader loader)
-            throws IOException {
+    private DexFile(String sourceName, String outputName, int flags, ClassLoader loader,
+            DexPathList.Element[] elements) throws IOException {
         if (outputName != null) {
             try {
                 String parent = new File(outputName).getParent();
@@ -140,7 +147,7 @@ public final class DexFile {
             }
         }
 
-        mCookie = openDexFile(sourceName, outputName, flags, loader);
+        mCookie = openDexFile(sourceName, outputName, flags, loader, elements);
         mFileName = sourceName;
         //System.out.println("DEX FILE cookie is " + mCookie + " sourceName=" + sourceName + " outputName=" + outputName);
     }
@@ -179,7 +186,7 @@ public final class DexFile {
          * decided to open it multiple times.  In practice this may not
          * be a real issue.
          */
-        return loadDex(sourcePathName, outputPathName, flags, null);
+        return loadDex(sourcePathName, outputPathName, flags, null, null);
     }
 
     /*
@@ -194,13 +201,15 @@ public final class DexFile {
      *  Enable optional features.  (Currently none defined.)
      * @param loader
      *  Class loader that is aloading the DEX file.
+     * @param elements
+     *  The temporary dex path list elements from DexPathList.makeElements
      * @return
      *  A new or previously-opened DexFile.
      * @throws IOException
      *  If unable to open the source or output file.
      */
     static DexFile loadDex(String sourcePathName, String outputPathName,
-        int flags, ClassLoader loader) throws IOException {
+        int flags, ClassLoader loader, DexPathList.Element[] elements) throws IOException {
 
         /*
          * TODO: we may want to cache previously-opened DexFile objects.
@@ -209,7 +218,7 @@ public final class DexFile {
          * decided to open it multiple times.  In practice this may not
          * be a real issue.
          */
-        return new DexFile(sourcePathName, outputPathName, flags, loader);
+        return new DexFile(sourcePathName, outputPathName, flags, loader, elements);
     }
 
     /**
@@ -359,14 +368,15 @@ public final class DexFile {
      * failure, an IOException is thrown.
      */
     private static Object openDexFile(String sourceName, String outputName, int flags,
-            ClassLoader loader) throws IOException {
+            ClassLoader loader, DexPathList.Element[] elements) throws IOException {
         // Use absolute paths to enable the use of relative paths when testing on host.
         return openDexFileNative(new File(sourceName).getAbsolutePath(),
                                  (outputName == null)
                                      ? null
                                      : new File(outputName).getAbsolutePath(),
                                  flags,
-                                 loader);
+                                 loader,
+                                 elements);
     }
 
     /*
@@ -382,7 +392,7 @@ public final class DexFile {
      * failure, an IOException is thrown.
      */
     private static native Object openDexFileNative(String sourceName, String outputName, int flags,
-            ClassLoader loader);
+            ClassLoader loader, DexPathList.Element[] elements);
 
     /**
      * Returns true if the VM believes that the apk/jar file is out of date
