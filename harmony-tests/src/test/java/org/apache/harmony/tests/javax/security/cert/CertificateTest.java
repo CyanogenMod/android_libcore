@@ -20,7 +20,7 @@
  * @version $Revision$
  */
 
-package tests.api.javax.security.cert;
+package org.apache.harmony.tests.javax.security.cert;
 
 import junit.framework.Test;
 import junit.framework.TestCase;

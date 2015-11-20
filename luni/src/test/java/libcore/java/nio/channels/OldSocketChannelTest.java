@@ -22,6 +22,7 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.net.SocketOption;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.channels.NoConnectionPendingException;
@@ -32,6 +33,7 @@ import java.nio.channels.SocketChannel;
 import java.nio.channels.UnresolvedAddressException;
 import java.nio.channels.UnsupportedAddressTypeException;
 import java.nio.channels.spi.SelectorProvider;
+import java.util.Set;
 import junit.framework.TestCase;
 
 public class OldSocketChannelTest extends TestCase {
@@ -407,6 +409,46 @@ public class OldSocketChannelTest extends TestCase {
         protected void implConfigureBlocking(boolean blockingMode)
                 throws IOException {
             // empty
+        }
+
+        @Override
+        public SocketAddress getRemoteAddress() throws IOException {
+            return null;
+        }
+
+        @Override
+        public SocketChannel shutdownOutput() throws IOException {
+            return null;
+        }
+
+        @Override
+        public SocketChannel shutdownInput() throws IOException {
+            return null;
+        }
+
+        @Override
+        public <T> SocketChannel setOption(SocketOption<T> name, T value) {
+            return null;
+        }
+
+        @Override
+        public SocketChannel bind(SocketAddress local) throws IOException {
+            return null;
+        }
+
+        @Override
+        public Set<SocketOption<?>> supportedOptions() {
+            return null;
+        }
+
+        @Override
+        public <T> T getOption(SocketOption<T> name) throws IOException {
+            return null;
+        }
+
+        @Override
+        public SocketAddress getLocalAddress() throws IOException {
+            return null;
         }
     }
 

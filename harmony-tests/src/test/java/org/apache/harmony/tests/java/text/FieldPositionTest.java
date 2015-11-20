@@ -221,16 +221,15 @@ public class FieldPositionTest extends junit.framework.TestCase {
 		fpos.setEndIndex(3);
 		assertEquals(
 				"ToString returned the wrong value:",
-				"java.text.FieldPosition[attribute=null,field=1,beginIndex=2,endIndex=3]",
+				"java.text.FieldPosition[field=1,attribute=null,beginIndex=2,endIndex=3]",
 				fpos.toString());
 
 		FieldPosition fpos2 = new FieldPosition(DateFormat.Field.ERA);
 		fpos2.setBeginIndex(4);
 		fpos2.setEndIndex(5);
 		assertEquals("ToString returned the wrong value:",
-				"java.text.FieldPosition[attribute=" + DateFormat.Field.ERA
-						+ ",field=-1,beginIndex=4,endIndex=5]", fpos2
-						.toString());
+				"java.text.FieldPosition[field=-1,attribute=" + DateFormat.Field.ERA
+						+ ",beginIndex=4,endIndex=5]", fpos2.toString());
 	}
 
 	/**

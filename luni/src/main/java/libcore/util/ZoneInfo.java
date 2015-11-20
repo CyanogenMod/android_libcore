@@ -378,7 +378,7 @@ public final class ZoneInfo extends TimeZone {
         // LayoutLib replaces this method via bytecode manipulation, since the
         // minimum-cost constructor is not available on host machines.
         private static GregorianCalendar createGregorianCalendar() {
-            return new GregorianCalendar(false);
+            return new GregorianCalendar();
         }
 
         /**

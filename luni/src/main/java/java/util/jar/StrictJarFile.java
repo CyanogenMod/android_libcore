@@ -18,6 +18,8 @@
 package java.util.jar;
 
 import dalvik.system.CloseGuard;
+import java.io.ByteArrayInputStream;
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
@@ -26,6 +28,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.zip.Inflater;
+import java.util.zip.InflaterInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import libcore.io.IoUtils;
@@ -48,8 +51,7 @@ public final class StrictJarFile {
     // code, at the cost of some additional complexity.
     private final RandomAccessFile raf;
 
-    private final Manifest manifest;
-    private final JarVerifier verifier;
+    private final StrictJarVerifier verifier;
 
     private final boolean isSigned;
 
@@ -70,13 +72,14 @@ public final class StrictJarFile {
             HashMap<String, byte[]> metaEntries = getMetaEntries();
             byte[] manifestBytes = metaEntries.get(JarFile.MANIFEST_NAME);
             if (manifestBytes == null) {
-                this.manifest = null;
+                // this.manifest = null;
                 this.verifier = null;
                 isSigned = false;
             } else {
-                this.manifest = new Manifest(manifestBytes, true);
-                this.verifier = new JarVerifier(fileName, manifest, metaEntries);
-                Set<String> files = this.manifest.getEntries().keySet();
+                StrictJarManifest manifest =
+                    new StrictJarManifest(manifestBytes, true);
+                this.verifier = new StrictJarVerifier(fileName, manifest, metaEntries);
+                Set<String> files = manifest.getEntries().keySet();
                 for (String file : files) {
                     if (findEntry(file) == null) {
                         throw new SecurityException(
@@ -96,10 +99,6 @@ public final class StrictJarFile {
 
     public String getName() {
         return fileName;
-    }
-
-    public Manifest getManifest() {
-        return manifest;
     }
 
     public Iterator<ZipEntry> iterator() throws IOException {
@@ -165,12 +164,12 @@ public final class StrictJarFile {
         final InputStream is = getZipInputStream(ze);
 
         if (isSigned) {
-            JarVerifier.VerifierEntry entry = verifier.initEntry(ze.getName());
+            StrictJarVerifier.VerifierEntry entry = verifier.initEntry(ze.getName());
             if (entry == null) {
                 return is;
             }
 
-            return new JarFile.JarFileInputStream(is, ze.getSize(), entry);
+            return new JarFileInputStream(is, ze.getSize(), entry);
         }
 
         return is;
@@ -188,14 +187,14 @@ public final class StrictJarFile {
 
     private InputStream getZipInputStream(ZipEntry ze) {
         if (ze.getMethod() == ZipEntry.STORED) {
-            return new ZipFile.RAFStream(raf, ze.getDataOffset(),
+            return new RAFStream(raf, ze.getDataOffset(),
                     ze.getDataOffset() + ze.getSize());
         } else {
-            final ZipFile.RAFStream wrapped = new ZipFile.RAFStream(
+            final RAFStream wrapped = new RAFStream(
                     raf, ze.getDataOffset(), ze.getDataOffset() + ze.getCompressedSize());
 
             int bufSize = Math.max(1024, (int) Math.min(ze.getSize(), 65535L));
-            return new ZipFile.ZipInflaterInputStream(wrapped, new Inflater(true), bufSize, ze);
+            return new ZipInflaterInputStream(wrapped, new Inflater(true), bufSize, ze);
         }
     }
 
@@ -247,6 +246,188 @@ public final class StrictJarFile {
 
         return metaEntries;
     }
+
+    static final class JarFileInputStream extends FilterInputStream {
+        private final StrictJarVerifier.VerifierEntry entry;
+
+        private long count;
+        private boolean done = false;
+
+        JarFileInputStream(InputStream is, long size, StrictJarVerifier.VerifierEntry e) {
+            super(is);
+            entry = e;
+
+            count = size;
+        }
+
+        @Override
+        public int read() throws IOException {
+            if (done) {
+                return -1;
+            }
+            if (count > 0) {
+                int r = super.read();
+                if (r != -1) {
+                    entry.write(r);
+                    count--;
+                } else {
+                    count = 0;
+                }
+                if (count == 0) {
+                    done = true;
+                    entry.verify();
+                }
+                return r;
+            } else {
+                done = true;
+                entry.verify();
+                return -1;
+            }
+        }
+
+        @Override
+        public int read(byte[] buffer, int byteOffset, int byteCount) throws IOException {
+            if (done) {
+                return -1;
+            }
+            if (count > 0) {
+                int r = super.read(buffer, byteOffset, byteCount);
+                if (r != -1) {
+                    int size = r;
+                    if (count < size) {
+                        size = (int) count;
+                    }
+                    entry.write(buffer, byteOffset, size);
+                    count -= size;
+                } else {
+                    count = 0;
+                }
+                if (count == 0) {
+                    done = true;
+                    entry.verify();
+                }
+                return r;
+            } else {
+                done = true;
+                entry.verify();
+                return -1;
+            }
+        }
+
+        @Override
+        public int available() throws IOException {
+            if (done) {
+                return 0;
+            }
+            return super.available();
+        }
+
+        @Override
+        public long skip(long byteCount) throws IOException {
+            return Streams.skipByReading(this, byteCount);
+        }
+    }
+
+    /** @hide */
+    public static class ZipInflaterInputStream extends InflaterInputStream {
+        private final ZipEntry entry;
+        private long bytesRead = 0;
+
+        public ZipInflaterInputStream(InputStream is, Inflater inf, int bsize, ZipEntry entry) {
+            super(is, inf, bsize);
+            this.entry = entry;
+        }
+
+        @Override public int read(byte[] buffer, int byteOffset, int byteCount) throws IOException {
+            final int i;
+            try {
+                i = super.read(buffer, byteOffset, byteCount);
+            } catch (IOException e) {
+                throw new IOException("Error reading data for " + entry.getName() + " near offset "
+                        + bytesRead, e);
+            }
+            if (i == -1) {
+                if (entry.getSize() != bytesRead) {
+                    throw new IOException("Size mismatch on inflated file: " + bytesRead + " vs "
+                            + entry.getSize());
+                }
+            } else {
+                bytesRead += i;
+            }
+            return i;
+        }
+
+        @Override public int available() throws IOException {
+            if (closed) {
+                // Our superclass will throw an exception, but there's a jtreg test that
+                // explicitly checks that the InputStream returned from ZipFile.getInputStream
+                // returns 0 even when closed.
+                return 0;
+            }
+            return super.available() == 0 ? 0 : (int) (entry.getSize() - bytesRead);
+        }
+    }
+
+    /**
+     * Wrap a stream around a RandomAccessFile.  The RandomAccessFile is shared
+     * among all streams returned by getInputStream(), so we have to synchronize
+     * access to it.  (We can optimize this by adding buffering here to reduce
+     * collisions.)
+     *
+     * <p>We could support mark/reset, but we don't currently need them.
+     *
+     * @hide
+     */
+    public static class RAFStream extends InputStream {
+        private final RandomAccessFile sharedRaf;
+        private long endOffset;
+        private long offset;
+
+
+        public RAFStream(RandomAccessFile raf, long initialOffset, long endOffset) {
+            sharedRaf = raf;
+            offset = initialOffset;
+            this.endOffset = endOffset;
+        }
+
+        public RAFStream(RandomAccessFile raf, long initialOffset) throws IOException {
+            this(raf, initialOffset, raf.length());
+        }
+
+        @Override public int available() throws IOException {
+            return (offset < endOffset ? 1 : 0);
+        }
+
+        @Override public int read() throws IOException {
+            return Streams.readSingleByte(this);
+        }
+
+        @Override public int read(byte[] buffer, int byteOffset, int byteCount) throws IOException {
+            synchronized (sharedRaf) {
+                final long length = endOffset - offset;
+                if (byteCount > length) {
+                    byteCount = (int) length;
+                }
+                sharedRaf.seek(offset);
+                int count = sharedRaf.read(buffer, byteOffset, byteCount);
+                if (count > 0) {
+                    offset += count;
+                    return count;
+                } else {
+                    return -1;
+                }
+            }
+        }
+
+        @Override public long skip(long byteCount) throws IOException {
+            if (byteCount > endOffset - offset) {
+                byteCount = endOffset - offset;
+            }
+            offset += byteCount;
+            return byteCount;
+        }
+    }
+
 
     private static native long nativeOpenJarFile(String fileName) throws IOException;
     private static native long nativeStartIteration(long nativeHandle, String prefix);

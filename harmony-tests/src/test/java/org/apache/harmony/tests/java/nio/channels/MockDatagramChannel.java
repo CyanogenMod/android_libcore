@@ -19,10 +19,16 @@ package org.apache.harmony.tests.java.nio.channels;
 
 import java.io.IOException;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.SocketAddress;
+import java.net.SocketOption;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
+import java.nio.channels.MembershipKey;
+import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.spi.SelectorProvider;
+import java.util.Set;
 
 class MockDatagramChannel extends DatagramChannel {
 
@@ -88,6 +94,48 @@ class MockDatagramChannel extends DatagramChannel {
     @Override
     protected void implConfigureBlocking(boolean arg0) throws IOException {
         // empty
+    }
+
+    @Override
+    public SocketAddress getRemoteAddress() throws IOException {
+        return null;
+    }
+
+    @Override
+    public <T> DatagramChannel setOption(SocketOption<T> name, T value)
+        throws IOException {
+        return null;
+    }
+
+    @Override
+    public <T> T getOption(SocketOption<T> name) throws IOException {
+        return null;
+    }
+
+    @Override
+    public DatagramChannel bind(SocketAddress local) throws IOException {
+        return null;
+    }
+
+    @Override
+    public MembershipKey join(InetAddress group, NetworkInterface interf) {
+        return null;
+    }
+
+    @Override
+    public MembershipKey join(InetAddress group, NetworkInterface interf, InetAddress source)
+            throws IOException {
+        return null;
+    }
+
+    @Override
+    public Set<SocketOption<?>> supportedOptions() {
+        return null;
+    }
+
+    @Override
+    public SocketAddress getLocalAddress() throws IOException {
+        return null;
     }
 
 }

@@ -106,13 +106,14 @@ public class StrictJarFileTest extends TestCase {
                 Charset.forName("UTF-8")));
     }
 
+    /*
     public void testGetManifest() throws Exception {
         Support_Resources.copyFile(resources, null, JAR_1);
         StrictJarFile jarFile = new StrictJarFile(new File(resources, JAR_1).getAbsolutePath());
 
         assertNotNull(jarFile.getManifest());
         assertEquals("1.4.2 (IBM Corporation)", jarFile.getManifest().getMainAttributes().getValue("Created-By"));
-    }
+    }*/
 
     public void testJarSigning_wellFormed() throws IOException {
         Support_Resources.copyFile(resources, null, "Integrate.jar");

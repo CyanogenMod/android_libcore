@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import libcore.util.BasicLruCache;
 
@@ -220,11 +221,23 @@ public final class ICU {
       parseLangScriptRegionAndVariants(localeId.substring(0, extensionsIndex),
           outputArray);
     }
+    Locale.Builder builder = new Locale.Builder();
+    builder.setLanguage(outputArray[IDX_LANGUAGE]);
+    builder.setRegion(outputArray[IDX_REGION]);
+    builder.setVariant(outputArray[IDX_VARIANT]);
+    builder.setScript(outputArray[IDX_SCRIPT]);
+    for (String attribute : unicodeAttributeSet) {
+      builder.addUnicodeLocaleAttribute(attribute);
+    }
+    for (Entry<String, String> keyword : unicodeKeywordsMap.entrySet()) {
+      builder.setUnicodeLocaleKeyword(keyword.getKey(), keyword.getValue());
+    }
 
-    return new Locale(outputArray[IDX_LANGUAGE], outputArray[IDX_REGION],
-        outputArray[IDX_VARIANT], outputArray[IDX_SCRIPT],
-        unicodeAttributeSet, unicodeKeywordsMap, extensionsMap,
-        true /* has validated fields */);
+    for (Entry<Character, String> extension : extensionsMap.entrySet()) {
+      builder.setExtension(extension.getKey(), extension.getValue());
+    }
+
+    return builder.build();
   }
 
   public static Locale[] localesFromStrings(String[] localeNames) {

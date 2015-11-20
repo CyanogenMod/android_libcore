@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package tests.api.org.apache.harmony.kernel.dalvik;
+package org.apache.harmony.tests.org.apache.harmony.kernel.dalvik;
 
 import java.lang.reflect.Field;
 import java.util.concurrent.CyclicBarrier;

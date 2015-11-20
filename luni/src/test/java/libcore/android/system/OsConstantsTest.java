@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package android.system;
+package libcore.android.system;
+
+import android.system.OsConstants;
 
 import junit.framework.TestCase;
 

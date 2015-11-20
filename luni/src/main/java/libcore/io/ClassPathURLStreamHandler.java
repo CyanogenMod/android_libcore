@@ -29,7 +29,7 @@ import java.net.URLStreamHandler;
 import java.util.jar.JarFile;
 import java.util.jar.StrictJarFile;
 import java.util.zip.ZipEntry;
-import libcore.net.url.JarHandler;
+import sun.net.www.protocol.jar.Handler;
 
 /**
  * A {@link URLStreamHandler} for a specific class path {@link JarFile}. This class avoids the need
@@ -38,7 +38,7 @@ import libcore.net.url.JarHandler;
  *
  * <p>Use {@link #getEntryUrlOrNull(String)} to obtain a URL backed by this stream handler.
  */
-public class ClassPathURLStreamHandler extends JarHandler {
+public class ClassPathURLStreamHandler extends Handler {
   private final String fileUri;
   private final StrictJarFile strictJarFile;
   /**
@@ -111,7 +111,7 @@ public class ClassPathURLStreamHandler extends JarHandler {
   /**
    * Finds an entry with the specified name in the {@code jarFile}. If an exact match isn't found it
    * will also try with "/" appended, if appropriate. This is to maintain compatibility with
-   * {@link libcore.net.url.JarHandler} and its treatment of directory entries.
+   * {@link sun.net.www.protocol.jar.Handler} and its treatment of directory entries.
    */
   static ZipEntry findEntryWithDirectoryFallback(StrictJarFile jarFile, String entryName) {
     ZipEntry entry = jarFile.findEntry(entryName);

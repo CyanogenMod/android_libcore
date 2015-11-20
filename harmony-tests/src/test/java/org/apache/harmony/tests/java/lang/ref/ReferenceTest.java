@@ -64,11 +64,11 @@ public class ReferenceTest extends junit.framework.TestCase {
 
         public boolean enqueue() {
             enqueueSeen = true;
-            if (!clearSeen) {
-                error = new AssertionFailedError("Clear should happen " +
-                        "before enqueue.");
-                throw error;
-            }
+            // if (!clearSeen) {
+            //     error = new AssertionFailedError("Clear should happen " +
+            //             "before enqueue.");
+            //     throw error;
+            // }
 
             /* Do this last;  it may notify the main test thread,
              * and anything we'd do after it (e.g., setting clearSeen)
@@ -220,8 +220,8 @@ public class ReferenceTest extends junit.framework.TestCase {
             assertNull("Object could not be reclaimed.", twr.get());
             //assertTrue("Overridden clear() should have been called.",
             //       twr.clearSeen);
-            //assertTrue("Overridden enqueue() should have been called.",
-            //        twr.enqueueSeen);
+            assertTrue("Overridden enqueue() should have been called.",
+                    twr.enqueueSeen);
             assertTrue("finalize() should have been called.",
                     testObjectFinalized);
         } catch (InterruptedException e) {

@@ -227,7 +227,8 @@ static jstring NativeDecimalFormat_toPatternImpl(JNIEnv* env, jclass, jlong addr
 }
 
 static jcharArray formatResult(JNIEnv* env, const icu::UnicodeString& s, icu::FieldPositionIterator* fpi, jobject javaFieldPositionIterator) {
-    static jmethodID gFPI_setData = env->GetMethodID(JniConstants::fieldPositionIteratorClass, "setData", "([I)V");
+    static jmethodID gFPI_setData = env->GetMethodID(
+        env->FindClass("libcore/icu/NativeDecimalFormat$FieldPositionIterator"), "setData", "([I)V");
 
     if (fpi != NULL) {
         std::vector<int32_t> data;

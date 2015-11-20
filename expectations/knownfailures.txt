@@ -1429,6 +1429,7 @@
   names: [
     "com.android.org.apache.harmony.beans.tests.java.beans.PropertyChangeSupportTest#testSerialization",
     "com.android.org.apache.harmony.beans.tests.java.beans.PropertyChangeSupportTest#testGetPropertyChangeListener_String_Normal",
+    "com.android.org.apache.harmony.beans.tests.java.beans.PropertyChangeSupportTest#testAddPropertyChangeListener_PropertyChangeListener_String_Duplicate",
     "com.android.org.apache.harmony.beans.tests.java.beans.PropertyChangeSupportTest#testAddPropertyChangeListener_PropertyChangeListener_String_Normal",
     "com.android.org.apache.harmony.beans.tests.java.beans.PropertyChangeSupportTest#testAddPropertyChangeListener_PropertyChangeListener_Normal"
   ]

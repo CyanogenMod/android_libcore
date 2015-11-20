@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package tests.api.support;
+package org.apache.harmony.tests.support;
 
 public class A implements I {
     private static P pp = new P();

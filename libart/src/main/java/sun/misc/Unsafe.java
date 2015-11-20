@@ -31,6 +31,7 @@ public final class Unsafe {
     private static final Unsafe THE_ONE = new Unsafe();
     /** Traditional RI name. */
     private static final Unsafe theUnsafe = THE_ONE;
+    public static final int INVALID_FIELD_OFFSET   = -1;
 
     /**
      * This class is only privately instantiable.
@@ -277,6 +278,20 @@ public final class Unsafe {
     public native void putOrderedObject(Object obj, long offset,
             Object newValue);
 
+
+    public native boolean getBoolean(Object obj, long offset);
+    public native void putBoolean(Object obj, long offset, boolean newValue);
+    public native byte getByte(Object obj, long offset);
+    public native void putByte(Object obj, long offset, byte newValue);
+    public native char getChar(Object obj, long offset);
+    public native void putChar(Object obj, long offset, char newValue);
+    public native short getShort(Object obj, long offset);
+    public native void putShort(Object obj, long offset, short newValue);
+    public native float getFloat(Object obj, long offset);
+    public native void putFloat(Object obj, long offset, float newValue);
+    public native double getDouble(Object obj, long offset);
+    public native void putDouble(Object obj, long offset, double newValue);
+
     /**
      * Parks the calling thread for the specified amount of time,
      * unless the "permit" for the thread is already available (due to
@@ -321,4 +336,50 @@ public final class Unsafe {
      * The class' <clinit> will be run, if necessary.
      */
     public native Object allocateInstance(Class<?> c);
+
+    public native int addressSize();
+
+    public native int pageSize();
+
+    public native long allocateMemory(long bytes);
+
+    public native void freeMemory(long address);
+
+    public native void setMemory(long address, long bytes, byte value);
+
+    public native byte getByte$(long address);
+
+    public native void putByte$(long address, byte x);
+
+    public native short getShort$(long address);
+
+    public native void putShort$(long address, short x);
+
+    public native char getChar$(long address);
+
+    public native void putChar$(long address, char x);
+
+    public native int getInt$(long address);
+
+    public native void putInt$(long address, int x);
+
+    public native long getLong$(long address);
+
+    public native void putLong$(long address, long x);
+
+    public native float getFloat$(long address);
+
+    public native void putFloat$(long address, float x);
+
+    public native double getDouble$(long address);
+
+    public native void putDouble$(long address, double x);
+
+    public native void copyMemoryToPrimitiveArray(long srcAddr,
+            Object dst, long dstOffset, long bytes);
+
+    public native void copyMemoryFromPrimitiveArray(Object src, long srcOffset,
+            long dstAddr, long bytes);
+
+    public native void copyMemory(long srcAddr, long dstAddr, long bytes);
 }

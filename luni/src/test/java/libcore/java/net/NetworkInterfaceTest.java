@@ -45,6 +45,7 @@ public class NetworkInterfaceTest extends TestCase {
         assertEquals(expected, actual);
     }
 
+    /*
     // http://code.google.com/p/android/issues/detail?id=34022
     public void test_collectIpv6Addresses_3digitInterfaceIndex() throws Exception {
         String lines[] = new String[] {
@@ -72,7 +73,7 @@ public class NetworkInterfaceTest extends TestCase {
                 ifAddresses, lines);
         assertEquals(1, addresses.size());
         assertEquals(1, ifAddresses.size());
-    }
+    }*/
 
     public void testInterfaceProperties() throws Exception {
         for (NetworkInterface nif : Collections.list(NetworkInterface.getNetworkInterfaces())) {

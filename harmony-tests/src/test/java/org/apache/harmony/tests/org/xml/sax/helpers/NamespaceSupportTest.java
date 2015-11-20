@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package tests.api.org.xml.sax.helpers;
+package org.apache.harmony.tests.org.xml.sax.helpers;
 
 import java.util.ArrayList;
 import java.util.Collections;

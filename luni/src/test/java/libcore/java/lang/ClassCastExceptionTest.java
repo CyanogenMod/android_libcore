@@ -29,7 +29,7 @@ public final class ClassCastExceptionTest extends TestCase {
             String.class.cast(o);
             fail();
         } catch (ClassCastException ex) {
-            assertEquals("java.lang.Exception cannot be cast to java.lang.String", ex.getMessage());
+            assertEquals("Cannot cast java.lang.Exception to java.lang.String", ex.getMessage());
         }
     }
 
@@ -38,7 +38,7 @@ public final class ClassCastExceptionTest extends TestCase {
             Exception.class.asSubclass(String.class);
             fail();
         } catch (ClassCastException ex) {
-            assertEquals("java.lang.Exception cannot be cast to java.lang.String",
+            assertEquals("class java.lang.Exception cannot be cast to java.lang.String",
                     ex.getMessage());
         }
     }
