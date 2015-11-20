@@ -95,6 +95,20 @@ LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
 LOCAL_REQUIRED_MODULES := tzdata
 include $(BUILD_JAVA_LIBRARY)
 
+include $(CLEAR_VARS)
+LOCAL_JAVA_RESOURCE_DIRS := ojluni/resources
+LOCAL_SRC_FILES := $(call all-java-files-under, ojluni/src)
+LOCAL_NO_STANDARD_LIBRARIES := true
+LOCAL_JAVACFLAGS := $(local_javac_flags)
+LOCAL_DX_FLAGS := --core-library
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE := core-oj
+LOCAL_JAVA_LIBRARIES := core-libart
+LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
+LOCAL_REQUIRED_MODULES := tzdata
+LOCAL_CORE_LIBRARY := true
+include $(BUILD_JAVA_LIBRARY)
+
 ifeq ($(LIBCORE_SKIP_TESTS),)
 # Make the core-tests library.
 include $(CLEAR_VARS)
@@ -152,6 +166,21 @@ LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := core-libart-hostdex
 LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
 LOCAL_REQUIRED_MODULES := tzdata-host
+include $(BUILD_HOST_DALVIK_JAVA_LIBRARY)
+
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES := $(call all-java-files-under, ojluni/src)
+LOCAL_JAVA_RESOURCE_DIRS := ojluni/resources
+LOCAL_NO_STANDARD_LIBRARIES := true
+LOCAL_JAVACFLAGS := $(local_javac_flags)
+LOCAL_DX_FLAGS := --core-library
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE := core-oj-hostdex
+LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
+LOCAL_REQUIRED_MODULES := tzdata-host
+LOCAL_JAVA_LIBRARIES := core-libart-hostdex
+LOCAL_CORE_LIBRARY := true
+LOCAL_REQUIRED_MODULES := currency.data-host
 include $(BUILD_HOST_DALVIK_JAVA_LIBRARY)
 
 # Make the core-tests library.
