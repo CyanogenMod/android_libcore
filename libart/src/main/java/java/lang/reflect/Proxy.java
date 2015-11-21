@@ -108,12 +108,30 @@ public class Proxy implements Serializable {
      */
     public static Class<?> getProxyClass(ClassLoader loader, Class<?>... interfaces)
             throws IllegalArgumentException {
+        return getProxyClassImpl(loader,
+                                 interfaces,
+                                 false);   // regular non-lambda proxy
+    }
+
+    private static Class<?> getLambdaProxyClass(ClassLoader loader, Class<?> iface) {
+        return getProxyClassImpl(loader,
+                                 new Class<?>[] { iface },
+                                 true);    // special lambda proxy
+    }
+
+    private static Class<?> getProxyClassImpl(ClassLoader loader,
+                                              Class<?>[] interfaces,
+                                              boolean isLambdaProxy) {
         if (loader == null) {
             loader = ClassLoader.getSystemClassLoader();
         }
 
         if (interfaces == null) {
             throw new NullPointerException("interfaces == null");
+        }
+
+        if (isLambdaProxy && interfaces.length != 1) {
+            throw new IllegalArgumentException("lambda proxies must have exactly 1 interface");
         }
 
         // Make a copy of the list early on because we're using the list as a
@@ -134,12 +152,14 @@ public class Proxy implements Serializable {
             throw new IllegalArgumentException("duplicate interface in list: " + interfaceList);
         }
 
-        synchronized (loader.proxyCache) {
-            Class<?> proxy = loader.proxyCache.get(interfaceList);
-            if (proxy != null) {
-                return proxy;
+        if (!isLambdaProxy) {
+            synchronized (loader.proxyCache) {
+                Class<?> proxy = loader.proxyCache.get(interfaceList);
+                if (proxy != null) {
+                    return proxy;
+                }
             }
-        }
+        }  // else ... Lambda proxies have a cache in the (native) runtime which does same as above.
 
         String commonPackageName = null;
         for (Class<?> c : interfaces) {
@@ -169,18 +189,45 @@ public class Proxy implements Serializable {
         Method[] methodsArray = methods.toArray(new Method[methods.size()]);
         Class<?>[][] exceptionsArray = exceptions.toArray(new Class<?>[exceptions.size()][]);
 
+        String suffix;
+        if (isLambdaProxy) {
+          suffix = "$LambdaProxy";
+        } else {
+          suffix = "$Proxy";
+        }
+
         String baseName = commonPackageName != null && !commonPackageName.isEmpty()
-                ? commonPackageName + ".$Proxy"
-                : "$Proxy";
+                ? commonPackageName + "." + suffix
+                : suffix;
 
         Class<?> result;
-        synchronized (loader.proxyCache) {
-            result = loader.proxyCache.get(interfaceList);
-            if (result == null) {
-                String name = baseName + nextClassNameIndex++;
-                result = generateProxy(name, interfaces, loader, methodsArray, exceptionsArray);
-                loader.proxyCache.put(interfaceList, result);
+        if (!isLambdaProxy) {
+          synchronized (loader.proxyCache) {
+              result = loader.proxyCache.get(interfaceList);
+              if (result == null) {
+                  String name = baseName + nextClassNameIndex++;
+                  result = generateProxy(name,
+                                         interfaces,
+                                         loader,
+                                         methodsArray,
+                                         exceptionsArray,
+                                         isLambdaProxy);
+                  loader.proxyCache.put(interfaceList, result);
+              }
+          }
+        } else {
+            String name;
+            synchronized (loader.proxyCache) {
+                name = baseName + nextClassNameIndex++;
             }
+
+            // Let the runtime sort out duplicate lambda proxies itself.
+            result = generateProxy(name,
+                                   interfaces,
+                                   loader,
+                                   methodsArray,
+                                   exceptionsArray,
+                                   isLambdaProxy);
         }
 
         return result;
@@ -380,7 +427,7 @@ public class Proxy implements Serializable {
 
     private static native Class<?> generateProxy(String name, Class<?>[] interfaces,
                                                  ClassLoader loader, Method[] methods,
-                                                 Class<?>[][] exceptions);
+                                                 Class<?>[][] exceptions, boolean isLambdaProxy);
 
     /*
      * The VM clones this method's descriptor when generating a proxy class.
