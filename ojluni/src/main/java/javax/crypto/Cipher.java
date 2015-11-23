@@ -721,7 +721,8 @@ public class Cipher {
                 }
             }
             Exception lastException = null;
-            for (Service s : getServices(transforms)) {
+            final List<Service> services = getServices(transforms);
+            for (Service s : services) {
                 if (JceSecurity.canUseProvider(s.getProvider()) == false) {
                     continue;
                 }
@@ -799,7 +800,8 @@ public class Cipher {
                 return;
             }
             Exception lastException = null;
-            for (Service s : getServices(transforms)) {
+            final List<Service> services = getServices(transforms);
+            for (Service s : services) {
                 // if provider says it does not support this key, ignore it
                 if (s.supportsParameter(key) == false) {
                     continue;
