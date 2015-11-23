@@ -50,6 +50,8 @@ $(call add-clean-step, rm -rf $(OUT)/system/framework/conscrypt-nojarjar.jar)
 $(call add-clean-step, rm -rf $(OUT)/target/common/obj/JAVA_LIBRARIES/core*)
 $(call add-clean-step, rm -rf $(OUT)/host/common/obj/JAVA_LIBRARIES/core*)
 $(call add-clean-step, rm -rf $(OUT)/system/etc/security/cacerts/*)
+$(call add-clean-step, rm -rf $(OUT)/target/common/obj/JAVA_LIBRARIES/core*)
+$(call add-clean-step, rm -rf $(OUT)/host/common/obj/JAVA_LIBRARIES/core*)
 # ************************************************
 # NEWER CLEAN STEPS MUST BE AT THE END OF THE LIST
 # ************************************************
