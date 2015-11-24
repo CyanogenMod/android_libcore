@@ -287,7 +287,8 @@ public abstract class UriCodec {
             Charset charset,
             boolean throwOnFailure) {
         CharsetDecoder decoder = charset.newDecoder()
-                .onMalformedInput(CodingErrorAction.REPORT)
+                .onMalformedInput(CodingErrorAction.REPLACE)
+                .replaceWith("\ufffd")
                 .onUnmappableCharacter(CodingErrorAction.REPORT);
         // Holds the bytes corresponding to the escaped chars being read (empty if the last char
         // wasn't a escaped char).
