@@ -233,12 +233,7 @@ public final class Daemons {
                 object.finalize();
             } catch (Throwable ex) {
                 // The RI silently swallows these, but Android has always logged.
-                Thread.UncaughtExceptionHandler h = Thread.getDefaultUncaughtExceptionHandler();
-                if (h == null) {
-                    System.logE("Uncaught exception thrown by finalizer", ex);
-                } else {
-                    h.uncaughtException(Thread.currentThread(), ex);
-                }
+                System.logE("Uncaught exception thrown by finalizer", ex);
             } finally {
                 // Done finalizing, stop holding the object as live.
                 finalizingObject = null;
