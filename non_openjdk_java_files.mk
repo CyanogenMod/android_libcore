@@ -418,7 +418,6 @@ non_openjdk_java_files := \
   luni/src/main/java/libcore/util/ZoneInfo.java \
   luni/src/main/java/libcore/util/ZoneInfoDB.java \
   luni/src/main/java/libcore/util/HexEncoding.java \
-  luni/src/main/java/org/apache/harmony/crypto/internal/NullCipherSpi.java \
   dalvik/src/main/java/org/apache/harmony/dalvik/NativeTestTarget.java \
   dalvik/src/main/java/org/apache/harmony/dalvik/ddmc/Chunk.java \
   dalvik/src/main/java/org/apache/harmony/dalvik/ddmc/ChunkHandler.java \
