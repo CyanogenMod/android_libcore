@@ -945,6 +945,7 @@ public final class System {
         p.put("java.class.version", "50.0");
         p.put("java.compiler", "");
         p.put("java.ext.dirs", "");
+        p.put("java.version", "0");
 
         // TODO: does this make any sense? Should we just leave java.home unset?
         String javaHome = getenv("JAVA_HOME");
