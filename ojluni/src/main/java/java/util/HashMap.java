@@ -258,9 +258,6 @@ public class HashMap<K,V>
                                                loadFactor);
 
         this.loadFactor = loadFactor;
-        if (initialCapacity < 2) {
-            initialCapacity = 2;
-        }
         threshold = initialCapacity;
         init();
     }
@@ -316,9 +313,10 @@ public class HashMap<K,V>
      * Inflates the table.
      */
     private void inflateTable(int toSize) {
-        int capacity = (int) (roundUpToPowerOf2(toSize) * loadFactor);
-        threshold = (capacity <= MAXIMUM_CAPACITY + 1) ? capacity : MAXIMUM_CAPACITY + 1;
+        // Find a power of 2 >= toSize
+        int capacity = roundUpToPowerOf2(toSize);
 
+        threshold = (int) Math.min(capacity * loadFactor, MAXIMUM_CAPACITY + 1);
         table = new HashMapEntry[capacity];
         initHashSeedAsNeeded(capacity);
     }
