@@ -103,6 +103,33 @@ public class X500PrincipalTest extends TestCase {
                               new byte[] { 48, 21, 49, 19, 48, 17, 6, 10, 9, -110, 38, -119, -109, -14, 44, 100, 1, 25, 22, 3, 99, 111, 109 });
     }
 
+    public void testExceptionsForWrongDNs() {
+        expectExceptionInDNConstructor("cn=\\n");
+        expectExceptionInDNConstructor("cn=a;b");
+        expectExceptionInDNConstructor("cn=  #a");
+        expectExceptionInDNConstructor("l=a,cn=+p");
+        expectExceptionInDNConstructor("l=+a,cn=p");
+        expectExceptionInDNConstructor("\nl=q\n,cn=p");
+        expectExceptionInDNConstructor("\tl=q,cn=p");
+        expectExceptionInDNConstructor("<=q,cn=p");
+        expectExceptionInDNConstructor("l=q\n,,cn=p");
+        expectExceptionInDNConstructor("l=q\n+,cn=p");
+        expectExceptionInDNConstructor("+l=q,cn=p");
+        expectExceptionInDNConstructor(",l=q,cn=p");
+        expectExceptionInDNConstructor("l");
+        expectExceptionInDNConstructor("l=\\g0");
+    }
+
+    private void expectExceptionInDNConstructor(String dn) {
+        try {
+            X500Principal principal = new X500Principal(dn);
+            fail("Expected " + IllegalArgumentException.class.getName()
+                    + " because of incorrect input name");
+        } catch (IllegalArgumentException e) {
+            // Expected.
+        }
+    }
+
     private void testIA5StringEncoding(String name, byte[] expectedEncoded) {
         X500Principal original = new X500Principal(name);
 
