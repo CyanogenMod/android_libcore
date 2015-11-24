@@ -456,7 +456,6 @@ non_openjdk_java_files := \
   libart/src/main/java/sun/misc/Unsafe.java \
   libart/src/main/java/java/lang/CaseMapper.java \
   libart/src/main/java/java/lang/StringFactory.java \
-  libart/src/main/java/java/lang/LambdaProxy.java \
   xml/src/main/java/org/kxml2/io/KXmlParser.java \
   xml/src/main/java/org/kxml2/io/KXmlSerializer.java \
   $(non_openjdk_javadoc_files)

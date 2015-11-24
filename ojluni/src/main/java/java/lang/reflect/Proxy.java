@@ -624,7 +624,7 @@ public class Proxy implements java.io.Serializable {
                 String proxyName = proxyPkg + proxyClassNamePrefix + num;
 
                 proxyClass = generateProxy(proxyName, interfaces, loader, methodsArray,
-                        exceptionsArray, false /* isLambaProxy */);
+                        exceptionsArray);
             }
             // add to set of all generated proxy classes, for isProxyClass
             proxyClasses.put(proxyClass, null);
@@ -872,7 +872,7 @@ public class Proxy implements java.io.Serializable {
 
     private static native Class<?> generateProxy(String name, Class<?>[] interfaces,
                                                  ClassLoader loader, Method[] methods,
-                                                 Class<?>[][] exceptions, boolean isLambdaProxy);
+                                                 Class<?>[][] exceptions);
 
     // Temporary methods.
     private static void reserved1() {};

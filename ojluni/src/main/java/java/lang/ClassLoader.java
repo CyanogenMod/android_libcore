@@ -238,19 +238,6 @@ public abstract class ClassLoader {
      */
     private transient long classTable;
 
-    /**
-     * Pointer to a lambda box class table, only used from within the runtime.
-     *
-     * Lambda proxies are nominally made from within the runtime, and we want to avoid calling back
-     * into the managed code except as the slow path.
-     *
-     * (unlike a {@link java.lang.reflect.Proxy} which is nominally made from the managed code)
-     *
-     * Making a proxy for the same list of interfaces repeatedly will use the cache and
-     * avoid having to generate a class (the fast path).
-     */
-    private transient long lambdaProxyCache;
-
     private static Void checkCreateClassLoader() {
         return null;
     }
