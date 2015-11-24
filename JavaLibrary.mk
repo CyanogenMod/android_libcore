@@ -112,6 +112,7 @@ include $(BUILD_JAVA_LIBRARY)
 # Definitions to make the core library.
 include $(CLEAR_VARS)
 LOCAL_SRC_FILES := $(non_openjdk_java_files) $(android_icu4j_src_files)
+LOCAL_JAVA_RESOURCE_DIRS := $(android_icu4j_resource_dirs)
 LOCAL_NO_STANDARD_LIBRARIES := true
 LOCAL_JAVACFLAGS := $(local_javac_flags)
 LOCAL_DX_FLAGS := --core-library
@@ -207,6 +208,7 @@ include $(BUILD_HOST_DALVIK_JAVA_LIBRARY)
 # Definitions to make the core library.
 include $(CLEAR_VARS)
 LOCAL_SRC_FILES := $(non_openjdk_java_files) $(android_icu4j_src_files)
+LOCAL_JAVA_RESOURCE_DIRS := $(android_icu4j_resource_dirs)
 LOCAL_NO_STANDARD_LIBRARIES := true
 LOCAL_JAVACFLAGS := $(local_javac_flags)
 LOCAL_DX_FLAGS := --core-library
