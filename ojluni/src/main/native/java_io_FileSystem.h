@@ -15,6 +15,8 @@ extern "C" {
 #define java_io_FileSystem_BA_DIRECTORY 4L
 #undef java_io_FileSystem_BA_HIDDEN
 #define java_io_FileSystem_BA_HIDDEN 8L
+#undef java_io_FileSystem_ACCESS_OK
+#define java_io_FileSystem_ACCESS_OK 8L
 #undef java_io_FileSystem_ACCESS_READ
 #define java_io_FileSystem_ACCESS_READ 4L
 #undef java_io_FileSystem_ACCESS_WRITE

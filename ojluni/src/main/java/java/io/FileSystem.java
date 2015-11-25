@@ -120,6 +120,7 @@ abstract class FileSystem {
     public static final int ACCESS_READ    = 0x04;
     public static final int ACCESS_WRITE   = 0x02;
     public static final int ACCESS_EXECUTE = 0x01;
+    public static final int ACCESS_OK      = 0x08;
 
     /**
      * Check whether the file or directory denoted by the given abstract

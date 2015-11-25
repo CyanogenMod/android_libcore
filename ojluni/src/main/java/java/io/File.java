@@ -810,7 +810,8 @@ public class File
         if (isInvalid()) {
             return false;
         }
-        return ((fs.getBooleanAttributes(this) & FileSystem.BA_EXISTS) != 0);
+
+        return fs.checkAccess(this, FileSystem.ACCESS_OK);
     }
 
     /**
