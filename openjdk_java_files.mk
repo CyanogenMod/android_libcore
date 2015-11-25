@@ -1491,9 +1491,6 @@ openjdk_java_files := \
     ojluni/src/main/java/sun/security/x509/X509CRLEntryImpl.java \
     ojluni/src/main/java/sun/security/x509/X509CRLImpl.java \
     ojluni/src/main/java/sun/security/x509/X509Key.java \
-    ojluni/src/main/java/sun/text/bidi/BidiBase.java \
-    ojluni/src/main/java/sun/text/bidi/BidiLine.java \
-    ojluni/src/main/java/sun/text/bidi/BidiRun.java \
     ojluni/src/main/java/sun/text/CollatorUtilities.java \
     ojluni/src/main/java/sun/text/CompactByteArray.java \
     ojluni/src/main/java/sun/text/ComposedCharIter.java \
