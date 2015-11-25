@@ -114,4 +114,28 @@ public class DirectByteBufferTest extends ByteBufferTest {
             assertEquals(2147485823L, longArray[1]);
         }
     }
+
+    public void testIsAccessible() {
+        buf.clear();
+        assertTrue(buf.isAccessible());
+        loadTestData1(buf);
+        buf.setAccessible(false);
+        try {
+            loadTestData1(buf);
+            fail("should throw exception");
+        } catch (IllegalStateException e) {
+            // expected
+        }
+
+        buf.setAccessible(true);
+        loadTestData1(buf);
+    }
+
+    private void loadTestData1(ByteBuffer buf) {
+        buf.clear();
+        for (int i = 0; i < buf.capacity(); i++) {
+            buf.put(i, (byte) i);
+        }
+    }
+
 }
