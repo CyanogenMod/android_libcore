@@ -316,7 +316,15 @@ public class HashMap<K,V>
         // Find a power of 2 >= toSize
         int capacity = roundUpToPowerOf2(toSize);
 
-        threshold = (int) Math.min(capacity * loadFactor, MAXIMUM_CAPACITY + 1);
+        // Android-changed: Replace usage of Math.min() here because this method is
+        // called from the <clinit> of runtime, at which point the native libraries
+        // needed by Float.* might not be loaded.
+        float thresholdFloat = capacity * loadFactor;
+        if (thresholdFloat > MAXIMUM_CAPACITY + 1) {
+            thresholdFloat = MAXIMUM_CAPACITY + 1;
+        }
+
+        threshold = (int) thresholdFloat;
         table = new HashMapEntry[capacity];
         initHashSeedAsNeeded(capacity);
     }
