@@ -135,6 +135,9 @@ Java_java_io_UnixFileSystem_checkAccess(JNIEnv *env, jobject this,
     jboolean rv = JNI_FALSE;
     int mode = 0;
     switch (a) {
+    case java_io_FileSystem_ACCESS_OK:
+        mode = F_OK;
+        break;
     case java_io_FileSystem_ACCESS_READ:
         mode = R_OK;
         break;
