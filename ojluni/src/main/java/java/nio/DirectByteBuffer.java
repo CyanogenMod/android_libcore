@@ -36,15 +36,6 @@ import dalvik.system.VMRuntime;
 class DirectByteBuffer extends MappedByteBuffer
     implements DirectBuffer {
 
-    // Cached unaligned-access capability
-    private static Boolean unalignedCache;
-    protected static boolean unaligned() {
-        if (unalignedCache == null) {
-            unalignedCache = Bits.unaligned();
-        }
-        return unalignedCache;
-    }
-
     private boolean isAccessible = true;
 
     // Base address, used in all indexing calculations
@@ -252,17 +243,13 @@ class DirectByteBuffer extends MappedByteBuffer
         if (!isAccessible) {
             throw new IllegalStateException("buffer is inaccessible");
         }
-        if (src instanceof DirectByteBuffer) {
-            if (src == this)
-                throw new IllegalArgumentException();
-            DirectByteBuffer sb = (DirectByteBuffer)src;
-            byte[] arr = sb.array();
-            put(arr, src.offset, arr.length);
-        } else if (src.hb != null) {
+        if (src.hb != null) {
             int spos = src.position();
             int slim = src.limit();
             assert (spos <= slim);
             int srem = (spos <= slim ? slim - spos : 0);
+            if (src == this)
+                throw new IllegalArgumentException();
             put(src.hb, src.offset + spos, srem);
             src.position(spos + srem);
         } else {
@@ -285,7 +272,7 @@ class DirectByteBuffer extends MappedByteBuffer
         int rem = (pos <= lim ? lim - pos : 0);
         if (length > rem)
             throw new BufferOverflowException();
-        Memory.pokeByteArray((int) address + pos,
+        Memory.pokeByteArray(address + pos,
                              src, srcOffset, length);
         position = pos + length;
         return this;
