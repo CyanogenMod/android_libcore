@@ -164,6 +164,7 @@ public final class StandardNames extends Assert {
         provide("AlgorithmParameters", "PBEWithMD5AndTripleDES");
         provide("AlgorithmParameters", "PBEWithSHA1AndDESede");
         provide("AlgorithmParameters", "PBEWithSHA1AndRC2_40");
+        provide("AlgorithmParameters", "PSS");
         provide("AlgorithmParameters", "RC2");
         provide("CertPathBuilder", "PKIX");
         provide("CertPathValidator", "PKIX");
