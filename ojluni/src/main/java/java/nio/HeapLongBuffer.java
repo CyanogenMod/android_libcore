@@ -41,8 +41,6 @@ class HeapLongBuffer
 
     */
 
-    private final boolean isReadOnly;
-
     HeapLongBuffer(int cap, int lim) {            // package-private
         this(cap, lim, false);
     }

@@ -30,7 +30,6 @@ package java.nio;
 
 
 
-
 /**
  * A byte buffer.
  *
@@ -302,6 +301,9 @@ public abstract class ByteBuffer
      *          If the <tt>capacity</tt> is a negative integer
      */
     public static ByteBuffer allocateDirect(int capacity) {
+        if (capacity < 0) {
+            throw new IllegalArgumentException("capacity < 0: " + capacity);
+        }
         return new DirectByteBuffer(capacity);
     }
 
@@ -931,7 +933,7 @@ public abstract class ByteBuffer
      *          is backed by an array and is not read-only
      */
     public final boolean hasArray() {
-        return (hb != null) && !isReadOnly;
+        return (hb != null) && !isReadOnly();
     }
 
     /**

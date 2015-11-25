@@ -40,8 +40,6 @@ class HeapDoubleBuffer extends DoubleBuffer {
 
     */
 
-    private final boolean isReadOnly;
-
     HeapDoubleBuffer(int cap, int lim) {            // package-private
         this(cap, lim, false);
     }

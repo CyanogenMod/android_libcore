@@ -389,31 +389,6 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/java/nio/charset/UnmappableCharacterException.java \
     ojluni/src/main/java/java/nio/charset/UnsupportedCharsetException.java \
     ojluni/src/main/java/java/nio/DirectByteBuffer.java \
-    ojluni/src/main/java/java/nio/DirectByteBufferR.java \
-    ojluni/src/main/java/java/nio/DirectCharBufferRS.java \
-    ojluni/src/main/java/java/nio/DirectCharBufferRU.java \
-    ojluni/src/main/java/java/nio/DirectCharBufferS.java \
-    ojluni/src/main/java/java/nio/DirectCharBufferU.java \
-    ojluni/src/main/java/java/nio/DirectDoubleBufferRS.java \
-    ojluni/src/main/java/java/nio/DirectDoubleBufferRU.java \
-    ojluni/src/main/java/java/nio/DirectDoubleBufferS.java \
-    ojluni/src/main/java/java/nio/DirectDoubleBufferU.java \
-    ojluni/src/main/java/java/nio/DirectFloatBufferRS.java \
-    ojluni/src/main/java/java/nio/DirectFloatBufferRU.java \
-    ojluni/src/main/java/java/nio/DirectFloatBufferS.java \
-    ojluni/src/main/java/java/nio/DirectFloatBufferU.java \
-    ojluni/src/main/java/java/nio/DirectIntBufferRS.java \
-    ojluni/src/main/java/java/nio/DirectIntBufferRU.java \
-    ojluni/src/main/java/java/nio/DirectIntBufferS.java \
-    ojluni/src/main/java/java/nio/DirectIntBufferU.java \
-    ojluni/src/main/java/java/nio/DirectLongBufferRS.java \
-    ojluni/src/main/java/java/nio/DirectLongBufferRU.java \
-    ojluni/src/main/java/java/nio/DirectLongBufferS.java \
-    ojluni/src/main/java/java/nio/DirectLongBufferU.java \
-    ojluni/src/main/java/java/nio/DirectShortBufferRS.java \
-    ojluni/src/main/java/java/nio/DirectShortBufferRU.java \
-    ojluni/src/main/java/java/nio/DirectShortBufferS.java \
-    ojluni/src/main/java/java/nio/DirectShortBufferU.java \
     ojluni/src/main/java/java/nio/DoubleBuffer.java \
     ojluni/src/main/java/java/nio/file/AccessDeniedException.java \
     ojluni/src/main/java/java/nio/file/AccessMode.java \

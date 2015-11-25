@@ -411,12 +411,13 @@ class Util {
         AccessController.doPrivileged(new PrivilegedAction<Void>() {
                 public Void run() {
                     try {
-                        Class<?> cl = Class.forName("java.nio.DirectByteBufferR");
+                        Class<?> cl = Class.forName("java.nio.DirectByteBuffer");
                         Constructor ctor = cl.getDeclaredConstructor(
                             new Class[] { int.class,
                                           long.class,
                                           FileDescriptor.class,
-                                          Runnable.class });
+                                          Runnable.class,
+                                          boolean.class });
                         ctor.setAccessible(true);
                         directByteBufferRConstructor = ctor;
                     } catch (ClassNotFoundException x) {
@@ -444,7 +445,8 @@ class Util {
               new Object[] { new Integer(size),
                              new Long(addr),
                              fd,
-                             unmapper });
+                             unmapper,
+                             true });
         } catch (InstantiationException e) {
             throw new InternalError();
         } catch (IllegalAccessException e) {

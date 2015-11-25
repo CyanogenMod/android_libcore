@@ -25,25 +25,22 @@
 
 package java.nio;
 
+import libcore.io.Memory;
+
 class ByteBufferAsFloatBuffer extends FloatBuffer {       // package-private
 
     protected final ByteBuffer bb;
     protected final int offset;
-    private final boolean isReadOnly;
     private final ByteOrder order;
 
-    ByteBufferAsFloatBuffer(ByteBuffer bb, ByteOrder order) {
-        this(bb, order, false);
-    }
-
-    ByteBufferAsFloatBuffer(ByteBuffer bb, ByteOrder order, boolean isReadOnly) {   // package-private
+    ByteBufferAsFloatBuffer(ByteBuffer bb, ByteOrder order) {   // package-private
         super(-1, 0,
-
               bb.remaining() >> 2,
               bb.remaining() >> 2);
         this.bb = bb;
+        this.isReadOnly = bb.isReadOnly;
+        this.address = bb.address;
         this.order = order;
-        this.isReadOnly = isReadOnly;
         int cap = this.capacity();
         this.limit(cap);
         int pos = this.position();
@@ -54,16 +51,11 @@ class ByteBufferAsFloatBuffer extends FloatBuffer {       // package-private
     ByteBufferAsFloatBuffer(ByteBuffer bb,
                             int mark, int pos, int lim, int cap,
                             int off, ByteOrder order) {
-        this(bb, mark, pos, lim, cap, off, order, false);
-    }
-
-    ByteBufferAsFloatBuffer(ByteBuffer bb,
-                            int mark, int pos, int lim, int cap,
-                            int off, ByteOrder order, boolean isReadOnly) {
         super(mark, pos, lim, cap);
         this.bb = bb;
+        this.isReadOnly = bb.isReadOnly;
+        this.address = bb.address;
         this.order = order;
-        this.isReadOnly = isReadOnly;
         offset = off;
     }
 
@@ -74,29 +66,27 @@ class ByteBufferAsFloatBuffer extends FloatBuffer {       // package-private
         int rem = (pos <= lim ? lim - pos : 0);
         int off = (pos << 2) + offset;
         assert (off >= 0);
-        return new ByteBufferAsFloatBuffer(bb, -1, 0, rem, rem, off, order, isReadOnly);
+        return new ByteBufferAsFloatBuffer(bb, -1, 0, rem, rem, off, order);
     }
 
     public FloatBuffer duplicate() {
         return new ByteBufferAsFloatBuffer(bb,
-                                           this.markValue(),
-                                           this.position(),
-                                           this.limit(),
-                                           this.capacity(),
+                                           markValue(),
+                                           position(),
+                                           limit(),
+                                           capacity(),
                                            offset,
-                                           order,
-                                           isReadOnly);
+                                           order);
     }
 
     public FloatBuffer asReadOnlyBuffer() {
-        return new ByteBufferAsFloatBuffer(bb,
-                                           this.markValue(),
-                                           this.position(),
-                                           this.limit(),
-                                           this.capacity(),
+        return new ByteBufferAsFloatBuffer(bb.asReadOnlyBuffer(),
+                                           markValue(),
+                                           position(),
+                                           limit(),
+                                           capacity(),
                                            offset,
-                                           order,
-                                           true);
+                                           order);
     }
 
     protected int ix(int i) {
@@ -104,42 +94,20 @@ class ByteBufferAsFloatBuffer extends FloatBuffer {       // package-private
     }
 
     public float get() {
-        if (order == ByteOrder.LITTLE_ENDIAN) {
-            return Bits.getFloatL(bb, ix(nextGetIndex()));
-        } else {
-            return Bits.getFloatB(bb, ix(nextGetIndex()));
-        }
+        return get(nextGetIndex());
     }
 
     public float get(int i) {
-        if (order == ByteOrder.LITTLE_ENDIAN) {
-            return Bits.getFloatL(bb, ix(checkIndex(i)));
-        } else {
-            return Bits.getFloatB(bb, ix(checkIndex(i)));
-        }
+        return bb.getFloat(ix(i));
     }
 
     public FloatBuffer put(float x) {
-        if (isReadOnly) {
-            throw new ReadOnlyBufferException();
-        }
-        if (order == ByteOrder.LITTLE_ENDIAN) {
-            Bits.putFloatL(bb, ix(nextPutIndex()), x);
-        } else {
-            Bits.putFloatB(bb, ix(nextPutIndex()), x);
-        }
+        put(nextPutIndex(), x);
         return this;
     }
 
     public FloatBuffer put(int i, float x) {
-        if (isReadOnly) {
-            throw new ReadOnlyBufferException();
-        }
-        if (order == ByteOrder.LITTLE_ENDIAN) {
-            Bits.putFloatL(bb, ix(checkIndex(i)), x);
-        } else {
-            Bits.putFloatB(bb, ix(checkIndex(i)), x);
-        }
+        bb.putFloat(ix(i), x);
         return this;
     }
 
@@ -151,12 +119,11 @@ class ByteBufferAsFloatBuffer extends FloatBuffer {       // package-private
         int lim = limit();
         assert (pos <= lim);
         int rem = (pos <= lim ? lim - pos : 0);
-        ByteBuffer db = bb.duplicate();
-        db.limit(ix(lim));
-        db.position(ix(0));
-        ByteBuffer sb = db.slice();
-        sb.position(pos << 2);
-        sb.compact();
+        if (!(bb instanceof DirectByteBuffer)) {
+            System.arraycopy(bb.array(), ix(pos), bb.array(), ix(0), rem << 2);
+        } else {
+            Memory.memmove(this, ix(0), this, ix(pos), rem << 2);
+        }
         position(rem);
         limit(capacity());
         discardMark();

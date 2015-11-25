@@ -25,24 +25,22 @@
 
 package java.nio;
 
+import libcore.io.Memory;
+
 class ByteBufferAsCharBuffer extends CharBuffer {      // package-private
 
     protected final ByteBuffer bb;
     protected final int offset;
-    private final boolean isReadOnly;
     private final ByteOrder order;
 
-    ByteBufferAsCharBuffer(ByteBuffer bb, ByteOrder order) {
-        this(bb, order, false);
-    }
-
-    ByteBufferAsCharBuffer(ByteBuffer bb, ByteOrder order, boolean isReadOnly) {   // package-private
+    ByteBufferAsCharBuffer(ByteBuffer bb, ByteOrder order) {   // package-private
         super(-1, 0,
               bb.remaining() >> 1,
               bb.remaining() >> 1);
         this.bb = bb;
+        this.isReadOnly = bb.isReadOnly;
+        this.address = bb.address;
         this.order = order;
-        this.isReadOnly = isReadOnly;
         int cap = this.capacity();
         this.limit(cap);
         int pos = this.position();
@@ -53,16 +51,11 @@ class ByteBufferAsCharBuffer extends CharBuffer {      // package-private
     ByteBufferAsCharBuffer(ByteBuffer bb,
                            int mark, int pos, int lim, int cap,
                            int off, ByteOrder order) {
-        this(bb, mark, pos, lim, cap, off, order, false);
-    }
-
-    ByteBufferAsCharBuffer(ByteBuffer bb,
-                           int mark, int pos, int lim, int cap,
-                           int off, ByteOrder order, boolean isReadOnly) {
         super(mark, pos, lim, cap);
         this.bb = bb;
+        this.isReadOnly = bb.isReadOnly;
+        this.address = bb.address;
         this.order = order;
-        this.isReadOnly = isReadOnly;
         offset = off;
     }
 
@@ -73,29 +66,27 @@ class ByteBufferAsCharBuffer extends CharBuffer {      // package-private
         int rem = (pos <= lim ? lim - pos : 0);
         int off = (pos << 1) + offset;
         assert (off >= 0);
-        return new ByteBufferAsCharBuffer(bb, -1, 0, rem, rem, off, order, isReadOnly);
+        return new ByteBufferAsCharBuffer(bb, -1, 0, rem, rem, off, order);
     }
 
     public CharBuffer duplicate() {
         return new ByteBufferAsCharBuffer(bb,
-                                          this.markValue(),
-                                          this.position(),
-                                          this.limit(),
-                                          this.capacity(),
+                                          markValue(),
+                                          position(),
+                                          limit(),
+                                          capacity(),
                                           offset,
-                                          order,
-                                          isReadOnly);
+                                          order);
     }
 
     public CharBuffer asReadOnlyBuffer() {
-        return new ByteBufferAsCharBuffer(bb,
-                                          this.markValue(),
-                                          this.position(),
-                                          this.limit(),
-                                          this.capacity(),
+        return new ByteBufferAsCharBuffer(bb.asReadOnlyBuffer(),
+                                          markValue(),
+                                          position(),
+                                          limit(),
+                                          capacity(),
                                           offset,
-                                          order,
-                                          true);
+                                          order);
     }
 
     protected int ix(int i) {
@@ -103,42 +94,20 @@ class ByteBufferAsCharBuffer extends CharBuffer {      // package-private
     }
 
     public char get() {
-        if (order == ByteOrder.LITTLE_ENDIAN) {
-            return Bits.getCharL(bb, ix(nextGetIndex()));
-        } else {
-            return Bits.getCharB(bb, ix(nextGetIndex()));
-        }
+        return get(nextGetIndex());
     }
 
     public char get(int i) {
-        if (order == ByteOrder.LITTLE_ENDIAN) {
-            return Bits.getCharL(bb, ix(checkIndex(i)));
-        } else {
-            return Bits.getCharB(bb, ix(checkIndex(i)));
-        }
+        return bb.getChar(ix(i));
     }
 
     public CharBuffer put(char x) {
-        if (isReadOnly) {
-            throw new ReadOnlyBufferException();
-        }
-        if (order == ByteOrder.LITTLE_ENDIAN) {
-            Bits.putCharL(bb, ix(nextPutIndex()), x);
-        } else {
-            Bits.putCharB(bb, ix(nextPutIndex()), x);
-        }
+        put(nextPutIndex(), x);
         return this;
     }
 
     public CharBuffer put(int i, char x) {
-        if (isReadOnly) {
-            throw new ReadOnlyBufferException();
-        }
-        if (order == ByteOrder.LITTLE_ENDIAN) {
-            Bits.putCharL(bb, ix(checkIndex(i)), x);
-        } else {
-            Bits.putCharB(bb, ix(checkIndex(i)), x);
-        }
+        bb.putChar(ix(i), x);
         return this;
     }
 
@@ -150,12 +119,11 @@ class ByteBufferAsCharBuffer extends CharBuffer {      // package-private
         int lim = limit();
         assert (pos <= lim);
         int rem = (pos <= lim ? lim - pos : 0);
-        ByteBuffer db = bb.duplicate();
-        db.limit(ix(lim));
-        db.position(ix(0));
-        ByteBuffer sb = db.slice();
-        sb.position(pos << 1);
-        sb.compact();
+        if (!(bb instanceof DirectByteBuffer)) {
+            System.arraycopy(bb.array(), ix(pos), bb.array(), ix(0), rem << 1);
+        } else {
+            Memory.memmove(this, ix(0), this, ix(pos), rem << 1);
+        }
         position(rem);
         limit(capacity());
         discardMark();
@@ -204,8 +172,7 @@ class ByteBufferAsCharBuffer extends CharBuffer {      // package-private
                                           pos + end,
                                           capacity(),
                                           offset,
-                                          order,
-                                          isReadOnly);
+                                          order);
     }
 
     public ByteOrder order() {

@@ -40,8 +40,6 @@ class HeapCharBuffer extends CharBuffer {
 
     */
 
-    private final boolean isReadOnly;
-
     HeapCharBuffer(int cap, int lim) {            // package-private
         this(cap, lim, false);
     }

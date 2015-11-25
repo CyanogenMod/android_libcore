@@ -25,24 +25,22 @@
 
 package java.nio;
 
+import libcore.io.Memory;
+
 class ByteBufferAsShortBuffer extends ShortBuffer {       // package-private
 
     protected final ByteBuffer bb;
     protected final int offset;
-    private final boolean isReadOnly;
     private final ByteOrder order;
 
-    ByteBufferAsShortBuffer(ByteBuffer bb, ByteOrder order) {   // package-private
-        this(bb, order, false);
-    }
-
-    ByteBufferAsShortBuffer(ByteBuffer bb, ByteOrder order, boolean isReadOnly) {   // package-private
+    ByteBufferAsShortBuffer(ByteBuffer bb, ByteOrder order)  {   // package-private
         super(-1, 0,
               bb.remaining() >> 1,
               bb.remaining() >> 1);
         this.bb = bb;
+        this.isReadOnly = bb.isReadOnly;
+        this.address = bb.address;
         this.order = order;
-        this.isReadOnly = isReadOnly;
         int cap = this.capacity();
         this.limit(cap);
         int pos = this.position();
@@ -53,16 +51,11 @@ class ByteBufferAsShortBuffer extends ShortBuffer {       // package-private
     ByteBufferAsShortBuffer(ByteBuffer bb,
                             int mark, int pos, int lim, int cap,
                             int off, ByteOrder order) {
-        this(bb, mark, pos, lim, cap, off, order, false);
-    }
-
-    ByteBufferAsShortBuffer(ByteBuffer bb,
-                            int mark, int pos, int lim, int cap,
-                            int off, ByteOrder order, boolean isReadOnly) {
         super(mark, pos, lim, cap);
         this.bb = bb;
+        this.isReadOnly = bb.isReadOnly;
+        this.address = bb.address;
         this.order = order;
-        this.isReadOnly = isReadOnly;
         offset = off;
     }
 
@@ -73,7 +66,7 @@ class ByteBufferAsShortBuffer extends ShortBuffer {       // package-private
         int rem = (pos <= lim ? lim - pos : 0);
         int off = (pos << 1) + offset;
         assert (off >= 0);
-        return new ByteBufferAsShortBuffer(bb, -1, 0, rem, rem, off, order, isReadOnly);
+        return new ByteBufferAsShortBuffer(bb, -1, 0, rem, rem, off, order);
     }
 
     public ShortBuffer duplicate() {
@@ -82,16 +75,16 @@ class ByteBufferAsShortBuffer extends ShortBuffer {       // package-private
                                            this.position(),
                                            this.limit(),
                                            this.capacity(),
-                                           offset, order, isReadOnly);
+                                           offset, order);
     }
 
     public ShortBuffer asReadOnlyBuffer() {
-        return new ByteBufferAsShortBuffer(bb,
+        return new ByteBufferAsShortBuffer(bb.asReadOnlyBuffer(),
                                            this.markValue(),
                                            this.position(),
                                            this.limit(),
                                            this.capacity(),
-                                           offset, order, true);
+                                           offset, order);
     }
 
     protected int ix(int i) {
@@ -99,42 +92,20 @@ class ByteBufferAsShortBuffer extends ShortBuffer {       // package-private
     }
 
     public short get() {
-        if (order == ByteOrder.LITTLE_ENDIAN) {
-            return Bits.getShortL(bb, ix(nextGetIndex()));
-        } else {
-            return Bits.getShortB(bb, ix(nextGetIndex()));
-        }
+        return get(nextGetIndex());
     }
 
     public short get(int i) {
-        if (order == ByteOrder.LITTLE_ENDIAN) {
-            return Bits.getShortL(bb, ix(checkIndex(i)));
-        } else {
-            return Bits.getShortB(bb, ix(checkIndex(i)));
-        }
+        return bb.getShort(ix(i));
     }
 
     public ShortBuffer put(short x) {
-        if (isReadOnly) {
-            throw new ReadOnlyBufferException();
-        }
-        if (order == ByteOrder.LITTLE_ENDIAN) {
-            Bits.putShortL(bb, ix(nextPutIndex()), x);
-        } else {
-            Bits.putShortB(bb, ix(nextPutIndex()), x);
-        }
+        put(nextPutIndex(), x);
         return this;
     }
 
     public ShortBuffer put(int i, short x) {
-        if (isReadOnly) {
-            throw new ReadOnlyBufferException();
-        }
-        if (order == ByteOrder.LITTLE_ENDIAN) {
-            Bits.putShortL(bb, ix(checkIndex(i)), x);
-        } else {
-            Bits.putShortB(bb, ix(checkIndex(i)), x);
-        }
+        bb.putShort(ix(i), x);
         return this;
     }
 
@@ -146,12 +117,11 @@ class ByteBufferAsShortBuffer extends ShortBuffer {       // package-private
         int lim = limit();
         assert (pos <= lim);
         int rem = (pos <= lim ? lim - pos : 0);
-        ByteBuffer db = bb.duplicate();
-        db.limit(ix(lim));
-        db.position(ix(0));
-        ByteBuffer sb = db.slice();
-        sb.position(pos << 1);
-        sb.compact();
+        if (!(bb instanceof DirectByteBuffer)) {
+            System.arraycopy(bb.array(), ix(pos), bb.array(), ix(0), rem << 1);
+        } else {
+            Memory.memmove(this, ix(0), this, ix(pos), rem << 1);
+        }
         position(rem);
         limit(capacity());
         discardMark();
