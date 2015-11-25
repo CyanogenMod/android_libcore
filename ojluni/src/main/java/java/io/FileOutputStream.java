@@ -251,15 +251,22 @@ class FileOutputStream extends OutputStream
      * @see        java.lang.SecurityManager#checkWrite(java.io.FileDescriptor)
      */
     public FileOutputStream(FileDescriptor fdObj) {
-        SecurityManager security = System.getSecurityManager();
+        this(fdObj, false /* isOwner */);
+    }
+
+    /**
+     * Internal constructor for {@code FileOutputStream} objects where the file descriptor
+     * is owned by this tream.
+     *
+     * @hide
+     */
+    public FileOutputStream(FileDescriptor fdObj, boolean isFdOwner) {
         if (fdObj == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("fdObj == null");
         }
-        if (security != null) {
-            security.checkWrite(fdObj);
-        }
+
         this.fd = fdObj;
-        this.isOwner = false;
+        this.isOwner = isFdOwner;
         this.path = null;
         this.append = false;
 
