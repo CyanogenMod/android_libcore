@@ -181,44 +181,34 @@ class HttpsURLConnection extends HttpURLConnection
     }
 
     /*
-     * Holds default instances so class preloading doesn't create an instance of
+     * Holds the default instance so class preloading doesn't create an instance of
      * it.
      */
     private static class NoPreloadHolder {
         public static HostnameVerifier defaultHostnameVerifier;
+        public static final Class<? extends HostnameVerifier> originalDefaultHostnameVerifierClass;
         static {
             try {
+                /**
+                  * <code>HostnameVerifier</code> provides a callback mechanism so that
+                  * implementers of this interface can supply a policy for
+                  * handling the case where the host to connect to and
+                  * the server name from the certificate mismatch.
+                  */
                 defaultHostnameVerifier = (HostnameVerifier)
                         Class.forName("com.android.okhttp.internal.tls.OkHostnameVerifier")
                         .getField("INSTANCE").get(null);
+                originalDefaultHostnameVerifierClass = defaultHostnameVerifier.getClass();
             } catch (Exception e) {
                 throw new AssertionError("Failed to obtain okhttp HostnameVerifier", e);
             }
         }
-
-        public static SSLSocketFactory defaultSSLSocketFactory = (SSLSocketFactory) SSLSocketFactory
-                .getDefault();
     }
-
-
-    /*
-     * The initial default <code>HostnameVerifier</code>.  Should be
-     * updated for another other type of <code>HostnameVerifier</code>
-     * that are created.
-     */
-    /* ----- BEGIN android -----
-    private static class DefaultHostnameVerifier
-            implements HostnameVerifier {
-        public boolean verify(String hostname, SSLSession session) {
-            return false;
-        }
-    }
-    ----- END android ----- */
 
     /**
      * The <code>hostnameVerifier</code> for this object.
      */
-    protected HostnameVerifier hostnameVerifier = NoPreloadHolder.defaultHostnameVerifier;
+    protected HostnameVerifier hostnameVerifier;
 
     /**
      * Sets the default <code>HostnameVerifier</code> inherited by a
@@ -257,7 +247,7 @@ class HttpsURLConnection extends HttpURLConnection
      * @see #setDefaultHostnameVerifier(HostnameVerifier)
      */
     public static HostnameVerifier getDefaultHostnameVerifier() {
-        return  NoPreloadHolder.defaultHostnameVerifier;
+        return NoPreloadHolder.defaultHostnameVerifier;
     }
 
     /**
@@ -291,6 +281,9 @@ class HttpsURLConnection extends HttpURLConnection
      * @see #setDefaultHostnameVerifier(HostnameVerifier)
      */
     public HostnameVerifier getHostnameVerifier() {
+        if (hostnameVerifier == null) {
+            return NoPreloadHolder.defaultHostnameVerifier;
+        }
         return hostnameVerifier;
     }
 
