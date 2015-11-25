@@ -1622,12 +1622,12 @@ public final class System {
         unchangeableProps = initUnchangeableSystemProperties();
         props = initProperties();
         addLegacyLocaleSystemProperties();
+        sun.misc.Version.initSystemProperties();
 
         // TODO: Confirm that this isn't something super important.
         // sun.misc.VM.saveAndRemoveProperties(props);
 
         lineSeparator = props.getProperty("line.separator");
-        sun.misc.Version.init();
 
         FileInputStream fdIn = new FileInputStream(FileDescriptor.in);
         FileOutputStream fdOut = new FileOutputStream(FileDescriptor.out);
