@@ -27,8 +27,6 @@ package sun.misc;
 import java.io.PrintStream;
 
 public class Version {
-
-
     // Android-changed : launcher_name, java_version,
     // java_runtime_name and java_runtime_version.
     private static final String launcher_name = "";
@@ -36,14 +34,11 @@ public class Version {
     private static final String java_runtime_name = "Android Runtime";
     private static final String java_runtime_version = "0.9";
 
-    static {
-        init();
-    }
-
-    public static void init() {
-        System.setProperty("java.version", java_version);
-        System.setProperty("java.runtime.version", java_runtime_version);
-        System.setProperty("java.runtime.name", java_runtime_name);
+    // Called by java.lang.System.<clinit>
+    public static void initSystemProperties() {
+        System.setUnchangeableSystemProperty("java.version", java_version);
+        System.setUnchangeableSystemProperty("java.runtime.version", java_runtime_version);
+        System.setUnchangeableSystemProperty("java.runtime.name", java_runtime_name);
     }
 
     private static boolean versionsInitialized = false;
@@ -88,7 +83,7 @@ public class Version {
 	String headless = System.getProperty("java.awt.headless");
 	if ( (headless != null) && (headless.equalsIgnoreCase("true")) ) {
             isHeadless = true;
-	} 
+	}
 
         /* First line: platform version. */
         ps.println(launcher_name + " version \"" + java_version + "\"");
