@@ -302,5 +302,25 @@ public class FileTest extends junit.framework.TestCase {
         nativeTestFilesWithSurrogatePairs(base.getAbsolutePath());
     }
 
+    // http://b/25878034
+    //
+    // SELinux prevents stat(2) from working on some parts of the system partition, and there
+    // isn't currently a CTS test that enforces this for the system partition as a whole (and it
+    // isn't clear that there can be one). This particular file has a special label
+    // (see file_contexts) that makes sure it isn't unstattable but then again this file might
+    // disappear soon or be absent on some devices.
+    //
+    // TODO: This isn't a very good test. uncrypt is scheduled to disappear somewhere
+    // in the near future. Is there a better candidate file ?
+    public void testExistsOnSystem() {
+        File sh = new File("/system/bin/uncrypt");
+        assertTrue(sh.exists());
+        try {
+            android.system.Os.stat(sh.getAbsolutePath());
+            fail();
+        } catch (android.system.ErrnoException expected) {
+        }
+    }
+
     private static native void nativeTestFilesWithSurrogatePairs(String base);
 }
