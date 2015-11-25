@@ -436,6 +436,11 @@ public final class HttpCookie implements Cloneable {
         }
     }
 
+    /**
+     * The base time used to establish the actual age of a cookie for expiry checks. Also used to
+     * calculate the maxAge when parsing an expiry time.
+     */
+    private final long maxAgeBaseTimeMillis;
     private String comment;
     private String commentURL;
     private boolean discard;
@@ -466,6 +471,7 @@ public final class HttpCookie implements Cloneable {
 
         this.name = ntrim;
         this.value = value;
+        maxAgeBaseTimeMillis = System.currentTimeMillis();
     }
 
 
@@ -583,11 +589,18 @@ public final class HttpCookie implements Cloneable {
             return false;
         }
 
-        boolean expired = false;
         if (maxAge <= 0l) {
-            expired = true;
+            return true;
         }
-        return expired;
+
+        // RFC 2965, 3.2.2. We don't have any supporting information so we just use the time
+        // when the the HttpCookie was created to determine cookie age.
+        long cookieAgeSeconds = (System.currentTimeMillis() - maxAgeBaseTimeMillis) / 1000;
+        if (cookieAgeSeconds > maxAge) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -627,7 +640,7 @@ public final class HttpCookie implements Cloneable {
     }
 
     private void setExpires(Date expires) {
-        maxAge = (expires.getTime() - System.currentTimeMillis()) / 1000;
+        maxAge = (expires.getTime() - maxAgeBaseTimeMillis) / 1000;
     }
 
     /**
