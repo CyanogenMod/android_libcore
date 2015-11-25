@@ -310,7 +310,7 @@ final class UNIXProcess extends Process {
      */
     static class ProcessPipeOutputStream extends BufferedOutputStream {
         ProcessPipeOutputStream(int fd) {
-            super(new FileOutputStream(newFileDescriptor(fd)));
+            super(new FileOutputStream(newFileDescriptor(fd), true /* isFdOwner */));
         }
 
         /** Called by the process reaper thread when the process exits. */
