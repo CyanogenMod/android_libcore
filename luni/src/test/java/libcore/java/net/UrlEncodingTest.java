@@ -182,6 +182,11 @@ public final class UrlEncodingTest extends TestCase {
         assertDecoded("a\ufffdb", "a%ffb");
     }
 
+    public void testDecodingBrokenUtf8SequenceYieldsReplacementCharacterSequence()
+            throws Exception {
+        assertDecoded("a%\ufffd%b", "a%25%ff%25b");
+    }
+
     public void testDecodingUtf8Octets() throws Exception {
         assertDecoded("\u20AC", "%e2%82%ac");
         assertDecoded("\ud842\udf9f", "%f0%a0%ae%9f");
