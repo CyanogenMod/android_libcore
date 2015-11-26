@@ -253,6 +253,8 @@ public class DateFormatSymbols implements Serializable, Cloneable {
     static final int PATTERN_WEEK_YEAR            = 19; // Y
     static final int PATTERN_ISO_DAY_OF_WEEK      = 20; // u
     static final int PATTERN_ISO_ZONE             = 21; // X
+    static final int PATTERN_STANDALONE_MONTH     = 22; // L
+    static final int PATTERN_STANDALONE_DAY_OF_WEEK = 23; // c
 
     /**
      * Localized date-time pattern characters. For example, a locale may
