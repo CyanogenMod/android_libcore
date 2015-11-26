@@ -269,6 +269,8 @@ public final class Integer extends Number implements Comparable<Integer> {
         return new String(buf, charPos, (32 - charPos));
     }
 
+    private static final String[] SMALL_NEG_VALUES  = new String[100];
+    private static final String[] SMALL_NONNEG_VALUES = new String[100];
 
     final static char [] DigitTens = {
         '0', '0', '0', '0', '0', '0', '0', '0', '0', '0',
@@ -328,7 +330,31 @@ public final class Integer extends Number implements Comparable<Integer> {
     public static String toString(int i) {
         if (i == Integer.MIN_VALUE)
             return "-2147483648";
-        int size = (i < 0) ? stringSize(-i) + 1 : stringSize(i);
+
+        // Android-changed: cache the string literal for small values.
+        boolean negative = i < 0;
+        boolean small = negative ? i > -100 : i < 100;
+        if (small) {
+            final String[] smallValues = negative ? SMALL_NEG_VALUES : SMALL_NONNEG_VALUES;
+
+            if (negative) {
+                i = -i;
+                if (smallValues[i] == null) {
+                    smallValues[i] =
+                        i < 10 ? new String(new char[]{'-', DigitOnes[i]})
+                               : new String(new char[]{'-', DigitTens[i], DigitOnes[i]});
+                }
+            } else {
+                if (smallValues[i] == null) {
+                    smallValues[i] =
+                        i < 10 ? new String(new char[]{DigitOnes[i]})
+                               : new String(new char[]{DigitTens[i], DigitOnes[i]});
+                }
+            }
+            return smallValues[i];
+        }
+
+        int size = negative ? stringSize(-i) + 1 : stringSize(i);
         char[] buf = new char[size];
         getChars(i, size, buf);
         // Android-changed: change string constructor.
