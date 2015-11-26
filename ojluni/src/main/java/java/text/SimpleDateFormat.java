@@ -1137,7 +1137,7 @@ public class SimpleDateFormat extends DateFormat {
             }
             break;
 
-        case 'L': // Standalone month. Unsupported for now.
+        case PATTERN_STANDALONE_MONTH: // Standalone month. Unsupported for now.
         case PATTERN_MONTH: // 'M'
             if (useDateFormatSymbols) {
                 String[] months;
@@ -1168,11 +1168,11 @@ public class SimpleDateFormat extends DateFormat {
             }
             break;
 
-        case 'c': // Standalone weekday. Unsupported for now.
+        case PATTERN_STANDALONE_DAY_OF_WEEK: // Standalone weekday. Unsupported for now.
         case PATTERN_DAY_OF_WEEK: // 'E'
             if (useDateFormatSymbols) {
                 String[] weekdays;
-                if (count >= 4) {
+                if (count >= 4 && (patternCharIndex != PATTERN_STANDALONE_DAY_OF_WEEK)) {
                     weekdays = formatData.getWeekdays();
                     current = weekdays[value];
                 } else { // count < 4, use abbreviated form if exists
@@ -1870,7 +1870,7 @@ public class SimpleDateFormat extends DateFormat {
                 calb.set(field, value);
                 return pos.index;
 
-            case 'L': // Standalone month. Unsupported for now.
+            case PATTERN_STANDALONE_MONTH: // Standalone month. Unsupported for now.
             case PATTERN_MONTH: // 'M'
                 if (count <= 2) // i.e., M or MM.
                 {
@@ -1918,7 +1918,7 @@ public class SimpleDateFormat extends DateFormat {
                 calb.set(Calendar.HOUR_OF_DAY, value);
                 return pos.index;
 
-            case 'c': // Standalone weekday. Unsupported for now.
+            case PATTERN_STANDALONE_DAY_OF_WEEK: // Standalone weekday. Unsupported for now.
             case PATTERN_DAY_OF_WEEK:  // 'E'
                 {
                     if (useDateFormatSymbols) {
