@@ -145,8 +145,9 @@ public final class Integer extends Number implements Comparable<Integer> {
         }
 
         while (i <= -radix) {
-            buf[charPos--] = digits[-(i % radix)];
-            i = i / radix;
+            int q = i / radix;
+            buf[charPos--] = digits[radix * q - i];
+            i = q;
         }
         buf[charPos] = digits[-i];
 
