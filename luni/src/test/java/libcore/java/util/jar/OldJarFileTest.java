@@ -30,7 +30,12 @@ public class OldJarFileTest extends TestCase {
 
     private final String jarName = "hyts_patch.jar"; // a 'normal' jar file
     private final String entryName = "foo/bar/A.class";
-    private File resources = Support_Resources.createTempFolder();
+    private File resources;
+
+    @Override public void setUp() throws Exception {
+        super.setUp();
+        resources = Support_Resources.createTempFolder();
+    }
 
     public void test_ConstructorLjava_io_File() throws IOException {
         try {

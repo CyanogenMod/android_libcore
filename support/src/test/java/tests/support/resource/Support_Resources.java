@@ -66,16 +66,16 @@ public class Support_Resources {
             name = name.substring(index + 1);
         }
         copyFile(resources, folder, name);
-        URL url = null;
         String resPath = resources.toString();
         if (resPath.charAt(0) == '/' || resPath.charAt(0) == '\\') {
             resPath = resPath.substring(1);
         }
+        String urlSpec = "file:/" + resPath + "/" + fileName;
+        URL url;
         try {
-            url = new URL("file:/" + resPath + "/" + fileName);
+            url = new URL(urlSpec);
         } catch (MalformedURLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw new RuntimeException("Unable to create url: " + urlSpec, e);
         }
         return url.toString();
     }
@@ -88,8 +88,7 @@ public class Support_Resources {
             folder.delete();
             folder.mkdirs();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw new RuntimeException("Unable to create temp folder: " + folder, e);
         }
         folder.deleteOnExit();
         return folder;
@@ -109,16 +108,13 @@ public class Support_Resources {
 
         File dest = new File(f.toString() + "/" + file);
 
-        InputStream in = Support_Resources.getStream(folder == null ? file
-                : folder + "/" + file);
+        String resourceName = (folder == null ? file : folder + "/" + file);
+        InputStream in = Support_Resources.getStream(resourceName);
         try {
             copyLocalFileto(dest, in);
-        } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw new RuntimeException(
+                "Unable to copy file from resource " + resourceName + " to file " + dest, e);
         }
 
         return dest;
