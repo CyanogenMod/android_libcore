@@ -1015,6 +1015,38 @@ public class ArrayListTest extends junit.framework.TestCase {
         }
     }
 
+    // http://b/25867131 et al.
+    public void testIteratorAddAfterCompleteIteration() {
+        ArrayList<String> strings = new ArrayList<String>();
+        strings.add("string1");
+        Iterator<String> it = strings.iterator();
+        assertTrue(it.hasNext());
+        assertEquals("string1", it.next());
+        assertFalse(it.hasNext());
+        strings.add("string2");
+        // The value of hasNext() must not flap between true and false. If we returned "true"
+        // here, we'd fail with a CME on the next call to next() anyway.
+        assertFalse(it.hasNext());
+    }
+
+    public void testHasNextAfterRemoval() {
+        ArrayList<String> strings = new ArrayList<>();
+        strings.add("string1");
+        Iterator<String> it = strings.iterator();
+        it.next();
+        it.remove();
+        assertFalse(it.hasNext());
+
+        strings = new ArrayList<>();
+        strings.add("string1");
+        strings.add("string2");
+        it = strings.iterator();
+        it.next();
+        it.remove();
+        assertTrue(it.hasNext());
+        assertEquals("string2", it.next());
+    }
+
 
     /**
      * Sets up the fixture, for example, open a network connection. This method
