@@ -372,9 +372,9 @@ class ZipFile implements ZipConstants, Closeable {
         synchronized (this) {
             ensureOpen();
             if (!zc.isUTF8() && (entry.flag & EFS) != 0) {
-                jzentry = getEntry(jzfile, zc.getBytesUTF8(entry.name), false);
+                jzentry = getEntry(jzfile, zc.getBytesUTF8(entry.name), true);
             } else {
-                jzentry = getEntry(jzfile, zc.getBytes(entry.name), false);
+                jzentry = getEntry(jzfile, zc.getBytes(entry.name), true);
             }
             if (jzentry == 0) {
                 return null;
