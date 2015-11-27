@@ -282,7 +282,7 @@ class HttpsURLConnection extends HttpURLConnection
      */
     public HostnameVerifier getHostnameVerifier() {
         if (hostnameVerifier == null) {
-            return NoPreloadHolder.defaultHostnameVerifier;
+            hostnameVerifier = NoPreloadHolder.defaultHostnameVerifier;
         }
         return hostnameVerifier;
     }
