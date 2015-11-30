@@ -20,7 +20,7 @@ import libcore.util.Objects;
 
 /**
  * Information returned by {@link Os#getpwnam} and {@link Os#getpwuid}. Corresponds to C's
- * {@code struct passwd} from {@code &lt;pwd.h&gt;}.
+ * {@code struct passwd} from {@code <pwd.h>}.
  *
  * @hide
  */

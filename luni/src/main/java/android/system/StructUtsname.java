@@ -20,7 +20,7 @@ import libcore.util.Objects;
 
 /**
  * Information returned by {@link Os#uname}.
- * Corresponds to C's {@code struct utsname} from {@code &lt;sys/utsname.h&gt;}.
+ * Corresponds to C's {@code struct utsname} from {@code <sys/utsname.h>}.
  */
 public final class StructUtsname {
   /** The OS name, such as "Linux". */
