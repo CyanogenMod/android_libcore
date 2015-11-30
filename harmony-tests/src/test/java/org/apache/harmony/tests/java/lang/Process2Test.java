@@ -17,13 +17,9 @@
 
 package org.apache.harmony.tests.java.lang;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 
-import tests.support.Support_Exec;
 import static tests.support.Support_Exec.javaProcessBuilder;
 
 public class Process2Test extends junit.framework.TestCase {
@@ -42,12 +38,12 @@ public class Process2Test extends junit.framework.TestCase {
     }
 
     public void test_getErrorStream() {
-        String[] commands = {"ls"};
+        String[] commands = {"sh", "-c", "echo"};
         Process process = null;
         try {
             process = Runtime.getRuntime().exec(commands, null, null);
             InputStream is = process.getErrorStream();
-            StringBuffer msg = new StringBuffer("");
+            StringBuilder msg = new StringBuilder("");
             while (true) {
                 int c = is.read();
                 if (c == -1)
@@ -58,27 +54,30 @@ public class Process2Test extends junit.framework.TestCase {
         } catch (IOException e) {
             fail("IOException was thrown.");
         } finally {
-            process.destroy();
+            if (process != null) {
+                process.destroy();
+            }
         }
 
-        String[] unknownCommands = {"mkdir", "-u", "test"};
+        String[] unknownCommands = {"sh", "-c", "echo oops >&2"};
         Process erProcess = null;
         try {
             erProcess = Runtime.getRuntime().exec(unknownCommands, null, null);
             InputStream is = erProcess.getErrorStream();
-            StringBuffer msg = new StringBuffer("");
+            StringBuilder msg = new StringBuilder("");
             while (true) {
                 int c = is.read();
                 if (c == -1)
                     break;
                 msg.append((char) c);
             }
-            assertTrue("Error stream should not be empty",
-                                                !"".equals(msg.toString()));
+            assertEquals("oops\n", msg.toString());
         } catch (IOException e) {
             fail("IOException was thrown.");
         } finally {
-            erProcess.destroy();
+            if (erProcess != null) {
+                erProcess.destroy();
+            }
         }
     }
 }
