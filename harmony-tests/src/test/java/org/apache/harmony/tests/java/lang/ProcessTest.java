@@ -109,10 +109,15 @@ public class ProcessTest extends junit.framework.TestCase {
   }
 
   public void test_exitValue() throws Exception {
-    String[] commands = { "ls" };
+    String[] commands = { "sh", "-c", "exit 0" };
     Process process = Runtime.getRuntime().exec(commands, null, null);
     process.waitFor();
     assertEquals(0, process.exitValue());
+
+    String[] commandsNonZeroExit = { "sh", "-c", "exit 34" };
+    process = Runtime.getRuntime().exec(commandsNonZeroExit, null, null);
+    process.waitFor();
+    assertEquals(34, process.exitValue());
 
     String[] commandsSleep = { "sleep", "3000" };
     process = Runtime.getRuntime().exec(commandsSleep, null, null);
@@ -129,7 +134,7 @@ public class ProcessTest extends junit.framework.TestCase {
   }
 
   public void test_destroy() throws Exception {
-    String[] commands = { "ls"};
+    String[] commands = { "sh", "-c", "exit 0"};
     Process process = Runtime.getRuntime().exec(commands, null, null);
     process.destroy();
     process.destroy();
