@@ -17,10 +17,9 @@
 package benchmarks.regression;
 
 import com.google.caliper.Param;
-import com.google.caliper.SimpleBenchmark;
 import java.security.MessageDigest;
 
-public class MessageDigestBenchmark extends SimpleBenchmark {
+public class MessageDigestBenchmark {
 
     private static final int DATA_SIZE = 8192;
     private static final byte[] DATA = new byte[DATA_SIZE];

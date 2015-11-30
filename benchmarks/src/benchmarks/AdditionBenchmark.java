@@ -16,14 +16,10 @@
 
 package benchmarks;
 
-import com.google.caliper.Param;
-import com.google.caliper.Runner;
-import com.google.caliper.SimpleBenchmark;
-
 /**
  * What do various kinds of addition cost?
  */
-public class AdditionBenchmark extends SimpleBenchmark {
+public class AdditionBenchmark {
     public int timeAddConstantToLocalInt(int reps) {
         int result = 0;
         for (int i = 0; i < reps; ++i) {

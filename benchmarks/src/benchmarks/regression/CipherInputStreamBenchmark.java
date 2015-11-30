@@ -16,29 +16,20 @@
 
 package benchmarks.regression;
 
-import com.google.caliper.Param;
-import com.google.caliper.SimpleBenchmark;
-
+import com.google.caliper.BeforeExperiment;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.security.spec.AlgorithmParameterSpec;
-
+import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 
 /**
  * CipherInputStream benchmark.
  */
-public class CipherInputStreamBenchmark extends SimpleBenchmark {
+public class CipherInputStreamBenchmark {
 
     private static final int DATA_SIZE = 1024 * 1024;
     private static final byte[] DATA = new byte[DATA_SIZE];
@@ -63,7 +54,8 @@ public class CipherInputStreamBenchmark extends SimpleBenchmark {
 
     private AlgorithmParameterSpec spec;
 
-    @Override protected void setUp() throws Exception {
+    @BeforeExperiment
+    protected void setUp() throws Exception {
         KeyGenerator generator = KeyGenerator.getInstance("AES");
         generator.init(128);
         key = generator.generateKey();

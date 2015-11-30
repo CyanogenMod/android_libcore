@@ -16,12 +16,12 @@
 
 package benchmarks.regression;
 
-import java.io.File;
-import java.util.jar.*;
 import com.google.caliper.Param;
-import com.google.caliper.SimpleBenchmark;
+import java.io.File;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 
-public class JarFileBenchmark extends SimpleBenchmark {
+public class JarFileBenchmark {
     @Param({
         "/system/framework/bouncycastle.jar",
         "/system/framework/core.jar",
