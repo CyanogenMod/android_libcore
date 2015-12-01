@@ -1240,13 +1240,23 @@ public class SimpleDateFormat extends DateFormat {
             }
             CalendarUtils.sprintf0d(buffer, value % 60, 2);
             break;
+        case PATTERN_MILLISECOND: // 'S'
+            // Fractional seconds must be treated specially. We must always convert the parsed
+            // value into a fractional second [0, 1) and then widen it out to the appropriate
+            // formatted size. For example, an initial value of 789 will be converted
+            // 0.789 and then become ".7" (S) or ".78" (SS) or "0.789" (SSS) or "0.7890" (SSSS)
+            // in the resulting formatted output.
+            if (current == null) {
+                value = (int) (((double) value / 1000) * Math.pow(10, count));
+                zeroPaddingNumber(value, count, count, buffer);
+            }
+            break;
 
         default:
      // case PATTERN_DAY_OF_MONTH:         // 'd'
      // case PATTERN_HOUR_OF_DAY0:         // 'H' 0-based.  eg, 23:59 + 1 hour =>> 00:59
      // case PATTERN_MINUTE:               // 'm'
      // case PATTERN_SECOND:               // 's'
-     // case PATTERN_MILLISECOND:          // 'S'
      // case PATTERN_DAY_OF_YEAR:          // 'D'
      // case PATTERN_DAY_OF_WEEK_IN_MONTH: // 'F'
      // case PATTERN_WEEK_OF_YEAR:         // 'w'
@@ -2105,6 +2115,7 @@ public class SimpleDateFormat extends DateFormat {
          // case PATTERN_ISO_DAY_OF_WEEK:      // 'u' (pseudo field);
 
                 // Handle "generic" fields
+                int parseStart = pos.getIndex();
                 if (obeyCount) {
                     if ((start+count) > text.length()) {
                         break parsing;
@@ -2114,13 +2125,26 @@ public class SimpleDateFormat extends DateFormat {
                     number = numberFormat.parse(text, pos);
                 }
                 if (number != null) {
-                    value = number.intValue();
+                    if (patternCharIndex == PATTERN_MILLISECOND) {
+                        // Fractional seconds must be treated specially. We must always
+                        // normalize them to their fractional second value [0, 1) before we attempt
+                        // to parse them.
+                        //
+                        // Case 1: 11.78 seconds is 11 seconds and 780 (not 78) milliseconds.
+                        // Case 2: 11.7890567 seconds is 11 seconds and 789 (not 7890567) milliseconds.
+                        double doubleValue = number.doubleValue();
+                        int width = pos.getIndex() - parseStart;
+                        final double divisor = Math.pow(10, width);
+                        value = (int) ((doubleValue / divisor) * 1000);
+                    } else {
+                        value = number.intValue();
+                    }
 
                     if (useFollowingMinusSignAsDelimiter && (value < 0) &&
-                        (((pos.index < text.length()) &&
-                         (text.charAt(pos.index) != minusSign)) ||
-                         ((pos.index == text.length()) &&
-                          (text.charAt(pos.index-1) == minusSign)))) {
+                            (((pos.index < text.length()) &&
+                                    (text.charAt(pos.index) != minusSign)) ||
+                                    ((pos.index == text.length()) &&
+                                            (text.charAt(pos.index - 1) == minusSign)))) {
                         value = -value;
                         pos.index--;
                     }
