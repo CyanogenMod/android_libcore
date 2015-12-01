@@ -169,6 +169,7 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
      */
     public void setZeroDigit(char zeroDigit) {
         this.zeroDigit = zeroDigit;
+        cachedIcuDFS = null;
     }
 
     /**
@@ -183,6 +184,7 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
      */
     public void setGroupingSeparator(char groupingSeparator) {
         this.groupingSeparator = groupingSeparator;
+        cachedIcuDFS = null;
     }
 
     /**
@@ -197,6 +199,7 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
      */
     public void setDecimalSeparator(char decimalSeparator) {
         this.decimalSeparator = decimalSeparator;
+        cachedIcuDFS = null;
     }
 
     /**
@@ -211,6 +214,7 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
      */
     public void setPerMill(char perMill) {
         this.perMill = perMill;
+        cachedIcuDFS = null;
     }
 
     /**
@@ -232,6 +236,7 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
      */
     public void setPercent(char percent) {
         this.percent = percent;
+        cachedIcuDFS = null;
     }
 
     /**
@@ -246,6 +251,7 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
      */
     public void setDigit(char digit) {
         this.digit = digit;
+        cachedIcuDFS = null;
     }
 
     /**
@@ -262,6 +268,7 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
      */
     public void setPatternSeparator(char patternSeparator) {
         this.patternSeparator = patternSeparator;
+        cachedIcuDFS = null;
     }
 
     /**
@@ -278,6 +285,7 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
      */
     public void setInfinity(String infinity) {
         this.infinity = infinity;
+        cachedIcuDFS = null;
     }
 
     /**
@@ -294,6 +302,7 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
      */
     public void setNaN(String NaN) {
         this.NaN = NaN;
+        cachedIcuDFS = null;
     }
 
     /**
@@ -322,6 +331,7 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
      */
     public void setMinusSign(char minusSign) {
         this.minusSign = minusSign;
+        cachedIcuDFS = null;
     }
 
     /**
@@ -342,6 +352,7 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
     public void setCurrencySymbol(String currency)
     {
         currencySymbol = currency;
+        cachedIcuDFS = null;
     }
 
     /**
@@ -380,6 +391,7 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
             } catch (IllegalArgumentException e) {
             }
         }
+        cachedIcuDFS = null;
     }
 
     /**
@@ -413,6 +425,7 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
         this.currency = currency;
         intlCurrencySymbol = currency.getCurrencyCode();
         currencySymbol = currency.getSymbol(locale);
+        cachedIcuDFS = null;
     }
 
 
@@ -432,6 +445,7 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
     public void setMonetaryDecimalSeparator(char sep)
     {
         monetarySeparator = sep;
+        cachedIcuDFS = null;
     }
 
     //------------------------------------------------------------
@@ -464,6 +478,7 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
     void setExponentialSymbol(char exp)
     {
         exponential = exp;
+        cachedIcuDFS = null;
     }
 
   /**
@@ -619,6 +634,77 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
             cachedLocaleData.putIfAbsent(locale, data);
         }
     }
+
+    /**
+     * Convert an instance of this class to the ICU version so that it can be used with ICU4J.
+     * @hide
+     */
+    protected android.icu.text.DecimalFormatSymbols getIcuDecimalFormatSymbols() {
+        if (cachedIcuDFS != null) {
+            return cachedIcuDFS;
+        }
+
+        cachedIcuDFS = new android.icu.text.DecimalFormatSymbols(this.locale);
+        cachedIcuDFS.setZeroDigit(zeroDigit);
+        cachedIcuDFS.setDigit(digit);
+        cachedIcuDFS.setDecimalSeparator(decimalSeparator);
+        cachedIcuDFS.setGroupingSeparator(groupingSeparator);
+        cachedIcuDFS.setPatternSeparator(patternSeparator);
+        cachedIcuDFS.setPercent(percent);
+        cachedIcuDFS.setMonetaryDecimalSeparator(monetarySeparator);
+        cachedIcuDFS.setMinusSign(minusSign);
+        cachedIcuDFS.setInfinity(infinity);
+        cachedIcuDFS.setNaN(NaN);
+        cachedIcuDFS.setExponentSeparator(exponentialSeparator);
+
+        try {
+            cachedIcuDFS.setCurrency(
+                    android.icu.util.Currency.getInstance(currency.getCurrencyCode()));
+        } catch (NullPointerException e) {
+            currency = Currency.getInstance("XXX");
+        }
+
+        cachedIcuDFS.setCurrencySymbol(currencySymbol);
+        cachedIcuDFS.setInternationalCurrencySymbol(intlCurrencySymbol);
+
+        return cachedIcuDFS;
+    }
+
+    /**
+     * Create an instance of DecimalFormatSymbols using the ICU equivalent of this class.
+     * @hide
+     */
+    protected static DecimalFormatSymbols fromIcuInstance(
+            android.icu.text.DecimalFormatSymbols dfs) {
+        DecimalFormatSymbols result = new DecimalFormatSymbols(dfs.getLocale());
+        result.setZeroDigit(dfs.getZeroDigit());
+        result.setDigit(dfs.getDigit());
+        result.setDecimalSeparator(dfs.getDecimalSeparator());
+        result.setGroupingSeparator(dfs.getGroupingSeparator());
+        result.setPatternSeparator(dfs.getPatternSeparator());
+        result.setPercent(dfs.getPercent());
+        result.setPerMill(dfs.getPerMill());
+        result.setMonetaryDecimalSeparator(dfs.getMonetaryDecimalSeparator());
+        result.setMinusSign(dfs.getMinusSign());
+        result.setInfinity(dfs.getInfinity());
+        result.setNaN(dfs.getNaN());
+        result.setExponentSeparator(dfs.getExponentSeparator());
+
+        try {
+            if (dfs.getCurrency() != null) {
+                result.setCurrency(Currency.getInstance(dfs.getCurrency().getCurrencyCode()));
+            } else {
+                result.setCurrency(Currency.getInstance("XXX"));
+            }
+        } catch (IllegalArgumentException e) {
+            result.setCurrency(Currency.getInstance("XXX"));
+        }
+
+        result.setCurrencySymbol(dfs.getCurrencySymbol());
+        result.setInternationalCurrencySymbol(dfs.getInternationalCurrencySymbol());
+        return result;
+    }
+
 
     /**
      * Reads the default serializable fields, provides default values for objects
@@ -837,6 +923,8 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
      * of a Locale.
      */
     private static final ConcurrentHashMap<Locale, Object[]> cachedLocaleData = new ConcurrentHashMap<Locale, Object[]>(3);
+
+    private transient android.icu.text.DecimalFormatSymbols cachedIcuDFS = null;
 
     /**
      * Obtains a DecimalFormatSymbols instance from a DecimalFormatSymbolsProvider
