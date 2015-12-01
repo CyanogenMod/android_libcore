@@ -46,8 +46,6 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.Map;
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
 import java.util.SimpleTimeZone;
 import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
@@ -630,14 +628,13 @@ public class SimpleDateFormat extends DateFormat {
             dateTimePatterns[DateFormat.MEDIUM] = localeData.getTimeFormat(DateFormat.MEDIUM);
             dateTimePatterns[DateFormat.LONG] = localeData.getTimeFormat(DateFormat.LONG);
             dateTimePatterns[DateFormat.FULL] = localeData.getTimeFormat(DateFormat.FULL);
-            dateTimePatterns[8] = "%s %s";
+            dateTimePatterns[8] = "{0} {1}";
             /* update cache */
             cachedLocaleData.putIfAbsent(loc, dateTimePatterns);
         }
         formatData = DateFormatSymbols.getInstanceRef(loc);
         if ((timeStyle >= 0) && (dateStyle >= 0)) {
-            Object[] dateTimeArgs = {dateTimePatterns[timeStyle],
-                                     dateTimePatterns[dateStyle + 4]};
+            Object[] dateTimeArgs = {dateTimePatterns[dateStyle + 4], dateTimePatterns[timeStyle]};
             pattern = MessageFormat.format(dateTimePatterns[8], dateTimeArgs);
         }
         else if (timeStyle >= 0) {
@@ -1137,26 +1134,19 @@ public class SimpleDateFormat extends DateFormat {
             }
             break;
 
-        case PATTERN_STANDALONE_MONTH: // Standalone month. Unsupported for now.
-        case PATTERN_MONTH: // 'M'
-            if (useDateFormatSymbols) {
-                String[] months;
-                if (count >= 4) {
-                    months = formatData.getMonths();
-                    current = months[value];
-                } else if (count == 3) {
-                    months = formatData.getShortMonths();
-                    current = months[value];
-                }
-            } else {
-                if (count < 3) {
-                    current = null;
-                }
-            }
-            if (current == null) {
-                zeroPaddingNumber(value+1, count, maxIntCount, buffer);
-            }
+        case PATTERN_STANDALONE_MONTH: // 'L'
+        {
+            current = formatMonth(count, value, maxIntCount, buffer, useDateFormatSymbols,
+                    true /* standalone */);
             break;
+        }
+
+        case PATTERN_MONTH: // 'M'
+        {
+            current = formatMonth(count, value, maxIntCount, buffer, useDateFormatSymbols,
+                    false /* standalone */);
+            break;
+        }
 
         case PATTERN_HOUR_OF_DAY1: // 'k' 1-based.  eg, 23:59 + 1 hour =>> 24:59
             if (current == null) {
@@ -1168,19 +1158,17 @@ public class SimpleDateFormat extends DateFormat {
             }
             break;
 
-        case PATTERN_STANDALONE_DAY_OF_WEEK: // Standalone weekday. Unsupported for now.
-        case PATTERN_DAY_OF_WEEK: // 'E'
-            if (useDateFormatSymbols) {
-                String[] weekdays;
-                if (count >= 4 && (patternCharIndex != PATTERN_STANDALONE_DAY_OF_WEEK)) {
-                    weekdays = formatData.getWeekdays();
-                    current = weekdays[value];
-                } else { // count < 4, use abbreviated form if exists
-                    weekdays = formatData.getShortWeekdays();
-                    current = weekdays[value];
-                }
-            }
+        case PATTERN_STANDALONE_DAY_OF_WEEK: // 'c'
+        {
+            current = formatWeekday(count, value, useDateFormatSymbols, true /* standalone */);
             break;
+        }
+
+        case PATTERN_DAY_OF_WEEK: // 'E'
+        {
+            current = formatWeekday(count, value, useDateFormatSymbols, false /* standalone */);
+            break;
+        }
 
         case PATTERN_AM_PM:    // 'a'
             if (useDateFormatSymbols) {
@@ -1216,19 +1204,14 @@ public class SimpleDateFormat extends DateFormat {
             break;
 
         case PATTERN_ZONE_VALUE: // 'Z' ("-/+hhmm" form)
-            value = (calendar.get(Calendar.ZONE_OFFSET) +
-                     calendar.get(Calendar.DST_OFFSET)) / 60000;
+        {
+            value = calendar.get(Calendar.ZONE_OFFSET) + calendar.get(Calendar.DST_OFFSET);
+            final boolean includeSeparator = (count >= 4);
+            final boolean includeGmt = (count == 4);
+            buffer.append(TimeZone.createGmtOffsetString(includeGmt, includeSeparator, value));
 
-            int width = 4;
-            if (value >= 0) {
-                buffer.append('+');
-            } else {
-                width++;
-            }
-
-            int num = (value / 60) * 100 + (value % 60);
-            CalendarUtils.sprintf0d(buffer, num, width);
             break;
+        }
 
         case PATTERN_ISO_ZONE:   // 'X'
             value = calendar.get(Calendar.ZONE_OFFSET)
@@ -1284,6 +1267,57 @@ public class SimpleDateFormat extends DateFormat {
         Field f = PATTERN_INDEX_TO_DATE_FORMAT_FIELD_ID[patternCharIndex];
 
         delegate.formatted(fieldID, f, f, beginOffset, buffer.length(), buffer);
+    }
+
+    private String formatWeekday(int count, int value, boolean useDateFormatSymbols,
+                                 boolean standalone) {
+        if (useDateFormatSymbols) {
+            final String[] weekdays;
+            if (count == 4) {
+                weekdays = standalone ? formatData.getStandAloneWeekdays() : formatData.getWeekdays();
+            } else if (count == 5) {
+                weekdays =
+                        standalone ? formatData.getTinyStandAloneWeekdays() : formatData.getTinyWeekdays();
+
+            } else { // count < 4, use abbreviated form if exists
+                weekdays = standalone ? formatData.getShortStandAloneWeekdays() : formatData.getShortWeekdays();
+            }
+
+            return weekdays[value];
+        }
+
+        return null;
+    }
+
+    private String formatMonth(int count, int value, int maxIntCount, StringBuffer buffer,
+                               boolean useDateFormatSymbols, boolean standalone) {
+        String current = null;
+        if (useDateFormatSymbols) {
+            final String[] months;
+            if (count == 4) {
+                months = standalone ? formatData.getStandAloneMonths() : formatData.getMonths();
+            } else if (count == 5) {
+                months = standalone ? formatData.getTinyStandAloneMonths() : formatData.getTinyMonths();
+            } else if (count == 3) {
+                months = standalone ? formatData.getShortStandAloneMonths() : formatData.getShortMonths();
+            } else {
+                months = null;
+            }
+
+            if (months != null) {
+                current = months[value];
+            }
+        } else {
+            if (count < 3) {
+                current = null;
+            }
+        }
+
+        if (current == null) {
+            zeroPaddingNumber(value+1, count, maxIntCount, buffer);
+        }
+
+        return current;
     }
 
     /**
@@ -1870,40 +1904,26 @@ public class SimpleDateFormat extends DateFormat {
                 calb.set(field, value);
                 return pos.index;
 
-            case PATTERN_STANDALONE_MONTH: // Standalone month. Unsupported for now.
-            case PATTERN_MONTH: // 'M'
-                if (count <= 2) // i.e., M or MM.
-                {
-                    // Don't want to parse the month if it is a string
-                    // while pattern uses numeric style: M or MM.
-                    // [We computed 'value' above.]
-                    calb.set(Calendar.MONTH, value - 1);
-                    return pos.index;
-                }
-
-                if (useDateFormatSymbols) {
-                    // count >= 3 // i.e., MMM or MMMM
-                    // Want to be able to parse both short and long forms.
-                    // Try count == 4 first:
-                    int newStart = 0;
-                    if ((newStart = matchString(text, start, Calendar.MONTH,
-                                                formatData.getMonths(), calb)) > 0) {
-                        return newStart;
-                    }
-                    // count == 4 failed, now try count == 3
-                    if ((index = matchString(text, start, Calendar.MONTH,
-                                             formatData.getShortMonths(), calb)) > 0) {
-                        return index;
-                    }
-                } else {
-                    Map<String, Integer> map = calendar.getDisplayNames(field,
-                                                                        Calendar.ALL_STYLES,
-                                                                        locale);
-                    if ((index = matchString(text, start, field, map, calb)) > 0) {
-                        return index;
-                    }
+            case PATTERN_STANDALONE_MONTH: // 'L'.
+            {
+                final int idx = parseMonth(text, count, value, start, field, pos,
+                        useDateFormatSymbols, true /* isStandalone */, calb);
+                if (idx > 0) {
+                    return idx;
                 }
                 break parsing;
+            }
+
+            case PATTERN_MONTH: // 'M'
+            {
+                final int idx = parseMonth(text, count, value, start, field, pos,
+                        useDateFormatSymbols, false /* isStandalone */, calb);
+                if (idx > 0) {
+                    return idx;
+                }
+
+                break parsing;
+            }
 
             case PATTERN_HOUR_OF_DAY1: // 'k' 1-based.  eg, 23:59 + 1 hour =>> 24:59
                 if (!isLenient()) {
@@ -1918,33 +1938,28 @@ public class SimpleDateFormat extends DateFormat {
                 calb.set(Calendar.HOUR_OF_DAY, value);
                 return pos.index;
 
-            case PATTERN_STANDALONE_DAY_OF_WEEK: // Standalone weekday. Unsupported for now.
-            case PATTERN_DAY_OF_WEEK:  // 'E'
-                {
-                    if (useDateFormatSymbols) {
-                        // Want to be able to parse both short and long forms.
-                        // Try count == 4 (DDDD) first:
-                        int newStart = 0;
-                        if ((newStart=matchString(text, start, Calendar.DAY_OF_WEEK,
-                                                  formatData.getWeekdays(), calb)) > 0) {
-                            return newStart;
-                        }
-                        // DDDD failed, now try DDD
-                        if ((index = matchString(text, start, Calendar.DAY_OF_WEEK,
-                                                 formatData.getShortWeekdays(), calb)) > 0) {
-                            return index;
-                        }
-                    } else {
-                        int[] styles = { Calendar.LONG, Calendar.SHORT };
-                        for (int style : styles) {
-                            Map<String,Integer> map = calendar.getDisplayNames(field, style, locale);
-                            if ((index = matchString(text, start, field, map, calb)) > 0) {
-                                return index;
-                            }
-                        }
-                    }
+            case PATTERN_STANDALONE_DAY_OF_WEEK: // 'c'
+            {
+                final int idx = parseWeekday(text, start, field, useDateFormatSymbols,
+                        false /* standalone */, calb);
+                if (idx > 0) {
+                    return idx;
                 }
+
                 break parsing;
+            }
+
+            case PATTERN_DAY_OF_WEEK:  // 'E'
+            {
+                final int idx = parseWeekday(text, start, field, useDateFormatSymbols,
+                        false /* standalone */, calb);
+                if (idx > 0) {
+                    return idx;
+                }
+
+                break parsing;
+            }
+
 
             case PATTERN_AM_PM:    // 'a'
                 if (useDateFormatSymbols) {
@@ -2025,7 +2040,7 @@ public class SimpleDateFormat extends DateFormat {
                         } else {
                             // Parse the rest as "hhmm" (RFC 822)
                             int i = subParseNumericZone(text, ++pos.index,
-                                                        sign, 0, false, calb);
+                                                        sign, 0, (count == 5), calb);
                             if (i > 0) {
                                 return i;
                             }
@@ -2112,6 +2127,83 @@ public class SimpleDateFormat extends DateFormat {
         origPos.errorIndex = pos.index;
         return -1;
     }
+
+    private int parseMonth(String text, int count, int value, int start,
+                           int field, ParsePosition pos, boolean useDateFormatSymbols,
+                           boolean standalone,
+                           CalendarBuilder out) {
+        if (count <= 2) // i.e., M or MM.
+        {
+            // Don't want to parse the month if it is a string
+            // while pattern uses numeric style: M or MM.
+            // [We computed 'value' above.]
+            out.set(Calendar.MONTH, value - 1);
+            return pos.index;
+        }
+
+        int index = -1;
+        if (useDateFormatSymbols) {
+            // count >= 3 // i.e., MMM or MMMM
+            // Want to be able to parse both short and long forms.
+            // Try count == 4 first:
+            if ((index = matchString(
+                    text, start, Calendar.MONTH,
+                    standalone ? formatData.getStandAloneMonths() : formatData.getMonths(),
+                    out)) > 0) {
+                return index;
+            }
+            // count == 4 failed, now try count == 3
+            if ((index = matchString(
+                    text, start, Calendar.MONTH,
+                    standalone ? formatData.getShortStandAloneMonths() : formatData.getShortMonths(),
+                    out)) > 0) {
+                return index;
+            }
+        } else {
+            Map<String, Integer> map = calendar.getDisplayNames(field,
+                    Calendar.ALL_STYLES,
+                    locale);
+            if ((index = matchString(text, start, field, map, out)) > 0) {
+                return index;
+            }
+        }
+
+        return index;
+    }
+
+    private int parseWeekday(String text, int start, int field, boolean useDateFormatSymbols,
+                             boolean standalone, CalendarBuilder out) {
+        int index = -1;
+        if (useDateFormatSymbols) {
+            // Want to be able to parse both short and long forms.
+            // Try count == 4 (DDDD) first:
+            if ((index=matchString(
+                    text, start, Calendar.DAY_OF_WEEK,
+                    standalone ? formatData.getStandAloneWeekdays() : formatData.getWeekdays(),
+                    out)) > 0) {
+                return index;
+            }
+
+            // DDDD failed, now try DDD
+            if ((index = matchString(
+                    text, start, Calendar.DAY_OF_WEEK,
+                    standalone ? formatData.getShortStandAloneWeekdays() : formatData.getShortWeekdays(),
+                    out)) > 0) {
+                return index;
+            }
+        } else {
+            int[] styles = { Calendar.LONG, Calendar.SHORT };
+            for (int style : styles) {
+                Map<String,Integer> map = calendar.getDisplayNames(field, style, locale);
+                if ((index = matchString(text, start, field, map, out)) > 0) {
+                    return index;
+                }
+            }
+        }
+
+        return index;
+    }
+
 
     private final String getCalendarName() {
         return calendar.getClass().getName();

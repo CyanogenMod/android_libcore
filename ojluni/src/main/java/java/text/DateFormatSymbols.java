@@ -39,18 +39,17 @@
 package java.text;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.lang.ref.SoftReference;
 import java.text.spi.DateFormatSymbolsProvider;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Locale;
-import java.util.ResourceBundle;
 import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.spi.LocaleServiceProvider;
+
 import libcore.icu.LocaleData;
 import libcore.icu.TimeZoneNames;
 import sun.util.LocaleServiceProviderPool;
@@ -278,6 +277,81 @@ public class DateFormatSymbols implements Serializable, Cloneable {
 
     /* use serialVersionUID from JDK 1.1.4 for interoperability */
     static final long serialVersionUID = -5987973545549424702L;
+
+    // the internal serial version which says which version was written
+    // - 0 (default) for version up to JDK 1.1.4
+    // - 1 Android version that contains a whole bunch of new fields.
+    static final int currentSerialVersion = 1;
+
+    /**
+     * The version of the serialized data on the stream.  Possible values:
+     * <ul>
+     * <li><b>0</b> or not present on stream: JDK 1.1.4.
+     * <li><b>1</b> Android:
+     * </ul>
+     * When streaming out this class, the most recent format
+     * and the highest allowable <code>serialVersionOnStream</code>
+     * is written.
+     * @serial
+     * @since JDK1.1.4
+     */
+    private int serialVersionOnStream = currentSerialVersion;
+
+    /**
+     * Tiny month strings; "J", "F", "M" etc.
+     *
+     * @serial
+     */
+    private String[] tinyMonths;
+
+    /**
+     * Tiny weekday strings: "M", "F", "W" etc.
+     *
+     * @serial
+     */
+    private String[] tinyWeekdays;
+
+    /**
+     * Standalone month strings; "January", "February", "March" etc.
+     *
+     * @serial
+     */
+    private String[] standAloneMonths;
+
+    /**
+     * Short standalone month strings: "Jan", "Feb", "Mar" etc.
+     *
+     * @serial
+     */
+    private String[] shortStandAloneMonths;
+
+    /**
+     * Tiny standalone month strings: "J", "F", "M" etc.
+     *
+     * @serial
+     */
+    private String[] tinyStandAloneMonths;
+
+    /**
+     * Standalone weekday strings; "Monday", "Tuesday", "Wednesday" etc.
+     *
+     * @serial
+     */
+    private String[] standAloneWeekdays;
+
+    /**
+     * Short standalone weekday strings; "Mon", "Tue", "Wed" etc.
+     *
+     * @serial
+     */
+    private String[] shortStandAloneWeekdays;
+
+    /**
+     * Tiny standalone weekday strings; "M", "T", "W" etc.
+     *
+     * @serial
+     */
+    private String[] tinyStandAloneWeekdays;
 
     /**
      * Returns an array of all locales for which the
@@ -590,6 +664,38 @@ public class DateFormatSymbols implements Serializable, Cloneable {
         localPatternChars = newLocalPatternChars.toString();
     }
 
+    String[] getTinyMonths() {
+        return tinyMonths;
+    }
+
+    String[] getStandAloneMonths() {
+        return standAloneMonths;
+    }
+
+    String[] getShortStandAloneMonths() {
+        return shortStandAloneMonths;
+    }
+
+    String[] getTinyStandAloneMonths() {
+        return tinyStandAloneMonths;
+    }
+
+    String[] getTinyWeekdays() {
+        return tinyWeekdays;
+    }
+
+    String[] getStandAloneWeekdays() {
+        return standAloneWeekdays;
+    }
+
+    String[] getShortStandAloneWeekdays() {
+        return shortStandAloneWeekdays;
+    }
+
+    String[] getTinyStandAloneWeekdays() {
+        return tinyStandAloneWeekdays;
+    }
+
     /**
      * Overrides Cloneable
      */
@@ -628,8 +734,16 @@ public class DateFormatSymbols implements Serializable, Cloneable {
         return (Arrays.equals(eras, that.eras)
                 && Arrays.equals(months, that.months)
                 && Arrays.equals(shortMonths, that.shortMonths)
+                && Arrays.equals(tinyMonths, that.tinyMonths)
                 && Arrays.equals(weekdays, that.weekdays)
                 && Arrays.equals(shortWeekdays, that.shortWeekdays)
+                && Arrays.equals(tinyWeekdays, that.tinyWeekdays)
+                && Arrays.equals(standAloneMonths, that.standAloneMonths)
+                && Arrays.equals(shortStandAloneMonths, that.shortStandAloneMonths)
+                && Arrays.equals(tinyStandAloneMonths, that.tinyStandAloneMonths)
+                && Arrays.equals(standAloneWeekdays, that.standAloneWeekdays)
+                && Arrays.equals(shortStandAloneWeekdays, that.shortStandAloneWeekdays)
+                && Arrays.equals(tinyStandAloneWeekdays, that.tinyStandAloneWeekdays)
                 && Arrays.equals(ampms, that.ampms)
                 && Arrays.deepEquals(getZoneStringsWrapper(), that.getZoneStringsWrapper())
                 && ((localPatternChars != null
@@ -667,24 +781,35 @@ public class DateFormatSymbols implements Serializable, Cloneable {
         LocaleData localeData = LocaleData.get(locale);
 
         eras = localeData.eras;
+
+        // Month names.
         months = localeData.longMonthNames;
         shortMonths = localeData.shortMonthNames;
+
         ampms = localeData.amPm;
         localPatternChars = patternChars;
 
-        // Day of week names are stored in a 1-based array.
+        // Weekdays.
         weekdays = localeData.longWeekdayNames;
         shortWeekdays = localeData.shortWeekdayNames;
+
+        initializeSupplementaryData(localeData);
     }
 
-    private static String[] toOneBasedArray(String[] src) {
-        int len = src.length;
-        String[] dst = new String[len + 1];
-        dst[0] = "";
-        for (int i = 0; i < len; i++) {
-            dst[i + 1] = src[i];
-        }
-        return dst;
+    private void initializeSupplementaryData(LocaleData localeData) {
+        // Tiny weekdays and months.
+        tinyMonths = localeData.tinyMonthNames;
+        tinyWeekdays = localeData.tinyWeekdayNames;
+
+        // Standalone month names.
+        standAloneMonths = localeData.longStandAloneMonthNames;
+        shortStandAloneMonths = localeData.shortStandAloneMonthNames;
+        tinyStandAloneMonths = localeData.tinyStandAloneMonthNames;
+
+        // Standalone weekdays.
+        standAloneWeekdays = localeData.longStandAloneWeekdayNames;
+        shortStandAloneWeekdays = localeData.shortStandAloneWeekdayNames;
+        tinyStandAloneWeekdays = localeData.tinyStandAloneWeekdayNames;
     }
 
     /**
@@ -799,6 +924,28 @@ public class DateFormatSymbols implements Serializable, Cloneable {
             dst.zoneStrings = null;
         }
         dst.localPatternChars = src.localPatternChars;
+
+        dst.tinyMonths = src.tinyMonths;
+        dst.tinyWeekdays = src.tinyWeekdays;
+
+        dst.standAloneMonths = src.standAloneMonths;
+        dst.shortStandAloneMonths = src.shortStandAloneMonths;
+        dst.tinyStandAloneMonths = src.tinyStandAloneMonths;
+
+        dst.standAloneWeekdays = src.standAloneWeekdays;
+        dst.shortStandAloneWeekdays = src.shortStandAloneWeekdays;
+        dst.tinyStandAloneWeekdays = src.tinyStandAloneWeekdays;
+    }
+
+    private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
+        stream.defaultReadObject();
+
+        if (serialVersionOnStream < 1) {
+            LocaleData localeData = LocaleData.get(locale);
+            initializeSupplementaryData(localeData);
+        }
+
+        serialVersionOnStream = currentSerialVersion;
     }
 
     /**
