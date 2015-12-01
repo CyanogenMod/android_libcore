@@ -1573,7 +1573,7 @@ public final class System {
      * @see        java.lang.SecurityManager#checkLink(java.lang.String)
      */
     public static void load(String filename) {
-        Runtime.getRuntime().load0(VMStack.getStackClass2(), filename);
+        Runtime.getRuntime().load0(VMStack.getStackClass1(), filename);
     }
 
     /**
