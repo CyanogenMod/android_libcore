@@ -125,7 +125,6 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
     // The RI fails this test because it doesn't fully support UTS #35.
     // https://code.google.com/p/android/issues/detail?id=39616
     public void testFiveCount_c() throws Exception {
-      TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
       assertEquals("Thu", formatDate(Locale.ENGLISH, "c"));
       assertEquals("Thu", formatDate(Locale.ENGLISH, "cc"));
       assertEquals("Thu", formatDate(Locale.ENGLISH, "ccc"));
@@ -137,12 +136,18 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
     // The RI fails this test because it doesn't fully support UTS #35.
     // https://code.google.com/p/android/issues/detail?id=39616
     public void testFiveCount_Z() throws Exception {
-      TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
       assertEquals("+0000", formatDate(Locale.ENGLISH, "Z"));
       assertEquals("+0000", formatDate(Locale.ENGLISH, "ZZ"));
       assertEquals("+0000", formatDate(Locale.ENGLISH, "ZZZ"));
       assertEquals("GMT+00:00", formatDate(Locale.ENGLISH, "ZZZZ"));
       assertEquals("+00:00", formatDate(Locale.ENGLISH, "ZZZZZ"));
+
+      TimeZone tz = TimeZone.getTimeZone("America/Los_Angeles");
+      assertEquals("-0800", formatDate(Locale.ENGLISH, "Z", tz));
+      assertEquals("-0800", formatDate(Locale.ENGLISH, "ZZ", tz));
+      assertEquals("-0800", formatDate(Locale.ENGLISH, "ZZZ", tz));
+      assertEquals("GMT-08:00", formatDate(Locale.ENGLISH, "ZZZZ", tz));
+      assertEquals("-08:00", formatDate(Locale.ENGLISH, "ZZZZZ", tz));
     }
 
     // The RI fails this test because it doesn't fully support UTS #35.
@@ -177,8 +182,12 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
     }
 
     private String formatDate(Locale l, String fmt) {
+        return formatDate(l, fmt, TimeZone.getTimeZone("UTC"));
+    }
+
+    private String formatDate(Locale l, String fmt, TimeZone tz) {
         DateFormat dateFormat = new SimpleDateFormat(fmt, l);
-        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        dateFormat.setTimeZone(tz);
         return dateFormat.format(new Date(0));
     }
 

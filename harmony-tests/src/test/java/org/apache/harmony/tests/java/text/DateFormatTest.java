@@ -76,8 +76,7 @@ public class DateFormatTest extends junit.framework.TestCase {
 		assertTrue("Wrong class", f2.getClass() == SimpleDateFormat.class);
 		assertTrue("Wrong default", f2.equals(DateFormat.getDateInstance(
 				DateFormat.DEFAULT, Locale.getDefault())));
-		assertTrue("Wrong symbols", f2.getDateFormatSymbols().equals(
-				new DateFormatSymbols()));
+		assertEquals(f2.getDateFormatSymbols(), new DateFormatSymbols());
 		assertTrue("Doesn't work",
 				f2.format(new Date()).getClass() == String.class);
 	}
@@ -203,10 +202,8 @@ public class DateFormatTest extends junit.framework.TestCase {
 				dStyle, Locale.getDefault());
 		SimpleDateFormat time = (SimpleDateFormat) DateFormat.getTimeInstance(
 				tStyle, Locale.getDefault());
-		assertTrue("Wrong default", f2.toPattern().equals(
-				date.toPattern() + " " + time.toPattern()));
-		assertTrue("Wrong symbols", f2.getDateFormatSymbols().equals(
-				new DateFormatSymbols()));
+		assertEquals(f2.toPattern(), date.toPattern() + " " + time.toPattern());
+		assertEquals(f2.getDateFormatSymbols(), new DateFormatSymbols());
 		assertTrue("Doesn't work",
 				f2.format(new Date()).getClass() == String.class);
 	}
