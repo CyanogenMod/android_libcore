@@ -161,10 +161,6 @@ non_openjdk_javadoc_files := \
   luni/src/main/java/java/util/concurrent/locks/ReentrantReadWriteLock.java \
   luni/src/main/java/java/util/concurrent/locks/package-info.java \
   luni/src/main/java/java/util/concurrent/package-info.java \
-  luni/src/main/java/java/util/jar/StrictJarFile.java \
-  luni/src/main/java/java/util/jar/StrictJarManifest.java \
-  luni/src/main/java/java/util/jar/StrictJarManifestReader.java \
-  luni/src/main/java/java/util/jar/StrictJarVerifier.java \
   luni/src/main/java/java/util/regex/PatternSyntaxException.java \
   luni/src/main/java/java/util/regex/Pattern.java \
   luni/src/main/java/java/util/regex/Matcher.java \
