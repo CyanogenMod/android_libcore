@@ -17,7 +17,9 @@
 
 package libcore.java.lang;
 
+import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.nio.channels.Channel;
 import java.nio.channels.spi.SelectorProvider;
 import java.util.Map;
@@ -300,27 +302,34 @@ public class OldSystemTest extends junit.framework.TestCase {
         }
     }
 
-    public void test_load() {
+    public void test_load() throws Exception {
         try {
             Runtime.getRuntime().load("nonExistentLibrary");
             fail("UnsatisfiedLinkError was not thrown.");
-        } catch(UnsatisfiedLinkError  e) {
-            //expected
+        } catch(UnsatisfiedLinkError expected) {
         }
 
         try {
             System.load("nonExistentLibrary");
             fail("UnsatisfiedLinkError was not thrown.");
-        } catch(UnsatisfiedLinkError ule) {
-            //expected
+        } catch(UnsatisfiedLinkError expected) {
         }
 
         try {
             System.load(null);
             fail("NullPointerException was not thrown.");
-        } catch(NullPointerException npe) {
-            //expected
+        } catch(NullPointerException expected) {
         }
+
+        // Trivial positive test for System.load: Attempt to load a libc.so - it's guaranteed
+        // to exist and is whitelisted for use from applications.
+        final ClassLoader cl = getClass().getClassLoader();
+        // ClassLoader.findLibrary has protected access, so it's guaranteed to exist.
+        final Method m = ClassLoader.class.getDeclaredMethod("findLibrary", String.class);
+        assertNotNull(m);
+        String libPath = (String) m.invoke(cl, "c");
+        assertNotNull(libPath);
+        System.load(new File(libPath).getAbsolutePath());
     }
 
     public void test_loadLibrary() {
