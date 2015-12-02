@@ -359,7 +359,7 @@ public class SignatureTest extends TestCase {
         KeyPair kp = keypairAlgorithmToInstance.get(kpAlgorithm);
         if (kp == null) {
             kp = KeyPairGenerator.getInstance(kpAlgorithm).generateKeyPair();
-            keypairAlgorithmToInstance.put(sigAlgorithm, kp);
+            keypairAlgorithmToInstance.put(kpAlgorithm, kp);
         }
         return kp;
     }
