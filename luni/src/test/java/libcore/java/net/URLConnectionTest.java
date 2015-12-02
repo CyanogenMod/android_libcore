@@ -1656,6 +1656,45 @@ public final class URLConnectionTest extends AbstractResourceLeakageDetectorTest
         server2.shutdown();
     }
 
+    public void testInstanceFollowsRedirects() throws Exception {
+        testInstanceFollowsRedirects("http://www.google.com/");
+        testInstanceFollowsRedirects("https://www.google.com/");
+    }
+
+    private void testInstanceFollowsRedirects(String spec) throws Exception {
+        URL url = new URL(spec);
+        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+        urlConnection.setInstanceFollowRedirects(true);
+        assertTrue(urlConnection.getInstanceFollowRedirects());
+        urlConnection.setInstanceFollowRedirects(false);
+        assertFalse(urlConnection.getInstanceFollowRedirects());
+    }
+
+    public void testFollowRedirects() throws Exception {
+        testFollowRedirects("http://www.google.com/");
+        testFollowRedirects("https://www.google.com/");
+    }
+
+    private void testFollowRedirects(String spec) throws Exception {
+        URL url = new URL(spec);
+        boolean originalValue = HttpURLConnection.getFollowRedirects();
+        try {
+            HttpURLConnection.setFollowRedirects(false);
+            assertFalse(HttpURLConnection.getFollowRedirects());
+
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            assertFalse(connection.getInstanceFollowRedirects());
+
+            HttpURLConnection.setFollowRedirects(true);
+            assertTrue(HttpURLConnection.getFollowRedirects());
+
+            HttpURLConnection connection2 = (HttpURLConnection) url.openConnection();
+            assertTrue(connection2.getInstanceFollowRedirects());
+        } finally {
+            HttpURLConnection.setFollowRedirects(originalValue);
+        }
+    }
+
     public void testResponse300MultipleChoiceWithPost() throws Exception {
         // Chrome doesn't follow the redirect, but Firefox and the RI both do
         testResponseRedirectedWithPost(HttpURLConnection.HTTP_MULT_CHOICE);
