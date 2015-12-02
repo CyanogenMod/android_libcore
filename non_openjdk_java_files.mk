@@ -350,6 +350,7 @@ non_openjdk_java_files := \
   dalvik/src/main/java/dalvik/system/profiler/SamplingProfiler.java \
   dalvik/src/main/java/dalvik/system/profiler/ThreadSampler.java \
   luni/src/main/java/android/system/UnixSocketAddress.java \
+  luni/src/main/java/java/net/AddressCache.java \
   luni/src/main/java/libcore/icu/CollationElementIteratorICU.java \
   luni/src/main/java/libcore/icu/CollationKeyICU.java \
   luni/src/main/java/libcore/icu/DateIntervalFormat.java \
