@@ -1556,6 +1556,15 @@ public class SimpleDateFormat extends DateFormat {
                 bestMatch = i;
                 bestMatchLength = length;
             }
+
+            // When the input option ends with a period (usually an abbreviated form), attempt
+            // to match all chars up to that period.
+            if ((data[i].charAt(length - 1) == '.') &&
+                    ((length - 1) > bestMatchLength) &&
+                    text.regionMatches(true, start, data[i], 0, length - 1)) {
+                bestMatch = i;
+                bestMatchLength = (length - 1);
+            }
         }
         if (bestMatch >= 0)
         {
