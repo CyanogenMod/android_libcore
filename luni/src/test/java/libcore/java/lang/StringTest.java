@@ -403,4 +403,17 @@ public class StringTest extends TestCase {
         assertEquals(3, "aaaa".compareToIgnoreCase("a"));
         assertEquals(3, "azzz".compareToIgnoreCase("a"));
     }
+
+    // http://b/25943996
+    public void testSplit_trailingSeparators() {
+        String[] splits = "test\0message\0\0\0\0\0\0".split("\0", -1);
+        assertEquals("test", splits[0]);
+        assertEquals("message", splits[1]);
+        assertEquals("", splits[2]);
+        assertEquals("", splits[3]);
+        assertEquals("", splits[4]);
+        assertEquals("", splits[5]);
+        assertEquals("", splits[6]);
+        assertEquals("", splits[7]);
+    }
 }
