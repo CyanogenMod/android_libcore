@@ -2270,7 +2270,6 @@ public final class String
         {
             int off = 0;
             int next = 0;
-            boolean limited = limit > 0;
 
             int sepCount = 0;
             while (sepCount != limit-1 && (next = indexOf(ch, off)) != -1) {
@@ -2285,7 +2284,7 @@ public final class String
             int end = count;
 
             // Remove trailing separators
-            if (!limited && off == end) {
+            if (limit == 0 && off == end) {
                 if (sepCount == end) {
                     return EmptyArray.STRING;
                 }
