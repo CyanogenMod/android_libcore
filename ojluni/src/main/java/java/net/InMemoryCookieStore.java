@@ -45,32 +45,16 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 class InMemoryCookieStore implements CookieStore {
     // the in-memory representation of cookies
-    // ----- BEGIN android -----
-    //private List<HttpCookie> cookieJar = null;
-
-    // the cookies are indexed by its domain and associated uri (if present)
-    // CAUTION: when a cookie removed from main data structure (i.e. cookieJar),
-    //          it won't be cleared in domainIndex & uriIndex. Double-check the
-    //          presence of cookie when retrieve one form index store.
-    //private Map<String, List<HttpCookie>> domainIndex = null;
-    // ----- END android -----
-
     private Map<URI, List<HttpCookie>> uriIndex = null;
 
     // use ReentrantLock instead of syncronized for scalability
     private ReentrantLock lock = null;
 
-
     /**
      * The default ctor
      */
     public InMemoryCookieStore() {
-        // ----- BEGIN android -----
-        //cookieJar = new ArrayList<HttpCookie>();
-        //domainIndex = new HashMap<String, List<HttpCookie>>();
-        // ----- END android -----
         uriIndex = new HashMap<URI, List<HttpCookie>>();
-
         lock = new ReentrantLock(false);
     }
 
@@ -85,26 +69,9 @@ class InMemoryCookieStore implements CookieStore {
 
         lock.lock();
         try {
-            /* ----- BEGIN android -----
-            // remove the ole cookie if there has had one
-            cookieJar.remove(cookie);
-
-            // add new cookie if it has a non-zero max-age
-            if (cookie.getMaxAge() != 0) {
-                cookieJar.add(cookie);
-                // and add it to domain index
-                if (cookie.getDomain() != null) {
-                    addIndex(domainIndex, cookie.getDomain(), cookie);
-                }
-                if (uri != null) {
-                    // add it to uri index, too
-                    addIndex(uriIndex, getEffectiveURI(uri), cookie);
-                }
-            }*/
             if (cookie.getMaxAge() != 0) {
                 addIndex(uriIndex, getEffectiveURI(uri), cookie);
             }
-            // ----- END android -----
         } finally {
             lock.unlock();
         }
@@ -125,16 +92,12 @@ class InMemoryCookieStore implements CookieStore {
         }
 
         List<HttpCookie> cookies = new ArrayList<HttpCookie>();
-        boolean secureLink = "https".equalsIgnoreCase(uri.getScheme());
         lock.lock();
         try {
-            /* ----- BEGIN android -----
             // check domainIndex first
-            getInternal1(cookies, domainIndex, uri.getHost(), secureLink);*/
-            getInternal1(cookies, uriIndex, uri.getHost(), secureLink);
-            // ----- END android -----
+            getInternal1(cookies, uriIndex, uri.getHost());
             // check uriIndex then
-            getInternal2(cookies, uriIndex, getEffectiveURI(uri), secureLink);
+            getInternal2(cookies, uriIndex, getEffectiveURI(uri));
         } finally {
             lock.unlock();
         }
@@ -150,12 +113,6 @@ class InMemoryCookieStore implements CookieStore {
 
         lock.lock();
         try {
-            /* ----- BEGIN android -----
-            Iterator<HttpCookie> it = cookieJar.iterator();
-            while (it.hasNext()) {
-                if (it.next().hasExpired()) {
-                    it.remove();*/
-
             for (List<HttpCookie> list : uriIndex.values()) {
                 Iterator<HttpCookie> it = list.iterator();
                 while (it.hasNext()) {
@@ -167,12 +124,8 @@ class InMemoryCookieStore implements CookieStore {
                     }
                 }
             }
-            // ----- END android -----
         } finally {
-            // ----- BEGIN android -----
-            //rt = Collections.unmodifiableList(cookieJar);
             rt = Collections.unmodifiableList(rt);
-            // ----- END android -----
             lock.unlock();
         }
 
@@ -188,29 +141,13 @@ class InMemoryCookieStore implements CookieStore {
 
         lock.lock();
         try {
-            /* ----- BEGIN android -----
-            Iterator<URI> it = uriIndex.keySet().iterator();
-            while (it.hasNext()) {
-                URI uri = it.next();
-                List<HttpCookie> cookies = uriIndex.get(uri);
-                if (cookies == null || cookies.size() == 0) {
-                    // no cookies list or an empty list associated with
-                    // this uri entry, delete it
-                    it.remove();
-                }
-                }*/
             List<URI> result = new ArrayList<URI>(uriIndex.keySet());
             result.remove(null);
             return Collections.unmodifiableList(result);
-            // ----- BEGIN android -----
         } finally {
             uris.addAll(uriIndex.keySet());
             lock.unlock();
         }
-
-        // ----- BEGIN android -----
-        //return uris;
-        // ----- END android -----
     }
 
 
@@ -225,8 +162,6 @@ class InMemoryCookieStore implements CookieStore {
 
         lock.lock();
         try {
-            /* ----- BEGIN android -----
-               Added uri check */
             uri = getEffectiveURI(uri);
             if (uriIndex.get(uri) == null) {
                 return false;
@@ -237,8 +172,6 @@ class InMemoryCookieStore implements CookieStore {
                 } else {
                     return false;
                 }
-                //modified = cookieJar.remove(ck);
-              /* ----- END android ----- */
             }
         } finally {
             lock.unlock();
@@ -251,15 +184,10 @@ class InMemoryCookieStore implements CookieStore {
      */
     public boolean removeAll() {
         lock.lock();
-        /* ----- BEGIN android -----
-        // Added result var */
         boolean result = false;
 
         try {
-            // result = !cookieJar.isEmpty();
             result = !uriIndex.isEmpty();
-            //cookieJar.clear();
-            //domainIndex.clear();
             uriIndex.clear();
         } finally {
             lock.unlock();
@@ -325,10 +253,8 @@ class InMemoryCookieStore implements CookieStore {
         return false;
     }
 
-    // ----- BEGIN android -----
-    // Removed cookieJar, switched cookieIndex key type from string to URI
     private void getInternal1(List<HttpCookie> cookies, Map<URI, List<HttpCookie>> cookieIndex,
-            String host, boolean secureLink) {
+            String host) {
         // Use a separate list to handle cookies that need to be removed so
         // that there is no conflict with iterators.
         ArrayList<HttpCookie> toRemove = new ArrayList<HttpCookie>();
@@ -341,10 +267,8 @@ class InMemoryCookieStore implements CookieStore {
 
                     // the cookie still in main cookie store
                     if (!c.hasExpired()) {
-                        // don't add twice and make sure it's the proper
-                        // security level
-                        if ((secureLink || !c.getSecure()) &&
-                            !cookies.contains(c)) {
+                        // don't add twice
+                        if (!cookies.contains(c)) {
                             cookies.add(c);
                         }
                     } else {
@@ -360,7 +284,6 @@ class InMemoryCookieStore implements CookieStore {
             toRemove.clear();
         }
     }
-    // ----- END android -----
 
     // @param cookies           [OUT] contains the found cookies
     // @param cookieIndex       the index
@@ -368,9 +291,8 @@ class InMemoryCookieStore implements CookieStore {
     //                          a cookie in index should be returned
     private <T extends Comparable<T>>
         void getInternal2(List<HttpCookie> cookies, Map<T, List<HttpCookie>> cookieIndex,
-                          T comparator, boolean secureLink)
+                          T comparator)
     {
-        // ----- BEGIN android -----
         // Removed cookieJar
         for (T index : cookieIndex.keySet()) {
             if ((index == comparator) || (index != null && comparator.compareTo(index) == 0)) {
@@ -383,18 +305,15 @@ class InMemoryCookieStore implements CookieStore {
                         // the cookie still in main cookie store
                         if (!ck.hasExpired()) {
                             // don't add twice
-                            if ((secureLink || !ck.getSecure()) &&
-                                !cookies.contains(ck))
+                            if (!cookies.contains(ck))
                                 cookies.add(ck);
                         } else {
                             it.remove();
-                            // cookieJar.remove(ck);
                         }
                     }
                 } // end of indexedCookies != null
             } // end of comparator.compareTo(index) == 0
         } // end of cookieIndex iteration
-        // ----- END android -----
     }
 
     // add 'cookie' indexed by 'index' into 'indexStore'
@@ -425,11 +344,9 @@ class InMemoryCookieStore implements CookieStore {
     //
     private URI getEffectiveURI(URI uri) {
         URI effectiveURI = null;
-        // ----- BEGIN android -----
         if (uri == null) {
             return null;
         }
-        // ----- END android -----
         try {
             effectiveURI = new URI("http",
                                    uri.getHost(),
