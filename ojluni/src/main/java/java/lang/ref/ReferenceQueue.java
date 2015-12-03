@@ -32,55 +32,22 @@ package java.lang.ref;
  * @author   Mark Reinhold
  * @since    1.2
  */
-
 public class ReferenceQueue<T> {
+
+    // NOTE: This implementation of ReferenceQueue is FIFO (queue-like) whereas
+    // the OpenJdk implementation is LIFO (stack-like).
+    private Reference<? extends T> head = null;
+    private Reference<? extends T> tail = null;
+
+    private final Object lock = new Object();
 
     /**
      * Constructs a new reference-object queue.
      */
     public ReferenceQueue() { }
 
-    /* ----- BEGIN android -----
-    private static class Null extends ReferenceQueue {
-        boolean enqueue(Reference r) {
-            return false;
-        }
-    }
-
-    static ReferenceQueue NULL = new Null();
-    static ReferenceQueue ENQUEUED = new Null();
-
-    static private class Lock { };
-    private Lock lock = new Lock();
-    ----- END android ----- */
-
-    private volatile Reference<? extends T> head = null;
-
-    // ----- BEGIN android -----
-    // Needed to make it a queue (OpenJdk impl behaves like a stack).
-    private Reference<? extends T> tail;
-    // ----- END android -----
-
-    private long queueLength = 0;
-
     boolean enqueue(Reference<? extends T> r) { /* Called only by Reference class */
-        /* ----- BEGIN android -----
-        synchronized (r) {
-            if (r.queue == ENQUEUED) return false;
-            synchronized (lock) {
-                r.queue = ENQUEUED;
-                r.next = (head == null) ? r : head;
-                head = r;
-                queueLength++;
-                if (r instanceof FinalReference) {
-                    sun.misc.VM.addFinalRefCount(1);
-                }
-                lock.notifyAll();
-                return true;
-            }
-        }*/
-        /* Caller must hold r lock */
-        synchronized (this) {
+        synchronized (lock) {
             if (tail == null) {
                 head = r;
             } else {
@@ -88,27 +55,13 @@ public class ReferenceQueue<T> {
             }
             tail = r;
             tail.queueNext = r;
-            queueLength++;
-            this.notifyAll();
+            lock.notifyAll();
             return true;
         }
-        // ----- END android -----
     }
 
-    private Reference<? extends T> reallyPoll() {       /* Must hold lock */
-        /* ----- BEGIN android -----
-        if (head != null) {
-            Reference<? extends T> r = head;
-            head = (r.next == r) ? null : r.next;
-            r.queue = NULL;
-            r.next = r;
-            queueLength--;
-            if (r instanceof FinalReference) {
-                sun.misc.VM.addFinalRefCount(-1);
-            }
-            return r;
-        }
-        */
+    // @GuardedBy("lock")
+    private Reference<? extends T> reallyPollLocked() {
         if (head != null) {
             Reference<? extends T> r = head;
             if (head == tail) {
@@ -118,10 +71,9 @@ public class ReferenceQueue<T> {
                 head = head.queueNext;
             }
             r.queueNext = null;
-            queueLength--;
             return r;
         }
-        // ----- END android -----
+
         return null;
     }
 
@@ -134,14 +86,11 @@ public class ReferenceQueue<T> {
      *          otherwise <code>null</code>
      */
     public Reference<? extends T> poll() {
-        if (head == null)
-            return null;
+        synchronized (lock) {
+            if (head == null)
+                return null;
 
-        /* ----- BEGIN android -----
-        synchronized (lock) { */
-        synchronized (this) {
-        // ----- END android -----
-            return reallyPoll();
+            return reallyPollLocked();
         }
     }
 
@@ -171,18 +120,12 @@ public class ReferenceQueue<T> {
         if (timeout < 0) {
             throw new IllegalArgumentException("Negative timeout value");
         }
-        /* ----- BEGIN android -----
-        synchronized (lock) { */
-        synchronized (this) {
-        // ----- END android -----
-            Reference<? extends T> r = reallyPoll();
+        synchronized (lock) {
+            Reference<? extends T> r = reallyPollLocked();
             if (r != null) return r;
             for (;;) {
-                /* ----- BEGIN android -----
-                lock.wait(timeout);*/
-                this.wait(timeout);
-                // ----- END android -----
-                r = reallyPoll();
+                lock.wait(timeout);
+                r = reallyPollLocked();
                 if (r != null) return r;
                 if (timeout != 0) return null;
             }
@@ -200,7 +143,6 @@ public class ReferenceQueue<T> {
         return remove(0);
     }
 
-    // ----- BEGIN android -----
     /** @hide */
     public static Reference<?> unenqueued = null;
 
@@ -225,5 +167,4 @@ public class ReferenceQueue<T> {
             ReferenceQueue.class.notifyAll();
         }
     }
-    // ----- END android -----
 }
