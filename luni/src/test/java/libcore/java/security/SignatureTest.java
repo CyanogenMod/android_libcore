@@ -54,6 +54,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -339,17 +340,20 @@ public class SignatureTest extends TestCase {
             = new HashMap<String, KeyPair>();
 
     private KeyPair keyPair(String sigAlgorithm, String providerName) throws Exception {
-        if (sigAlgorithm.endsWith("Encryption")) {
-            sigAlgorithm = sigAlgorithm.substring(0, sigAlgorithm.length()-"Encryption".length());
+        String sigAlgorithmUpperCase = sigAlgorithm.toUpperCase(Locale.US);
+        if (sigAlgorithmUpperCase.endsWith("ENCRYPTION")) {
+            sigAlgorithm = sigAlgorithm.substring(0, sigAlgorithm.length()-"ENCRYPTION".length());
+            sigAlgorithmUpperCase = sigAlgorithm.toUpperCase(Locale.US);
         }
 
         String kpAlgorithm;
         // note ECDSA must be before DSA
-        if (sigAlgorithm.endsWith("ECDSA")) {
+        if (sigAlgorithmUpperCase.endsWith("ECDSA")) {
             kpAlgorithm = "EC";
-        } else if (sigAlgorithm.endsWith("DSA")) {
+        } else if (sigAlgorithmUpperCase.endsWith("DSA")) {
             kpAlgorithm = "DSA";
-        } else if ((sigAlgorithm.endsWith("RSA")) || (sigAlgorithm.endsWith("RSA/PSS"))) {
+        } else if ((sigAlgorithmUpperCase.endsWith("RSA"))
+                || (sigAlgorithmUpperCase.endsWith("RSA/PSS"))) {
             kpAlgorithm = "RSA";
         } else {
             throw new Exception("Unknown KeyPair algorithm for Signature algorithm "
