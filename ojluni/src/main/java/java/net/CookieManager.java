@@ -219,13 +219,7 @@ public class CookieManager extends CookieHandler
             // 'secure' cookies over unsecure links)
             if (pathMatches(path, cookie.getPath()) &&
                     (secureLink || !cookie.getSecure())) {
-                // Enforce httponly attribute
-                if (cookie.isHttpOnly()) {
-                    String s = uri.getScheme();
-                    if (!"http".equalsIgnoreCase(s) && !"https".equalsIgnoreCase(s)) {
-                        continue;
-                    }
-                }
+
                 // Let's check the authorize port list if it exists
                 String ports = cookie.getPortlist();
                 if (ports != null && !ports.isEmpty()) {
@@ -241,11 +235,9 @@ public class CookieManager extends CookieHandler
                 }
             }
         }
-        // ----- BEGIN android -----
         if (cookies.isEmpty()) {
-            return Collections.unmodifiableMap(cookieMap);
+            return Collections.emptyMap();
         }
-        // ----- END android -----
 
         // apply sort rule (RFC 2965 sec. 3.3.4)
         List<String> cookieHeader = sortByPath(cookies);
@@ -269,7 +261,7 @@ public class CookieManager extends CookieHandler
         if (cookieJar == null)
             return;
 
-    PlatformLogger logger = PlatformLogger.getLogger("java.net.CookieManager");
+        PlatformLogger logger = PlatformLogger.getLogger("java.net.CookieManager");
         for (String headerKey : responseHeaders.keySet()) {
             // RFC 2965 3.2.2, key must be 'Set-Cookie2'
             // we also accept 'Set-Cookie' here for backward compatibility
@@ -308,15 +300,12 @@ public class CookieManager extends CookieHandler
                                 }
                             }
                             cookie.setPath(path);
-                        /* ----- BEGIN android -----
-                           Added path validation code */
                         } else {
                             // Validate existing path
                             if (!pathMatches(uri.getPath(), cookie.getPath())) {
                                 continue;
                             }
                         }
-                        /* ----- END android ----- */
 
                         // As per RFC 2965, section 3.3.1:
                         // Domain  Defaults to the effective request-host.  (Note that because
@@ -409,14 +398,12 @@ public class CookieManager extends CookieHandler
         if (path == null || pathToMatchWith == null)
             return false;
 
-        // ----- BEGIN android -----
         if (!path.endsWith("/")) {
             path = path + "/";
         }
         if (!pathToMatchWith.endsWith("/")) {
             pathToMatchWith = pathToMatchWith + "/";
         }
-        // ----- END android -----
 
         if (path.startsWith(pathToMatchWith))
             return true;
