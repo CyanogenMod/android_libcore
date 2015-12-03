@@ -29,7 +29,6 @@ import java.security.InvalidParameterException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
-import java.security.MessageDigest;
 import java.security.PrivateKey;
 import java.security.Provider;
 import java.security.PublicKey;
@@ -45,6 +44,9 @@ import java.security.spec.ECPoint;
 import java.security.spec.ECPublicKeySpec;
 import java.security.spec.EllipticCurve;
 import java.security.spec.InvalidKeySpecException;
+import java.security.spec.InvalidParameterSpecException;
+import java.security.spec.MGF1ParameterSpec;
+import java.security.spec.PSSParameterSpec;
 import java.security.spec.RSAPrivateCrtKeySpec;
 import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.RSAPublicKeySpec;
@@ -968,6 +970,116 @@ public class SignatureTest extends TestCase {
         (byte) 0x2A, (byte) 0x71, (byte) 0xC1, (byte) 0xBC, (byte) 0x1C, (byte) 0xFD,
         (byte) 0x75, (byte) 0x16, (byte) 0x6E, (byte) 0x85,
     };
+    private static final PSSParameterSpec SHA1withRSAPSS_Vector2Signature_ParameterSpec =
+            new PSSParameterSpec("SHA-1", "MGF1", MGF1ParameterSpec.SHA1, 20, 1);
+
+    /*
+     * echo "This is a signed message from Kenny Root." | openssl sha1 -binary -out digest.bin \
+     *     && openssl pkeyutl -sign -in digest.bin -inkey privkey.pem \
+     *         -pkeyopt rsa_padding_mode:pss -pkeyopt digest:sha1 -pkeyopt rsa_pss_saltlen:0 \
+     *     | recode ../x1 | sed 's/0x/(byte) 0x/g'
+     */
+    private static final byte[] SHA1withRSAPSS_NoSalt_Vector2Signature = new byte[] {
+        (byte) 0x31, (byte) 0x61, (byte) 0xA5, (byte) 0x47, (byte) 0x28, (byte) 0x44,
+        (byte) 0x48, (byte) 0x5A, (byte) 0xDA, (byte) 0x78, (byte) 0xA7, (byte) 0x85,
+        (byte) 0xE9, (byte) 0x64, (byte) 0x69, (byte) 0xCF, (byte) 0x14, (byte) 0x07,
+        (byte) 0x3F, (byte) 0xA8, (byte) 0xDB, (byte) 0xFC, (byte) 0xB7, (byte) 0x89,
+        (byte) 0x87, (byte) 0x74, (byte) 0xB9, (byte) 0x81, (byte) 0x37, (byte) 0x62,
+        (byte) 0xD1, (byte) 0x07, (byte) 0x0F, (byte) 0x3D, (byte) 0xDF, (byte) 0xA8,
+        (byte) 0x84, (byte) 0x38, (byte) 0x31, (byte) 0xEB, (byte) 0x17, (byte) 0x3F,
+        (byte) 0xE0, (byte) 0x28, (byte) 0x75, (byte) 0x1F, (byte) 0xE9, (byte) 0x4D,
+        (byte) 0xD3, (byte) 0x62, (byte) 0xFA, (byte) 0xCF, (byte) 0xCC, (byte) 0x2E,
+        (byte) 0xC7, (byte) 0x81, (byte) 0xE1, (byte) 0xEA, (byte) 0xEC, (byte) 0x78,
+        (byte) 0xFE, (byte) 0x19, (byte) 0x59, (byte) 0x54, (byte) 0x1D, (byte) 0x27,
+        (byte) 0xED, (byte) 0x0C, (byte) 0x54, (byte) 0xDF, (byte) 0xE3, (byte) 0x44,
+        (byte) 0x31, (byte) 0x21, (byte) 0x31, (byte) 0xA7, (byte) 0x23, (byte) 0xC4,
+        (byte) 0xE2, (byte) 0x69, (byte) 0x8A, (byte) 0xB3, (byte) 0x1A, (byte) 0x72,
+        (byte) 0x4F, (byte) 0x4E, (byte) 0x82, (byte) 0x86, (byte) 0x2D, (byte) 0x2B,
+        (byte) 0x85, (byte) 0xFE, (byte) 0x4A, (byte) 0x28, (byte) 0x90, (byte) 0xF7,
+        (byte) 0xDF, (byte) 0xD6, (byte) 0xB1, (byte) 0x3E, (byte) 0xC6, (byte) 0xFB,
+        (byte) 0x76, (byte) 0x7B, (byte) 0x3D, (byte) 0x12, (byte) 0x81, (byte) 0x6E,
+        (byte) 0xFD, (byte) 0x00, (byte) 0x7D, (byte) 0xD0, (byte) 0xDC, (byte) 0x25,
+        (byte) 0xD0, (byte) 0x86, (byte) 0x6C, (byte) 0xE8, (byte) 0x0F, (byte) 0x09,
+        (byte) 0x82, (byte) 0x74, (byte) 0x89, (byte) 0x79, (byte) 0x69, (byte) 0x73,
+        (byte) 0x37, (byte) 0x64, (byte) 0xEE, (byte) 0x53, (byte) 0x57, (byte) 0x20,
+        (byte) 0xFA, (byte) 0x0B, (byte) 0x4A, (byte) 0x5A, (byte) 0x4D, (byte) 0x33,
+        (byte) 0xAC, (byte) 0x8B, (byte) 0x04, (byte) 0xA5, (byte) 0x4A, (byte) 0x1A,
+        (byte) 0x9B, (byte) 0x66, (byte) 0xAA, (byte) 0x0B, (byte) 0x3D, (byte) 0x15,
+        (byte) 0xD9, (byte) 0x3E, (byte) 0x2F, (byte) 0xD2, (byte) 0xA1, (byte) 0x28,
+        (byte) 0x13, (byte) 0x59, (byte) 0x98, (byte) 0xC3, (byte) 0x45, (byte) 0x7C,
+        (byte) 0xEE, (byte) 0x60, (byte) 0xD0, (byte) 0xBD, (byte) 0x42, (byte) 0x16,
+        (byte) 0x84, (byte) 0x19, (byte) 0xF6, (byte) 0xD9, (byte) 0xF7, (byte) 0x7D,
+        (byte) 0x77, (byte) 0xAD, (byte) 0x60, (byte) 0xE2, (byte) 0xE3, (byte) 0x22,
+        (byte) 0xB9, (byte) 0xFA, (byte) 0xD5, (byte) 0xFA, (byte) 0x6E, (byte) 0x1F,
+        (byte) 0x69, (byte) 0x3F, (byte) 0xB1, (byte) 0xA7, (byte) 0x1A, (byte) 0x22,
+        (byte) 0xF7, (byte) 0x31, (byte) 0x97, (byte) 0x68, (byte) 0x62, (byte) 0x0F,
+        (byte) 0x39, (byte) 0xB0, (byte) 0xE7, (byte) 0x63, (byte) 0xAE, (byte) 0x65,
+        (byte) 0x69, (byte) 0xD0, (byte) 0xD3, (byte) 0x56, (byte) 0xC9, (byte) 0xA6,
+        (byte) 0xA4, (byte) 0xA5, (byte) 0xA4, (byte) 0x61, (byte) 0xA9, (byte) 0xC4,
+        (byte) 0x45, (byte) 0xCD, (byte) 0x49, (byte) 0x76, (byte) 0xC8, (byte) 0x53,
+        (byte) 0x46, (byte) 0xD0, (byte) 0x63, (byte) 0x35, (byte) 0x89, (byte) 0x04,
+        (byte) 0x22, (byte) 0xD7, (byte) 0xB6, (byte) 0x63, (byte) 0xAF, (byte) 0xC2,
+        (byte) 0x97, (byte) 0x10, (byte) 0xDF, (byte) 0xDE, (byte) 0xE6, (byte) 0x39,
+        (byte) 0x25, (byte) 0x2F, (byte) 0xEA, (byte) 0xD8, (byte) 0x56, (byte) 0x5A,
+        (byte) 0xC1, (byte) 0xB8, (byte) 0xCA, (byte) 0xC1, (byte) 0x8A, (byte) 0xB8,
+        (byte) 0x87, (byte) 0x2F, (byte) 0xCD, (byte) 0x21,
+    };
+    private static final PSSParameterSpec SHA1withRSAPSS_NoSalt_Vector2Signature_ParameterSpec =
+            new PSSParameterSpec("SHA-1", "MGF1", MGF1ParameterSpec.SHA1, 0, 1);
+
+    /*
+     * echo "This is a signed message from Kenny Root." | openssl sha1 -binary -out digest.bin \
+     *     && openssl pkeyutl -sign -in digest.bin -inkey privkey.pem \
+     *         -pkeyopt rsa_padding_mode:pss -pkeyopt digest:sha1 -pkeyopt rsa_pss_saltlen:234 \
+     *     | recode ../x1 | sed 's/0x/(byte) 0x/g'
+     */
+    private static final byte[] SHA1withRSAPSS_MaxSalt_Vector2Signature = new byte[] {
+        (byte) 0x49, (byte) 0xDB, (byte) 0xAD, (byte) 0x48, (byte) 0x7C, (byte) 0x06,
+        (byte) 0x03, (byte) 0x7C, (byte) 0x58, (byte) 0xE1, (byte) 0x38, (byte) 0x20,
+        (byte) 0x46, (byte) 0x28, (byte) 0x60, (byte) 0x64, (byte) 0x94, (byte) 0x51,
+        (byte) 0xA3, (byte) 0xD1, (byte) 0xC9, (byte) 0x52, (byte) 0xC6, (byte) 0x2A,
+        (byte) 0xB3, (byte) 0xCC, (byte) 0xD6, (byte) 0x19, (byte) 0x50, (byte) 0x99,
+        (byte) 0x60, (byte) 0x58, (byte) 0xA2, (byte) 0x86, (byte) 0xA8, (byte) 0x74,
+        (byte) 0x50, (byte) 0x8C, (byte) 0x0E, (byte) 0x32, (byte) 0x58, (byte) 0x56,
+        (byte) 0x6D, (byte) 0x30, (byte) 0x38, (byte) 0xFB, (byte) 0x26, (byte) 0xC3,
+        (byte) 0xFD, (byte) 0x8E, (byte) 0x36, (byte) 0x73, (byte) 0x82, (byte) 0x9A,
+        (byte) 0xB4, (byte) 0xE5, (byte) 0x22, (byte) 0x96, (byte) 0x55, (byte) 0x3C,
+        (byte) 0x18, (byte) 0xD7, (byte) 0x46, (byte) 0xF1, (byte) 0x7C, (byte) 0xE6,
+        (byte) 0x8E, (byte) 0x0A, (byte) 0x18, (byte) 0xA7, (byte) 0x29, (byte) 0x96,
+        (byte) 0x8D, (byte) 0xFC, (byte) 0x0E, (byte) 0xBE, (byte) 0x91, (byte) 0xA0,
+        (byte) 0xF8, (byte) 0xE2, (byte) 0x70, (byte) 0x5A, (byte) 0xE3, (byte) 0x76,
+        (byte) 0xAC, (byte) 0x18, (byte) 0x10, (byte) 0xB4, (byte) 0xB1, (byte) 0xFF,
+        (byte) 0x58, (byte) 0xBC, (byte) 0x10, (byte) 0xF5, (byte) 0x88, (byte) 0x2F,
+        (byte) 0x0B, (byte) 0x10, (byte) 0x9D, (byte) 0x52, (byte) 0x2D, (byte) 0x42,
+        (byte) 0xDB, (byte) 0xFD, (byte) 0xA7, (byte) 0x23, (byte) 0x3C, (byte) 0x4B,
+        (byte) 0xB3, (byte) 0xD2, (byte) 0x96, (byte) 0x1B, (byte) 0xCE, (byte) 0xB3,
+        (byte) 0xA3, (byte) 0xC3, (byte) 0x42, (byte) 0xA4, (byte) 0x0E, (byte) 0x35,
+        (byte) 0x5C, (byte) 0xC2, (byte) 0x32, (byte) 0xC7, (byte) 0x8C, (byte) 0xFC,
+        (byte) 0x7F, (byte) 0xE0, (byte) 0xF7, (byte) 0x1D, (byte) 0x38, (byte) 0x21,
+        (byte) 0x3C, (byte) 0xDF, (byte) 0x82, (byte) 0x1A, (byte) 0xBD, (byte) 0x83,
+        (byte) 0xE9, (byte) 0x56, (byte) 0xF0, (byte) 0xF1, (byte) 0x54, (byte) 0x76,
+        (byte) 0xE3, (byte) 0xCE, (byte) 0x86, (byte) 0x69, (byte) 0xC2, (byte) 0x61,
+        (byte) 0x6D, (byte) 0x8E, (byte) 0xF5, (byte) 0xA3, (byte) 0x61, (byte) 0xCA,
+        (byte) 0x16, (byte) 0xCB, (byte) 0x7A, (byte) 0xF5, (byte) 0xBF, (byte) 0x36,
+        (byte) 0xCB, (byte) 0x7D, (byte) 0xB1, (byte) 0xE9, (byte) 0x70, (byte) 0x41,
+        (byte) 0xCF, (byte) 0x89, (byte) 0x51, (byte) 0x13, (byte) 0xCC, (byte) 0x95,
+        (byte) 0x50, (byte) 0xC8, (byte) 0xB6, (byte) 0x30, (byte) 0x35, (byte) 0xE3,
+        (byte) 0x13, (byte) 0x08, (byte) 0xF6, (byte) 0xBE, (byte) 0x20, (byte) 0xF1,
+        (byte) 0x48, (byte) 0x4D, (byte) 0x46, (byte) 0x95, (byte) 0xFE, (byte) 0x9E,
+        (byte) 0xD2, (byte) 0xD5, (byte) 0x29, (byte) 0x81, (byte) 0x2E, (byte) 0x0F,
+        (byte) 0x6F, (byte) 0xA7, (byte) 0x02, (byte) 0x15, (byte) 0xCA, (byte) 0x75,
+        (byte) 0x77, (byte) 0x29, (byte) 0x7C, (byte) 0x3A, (byte) 0xE3, (byte) 0x2B,
+        (byte) 0xD7, (byte) 0x3D, (byte) 0x5C, (byte) 0x94, (byte) 0x3B, (byte) 0x2A,
+        (byte) 0x91, (byte) 0xDB, (byte) 0xFA, (byte) 0x69, (byte) 0x47, (byte) 0x1C,
+        (byte) 0x2C, (byte) 0x46, (byte) 0x49, (byte) 0xE6, (byte) 0x37, (byte) 0x5D,
+        (byte) 0x78, (byte) 0x71, (byte) 0x76, (byte) 0xC1, (byte) 0xB6, (byte) 0x2E,
+        (byte) 0x4E, (byte) 0x3C, (byte) 0x83, (byte) 0x6F, (byte) 0x82, (byte) 0xC3,
+        (byte) 0xD8, (byte) 0x50, (byte) 0xD7, (byte) 0x1B, (byte) 0xAF, (byte) 0xF9,
+        (byte) 0xE3, (byte) 0xF1, (byte) 0x47, (byte) 0xC8, (byte) 0x12, (byte) 0x86,
+        (byte) 0x82, (byte) 0x9D, (byte) 0x3F, (byte) 0xCE,
+    };
+    private static final PSSParameterSpec SHA1withRSAPSS_MaxSalt_Vector2Signature_ParameterSpec =
+            new PSSParameterSpec("SHA-1", "MGF1", MGF1ParameterSpec.SHA1, 234, 1);
 
     /*
      * echo "This is a signed message from Kenny Root." | openssl sha224 -binary -out digest.bin \
@@ -1020,6 +1132,116 @@ public class SignatureTest extends TestCase {
         (byte) 0xE4, (byte) 0xB0, (byte) 0xAE, (byte) 0x82, (byte) 0x4E, (byte) 0xCA,
         (byte) 0xA6, (byte) 0x12, (byte) 0xCA, (byte) 0x70,
     };
+    private static final PSSParameterSpec SHA224withRSAPSS_Vector2Signature_ParameterSpec =
+            new PSSParameterSpec("SHA-224", "MGF1", new MGF1ParameterSpec("SHA-224"), 28, 1);
+
+    /*
+     * echo "This is a signed message from Kenny Root." | openssl sha224 -binary -out digest.bin \
+     *     && openssl pkeyutl -sign -in digest.bin -inkey privkey.pem \
+     *         -pkeyopt rsa_padding_mode:pss -pkeyopt digest:sha224 -pkeyopt rsa_pss_saltlen:0 \
+     *     | recode ../x1 | sed 's/0x/(byte) 0x/g'
+     */
+    private static final byte[] SHA224withRSAPSS_NoSalt_Vector2Signature = new byte[] {
+        (byte) 0xD8, (byte) 0x38, (byte) 0x48, (byte) 0xCD, (byte) 0xA4, (byte) 0x09,
+        (byte) 0x36, (byte) 0x35, (byte) 0x47, (byte) 0x55, (byte) 0xDB, (byte) 0x6C,
+        (byte) 0x2D, (byte) 0x83, (byte) 0x17, (byte) 0x10, (byte) 0x3E, (byte) 0xCE,
+        (byte) 0x95, (byte) 0x02, (byte) 0x58, (byte) 0xCE, (byte) 0xA8, (byte) 0x02,
+        (byte) 0x44, (byte) 0xB7, (byte) 0xE4, (byte) 0x32, (byte) 0x3D, (byte) 0x50,
+        (byte) 0xE1, (byte) 0x8C, (byte) 0xF3, (byte) 0x24, (byte) 0x6F, (byte) 0xA4,
+        (byte) 0x2D, (byte) 0xD7, (byte) 0xFB, (byte) 0x70, (byte) 0x97, (byte) 0xBE,
+        (byte) 0xED, (byte) 0x27, (byte) 0x2D, (byte) 0x22, (byte) 0xDC, (byte) 0x62,
+        (byte) 0x97, (byte) 0x66, (byte) 0x39, (byte) 0xE0, (byte) 0x36, (byte) 0x5F,
+        (byte) 0x07, (byte) 0x78, (byte) 0xAF, (byte) 0x5E, (byte) 0xDC, (byte) 0xFD,
+        (byte) 0x21, (byte) 0xA8, (byte) 0xD5, (byte) 0xA7, (byte) 0xD1, (byte) 0xBA,
+        (byte) 0x1C, (byte) 0xDA, (byte) 0xCA, (byte) 0x80, (byte) 0x72, (byte) 0x8A,
+        (byte) 0xDD, (byte) 0x5C, (byte) 0x16, (byte) 0x6A, (byte) 0x47, (byte) 0xFC,
+        (byte) 0x11, (byte) 0x42, (byte) 0x7E, (byte) 0x4E, (byte) 0x3F, (byte) 0x49,
+        (byte) 0xCF, (byte) 0x2F, (byte) 0x54, (byte) 0xD7, (byte) 0x13, (byte) 0x76,
+        (byte) 0x5D, (byte) 0xE9, (byte) 0x2A, (byte) 0x29, (byte) 0xCC, (byte) 0x73,
+        (byte) 0xDB, (byte) 0xE5, (byte) 0xDE, (byte) 0x48, (byte) 0xA2, (byte) 0xE9,
+        (byte) 0xD1, (byte) 0xD0, (byte) 0x35, (byte) 0xFE, (byte) 0xA1, (byte) 0x1C,
+        (byte) 0x13, (byte) 0x04, (byte) 0x75, (byte) 0x77, (byte) 0xF4, (byte) 0x55,
+        (byte) 0x03, (byte) 0xC4, (byte) 0x6D, (byte) 0xAC, (byte) 0x25, (byte) 0x1D,
+        (byte) 0x57, (byte) 0xFF, (byte) 0x0D, (byte) 0xE0, (byte) 0x91, (byte) 0xEA,
+        (byte) 0xF6, (byte) 0x1F, (byte) 0x3F, (byte) 0x69, (byte) 0xD6, (byte) 0x00,
+        (byte) 0xBD, (byte) 0x89, (byte) 0xEA, (byte) 0xD3, (byte) 0x31, (byte) 0x80,
+        (byte) 0x5E, (byte) 0x04, (byte) 0x4C, (byte) 0x59, (byte) 0xDE, (byte) 0xD0,
+        (byte) 0x62, (byte) 0x93, (byte) 0x3B, (byte) 0xC9, (byte) 0x9F, (byte) 0xE7,
+        (byte) 0x69, (byte) 0xC0, (byte) 0xB8, (byte) 0xED, (byte) 0xBF, (byte) 0x0D,
+        (byte) 0x60, (byte) 0x28, (byte) 0x55, (byte) 0x20, (byte) 0x0C, (byte) 0x9F,
+        (byte) 0xA2, (byte) 0x42, (byte) 0x34, (byte) 0x95, (byte) 0xAE, (byte) 0xF8,
+        (byte) 0x67, (byte) 0x7C, (byte) 0xF1, (byte) 0xA0, (byte) 0xC0, (byte) 0x74,
+        (byte) 0xF2, (byte) 0xDF, (byte) 0x75, (byte) 0x5B, (byte) 0x6E, (byte) 0x2F,
+        (byte) 0xFB, (byte) 0x1F, (byte) 0xDD, (byte) 0xC3, (byte) 0xD3, (byte) 0x90,
+        (byte) 0x0A, (byte) 0x33, (byte) 0xF6, (byte) 0x03, (byte) 0x16, (byte) 0xC4,
+        (byte) 0xF8, (byte) 0xED, (byte) 0xB7, (byte) 0x45, (byte) 0x39, (byte) 0x5D,
+        (byte) 0x7C, (byte) 0xF8, (byte) 0x82, (byte) 0xCE, (byte) 0x7D, (byte) 0xFB,
+        (byte) 0x02, (byte) 0x2D, (byte) 0xE0, (byte) 0x96, (byte) 0x35, (byte) 0x60,
+        (byte) 0x5D, (byte) 0xBC, (byte) 0x35, (byte) 0x80, (byte) 0x4C, (byte) 0x39,
+        (byte) 0x7C, (byte) 0xE7, (byte) 0xD4, (byte) 0xB4, (byte) 0x19, (byte) 0xD1,
+        (byte) 0xE5, (byte) 0x8E, (byte) 0x6D, (byte) 0x25, (byte) 0x0C, (byte) 0xB9,
+        (byte) 0x0C, (byte) 0x8D, (byte) 0x45, (byte) 0xE4, (byte) 0x67, (byte) 0x73,
+        (byte) 0xCF, (byte) 0x87, (byte) 0x7C, (byte) 0x78, (byte) 0xAA, (byte) 0xB9,
+        (byte) 0x42, (byte) 0xAE, (byte) 0x7F, (byte) 0xB8, (byte) 0xEC, (byte) 0x4F,
+        (byte) 0xD2, (byte) 0x85, (byte) 0x01, (byte) 0x80, (byte) 0x00, (byte) 0xBD,
+        (byte) 0xF5, (byte) 0xEA, (byte) 0x44, (byte) 0x6D,
+    };
+    private static final PSSParameterSpec SHA224withRSAPSS_NoSalt_Vector2Signature_ParameterSpec =
+            new PSSParameterSpec("SHA-224", "MGF1", new MGF1ParameterSpec("SHA-224"), 0, 1);
+
+    /*
+     * echo "This is a signed message from Kenny Root." | openssl sha224 -binary -out digest.bin \
+     *     && openssl pkeyutl -sign -in digest.bin -inkey privkey.pem \
+     *         -pkeyopt rsa_padding_mode:pss -pkeyopt digest:sha224 -pkeyopt rsa_pss_saltlen:226 \
+     *     | recode ../x1 | sed 's/0x/(byte) 0x/g'
+     */
+    private static final byte[] SHA224withRSAPSS_MaxSalt_Vector2Signature = new byte[] {
+        (byte) 0x2C, (byte) 0x19, (byte) 0x5E, (byte) 0x63, (byte) 0xC5, (byte) 0x32,
+        (byte) 0xC3, (byte) 0xC7, (byte) 0x52, (byte) 0xE9, (byte) 0x69, (byte) 0x4C,
+        (byte) 0x04, (byte) 0xE5, (byte) 0x4A, (byte) 0xF2, (byte) 0x72, (byte) 0x78,
+        (byte) 0xBF, (byte) 0xC5, (byte) 0x8D, (byte) 0x5A, (byte) 0x71, (byte) 0xEF,
+        (byte) 0xA9, (byte) 0x58, (byte) 0x77, (byte) 0x94, (byte) 0x49, (byte) 0x71,
+        (byte) 0xBF, (byte) 0x45, (byte) 0x3E, (byte) 0xA4, (byte) 0x2E, (byte) 0x33,
+        (byte) 0x9B, (byte) 0x4E, (byte) 0xA4, (byte) 0x95, (byte) 0x07, (byte) 0x9C,
+        (byte) 0xAA, (byte) 0xC4, (byte) 0xA8, (byte) 0x60, (byte) 0xBC, (byte) 0xCD,
+        (byte) 0xC3, (byte) 0x45, (byte) 0xE6, (byte) 0xBC, (byte) 0xAD, (byte) 0xB6,
+        (byte) 0xF3, (byte) 0x0E, (byte) 0xF6, (byte) 0xD5, (byte) 0xCF, (byte) 0x33,
+        (byte) 0xA3, (byte) 0x82, (byte) 0x62, (byte) 0x52, (byte) 0x95, (byte) 0xA8,
+        (byte) 0x0E, (byte) 0xD4, (byte) 0xAC, (byte) 0x1F, (byte) 0x9A, (byte) 0xDC,
+        (byte) 0x00, (byte) 0xD6, (byte) 0x78, (byte) 0xEA, (byte) 0x53, (byte) 0x00,
+        (byte) 0x19, (byte) 0xE3, (byte) 0x81, (byte) 0x7C, (byte) 0x7A, (byte) 0x8E,
+        (byte) 0x30, (byte) 0x57, (byte) 0xB7, (byte) 0x81, (byte) 0xD7, (byte) 0x4D,
+        (byte) 0x1D, (byte) 0xCB, (byte) 0x99, (byte) 0x8D, (byte) 0xE4, (byte) 0xFA,
+        (byte) 0x6E, (byte) 0x4E, (byte) 0xA6, (byte) 0xDA, (byte) 0x13, (byte) 0x92,
+        (byte) 0x31, (byte) 0x7C, (byte) 0x2B, (byte) 0x3A, (byte) 0xA0, (byte) 0xF1,
+        (byte) 0x03, (byte) 0x83, (byte) 0x12, (byte) 0xD1, (byte) 0x23, (byte) 0xED,
+        (byte) 0xC4, (byte) 0x01, (byte) 0x57, (byte) 0x63, (byte) 0xAF, (byte) 0x40,
+        (byte) 0x15, (byte) 0xEC, (byte) 0xB8, (byte) 0x5A, (byte) 0xCE, (byte) 0x3D,
+        (byte) 0x3E, (byte) 0xCD, (byte) 0xD8, (byte) 0xF3, (byte) 0x76, (byte) 0xCA,
+        (byte) 0x23, (byte) 0x20, (byte) 0x68, (byte) 0x17, (byte) 0x5B, (byte) 0x7F,
+        (byte) 0xBC, (byte) 0x22, (byte) 0x67, (byte) 0x2A, (byte) 0x91, (byte) 0x05,
+        (byte) 0xB3, (byte) 0x85, (byte) 0x60, (byte) 0xD8, (byte) 0x76, (byte) 0xD5,
+        (byte) 0x2B, (byte) 0x9C, (byte) 0x80, (byte) 0xB6, (byte) 0xEA, (byte) 0x1E,
+        (byte) 0x05, (byte) 0xC7, (byte) 0x95, (byte) 0x2C, (byte) 0x4F, (byte) 0x14,
+        (byte) 0x5F, (byte) 0xEE, (byte) 0x08, (byte) 0x32, (byte) 0xF7, (byte) 0x12,
+        (byte) 0x2B, (byte) 0xCD, (byte) 0xF3, (byte) 0x83, (byte) 0x7C, (byte) 0xCE,
+        (byte) 0x04, (byte) 0x8A, (byte) 0x36, (byte) 0x3D, (byte) 0xB2, (byte) 0x97,
+        (byte) 0x15, (byte) 0xDB, (byte) 0xD6, (byte) 0xFA, (byte) 0x53, (byte) 0x29,
+        (byte) 0xD1, (byte) 0x43, (byte) 0x55, (byte) 0xDD, (byte) 0xAE, (byte) 0xA7,
+        (byte) 0xB4, (byte) 0x2C, (byte) 0xD9, (byte) 0xA7, (byte) 0x74, (byte) 0xA8,
+        (byte) 0x08, (byte) 0xD6, (byte) 0xC2, (byte) 0x05, (byte) 0xBF, (byte) 0x67,
+        (byte) 0x3B, (byte) 0xBA, (byte) 0x8D, (byte) 0x99, (byte) 0xC1, (byte) 0x14,
+        (byte) 0x1A, (byte) 0x32, (byte) 0xCA, (byte) 0xD5, (byte) 0xCC, (byte) 0xF9,
+        (byte) 0x64, (byte) 0x07, (byte) 0x5B, (byte) 0xB8, (byte) 0xA9, (byte) 0x69,
+        (byte) 0xED, (byte) 0x01, (byte) 0xCD, (byte) 0xD2, (byte) 0x88, (byte) 0x67,
+        (byte) 0xFF, (byte) 0x92, (byte) 0xA3, (byte) 0xC6, (byte) 0x97, (byte) 0x97,
+        (byte) 0xA1, (byte) 0xC5, (byte) 0x15, (byte) 0xC8, (byte) 0xB6, (byte) 0xFE,
+        (byte) 0x4A, (byte) 0x07, (byte) 0x2E, (byte) 0x46, (byte) 0x3F, (byte) 0x27,
+        (byte) 0xB8, (byte) 0xEE, (byte) 0x69, (byte) 0xCB, (byte) 0xDC, (byte) 0x30,
+        (byte) 0x19, (byte) 0x77, (byte) 0xC5, (byte) 0xEF,
+    };
+    private static final PSSParameterSpec SHA224withRSAPSS_MaxSalt_Vector2Signature_ParameterSpec =
+            new PSSParameterSpec("SHA-224", "MGF1", new MGF1ParameterSpec("SHA-224"), 226, 1);
 
     /*
      * echo "This is a signed message from Kenny Root." | openssl sha256 -binary -out digest.bin \
@@ -1072,6 +1294,116 @@ public class SignatureTest extends TestCase {
         (byte) 0x7F, (byte) 0x9B, (byte) 0xA9, (byte) 0xD3, (byte) 0xBB, (byte) 0xFC,
         (byte) 0xAC, (byte) 0xC9, (byte) 0x31, (byte) 0xB6,
     };
+    private static final PSSParameterSpec SHA256withRSAPSS_Vector2Signature_ParameterSpec =
+            new PSSParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, 32, 1);
+
+    /*
+     * echo "This is a signed message from Kenny Root." | openssl sha256 -binary -out digest.bin \
+     *     && openssl pkeyutl -sign -in digest.bin -inkey privkey.pem \
+     *         -pkeyopt rsa_padding_mode:pss -pkeyopt digest:sha256 -pkeyopt rsa_pss_saltlen:0 \
+     *     | recode ../x1 | sed 's/0x/(byte) 0x/g'
+     */
+    private static final byte[] SHA256withRSAPSS_NoSalt_Vector2Signature = new byte[] {
+        (byte) 0x4C, (byte) 0xB7, (byte) 0x33, (byte) 0x78, (byte) 0x0A, (byte) 0xA7,
+        (byte) 0xEB, (byte) 0x35, (byte) 0x5E, (byte) 0x99, (byte) 0x8F, (byte) 0xE9,
+        (byte) 0x2A, (byte) 0x3D, (byte) 0x8C, (byte) 0x9B, (byte) 0x19, (byte) 0xC7,
+        (byte) 0xC8, (byte) 0xB8, (byte) 0x10, (byte) 0xC5, (byte) 0x6D, (byte) 0xA4,
+        (byte) 0x44, (byte) 0x3E, (byte) 0xAB, (byte) 0x90, (byte) 0x82, (byte) 0x70,
+        (byte) 0xFA, (byte) 0x7B, (byte) 0xE6, (byte) 0x06, (byte) 0x36, (byte) 0x06,
+        (byte) 0x93, (byte) 0x54, (byte) 0x50, (byte) 0xCD, (byte) 0x5F, (byte) 0xAA,
+        (byte) 0x01, (byte) 0x42, (byte) 0xAD, (byte) 0xB9, (byte) 0x02, (byte) 0x6E,
+        (byte) 0xAE, (byte) 0x60, (byte) 0x00, (byte) 0x60, (byte) 0x55, (byte) 0x1B,
+        (byte) 0xBB, (byte) 0x9E, (byte) 0x03, (byte) 0xB7, (byte) 0x86, (byte) 0x3D,
+        (byte) 0xCC, (byte) 0xFA, (byte) 0x6E, (byte) 0x20, (byte) 0x07, (byte) 0x61,
+        (byte) 0x8F, (byte) 0x53, (byte) 0xC6, (byte) 0x2B, (byte) 0xEF, (byte) 0x8F,
+        (byte) 0x0F, (byte) 0x8B, (byte) 0x80, (byte) 0x22, (byte) 0xDC, (byte) 0x9E,
+        (byte) 0x20, (byte) 0x4A, (byte) 0x57, (byte) 0xA1, (byte) 0x15, (byte) 0xE0,
+        (byte) 0x01, (byte) 0x95, (byte) 0xDB, (byte) 0x46, (byte) 0x85, (byte) 0x6D,
+        (byte) 0x27, (byte) 0x9F, (byte) 0x44, (byte) 0x3B, (byte) 0xB1, (byte) 0x35,
+        (byte) 0x04, (byte) 0x9D, (byte) 0xF8, (byte) 0xC6, (byte) 0xD7, (byte) 0xD7,
+        (byte) 0xEF, (byte) 0x9A, (byte) 0x53, (byte) 0x5A, (byte) 0x73, (byte) 0xB3,
+        (byte) 0xD0, (byte) 0x32, (byte) 0x39, (byte) 0xE1, (byte) 0x28, (byte) 0x3A,
+        (byte) 0x9D, (byte) 0x69, (byte) 0x4E, (byte) 0x57, (byte) 0xC1, (byte) 0xDF,
+        (byte) 0xFE, (byte) 0x5F, (byte) 0xA8, (byte) 0xFF, (byte) 0xE8, (byte) 0x75,
+        (byte) 0x85, (byte) 0x33, (byte) 0x90, (byte) 0x83, (byte) 0x3D, (byte) 0x8F,
+        (byte) 0x15, (byte) 0x47, (byte) 0x16, (byte) 0xF2, (byte) 0x32, (byte) 0xF9,
+        (byte) 0x46, (byte) 0x96, (byte) 0xCC, (byte) 0x2E, (byte) 0x8F, (byte) 0x27,
+        (byte) 0x3F, (byte) 0xCF, (byte) 0x91, (byte) 0xA6, (byte) 0x9E, (byte) 0xBF,
+        (byte) 0x42, (byte) 0x2F, (byte) 0xD6, (byte) 0x52, (byte) 0xD7, (byte) 0x3B,
+        (byte) 0xCD, (byte) 0xFE, (byte) 0x0B, (byte) 0x4A, (byte) 0x3B, (byte) 0x19,
+        (byte) 0x57, (byte) 0x47, (byte) 0x65, (byte) 0x33, (byte) 0xD9, (byte) 0xF7,
+        (byte) 0xE4, (byte) 0xC3, (byte) 0x05, (byte) 0x49, (byte) 0x3C, (byte) 0xC0,
+        (byte) 0xDF, (byte) 0xC1, (byte) 0x54, (byte) 0x18, (byte) 0x8D, (byte) 0xDA,
+        (byte) 0xE4, (byte) 0x59, (byte) 0xE9, (byte) 0x3B, (byte) 0xD6, (byte) 0x89,
+        (byte) 0x07, (byte) 0x99, (byte) 0xB0, (byte) 0xF4, (byte) 0x09, (byte) 0x0A,
+        (byte) 0x2C, (byte) 0xBA, (byte) 0x0B, (byte) 0xE4, (byte) 0x79, (byte) 0xB1,
+        (byte) 0xDB, (byte) 0xAD, (byte) 0xAB, (byte) 0x5D, (byte) 0xA2, (byte) 0x1E,
+        (byte) 0x76, (byte) 0x7F, (byte) 0x74, (byte) 0x62, (byte) 0x49, (byte) 0x07,
+        (byte) 0x7A, (byte) 0x5B, (byte) 0xD7, (byte) 0x0F, (byte) 0xA4, (byte) 0x2C,
+        (byte) 0x36, (byte) 0x13, (byte) 0x42, (byte) 0xBA, (byte) 0xCF, (byte) 0x0A,
+        (byte) 0xFC, (byte) 0xC3, (byte) 0x31, (byte) 0x5E, (byte) 0x06, (byte) 0x84,
+        (byte) 0x8A, (byte) 0x8A, (byte) 0x84, (byte) 0x0D, (byte) 0x48, (byte) 0xBD,
+        (byte) 0x67, (byte) 0xCF, (byte) 0x04, (byte) 0xB4, (byte) 0xFB, (byte) 0xBB,
+        (byte) 0x04, (byte) 0x91, (byte) 0xB1, (byte) 0x0A, (byte) 0xA4, (byte) 0x70,
+        (byte) 0x58, (byte) 0x1A, (byte) 0x9B, (byte) 0x02, (byte) 0x86, (byte) 0xBD,
+        (byte) 0xAE, (byte) 0x77, (byte) 0x97, (byte) 0x1C,
+    };
+    private static final PSSParameterSpec SHA256withRSAPSS_NoSalt_Vector2Signature_ParameterSpec =
+            new PSSParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, 0, 1);
+
+    /*
+     * echo "This is a signed message from Kenny Root." | openssl sha256 -binary -out digest.bin \
+     *     && openssl pkeyutl -sign -in digest.bin -inkey privkey.pem \
+     *         -pkeyopt rsa_padding_mode:pss -pkeyopt digest:sha256 -pkeyopt rsa_pss_saltlen:222 \
+     *     | recode ../x1 | sed 's/0x/(byte) 0x/g'
+     */
+    private static final byte[] SHA256withRSAPSS_MaxSalt_Vector2Signature = new byte[] {
+        (byte) 0x3B, (byte) 0x43, (byte) 0xA8, (byte) 0xB5, (byte) 0x34, (byte) 0xD8,
+        (byte) 0xF9, (byte) 0xAD, (byte) 0xDD, (byte) 0x1F, (byte) 0x7A, (byte) 0x73,
+        (byte) 0xBF, (byte) 0xFA, (byte) 0xED, (byte) 0x10, (byte) 0xF3, (byte) 0x16,
+        (byte) 0xCC, (byte) 0xE5, (byte) 0x09, (byte) 0x0F, (byte) 0x68, (byte) 0x02,
+        (byte) 0xE7, (byte) 0x55, (byte) 0x0D, (byte) 0xCF, (byte) 0x1B, (byte) 0x83,
+        (byte) 0xCD, (byte) 0xA2, (byte) 0xD6, (byte) 0x02, (byte) 0xDD, (byte) 0x72,
+        (byte) 0xA6, (byte) 0x5F, (byte) 0x05, (byte) 0x8A, (byte) 0x1E, (byte) 0xA1,
+        (byte) 0x4F, (byte) 0x92, (byte) 0xD9, (byte) 0x09, (byte) 0x19, (byte) 0x6E,
+        (byte) 0x80, (byte) 0xA0, (byte) 0x47, (byte) 0x98, (byte) 0x5C, (byte) 0xF7,
+        (byte) 0x34, (byte) 0x52, (byte) 0x7D, (byte) 0x85, (byte) 0xCF, (byte) 0x9F,
+        (byte) 0xEB, (byte) 0xAF, (byte) 0xB4, (byte) 0x53, (byte) 0xF0, (byte) 0x5D,
+        (byte) 0x28, (byte) 0x87, (byte) 0xAC, (byte) 0xA7, (byte) 0xB4, (byte) 0xCF,
+        (byte) 0xDD, (byte) 0x8B, (byte) 0xA4, (byte) 0xC9, (byte) 0xCA, (byte) 0xAA,
+        (byte) 0xF4, (byte) 0xA8, (byte) 0x25, (byte) 0x26, (byte) 0x34, (byte) 0x11,
+        (byte) 0x14, (byte) 0x24, (byte) 0x1C, (byte) 0x1C, (byte) 0x50, (byte) 0xC8,
+        (byte) 0xFF, (byte) 0x7E, (byte) 0xFF, (byte) 0x6F, (byte) 0x4F, (byte) 0x14,
+        (byte) 0xB3, (byte) 0x57, (byte) 0x48, (byte) 0x0A, (byte) 0x5A, (byte) 0x95,
+        (byte) 0x5D, (byte) 0xEB, (byte) 0x71, (byte) 0x4E, (byte) 0x86, (byte) 0xFC,
+        (byte) 0x38, (byte) 0x1B, (byte) 0x93, (byte) 0x45, (byte) 0x09, (byte) 0x15,
+        (byte) 0xD3, (byte) 0x06, (byte) 0x6B, (byte) 0x9D, (byte) 0x05, (byte) 0x5C,
+        (byte) 0x4A, (byte) 0xB3, (byte) 0x93, (byte) 0xD1, (byte) 0x01, (byte) 0x54,
+        (byte) 0xCC, (byte) 0xED, (byte) 0xBF, (byte) 0x0E, (byte) 0x7E, (byte) 0x33,
+        (byte) 0x32, (byte) 0xA6, (byte) 0xA5, (byte) 0xF7, (byte) 0x3D, (byte) 0x2E,
+        (byte) 0xCB, (byte) 0x76, (byte) 0xA7, (byte) 0x22, (byte) 0x64, (byte) 0xB8,
+        (byte) 0x19, (byte) 0x53, (byte) 0xFE, (byte) 0x8C, (byte) 0xC8, (byte) 0x1E,
+        (byte) 0x6C, (byte) 0xEE, (byte) 0x08, (byte) 0x07, (byte) 0x7E, (byte) 0x93,
+        (byte) 0x43, (byte) 0x1B, (byte) 0xCF, (byte) 0x37, (byte) 0xE4, (byte) 0xAB,
+        (byte) 0xE7, (byte) 0xD7, (byte) 0x83, (byte) 0x8E, (byte) 0x19, (byte) 0xAE,
+        (byte) 0x05, (byte) 0x51, (byte) 0x91, (byte) 0x10, (byte) 0x7B, (byte) 0x70,
+        (byte) 0xFC, (byte) 0x73, (byte) 0x12, (byte) 0x96, (byte) 0xFA, (byte) 0xD0,
+        (byte) 0xCA, (byte) 0xA3, (byte) 0x59, (byte) 0xA7, (byte) 0xDD, (byte) 0xC3,
+        (byte) 0x1D, (byte) 0x9C, (byte) 0x7B, (byte) 0x50, (byte) 0xBB, (byte) 0x57,
+        (byte) 0xB8, (byte) 0x86, (byte) 0xF2, (byte) 0xCA, (byte) 0xC4, (byte) 0x86,
+        (byte) 0x7A, (byte) 0x96, (byte) 0x90, (byte) 0x02, (byte) 0xDF, (byte) 0xA0,
+        (byte) 0x88, (byte) 0x0E, (byte) 0x89, (byte) 0x45, (byte) 0x27, (byte) 0x52,
+        (byte) 0xDA, (byte) 0x86, (byte) 0x42, (byte) 0x4B, (byte) 0x90, (byte) 0xC3,
+        (byte) 0xC1, (byte) 0x41, (byte) 0x60, (byte) 0x5C, (byte) 0x29, (byte) 0x15,
+        (byte) 0xE5, (byte) 0x5C, (byte) 0x43, (byte) 0x9B, (byte) 0x40, (byte) 0xE5,
+        (byte) 0x04, (byte) 0x1B, (byte) 0x4A, (byte) 0x93, (byte) 0xDD, (byte) 0x55,
+        (byte) 0xC4, (byte) 0xFC, (byte) 0xFE, (byte) 0x0C, (byte) 0x65, (byte) 0x96,
+        (byte) 0x98, (byte) 0xDE, (byte) 0xC5, (byte) 0x05, (byte) 0xC5, (byte) 0x3E,
+        (byte) 0xB0, (byte) 0x25, (byte) 0x4E, (byte) 0x65, (byte) 0x24, (byte) 0x8D,
+        (byte) 0x4E, (byte) 0x9D, (byte) 0x94, (byte) 0x01,
+    };
+    private static final PSSParameterSpec SHA256withRSAPSS_MaxSalt_Vector2Signature_ParameterSpec =
+            new PSSParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, 222, 1);
 
     /*
      * echo "This is a signed message from Kenny Root." | openssl sha384 -binary -out digest.bin \
@@ -1124,6 +1456,116 @@ public class SignatureTest extends TestCase {
         (byte) 0x9A, (byte) 0x06, (byte) 0x6D, (byte) 0x22, (byte) 0x81, (byte) 0xB5,
         (byte) 0x63, (byte) 0xAE, (byte) 0x4A, (byte) 0xEE,
     };
+    private static final PSSParameterSpec SHA384withRSAPSS_Vector2Signature_ParameterSpec =
+            new PSSParameterSpec("SHA-384", "MGF1", MGF1ParameterSpec.SHA384, 48, 1);
+
+    /*
+     * echo "This is a signed message from Kenny Root." | openssl sha384 -binary -out digest.bin \
+     *     && openssl pkeyutl -sign -in digest.bin -inkey privkey.pem \
+     *         -pkeyopt rsa_padding_mode:pss -pkeyopt digest:sha384 -pkeyopt rsa_pss_saltlen:0 \
+     *     | recode ../x1 | sed 's/0x/(byte) 0x/g'
+     */
+    private static final byte[] SHA384withRSAPSS_NoSalt_Vector2Signature = new byte[] {
+        (byte) 0x41, (byte) 0x0C, (byte) 0x3A, (byte) 0xEC, (byte) 0xF6, (byte) 0xD9,
+        (byte) 0x8F, (byte) 0xA3, (byte) 0x61, (byte) 0xBB, (byte) 0x03, (byte) 0xED,
+        (byte) 0xD9, (byte) 0x69, (byte) 0x7D, (byte) 0xE1, (byte) 0xE1, (byte) 0x4E,
+        (byte) 0x5E, (byte) 0x71, (byte) 0x4E, (byte) 0x88, (byte) 0x9C, (byte) 0x79,
+        (byte) 0xD3, (byte) 0x71, (byte) 0x28, (byte) 0x07, (byte) 0x28, (byte) 0x19,
+        (byte) 0x96, (byte) 0x55, (byte) 0x30, (byte) 0x81, (byte) 0x29, (byte) 0x5C,
+        (byte) 0x4A, (byte) 0x18, (byte) 0x69, (byte) 0x36, (byte) 0x74, (byte) 0xAC,
+        (byte) 0x99, (byte) 0xB1, (byte) 0xBC, (byte) 0xA0, (byte) 0xFC, (byte) 0x17,
+        (byte) 0xA4, (byte) 0xD1, (byte) 0xAE, (byte) 0x84, (byte) 0xA6, (byte) 0x09,
+        (byte) 0x6B, (byte) 0xB3, (byte) 0x02, (byte) 0xB2, (byte) 0x81, (byte) 0x04,
+        (byte) 0x59, (byte) 0x8C, (byte) 0xCF, (byte) 0xAD, (byte) 0xFB, (byte) 0x76,
+        (byte) 0x6F, (byte) 0xE2, (byte) 0x5E, (byte) 0x09, (byte) 0xE5, (byte) 0xBC,
+        (byte) 0x54, (byte) 0xBD, (byte) 0x08, (byte) 0xA8, (byte) 0x18, (byte) 0x60,
+        (byte) 0xAF, (byte) 0x09, (byte) 0x67, (byte) 0x15, (byte) 0x03, (byte) 0xA8,
+        (byte) 0x8B, (byte) 0x3F, (byte) 0x31, (byte) 0xB7, (byte) 0x76, (byte) 0xFD,
+        (byte) 0xF6, (byte) 0x82, (byte) 0xC7, (byte) 0x89, (byte) 0xC2, (byte) 0x47,
+        (byte) 0x80, (byte) 0x06, (byte) 0x4F, (byte) 0x8C, (byte) 0x9C, (byte) 0xD7,
+        (byte) 0x4F, (byte) 0x63, (byte) 0x1E, (byte) 0xF0, (byte) 0x34, (byte) 0xD7,
+        (byte) 0x91, (byte) 0xD2, (byte) 0x96, (byte) 0x62, (byte) 0xFD, (byte) 0x68,
+        (byte) 0xE3, (byte) 0xE0, (byte) 0xFB, (byte) 0x7D, (byte) 0x0A, (byte) 0xD7,
+        (byte) 0x52, (byte) 0xFE, (byte) 0xD1, (byte) 0x95, (byte) 0x9E, (byte) 0xD2,
+        (byte) 0x84, (byte) 0xBE, (byte) 0x3D, (byte) 0x1F, (byte) 0x8C, (byte) 0xC4,
+        (byte) 0xD6, (byte) 0xE3, (byte) 0xCF, (byte) 0xE8, (byte) 0xB3, (byte) 0x82,
+        (byte) 0x2E, (byte) 0xFA, (byte) 0x39, (byte) 0xA3, (byte) 0x20, (byte) 0x3C,
+        (byte) 0xBE, (byte) 0x6A, (byte) 0xFA, (byte) 0x04, (byte) 0xD2, (byte) 0x74,
+        (byte) 0x41, (byte) 0xDC, (byte) 0xE8, (byte) 0x0E, (byte) 0xE7, (byte) 0xF2,
+        (byte) 0x36, (byte) 0xD4, (byte) 0x2E, (byte) 0x6A, (byte) 0xCF, (byte) 0xDF,
+        (byte) 0x8B, (byte) 0x4B, (byte) 0x77, (byte) 0xE8, (byte) 0x0A, (byte) 0x64,
+        (byte) 0x86, (byte) 0x2C, (byte) 0xCA, (byte) 0x92, (byte) 0x01, (byte) 0xB2,
+        (byte) 0x8A, (byte) 0xB8, (byte) 0xB2, (byte) 0x6C, (byte) 0x0B, (byte) 0x18,
+        (byte) 0x90, (byte) 0x31, (byte) 0x93, (byte) 0x29, (byte) 0xBA, (byte) 0xB1,
+        (byte) 0x88, (byte) 0x94, (byte) 0x44, (byte) 0x0B, (byte) 0x38, (byte) 0x64,
+        (byte) 0xC1, (byte) 0xDE, (byte) 0x0B, (byte) 0xD8, (byte) 0xE4, (byte) 0xBA,
+        (byte) 0x0A, (byte) 0x41, (byte) 0x24, (byte) 0x35, (byte) 0xAA, (byte) 0xE3,
+        (byte) 0x59, (byte) 0x8E, (byte) 0x57, (byte) 0x51, (byte) 0x43, (byte) 0xE1,
+        (byte) 0x9C, (byte) 0xF6, (byte) 0xF8, (byte) 0x16, (byte) 0x68, (byte) 0x83,
+        (byte) 0x08, (byte) 0x8C, (byte) 0x2D, (byte) 0x40, (byte) 0xD2, (byte) 0xEF,
+        (byte) 0xD6, (byte) 0xAE, (byte) 0x98, (byte) 0x77, (byte) 0xE8, (byte) 0xF2,
+        (byte) 0xC7, (byte) 0x19, (byte) 0x61, (byte) 0xD6, (byte) 0x43, (byte) 0xCD,
+        (byte) 0x76, (byte) 0x2E, (byte) 0x7A, (byte) 0xCB, (byte) 0x1A, (byte) 0x5D,
+        (byte) 0x73, (byte) 0x45, (byte) 0xF2, (byte) 0x7C, (byte) 0xD0, (byte) 0x88,
+        (byte) 0x83, (byte) 0x51, (byte) 0xF3, (byte) 0x19, (byte) 0x0F, (byte) 0xD5,
+        (byte) 0x40, (byte) 0x3F, (byte) 0xD9, (byte) 0xBF,
+    };
+    private static final PSSParameterSpec SHA384withRSAPSS_NoSalt_Vector2Signature_ParameterSpec =
+            new PSSParameterSpec("SHA-384", "MGF1", MGF1ParameterSpec.SHA384, 0, 1);
+
+    /*
+     * echo "This is a signed message from Kenny Root." | openssl sha384 -binary -out digest.bin \
+     *     && openssl pkeyutl -sign -in digest.bin -inkey privkey.pem \
+     *         -pkeyopt rsa_padding_mode:pss -pkeyopt digest:sha384 -pkeyopt rsa_pss_saltlen:206 \
+     *     | recode ../x1 | sed 's/0x/(byte) 0x/g'
+     */
+    private static final byte[] SHA384withRSAPSS_MaxSalt_Vector2Signature = new byte[] {
+        (byte) 0xDE, (byte) 0xF7, (byte) 0xC3, (byte) 0x21, (byte) 0x79, (byte) 0x0F,
+        (byte) 0x55, (byte) 0xD1, (byte) 0x56, (byte) 0x9A, (byte) 0xB0, (byte) 0x08,
+        (byte) 0xA1, (byte) 0x27, (byte) 0xC9, (byte) 0x5E, (byte) 0x64, (byte) 0xF4,
+        (byte) 0xC7, (byte) 0x83, (byte) 0x94, (byte) 0xCA, (byte) 0xBD, (byte) 0x50,
+        (byte) 0xD6, (byte) 0xC5, (byte) 0x56, (byte) 0x94, (byte) 0xBD, (byte) 0x0B,
+        (byte) 0x55, (byte) 0xE6, (byte) 0x04, (byte) 0xAD, (byte) 0xAF, (byte) 0xAF,
+        (byte) 0x4F, (byte) 0x2D, (byte) 0x91, (byte) 0x7F, (byte) 0xF1, (byte) 0x60,
+        (byte) 0x0C, (byte) 0xEE, (byte) 0xE8, (byte) 0x44, (byte) 0xFC, (byte) 0x69,
+        (byte) 0x80, (byte) 0x43, (byte) 0xBC, (byte) 0xAB, (byte) 0x83, (byte) 0x35,
+        (byte) 0xB0, (byte) 0xC6, (byte) 0xCB, (byte) 0xE6, (byte) 0x92, (byte) 0x29,
+        (byte) 0x09, (byte) 0xCF, (byte) 0xDB, (byte) 0xAD, (byte) 0x16, (byte) 0x93,
+        (byte) 0xC7, (byte) 0xBE, (byte) 0x81, (byte) 0x68, (byte) 0x0F, (byte) 0x7B,
+        (byte) 0xC1, (byte) 0xC2, (byte) 0x8C, (byte) 0xBA, (byte) 0x59, (byte) 0x80,
+        (byte) 0xAE, (byte) 0xFB, (byte) 0x60, (byte) 0x22, (byte) 0x28, (byte) 0x36,
+        (byte) 0xBE, (byte) 0x37, (byte) 0x72, (byte) 0x86, (byte) 0x02, (byte) 0x4B,
+        (byte) 0xF9, (byte) 0x14, (byte) 0x5A, (byte) 0x6B, (byte) 0x32, (byte) 0x44,
+        (byte) 0x72, (byte) 0x33, (byte) 0x2E, (byte) 0x7F, (byte) 0xA1, (byte) 0xFD,
+        (byte) 0x07, (byte) 0xF2, (byte) 0xD9, (byte) 0x9D, (byte) 0x03, (byte) 0x77,
+        (byte) 0x17, (byte) 0xFB, (byte) 0x0E, (byte) 0xFF, (byte) 0xF7, (byte) 0x37,
+        (byte) 0x68, (byte) 0xF6, (byte) 0x8F, (byte) 0x9B, (byte) 0x2C, (byte) 0xEB,
+        (byte) 0xAF, (byte) 0x6C, (byte) 0x50, (byte) 0x9F, (byte) 0x34, (byte) 0xB2,
+        (byte) 0x52, (byte) 0x3B, (byte) 0x94, (byte) 0x6F, (byte) 0x60, (byte) 0x16,
+        (byte) 0x52, (byte) 0x0A, (byte) 0xBF, (byte) 0x95, (byte) 0x41, (byte) 0x44,
+        (byte) 0x83, (byte) 0x91, (byte) 0x85, (byte) 0xA1, (byte) 0xF7, (byte) 0xF9,
+        (byte) 0x17, (byte) 0x4A, (byte) 0xF7, (byte) 0xF1, (byte) 0xE8, (byte) 0x9C,
+        (byte) 0x75, (byte) 0x86, (byte) 0x12, (byte) 0x44, (byte) 0x19, (byte) 0x5C,
+        (byte) 0x65, (byte) 0x31, (byte) 0x89, (byte) 0x2A, (byte) 0xFC, (byte) 0xBE,
+        (byte) 0xE8, (byte) 0xEC, (byte) 0xC9, (byte) 0xD7, (byte) 0x41, (byte) 0xDA,
+        (byte) 0xD9, (byte) 0xC9, (byte) 0x8B, (byte) 0x90, (byte) 0x60, (byte) 0xCC,
+        (byte) 0xB2, (byte) 0x7A, (byte) 0xBA, (byte) 0xA0, (byte) 0xEE, (byte) 0xBE,
+        (byte) 0x9C, (byte) 0xE7, (byte) 0xF2, (byte) 0x27, (byte) 0x92, (byte) 0x9C,
+        (byte) 0x3C, (byte) 0x0F, (byte) 0x5C, (byte) 0xEE, (byte) 0x38, (byte) 0x48,
+        (byte) 0xCF, (byte) 0xFF, (byte) 0x33, (byte) 0x35, (byte) 0x80, (byte) 0x99,
+        (byte) 0x5D, (byte) 0xA7, (byte) 0x5A, (byte) 0x7A, (byte) 0xEA, (byte) 0x96,
+        (byte) 0x74, (byte) 0x28, (byte) 0x36, (byte) 0x7B, (byte) 0xE1, (byte) 0x33,
+        (byte) 0x7C, (byte) 0x78, (byte) 0xEC, (byte) 0x05, (byte) 0x72, (byte) 0x0E,
+        (byte) 0x5D, (byte) 0x16, (byte) 0x5C, (byte) 0x77, (byte) 0x58, (byte) 0xA7,
+        (byte) 0x31, (byte) 0x3F, (byte) 0xBA, (byte) 0x91, (byte) 0xA7, (byte) 0x16,
+        (byte) 0xFC, (byte) 0x31, (byte) 0xCA, (byte) 0x30, (byte) 0xE0, (byte) 0xF4,
+        (byte) 0x5D, (byte) 0x07, (byte) 0x4A, (byte) 0x9C, (byte) 0x1D, (byte) 0x2B,
+        (byte) 0x4E, (byte) 0xB8, (byte) 0x7C, (byte) 0x67, (byte) 0xCB, (byte) 0x34,
+        (byte) 0x69, (byte) 0x85, (byte) 0x4E, (byte) 0x99, (byte) 0x41, (byte) 0x8A,
+        (byte) 0x35, (byte) 0x85, (byte) 0xF2, (byte) 0x1A,
+    };
+    private static final PSSParameterSpec SHA384withRSAPSS_MaxSalt_Vector2Signature_ParameterSpec =
+            new PSSParameterSpec("SHA-384", "MGF1", MGF1ParameterSpec.SHA384, 206, 1);
 
     /*
      * echo "This is a signed message from Kenny Root." | openssl sha512 -binary -out digest.bin \
@@ -1176,6 +1618,116 @@ public class SignatureTest extends TestCase {
         (byte) 0xF9, (byte) 0x9E, (byte) 0x65, (byte) 0x05, (byte) 0xF0, (byte) 0x22,
         (byte) 0x7F, (byte) 0x4F, (byte) 0x40, (byte) 0x45,
     };
+    private static final PSSParameterSpec SHA512withRSAPSS_Vector2Signature_ParameterSpec =
+            new PSSParameterSpec("SHA-512", "MGF1", MGF1ParameterSpec.SHA512, 64, 1);
+
+    /*
+     * echo "This is a signed message from Kenny Root." | openssl sha512 -binary -out digest.bin \
+     *     && openssl pkeyutl -sign -in digest.bin -inkey privkey.pem \
+     *         -pkeyopt rsa_padding_mode:pss -pkeyopt digest:sha512 -pkeyopt rsa_pss_saltlen:64 \
+     *     | recode ../x1 | sed 's/0x/(byte) 0x/g'
+     */
+    private static final byte[] SHA512withRSAPSS_NoSalt_Vector2Signature = new byte[] {
+        (byte) 0x49, (byte) 0xA3, (byte) 0xBC, (byte) 0x2E, (byte) 0x67, (byte) 0x96,
+        (byte) 0xA5, (byte) 0x3E, (byte) 0x39, (byte) 0x46, (byte) 0xD6, (byte) 0xA1,
+        (byte) 0xA0, (byte) 0x4F, (byte) 0x3A, (byte) 0x03, (byte) 0x8F, (byte) 0x62,
+        (byte) 0xF2, (byte) 0xD8, (byte) 0x90, (byte) 0xAD, (byte) 0xE2, (byte) 0x3B,
+        (byte) 0x4F, (byte) 0x98, (byte) 0x88, (byte) 0x51, (byte) 0x41, (byte) 0x09,
+        (byte) 0x23, (byte) 0xEB, (byte) 0xF4, (byte) 0x5D, (byte) 0x6A, (byte) 0x22,
+        (byte) 0x12, (byte) 0x12, (byte) 0xDC, (byte) 0x27, (byte) 0xE9, (byte) 0xF7,
+        (byte) 0x64, (byte) 0xA3, (byte) 0xDE, (byte) 0x3A, (byte) 0xB0, (byte) 0xD6,
+        (byte) 0xF2, (byte) 0xC6, (byte) 0xBC, (byte) 0x0B, (byte) 0xA2, (byte) 0xA1,
+        (byte) 0xAA, (byte) 0xB0, (byte) 0x51, (byte) 0xDA, (byte) 0x4F, (byte) 0x28,
+        (byte) 0xA8, (byte) 0xEB, (byte) 0x34, (byte) 0x60, (byte) 0x37, (byte) 0xF7,
+        (byte) 0x50, (byte) 0x7D, (byte) 0xB8, (byte) 0xE7, (byte) 0x24, (byte) 0x8E,
+        (byte) 0xAC, (byte) 0x03, (byte) 0x31, (byte) 0xB8, (byte) 0xE0, (byte) 0xDB,
+        (byte) 0x97, (byte) 0xE9, (byte) 0x1B, (byte) 0x7E, (byte) 0x27, (byte) 0x99,
+        (byte) 0x93, (byte) 0x4D, (byte) 0x46, (byte) 0xB3, (byte) 0xFE, (byte) 0xD6,
+        (byte) 0x23, (byte) 0xB3, (byte) 0xAB, (byte) 0x3E, (byte) 0x33, (byte) 0xA1,
+        (byte) 0x10, (byte) 0x4E, (byte) 0x34, (byte) 0x27, (byte) 0x58, (byte) 0x25,
+        (byte) 0xB7, (byte) 0xBA, (byte) 0xEE, (byte) 0xBE, (byte) 0xE0, (byte) 0x6E,
+        (byte) 0x54, (byte) 0xF7, (byte) 0x73, (byte) 0x7B, (byte) 0x5A, (byte) 0x9C,
+        (byte) 0x74, (byte) 0xEA, (byte) 0xC7, (byte) 0x7E, (byte) 0xC6, (byte) 0xF7,
+        (byte) 0xD5, (byte) 0x32, (byte) 0x0E, (byte) 0x28, (byte) 0x99, (byte) 0xD8,
+        (byte) 0xEF, (byte) 0x97, (byte) 0x62, (byte) 0x8A, (byte) 0xE3, (byte) 0x16,
+        (byte) 0xAD, (byte) 0xE2, (byte) 0xF4, (byte) 0x11, (byte) 0x91, (byte) 0x17,
+        (byte) 0xF3, (byte) 0x32, (byte) 0x90, (byte) 0xCB, (byte) 0x3C, (byte) 0x89,
+        (byte) 0xF4, (byte) 0x20, (byte) 0xF1, (byte) 0x2D, (byte) 0x74, (byte) 0x22,
+        (byte) 0x50, (byte) 0x64, (byte) 0xC2, (byte) 0xF4, (byte) 0xC4, (byte) 0x0D,
+        (byte) 0x18, (byte) 0x6A, (byte) 0x02, (byte) 0x52, (byte) 0x14, (byte) 0x85,
+        (byte) 0x67, (byte) 0xA4, (byte) 0x08, (byte) 0xE5, (byte) 0xBF, (byte) 0x65,
+        (byte) 0x15, (byte) 0xB3, (byte) 0x5A, (byte) 0x88, (byte) 0xEB, (byte) 0xD4,
+        (byte) 0x75, (byte) 0xF9, (byte) 0x52, (byte) 0x73, (byte) 0xA0, (byte) 0x5E,
+        (byte) 0xBA, (byte) 0x37, (byte) 0x6A, (byte) 0x61, (byte) 0x2B, (byte) 0x16,
+        (byte) 0x8A, (byte) 0xA8, (byte) 0x00, (byte) 0xBB, (byte) 0x4D, (byte) 0xFA,
+        (byte) 0x04, (byte) 0xB8, (byte) 0xAB, (byte) 0x4D, (byte) 0xA4, (byte) 0xFC,
+        (byte) 0x9D, (byte) 0xCF, (byte) 0x63, (byte) 0x83, (byte) 0x34, (byte) 0xAE,
+        (byte) 0xAE, (byte) 0xA6, (byte) 0x77, (byte) 0x73, (byte) 0xA2, (byte) 0xB5,
+        (byte) 0x77, (byte) 0xAC, (byte) 0x00, (byte) 0x03, (byte) 0x06, (byte) 0xD4,
+        (byte) 0xDF, (byte) 0x81, (byte) 0x61, (byte) 0xCE, (byte) 0x8E, (byte) 0xC1,
+        (byte) 0xD5, (byte) 0x99, (byte) 0xD5, (byte) 0x2F, (byte) 0xE8, (byte) 0x27,
+        (byte) 0xFA, (byte) 0x84, (byte) 0x7E, (byte) 0x57, (byte) 0xF1, (byte) 0xC9,
+        (byte) 0xEB, (byte) 0x4F, (byte) 0xF9, (byte) 0x92, (byte) 0xC6, (byte) 0xD0,
+        (byte) 0x25, (byte) 0x8A, (byte) 0x16, (byte) 0xD0, (byte) 0xEC, (byte) 0xE5,
+        (byte) 0x33, (byte) 0xA6, (byte) 0xF9, (byte) 0xD5, (byte) 0x0C, (byte) 0x7B,
+        (byte) 0xEC, (byte) 0xC6, (byte) 0x58, (byte) 0x45,
+    };
+    private static final PSSParameterSpec SHA512withRSAPSS_NoSalt_Vector2Signature_ParameterSpec =
+            new PSSParameterSpec("SHA-512", "MGF1", MGF1ParameterSpec.SHA512, 0, 1);
+
+    /*
+     * echo "This is a signed message from Kenny Root." | openssl sha512 -binary -out digest.bin \
+     *     && openssl pkeyutl -sign -in digest.bin -inkey privkey.pem \
+     *         -pkeyopt rsa_padding_mode:pss -pkeyopt digest:sha512 -pkeyopt rsa_pss_saltlen:190 \
+     *     | recode ../x1 | sed 's/0x/(byte) 0x/g'
+     */
+    private static final byte[] SHA512withRSAPSS_MaxSalt_Vector2Signature = new byte[] {
+        (byte) 0x90, (byte) 0x92, (byte) 0x45, (byte) 0xA1, (byte) 0x1E, (byte) 0x0F,
+        (byte) 0x5F, (byte) 0xF6, (byte) 0x8F, (byte) 0xA0, (byte) 0xBE, (byte) 0x34,
+        (byte) 0x29, (byte) 0x62, (byte) 0xBE, (byte) 0x41, (byte) 0x80, (byte) 0xF0,
+        (byte) 0xB8, (byte) 0x9F, (byte) 0x29, (byte) 0x63, (byte) 0x89, (byte) 0x26,
+        (byte) 0xC2, (byte) 0x22, (byte) 0x1F, (byte) 0x60, (byte) 0xB6, (byte) 0xFC,
+        (byte) 0x5A, (byte) 0x3E, (byte) 0x99, (byte) 0xB8, (byte) 0xC6, (byte) 0x3B,
+        (byte) 0x67, (byte) 0x33, (byte) 0x97, (byte) 0x19, (byte) 0xC6, (byte) 0xFF,
+        (byte) 0x0C, (byte) 0xA9, (byte) 0x04, (byte) 0x5A, (byte) 0xF0, (byte) 0x02,
+        (byte) 0x9A, (byte) 0x19, (byte) 0x0F, (byte) 0xEA, (byte) 0x77, (byte) 0x0D,
+        (byte) 0x56, (byte) 0x38, (byte) 0x0A, (byte) 0xED, (byte) 0x4E, (byte) 0xB7,
+        (byte) 0x57, (byte) 0xBD, (byte) 0xC9, (byte) 0xA3, (byte) 0xE8, (byte) 0xC0,
+        (byte) 0x7D, (byte) 0xF6, (byte) 0xA3, (byte) 0x4B, (byte) 0x61, (byte) 0x45,
+        (byte) 0x06, (byte) 0x5E, (byte) 0x56, (byte) 0xF5, (byte) 0xEF, (byte) 0x76,
+        (byte) 0x6B, (byte) 0xB7, (byte) 0xD4, (byte) 0xBB, (byte) 0xA4, (byte) 0x3C,
+        (byte) 0x52, (byte) 0xF8, (byte) 0x06, (byte) 0x67, (byte) 0xF7, (byte) 0xC3,
+        (byte) 0x8C, (byte) 0x5E, (byte) 0xDF, (byte) 0xFE, (byte) 0x30, (byte) 0x2E,
+        (byte) 0xF8, (byte) 0x59, (byte) 0x3C, (byte) 0x3B, (byte) 0xEA, (byte) 0xA0,
+        (byte) 0x5D, (byte) 0x8F, (byte) 0x18, (byte) 0x73, (byte) 0x1A, (byte) 0x2D,
+        (byte) 0xB1, (byte) 0x55, (byte) 0x07, (byte) 0xC8, (byte) 0x33, (byte) 0xED,
+        (byte) 0x8A, (byte) 0x5E, (byte) 0xC3, (byte) 0xAE, (byte) 0x51, (byte) 0x31,
+        (byte) 0xC4, (byte) 0xFA, (byte) 0xE8, (byte) 0xE9, (byte) 0xBE, (byte) 0x2E,
+        (byte) 0x28, (byte) 0xAA, (byte) 0xED, (byte) 0xA8, (byte) 0x4B, (byte) 0xA3,
+        (byte) 0x13, (byte) 0xB9, (byte) 0x82, (byte) 0x57, (byte) 0xD1, (byte) 0x72,
+        (byte) 0x0D, (byte) 0xA7, (byte) 0xF8, (byte) 0x67, (byte) 0xB8, (byte) 0x55,
+        (byte) 0xF3, (byte) 0x06, (byte) 0xAE, (byte) 0xA7, (byte) 0x69, (byte) 0x66,
+        (byte) 0x0B, (byte) 0x80, (byte) 0x56, (byte) 0x65, (byte) 0xC7, (byte) 0xE9,
+        (byte) 0x60, (byte) 0xDC, (byte) 0x2D, (byte) 0x4B, (byte) 0x26, (byte) 0xA9,
+        (byte) 0xED, (byte) 0x54, (byte) 0x79, (byte) 0x9E, (byte) 0x55, (byte) 0x1D,
+        (byte) 0xEE, (byte) 0x78, (byte) 0x49, (byte) 0xA1, (byte) 0x1F, (byte) 0x9B,
+        (byte) 0x37, (byte) 0xC0, (byte) 0xBA, (byte) 0xE6, (byte) 0x4B, (byte) 0x3B,
+        (byte) 0xAF, (byte) 0x12, (byte) 0x99, (byte) 0x32, (byte) 0x14, (byte) 0x8C,
+        (byte) 0x4D, (byte) 0xEB, (byte) 0x08, (byte) 0xA4, (byte) 0xE3, (byte) 0xC6,
+        (byte) 0x37, (byte) 0x8B, (byte) 0x6E, (byte) 0x7C, (byte) 0xEC, (byte) 0xA3,
+        (byte) 0x78, (byte) 0xED, (byte) 0x4E, (byte) 0x36, (byte) 0xBC, (byte) 0xA2,
+        (byte) 0x7D, (byte) 0x11, (byte) 0x0E, (byte) 0xD0, (byte) 0x53, (byte) 0x14,
+        (byte) 0x93, (byte) 0x16, (byte) 0x54, (byte) 0x45, (byte) 0x79, (byte) 0x7A,
+        (byte) 0x1A, (byte) 0xA1, (byte) 0xEC, (byte) 0xF3, (byte) 0x12, (byte) 0x3F,
+        (byte) 0xFE, (byte) 0x68, (byte) 0xFF, (byte) 0x5A, (byte) 0x3F, (byte) 0xE7,
+        (byte) 0x13, (byte) 0x37, (byte) 0xEB, (byte) 0x60, (byte) 0x0A, (byte) 0x8E,
+        (byte) 0x4F, (byte) 0x54, (byte) 0x46, (byte) 0x19, (byte) 0x82, (byte) 0xBF,
+        (byte) 0xB7, (byte) 0xD2, (byte) 0x19, (byte) 0x71, (byte) 0x78, (byte) 0x38,
+        (byte) 0x4C, (byte) 0xE3, (byte) 0xC4, (byte) 0xEA, (byte) 0x8F, (byte) 0x9B,
+        (byte) 0xE5, (byte) 0xBA, (byte) 0x06, (byte) 0xFC,
+    };
+    private static final PSSParameterSpec SHA512withRSAPSS_MaxSalt_Vector2Signature_ParameterSpec =
+            new PSSParameterSpec("SHA-512", "MGF1", MGF1ParameterSpec.SHA512, 190, 1);
 
     public void testGetCommonInstances_Success() throws Exception {
         assertNotNull(Signature.getInstance("SHA1withRSA"));
@@ -1259,10 +1811,40 @@ public class SignatureTest extends TestCase {
 
         Signature sig = Signature.getInstance("SHA1withRSA/PSS");
         sig.initVerify(pubKey);
+        assertPSSAlgorithmParametersEquals(
+                SHA1withRSAPSS_Vector2Signature_ParameterSpec, sig.getParameters());
         sig.update(Vector2Data);
 
         assertTrue("Signature must verify",
                 sig.verify(SHA1withRSAPSS_Vector2Signature));
+    }
+
+    public void testVerify_SHA1withRSAPSS_NoSalt_Key_Success() throws Exception {
+        KeyFactory kf = KeyFactory.getInstance("RSA");
+        RSAPublicKeySpec keySpec = new RSAPublicKeySpec(RSA_2048_modulus, RSA_2048_publicExponent);
+        PublicKey pubKey = kf.generatePublic(keySpec);
+
+        Signature sig = Signature.getInstance("SHA1withRSA/PSS");
+        sig.initVerify(pubKey);
+        sig.setParameter(SHA1withRSAPSS_NoSalt_Vector2Signature_ParameterSpec);
+        sig.update(Vector2Data);
+
+        assertTrue("Signature must verify",
+                sig.verify(SHA1withRSAPSS_NoSalt_Vector2Signature));
+    }
+
+    public void testVerify_SHA1withRSAPSS_MaxSalt_Key_Success() throws Exception {
+        KeyFactory kf = KeyFactory.getInstance("RSA");
+        RSAPublicKeySpec keySpec = new RSAPublicKeySpec(RSA_2048_modulus, RSA_2048_publicExponent);
+        PublicKey pubKey = kf.generatePublic(keySpec);
+
+        Signature sig = Signature.getInstance("SHA1withRSA/PSS");
+        sig.initVerify(pubKey);
+        sig.setParameter(SHA1withRSAPSS_MaxSalt_Vector2Signature_ParameterSpec);
+        sig.update(Vector2Data);
+
+        assertTrue("Signature must verify",
+                sig.verify(SHA1withRSAPSS_MaxSalt_Vector2Signature));
     }
 
     public void testVerify_SHA224withRSAPSS_Key_Success() throws Exception {
@@ -1272,10 +1854,40 @@ public class SignatureTest extends TestCase {
 
         Signature sig = Signature.getInstance("SHA224withRSA/PSS");
         sig.initVerify(pubKey);
+        assertPSSAlgorithmParametersEquals(
+                SHA224withRSAPSS_Vector2Signature_ParameterSpec, sig.getParameters());
         sig.update(Vector2Data);
 
         assertTrue("Signature must verify",
                 sig.verify(SHA224withRSAPSS_Vector2Signature));
+    }
+
+    public void testVerify_SHA224withRSAPSS_NoSalt_Key_Success() throws Exception {
+        KeyFactory kf = KeyFactory.getInstance("RSA");
+        RSAPublicKeySpec keySpec = new RSAPublicKeySpec(RSA_2048_modulus, RSA_2048_publicExponent);
+        PublicKey pubKey = kf.generatePublic(keySpec);
+
+        Signature sig = Signature.getInstance("SHA224withRSA/PSS");
+        sig.initVerify(pubKey);
+        sig.setParameter(SHA224withRSAPSS_NoSalt_Vector2Signature_ParameterSpec);
+        sig.update(Vector2Data);
+
+        assertTrue("Signature must verify",
+                sig.verify(SHA224withRSAPSS_NoSalt_Vector2Signature));
+    }
+
+    public void testVerify_SHA224withRSAPSS_MaxSalt_Key_Success() throws Exception {
+        KeyFactory kf = KeyFactory.getInstance("RSA");
+        RSAPublicKeySpec keySpec = new RSAPublicKeySpec(RSA_2048_modulus, RSA_2048_publicExponent);
+        PublicKey pubKey = kf.generatePublic(keySpec);
+
+        Signature sig = Signature.getInstance("SHA224withRSA/PSS");
+        sig.initVerify(pubKey);
+        sig.setParameter(SHA224withRSAPSS_MaxSalt_Vector2Signature_ParameterSpec);
+        sig.update(Vector2Data);
+
+        assertTrue("Signature must verify",
+                sig.verify(SHA224withRSAPSS_MaxSalt_Vector2Signature));
     }
 
     public void testVerify_SHA256withRSAPSS_Key_Success() throws Exception {
@@ -1285,10 +1897,40 @@ public class SignatureTest extends TestCase {
 
         Signature sig = Signature.getInstance("SHA256withRSA/PSS");
         sig.initVerify(pubKey);
+        assertPSSAlgorithmParametersEquals(
+                SHA256withRSAPSS_Vector2Signature_ParameterSpec, sig.getParameters());
         sig.update(Vector2Data);
 
         assertTrue("Signature must verify",
                 sig.verify(SHA256withRSAPSS_Vector2Signature));
+    }
+
+    public void testVerify_SHA256withRSAPSS_NoSalt_Key_Success() throws Exception {
+        KeyFactory kf = KeyFactory.getInstance("RSA");
+        RSAPublicKeySpec keySpec = new RSAPublicKeySpec(RSA_2048_modulus, RSA_2048_publicExponent);
+        PublicKey pubKey = kf.generatePublic(keySpec);
+
+        Signature sig = Signature.getInstance("SHA256withRSA/PSS");
+        sig.initVerify(pubKey);
+        sig.setParameter(SHA256withRSAPSS_NoSalt_Vector2Signature_ParameterSpec);
+        sig.update(Vector2Data);
+
+        assertTrue("Signature must verify",
+                sig.verify(SHA256withRSAPSS_NoSalt_Vector2Signature));
+    }
+
+    public void testVerify_SHA256withRSAPSS_MaxSalt_Key_Success() throws Exception {
+        KeyFactory kf = KeyFactory.getInstance("RSA");
+        RSAPublicKeySpec keySpec = new RSAPublicKeySpec(RSA_2048_modulus, RSA_2048_publicExponent);
+        PublicKey pubKey = kf.generatePublic(keySpec);
+
+        Signature sig = Signature.getInstance("SHA256withRSA/PSS");
+        sig.initVerify(pubKey);
+        sig.setParameter(SHA256withRSAPSS_MaxSalt_Vector2Signature_ParameterSpec);
+        sig.update(Vector2Data);
+
+        assertTrue("Signature must verify",
+                sig.verify(SHA256withRSAPSS_MaxSalt_Vector2Signature));
     }
 
     public void testVerify_SHA384withRSAPSS_Key_Success() throws Exception {
@@ -1298,10 +1940,40 @@ public class SignatureTest extends TestCase {
 
         Signature sig = Signature.getInstance("SHA384withRSA/PSS");
         sig.initVerify(pubKey);
+        assertPSSAlgorithmParametersEquals(
+                SHA384withRSAPSS_Vector2Signature_ParameterSpec, sig.getParameters());
         sig.update(Vector2Data);
 
         assertTrue("Signature must verify",
                 sig.verify(SHA384withRSAPSS_Vector2Signature));
+    }
+
+    public void testVerify_SHA384withRSAPSS_NoSalt_Key_Success() throws Exception {
+        KeyFactory kf = KeyFactory.getInstance("RSA");
+        RSAPublicKeySpec keySpec = new RSAPublicKeySpec(RSA_2048_modulus, RSA_2048_publicExponent);
+        PublicKey pubKey = kf.generatePublic(keySpec);
+
+        Signature sig = Signature.getInstance("SHA384withRSA/PSS");
+        sig.initVerify(pubKey);
+        sig.setParameter(SHA384withRSAPSS_NoSalt_Vector2Signature_ParameterSpec);
+        sig.update(Vector2Data);
+
+        assertTrue("Signature must verify",
+                sig.verify(SHA384withRSAPSS_NoSalt_Vector2Signature));
+    }
+
+    public void testVerify_SHA384withRSAPSS_MaxSalt_Key_Success() throws Exception {
+        KeyFactory kf = KeyFactory.getInstance("RSA");
+        RSAPublicKeySpec keySpec = new RSAPublicKeySpec(RSA_2048_modulus, RSA_2048_publicExponent);
+        PublicKey pubKey = kf.generatePublic(keySpec);
+
+        Signature sig = Signature.getInstance("SHA384withRSA/PSS");
+        sig.initVerify(pubKey);
+        sig.setParameter(SHA384withRSAPSS_MaxSalt_Vector2Signature_ParameterSpec);
+        sig.update(Vector2Data);
+
+        assertTrue("Signature must verify",
+                sig.verify(SHA384withRSAPSS_MaxSalt_Vector2Signature));
     }
 
     public void testVerify_SHA512withRSAPSS_Key_Success() throws Exception {
@@ -1311,10 +1983,40 @@ public class SignatureTest extends TestCase {
 
         Signature sig = Signature.getInstance("SHA512withRSA/PSS");
         sig.initVerify(pubKey);
+        assertPSSAlgorithmParametersEquals(
+                SHA512withRSAPSS_Vector2Signature_ParameterSpec, sig.getParameters());
         sig.update(Vector2Data);
 
         assertTrue("Signature must verify",
                 sig.verify(SHA512withRSAPSS_Vector2Signature));
+    }
+
+    public void testVerify_SHA512withRSAPSS_NoSalt_Key_Success() throws Exception {
+        KeyFactory kf = KeyFactory.getInstance("RSA");
+        RSAPublicKeySpec keySpec = new RSAPublicKeySpec(RSA_2048_modulus, RSA_2048_publicExponent);
+        PublicKey pubKey = kf.generatePublic(keySpec);
+
+        Signature sig = Signature.getInstance("SHA512withRSA/PSS");
+        sig.initVerify(pubKey);
+        sig.setParameter(SHA512withRSAPSS_NoSalt_Vector2Signature_ParameterSpec);
+        sig.update(Vector2Data);
+
+        assertTrue("Signature must verify",
+                sig.verify(SHA512withRSAPSS_NoSalt_Vector2Signature));
+    }
+
+    public void testVerify_SHA512withRSAPSS_MaxSalt_Key_Success() throws Exception {
+        KeyFactory kf = KeyFactory.getInstance("RSA");
+        RSAPublicKeySpec keySpec = new RSAPublicKeySpec(RSA_2048_modulus, RSA_2048_publicExponent);
+        PublicKey pubKey = kf.generatePublic(keySpec);
+
+        Signature sig = Signature.getInstance("SHA512withRSA/PSS");
+        sig.initVerify(pubKey);
+        sig.setParameter(SHA512withRSAPSS_MaxSalt_Vector2Signature_ParameterSpec);
+        sig.update(Vector2Data);
+
+        assertTrue("Signature must verify",
+                sig.verify(SHA512withRSAPSS_MaxSalt_Vector2Signature));
     }
 
     public void testVerify_SHA1withRSA_Key_InitSignThenInitVerify_Success() throws Exception {
@@ -1628,11 +2330,66 @@ public class SignatureTest extends TestCase {
 
         byte[] signature = sig.sign();
         assertNotNull("Signature must not be null", signature);
+        assertPSSAlgorithmParametersEquals(
+                SHA1withRSAPSS_Vector2Signature_ParameterSpec, sig.getParameters());
 
         RSAPublicKeySpec pubKeySpec = new RSAPublicKeySpec(RSA_2048_modulus,
                 RSA_2048_publicExponent);
         PublicKey pubKey = kf.generatePublic(pubKeySpec);
         sig.initVerify(pubKey);
+        sig.update(Vector2Data);
+        assertTrue("Signature must verify correctly", sig.verify(signature));
+    }
+
+    public void testSign_SHA1withRSAPSS_NoSalt_Key_Success() throws Exception {
+        KeyFactory kf = KeyFactory.getInstance("RSA");
+        RSAPrivateKeySpec keySpec = new RSAPrivateKeySpec(RSA_2048_modulus,
+                RSA_2048_privateExponent);
+        PrivateKey privKey = kf.generatePrivate(keySpec);
+
+        Signature sig = Signature.getInstance("SHA1withRSA/PSS");
+        sig.initSign(privKey);
+        sig.setParameter(SHA1withRSAPSS_NoSalt_Vector2Signature_ParameterSpec);
+        sig.update(Vector2Data);
+
+        byte[] signature = sig.sign();
+        assertNotNull("Signature must not be null", signature);
+        assertPSSAlgorithmParametersEquals(
+                SHA1withRSAPSS_NoSalt_Vector2Signature_ParameterSpec, sig.getParameters());
+        assertTrue("Signature should match expected",
+                Arrays.equals(signature, SHA1withRSAPSS_NoSalt_Vector2Signature));
+
+        RSAPublicKeySpec pubKeySpec = new RSAPublicKeySpec(RSA_2048_modulus,
+                RSA_2048_publicExponent);
+        PublicKey pubKey = kf.generatePublic(pubKeySpec);
+        sig.initVerify(pubKey);
+        sig.setParameter(SHA1withRSAPSS_NoSalt_Vector2Signature_ParameterSpec);
+        sig.update(Vector2Data);
+        assertTrue("Signature must verify correctly", sig.verify(signature));
+    }
+
+    public void testSign_SHA1withRSAPSS_MaxSalt_Key_Success() throws Exception {
+        KeyFactory kf = KeyFactory.getInstance("RSA");
+        RSAPrivateKeySpec keySpec = new RSAPrivateKeySpec(RSA_2048_modulus,
+                RSA_2048_privateExponent);
+        PrivateKey privKey = kf.generatePrivate(keySpec);
+
+        Signature sig = Signature.getInstance("SHA1withRSA/PSS");
+        sig.initSign(privKey);
+        sig.setParameter(SHA1withRSAPSS_MaxSalt_Vector2Signature_ParameterSpec);
+        sig.update(Vector2Data);
+
+        byte[] signature = sig.sign();
+        assertNotNull("Signature must not be null", signature);
+        assertPSSAlgorithmParametersEquals(
+                SHA1withRSAPSS_MaxSalt_Vector2Signature_ParameterSpec, sig.getParameters());
+
+        RSAPublicKeySpec pubKeySpec = new RSAPublicKeySpec(RSA_2048_modulus,
+                RSA_2048_publicExponent);
+        PublicKey pubKey = kf.generatePublic(pubKeySpec);
+        sig = Signature.getInstance("SHA1withRSA/PSS");
+        sig.initVerify(pubKey);
+        sig.setParameter(SHA1withRSAPSS_MaxSalt_Vector2Signature_ParameterSpec);
         sig.update(Vector2Data);
         assertTrue("Signature must verify correctly", sig.verify(signature));
     }
@@ -1649,11 +2406,66 @@ public class SignatureTest extends TestCase {
 
         byte[] signature = sig.sign();
         assertNotNull("Signature must not be null", signature);
+        assertPSSAlgorithmParametersEquals(
+                SHA224withRSAPSS_Vector2Signature_ParameterSpec, sig.getParameters());
 
         RSAPublicKeySpec pubKeySpec = new RSAPublicKeySpec(RSA_2048_modulus,
                 RSA_2048_publicExponent);
         PublicKey pubKey = kf.generatePublic(pubKeySpec);
         sig.initVerify(pubKey);
+        sig.update(Vector2Data);
+        assertTrue("Signature must verify correctly", sig.verify(signature));
+    }
+
+    public void testSign_SHA224withRSAPSS_NoSalt_Key_Success() throws Exception {
+        KeyFactory kf = KeyFactory.getInstance("RSA");
+        RSAPrivateKeySpec keySpec = new RSAPrivateKeySpec(RSA_2048_modulus,
+                RSA_2048_privateExponent);
+        PrivateKey privKey = kf.generatePrivate(keySpec);
+
+        Signature sig = Signature.getInstance("SHA224withRSA/PSS");
+        sig.initSign(privKey);
+        sig.setParameter(SHA224withRSAPSS_NoSalt_Vector2Signature_ParameterSpec);
+        sig.update(Vector2Data);
+
+        byte[] signature = sig.sign();
+        assertNotNull("Signature must not be null", signature);
+        assertPSSAlgorithmParametersEquals(
+                SHA224withRSAPSS_NoSalt_Vector2Signature_ParameterSpec, sig.getParameters());
+        assertTrue("Signature should match expected",
+                Arrays.equals(signature, SHA224withRSAPSS_NoSalt_Vector2Signature));
+
+        RSAPublicKeySpec pubKeySpec = new RSAPublicKeySpec(RSA_2048_modulus,
+                RSA_2048_publicExponent);
+        PublicKey pubKey = kf.generatePublic(pubKeySpec);
+        sig.initVerify(pubKey);
+        sig.setParameter(SHA224withRSAPSS_NoSalt_Vector2Signature_ParameterSpec);
+        sig.update(Vector2Data);
+        assertTrue("Signature must verify correctly", sig.verify(signature));
+    }
+
+    public void testSign_SHA224withRSAPSS_MaxSalt_Key_Success() throws Exception {
+        KeyFactory kf = KeyFactory.getInstance("RSA");
+        RSAPrivateKeySpec keySpec = new RSAPrivateKeySpec(RSA_2048_modulus,
+                RSA_2048_privateExponent);
+        PrivateKey privKey = kf.generatePrivate(keySpec);
+
+        Signature sig = Signature.getInstance("SHA224withRSA/PSS");
+        sig.initSign(privKey);
+        sig.setParameter(SHA224withRSAPSS_MaxSalt_Vector2Signature_ParameterSpec);
+        sig.update(Vector2Data);
+
+        byte[] signature = sig.sign();
+        assertNotNull("Signature must not be null", signature);
+        assertPSSAlgorithmParametersEquals(
+                SHA224withRSAPSS_MaxSalt_Vector2Signature_ParameterSpec, sig.getParameters());
+
+        RSAPublicKeySpec pubKeySpec = new RSAPublicKeySpec(RSA_2048_modulus,
+                RSA_2048_publicExponent);
+        PublicKey pubKey = kf.generatePublic(pubKeySpec);
+        sig = Signature.getInstance("SHA224withRSA/PSS");
+        sig.initVerify(pubKey);
+        sig.setParameter(SHA224withRSAPSS_MaxSalt_Vector2Signature_ParameterSpec);
         sig.update(Vector2Data);
         assertTrue("Signature must verify correctly", sig.verify(signature));
     }
@@ -1670,11 +2482,66 @@ public class SignatureTest extends TestCase {
 
         byte[] signature = sig.sign();
         assertNotNull("Signature must not be null", signature);
+        assertPSSAlgorithmParametersEquals(
+                SHA256withRSAPSS_Vector2Signature_ParameterSpec, sig.getParameters());
 
         RSAPublicKeySpec pubKeySpec = new RSAPublicKeySpec(RSA_2048_modulus,
                 RSA_2048_publicExponent);
         PublicKey pubKey = kf.generatePublic(pubKeySpec);
         sig.initVerify(pubKey);
+        sig.update(Vector2Data);
+        assertTrue("Signature must verify correctly", sig.verify(signature));
+    }
+
+    public void testSign_SHA256withRSAPSS_NoSalt_Key_Success() throws Exception {
+        KeyFactory kf = KeyFactory.getInstance("RSA");
+        RSAPrivateKeySpec keySpec = new RSAPrivateKeySpec(RSA_2048_modulus,
+                RSA_2048_privateExponent);
+        PrivateKey privKey = kf.generatePrivate(keySpec);
+
+        Signature sig = Signature.getInstance("SHA256withRSA/PSS");
+        sig.initSign(privKey);
+        sig.setParameter(SHA256withRSAPSS_NoSalt_Vector2Signature_ParameterSpec);
+        sig.update(Vector2Data);
+
+        byte[] signature = sig.sign();
+        assertNotNull("Signature must not be null", signature);
+        assertPSSAlgorithmParametersEquals(
+                SHA256withRSAPSS_NoSalt_Vector2Signature_ParameterSpec, sig.getParameters());
+        assertTrue("Signature should match expected",
+                Arrays.equals(signature, SHA256withRSAPSS_NoSalt_Vector2Signature));
+
+        RSAPublicKeySpec pubKeySpec = new RSAPublicKeySpec(RSA_2048_modulus,
+                RSA_2048_publicExponent);
+        PublicKey pubKey = kf.generatePublic(pubKeySpec);
+        sig.initVerify(pubKey);
+        sig.setParameter(SHA256withRSAPSS_NoSalt_Vector2Signature_ParameterSpec);
+        sig.update(Vector2Data);
+        assertTrue("Signature must verify correctly", sig.verify(signature));
+    }
+
+    public void testSign_SHA256withRSAPSS_MaxSalt_Key_Success() throws Exception {
+        KeyFactory kf = KeyFactory.getInstance("RSA");
+        RSAPrivateKeySpec keySpec = new RSAPrivateKeySpec(RSA_2048_modulus,
+                RSA_2048_privateExponent);
+        PrivateKey privKey = kf.generatePrivate(keySpec);
+
+        Signature sig = Signature.getInstance("SHA256withRSA/PSS");
+        sig.initSign(privKey);
+        sig.setParameter(SHA256withRSAPSS_MaxSalt_Vector2Signature_ParameterSpec);
+        sig.update(Vector2Data);
+
+        byte[] signature = sig.sign();
+        assertNotNull("Signature must not be null", signature);
+        assertPSSAlgorithmParametersEquals(
+                SHA256withRSAPSS_MaxSalt_Vector2Signature_ParameterSpec, sig.getParameters());
+
+        RSAPublicKeySpec pubKeySpec = new RSAPublicKeySpec(RSA_2048_modulus,
+                RSA_2048_publicExponent);
+        PublicKey pubKey = kf.generatePublic(pubKeySpec);
+        sig = Signature.getInstance("SHA256withRSA/PSS");
+        sig.initVerify(pubKey);
+        sig.setParameter(SHA256withRSAPSS_MaxSalt_Vector2Signature_ParameterSpec);
         sig.update(Vector2Data);
         assertTrue("Signature must verify correctly", sig.verify(signature));
     }
@@ -1691,11 +2558,66 @@ public class SignatureTest extends TestCase {
 
         byte[] signature = sig.sign();
         assertNotNull("Signature must not be null", signature);
+        assertPSSAlgorithmParametersEquals(
+                SHA384withRSAPSS_Vector2Signature_ParameterSpec, sig.getParameters());
 
         RSAPublicKeySpec pubKeySpec = new RSAPublicKeySpec(RSA_2048_modulus,
                 RSA_2048_publicExponent);
         PublicKey pubKey = kf.generatePublic(pubKeySpec);
         sig.initVerify(pubKey);
+        sig.update(Vector2Data);
+        assertTrue("Signature must verify correctly", sig.verify(signature));
+    }
+
+    public void testSign_SHA384withRSAPSS_NoSalt_Key_Success() throws Exception {
+        KeyFactory kf = KeyFactory.getInstance("RSA");
+        RSAPrivateKeySpec keySpec = new RSAPrivateKeySpec(RSA_2048_modulus,
+                RSA_2048_privateExponent);
+        PrivateKey privKey = kf.generatePrivate(keySpec);
+
+        Signature sig = Signature.getInstance("SHA384withRSA/PSS");
+        sig.initSign(privKey);
+        sig.setParameter(SHA384withRSAPSS_NoSalt_Vector2Signature_ParameterSpec);
+        sig.update(Vector2Data);
+
+        byte[] signature = sig.sign();
+        assertNotNull("Signature must not be null", signature);
+        assertPSSAlgorithmParametersEquals(
+                SHA384withRSAPSS_NoSalt_Vector2Signature_ParameterSpec, sig.getParameters());
+        assertTrue("Signature should match expected",
+                Arrays.equals(signature, SHA384withRSAPSS_NoSalt_Vector2Signature));
+
+        RSAPublicKeySpec pubKeySpec = new RSAPublicKeySpec(RSA_2048_modulus,
+                RSA_2048_publicExponent);
+        PublicKey pubKey = kf.generatePublic(pubKeySpec);
+        sig.initVerify(pubKey);
+        sig.setParameter(SHA384withRSAPSS_NoSalt_Vector2Signature_ParameterSpec);
+        sig.update(Vector2Data);
+        assertTrue("Signature must verify correctly", sig.verify(signature));
+    }
+
+    public void testSign_SHA384withRSAPSS_MaxSalt_Key_Success() throws Exception {
+        KeyFactory kf = KeyFactory.getInstance("RSA");
+        RSAPrivateKeySpec keySpec = new RSAPrivateKeySpec(RSA_2048_modulus,
+                RSA_2048_privateExponent);
+        PrivateKey privKey = kf.generatePrivate(keySpec);
+
+        Signature sig = Signature.getInstance("SHA384withRSA/PSS");
+        sig.initSign(privKey);
+        sig.setParameter(SHA384withRSAPSS_MaxSalt_Vector2Signature_ParameterSpec);
+        sig.update(Vector2Data);
+
+        byte[] signature = sig.sign();
+        assertNotNull("Signature must not be null", signature);
+        assertPSSAlgorithmParametersEquals(
+                SHA384withRSAPSS_MaxSalt_Vector2Signature_ParameterSpec, sig.getParameters());
+
+        RSAPublicKeySpec pubKeySpec = new RSAPublicKeySpec(RSA_2048_modulus,
+                RSA_2048_publicExponent);
+        PublicKey pubKey = kf.generatePublic(pubKeySpec);
+        sig = Signature.getInstance("SHA384withRSA/PSS");
+        sig.initVerify(pubKey);
+        sig.setParameter(SHA384withRSAPSS_MaxSalt_Vector2Signature_ParameterSpec);
         sig.update(Vector2Data);
         assertTrue("Signature must verify correctly", sig.verify(signature));
     }
@@ -1712,11 +2634,66 @@ public class SignatureTest extends TestCase {
 
         byte[] signature = sig.sign();
         assertNotNull("Signature must not be null", signature);
+        assertPSSAlgorithmParametersEquals(
+                SHA512withRSAPSS_Vector2Signature_ParameterSpec, sig.getParameters());
 
         RSAPublicKeySpec pubKeySpec = new RSAPublicKeySpec(RSA_2048_modulus,
                 RSA_2048_publicExponent);
         PublicKey pubKey = kf.generatePublic(pubKeySpec);
         sig.initVerify(pubKey);
+        sig.update(Vector2Data);
+        assertTrue("Signature must verify correctly", sig.verify(signature));
+    }
+
+    public void testSign_SHA512withRSAPSS_NoSalt_Key_Success() throws Exception {
+        KeyFactory kf = KeyFactory.getInstance("RSA");
+        RSAPrivateKeySpec keySpec = new RSAPrivateKeySpec(RSA_2048_modulus,
+                RSA_2048_privateExponent);
+        PrivateKey privKey = kf.generatePrivate(keySpec);
+
+        Signature sig = Signature.getInstance("SHA512withRSA/PSS");
+        sig.initSign(privKey);
+        sig.setParameter(SHA512withRSAPSS_NoSalt_Vector2Signature_ParameterSpec);
+        sig.update(Vector2Data);
+
+        byte[] signature = sig.sign();
+        assertNotNull("Signature must not be null", signature);
+        assertPSSAlgorithmParametersEquals(
+                SHA512withRSAPSS_NoSalt_Vector2Signature_ParameterSpec, sig.getParameters());
+        assertTrue("Signature should match expected",
+                Arrays.equals(signature, SHA512withRSAPSS_NoSalt_Vector2Signature));
+
+        RSAPublicKeySpec pubKeySpec = new RSAPublicKeySpec(RSA_2048_modulus,
+                RSA_2048_publicExponent);
+        PublicKey pubKey = kf.generatePublic(pubKeySpec);
+        sig.initVerify(pubKey);
+        sig.setParameter(SHA512withRSAPSS_NoSalt_Vector2Signature_ParameterSpec);
+        sig.update(Vector2Data);
+        assertTrue("Signature must verify correctly", sig.verify(signature));
+    }
+
+    public void testSign_SHA512withRSAPSS_MaxSalt_Key_Success() throws Exception {
+        KeyFactory kf = KeyFactory.getInstance("RSA");
+        RSAPrivateKeySpec keySpec = new RSAPrivateKeySpec(RSA_2048_modulus,
+                RSA_2048_privateExponent);
+        PrivateKey privKey = kf.generatePrivate(keySpec);
+
+        Signature sig = Signature.getInstance("SHA512withRSA/PSS");
+        sig.initSign(privKey);
+        sig.setParameter(SHA512withRSAPSS_MaxSalt_Vector2Signature_ParameterSpec);
+        sig.update(Vector2Data);
+
+        byte[] signature = sig.sign();
+        assertNotNull("Signature must not be null", signature);
+        assertPSSAlgorithmParametersEquals(
+                SHA512withRSAPSS_MaxSalt_Vector2Signature_ParameterSpec, sig.getParameters());
+
+        RSAPublicKeySpec pubKeySpec = new RSAPublicKeySpec(RSA_2048_modulus,
+                RSA_2048_publicExponent);
+        PublicKey pubKey = kf.generatePublic(pubKeySpec);
+        sig = Signature.getInstance("SHA512withRSA/PSS");
+        sig.initVerify(pubKey);
+        sig.setParameter(SHA512withRSAPSS_MaxSalt_Vector2Signature_ParameterSpec);
         sig.update(Vector2Data);
         assertTrue("Signature must verify correctly", sig.verify(signature));
     }
@@ -2235,6 +3212,45 @@ public class SignatureTest extends TestCase {
         Signature sig = Signature.getInstance(service.getAlgorithm(), provider);
         sig.getParameters();
         verify(signatureSpi).engineGetParameters();
+    }
+
+    private static void assertPSSAlgorithmParametersEquals(
+            PSSParameterSpec expectedSpec, AlgorithmParameters actual)
+                    throws InvalidParameterSpecException {
+        assertNotNull(actual);
+        assertEqualsIgnoreCase("PSS", actual.getAlgorithm());
+        PSSParameterSpec actualSpec = actual.getParameterSpec(PSSParameterSpec.class);
+        assertPSSParameterSpecEquals(expectedSpec, actualSpec);
+    }
+
+    private static void assertPSSParameterSpecEquals(
+            PSSParameterSpec expected, PSSParameterSpec actual) {
+        assertEqualsIgnoreCase(expected.getDigestAlgorithm(), actual.getDigestAlgorithm());
+        assertEqualsIgnoreCase(expected.getMGFAlgorithm(), actual.getMGFAlgorithm());
+        if (!"MGF1".equalsIgnoreCase(expected.getMGFAlgorithm())) {
+            fail("Unsupported MGF algorithm: " + expected.getMGFAlgorithm());
+        }
+        MGF1ParameterSpec expectedMgfParams = (MGF1ParameterSpec) expected.getMGFParameters();
+        MGF1ParameterSpec actualMgfParams = (MGF1ParameterSpec) actual.getMGFParameters();
+        assertEqualsIgnoreCase(
+                expectedMgfParams.getDigestAlgorithm(), actualMgfParams.getDigestAlgorithm());
+        assertEquals(expected.getSaltLength(), actual.getSaltLength());
+        assertEquals(expected.getTrailerField(), actual.getTrailerField());
+    }
+
+    private static void assertEqualsIgnoreCase(String expected, String actual) {
+        if (expected == null) {
+            if (actual == null) {
+                return;
+            }
+            fail("Expected null, actual: <" + actual + ">");
+        } else if (actual == null) {
+            fail("Expected: <" + expected + ">, actual: null");
+        } else {
+            if (!expected.equalsIgnoreCase(actual)) {
+                fail("Expected: <" + expected + ">, actual: <" + actual + ">");
+            }
+        }
     }
 
     public static class MockableProvider extends Provider {
