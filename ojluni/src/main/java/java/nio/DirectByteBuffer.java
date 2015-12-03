@@ -47,17 +47,8 @@ class DirectByteBuffer extends MappedByteBuffer
     // ensure that its memory isn't freed before we are done with it.
     private final Object att;
 
-    private boolean freed = false;
-
     public Object attachment() {
         return att;
-    }
-
-    private class Deallocator implements Runnable {
-
-        public void run() {
-            free();
-        }
     }
 
     private Cleaner cleaner;
@@ -69,7 +60,9 @@ class DirectByteBuffer extends MappedByteBuffer
               .newNonMovableArray(byte.class, capacity), 0);
         VMRuntime runtime = VMRuntime.getRuntime();
         address = runtime.addressOf(hb);
-        cleaner = Cleaner.create(this, new Deallocator());
+        // Only have references to java objects, no need for a cleaner since the GC will do all
+        // the work.
+        cleaner = null;
         this.isReadOnly = false;
         att = null;
     }
@@ -704,16 +697,6 @@ class DirectByteBuffer extends MappedByteBuffer
                                                            size,
                                                            off,
                                                            order()));
-    }
-
-    public final void free() {
-        freed = true;
-    }
-
-    private final void checkIfFreed() {
-        if (freed) {
-            throw new IllegalStateException("buffer is inaccessible");
-        }
     }
 
     public boolean isAccessible() {
