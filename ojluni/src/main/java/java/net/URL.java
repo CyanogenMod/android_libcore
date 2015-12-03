@@ -1121,22 +1121,6 @@ public final class URL implements java.io.Serializable {
     static Hashtable handlers = new Hashtable();
     private static Object streamHandlerLock = new Object();
 
-    // special case the gopher protocol, disabled by default
-    private static final String GOPHER = "gopher";
-    private static final String ENABLE_GOPHER_PROP = "jdk.net.registerGopherProtocol";
-    private static final boolean enableGopher = AccessController.doPrivileged(
-                new PrivilegedAction<Boolean>() {
-                    @Override
-                    public Boolean run() {
-                        String prop = System.getProperty(ENABLE_GOPHER_PROP);
-                        return prop == null ? false :
-                                   (prop.equalsIgnoreCase("false") ? false : true);
-                    }
-                });
-
-    // package name of the JDK implementation protocol handlers
-    private static final String JDK_PACKAGE_PREFIX =  "sun.net.www.protocol";
-
     /**
      * Returns the Stream Handler.
      * @param protocol the protocol to use
@@ -1156,65 +1140,36 @@ public final class URL implements java.io.Serializable {
 
             // Try java protocol handler
             if (handler == null) {
-                String packagePrefixList = null;
-
-                packagePrefixList
-                    = java.security.AccessController.doPrivileged(
-                    new sun.security.action.GetPropertyAction(
-                        protocolPathProp,""));
-                if (packagePrefixList != "") {
-                    packagePrefixList += "|";
-                }
-
-                /* ----- BEGIN android -----
-                sun.net.www.protocol is not a default handlers package.
-
-                // REMIND: decide whether to allow the "null" class prefix
-                // or not.
-                packagePrefixList += JDK_PACKAGE_PREFIX;*/
-
-                StringTokenizer packagePrefixIter =
-                    new StringTokenizer(packagePrefixList, "|");
+                final String packagePrefixList = System.getProperty(protocolPathProp,"");
+                StringTokenizer packagePrefixIter = new StringTokenizer(packagePrefixList, "|");
 
                 while (handler == null &&
                        packagePrefixIter.hasMoreTokens()) {
 
-                    String packagePrefix =
-                      packagePrefixIter.nextToken().trim();
-
-                    // do not try to instantiate the JDK gopher handler
-                    // unless the system property had been explicitly set
-                    if (protocol.equalsIgnoreCase(GOPHER) &&
-                        packagePrefix.equals(JDK_PACKAGE_PREFIX) &&
-                        !enableGopher) {
-                            continue;
-                    }
+                    String packagePrefix = packagePrefixIter.nextToken().trim();
                     try {
-                        String clsName = packagePrefix + "." + protocol +
-                          ".Handler";
+                        String clsName = packagePrefix + "." + protocol +  ".Handler";
                         Class cls = null;
                         try {
-                            cls = Class.forName(clsName);
-                        } catch (ClassNotFoundException e) {
                             ClassLoader cl = ClassLoader.getSystemClassLoader();
-                            if (cl != null) {
-                                cls = cl.loadClass(clsName);
+                            cls = Class.forName(clsName, true, cl);
+                        } catch (ClassNotFoundException e) {
+                            ClassLoader contextLoader = Thread.currentThread().getContextClassLoader();
+                            if (contextLoader != null) {
+                                cls = Class.forName(clsName, true, contextLoader);
                             }
                         }
                         if (cls != null) {
                             handler  =
                               (URLStreamHandler)cls.newInstance();
                         }
-                    } catch (Exception e) {
-                        // any number of exceptions can get thrown here
+                    } catch (ReflectiveOperationException ignored) {
                     }
                 }
             }
 
-            /* ----- BEGIN android -----
             // Fallback to built-in stream handler.
-            // Makes okhttp the default http/https handler.
-            */
+            // Makes okhttp the default http/https handler
             if (handler == null) {
                 try {
                     if (protocol.equals("file")) {
@@ -1237,7 +1192,6 @@ public final class URL implements java.io.Serializable {
                     throw new AssertionError(e);
                 }
             }
-            /* ----- END android -----*/
 
             synchronized (streamHandlerLock) {
 
