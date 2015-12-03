@@ -99,7 +99,7 @@ public class SSLSessionTest extends TestCase {
         assertTrue("s.server.getLastAccessedTime()=" + s.server.getLastAccessedTime() + " " +
                    "s.client.getLastAccessedTime()=" + s.client.getLastAccessedTime(),
                    Math.abs(s.server.getLastAccessedTime()
-                            - s.client.getLastAccessedTime()) < 1 * 1000);
+                            - s.client.getLastAccessedTime()) <= 1 * 1000);
         assertTrue(s.server.getLastAccessedTime() >=
                    s.server.getCreationTime());
         assertTrue(s.client.getLastAccessedTime() >=
