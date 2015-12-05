@@ -215,7 +215,10 @@ class Util {
      * Frees the memory for the given direct buffer
      */
     private static void free(ByteBuffer buf) {
-        ((DirectBuffer)buf).cleaner().clean();
+        Cleaner cleaner = ((DirectBuffer)buf).cleaner();
+        if (cleaner != null) {
+            cleaner.clean();
+        }
     }
 
     private static class SelectorWrapper {
