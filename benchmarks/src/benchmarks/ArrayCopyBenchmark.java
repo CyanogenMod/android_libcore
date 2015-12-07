@@ -16,13 +16,9 @@
 
 package benchmarks;
 
-import com.google.caliper.Param;
-import com.google.caliper.Runner;
-import com.google.caliper.SimpleBenchmark;
-
 import java.util.Arrays;
 
-public class ArrayCopyBenchmark extends SimpleBenchmark {
+public class ArrayCopyBenchmark {
     public void timeManualArrayCopy(int reps) {
         char[] src = new char[8192];
         for (int rep = 0; rep < reps; ++rep) {

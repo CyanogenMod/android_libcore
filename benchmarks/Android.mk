@@ -21,19 +21,18 @@ ifeq ($(LIBCORE_SKIP_TESTS),)
 include $(CLEAR_VARS)
 LOCAL_MODULE := benchmarks
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
-LOCAL_STATIC_JAVA_LIBRARIES := caliper-prebuilt mockwebserver core-tests-support
+LOCAL_STATIC_JAVA_LIBRARIES := mockwebserver core-tests-support
 LOCAL_NO_STANDARD_LIBRARIES := true
-LOCAL_JAVA_LIBRARIES := core-libart conscrypt core-junit bouncycastle framework
+LOCAL_JAVA_LIBRARIES := \
+  caliper-api-target \
+  core-libart \
+  conscrypt \
+  core-junit \
+  bouncycastle \
+  framework
 LOCAL_MODULE_TAGS := tests
 LOCAL_MODULE_PATH := $(PRODUCT_OUT)/data/caliperperf
 LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/Android.mk
 include $(BUILD_JAVA_LIBRARY)
-
-##################################################
-# Prebuilt Java libraries
-include $(CLEAR_VARS)
-LOCAL_PREBUILT_STATIC_JAVA_LIBRARIES := caliper-prebuilt:libs/caliper.jar
-LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/Android.mk
-include $(BUILD_MULTI_PREBUILT)
 
 endif

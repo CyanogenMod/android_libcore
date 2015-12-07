@@ -16,11 +16,7 @@
 
 package benchmarks.regression;
 
-import com.google.caliper.Param;
-import com.google.caliper.Runner;
-import com.google.caliper.SimpleBenchmark;
-
-public class IntegralToStringBenchmark extends SimpleBenchmark {
+public class IntegralToStringBenchmark {
 
     private static final int SMALL  = 12;
     private static final int MEDIUM = 12345;

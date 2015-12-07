@@ -16,11 +16,7 @@
 
 package benchmarks.regression;
 
-import com.google.caliper.Param;
-import com.google.caliper.Runner;
-import com.google.caliper.SimpleBenchmark;
-
-public class FloatBenchmark extends SimpleBenchmark {
+public class FloatBenchmark {
     private float f = 1.2f;
     private int i = 1067030938;
 

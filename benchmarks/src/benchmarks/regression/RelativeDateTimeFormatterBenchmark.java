@@ -16,8 +16,6 @@
 
 package benchmarks.regression;
 
-import com.google.caliper.SimpleBenchmark;
-
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -25,7 +23,7 @@ import static libcore.icu.DateUtilsBridge.FORMAT_ABBREV_RELATIVE;
 import static libcore.icu.RelativeDateTimeFormatter.getRelativeDateTimeString;
 import static libcore.icu.RelativeDateTimeFormatter.getRelativeTimeSpanString;
 
-public class RelativeDateTimeFormatterBenchmark extends SimpleBenchmark {
+public class RelativeDateTimeFormatterBenchmark {
   public void timeRelativeDateTimeFormatter_getRelativeTimeSpanString(int reps) throws Exception {
     Locale l = Locale.US;
     TimeZone utc = TimeZone.getTimeZone("Europe/London");

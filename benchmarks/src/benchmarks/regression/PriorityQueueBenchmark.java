@@ -16,15 +16,15 @@
 
 package benchmarks.regression;
 
+import com.google.caliper.BeforeExperiment;
 import com.google.caliper.Param;
-import com.google.caliper.SimpleBenchmark;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Random;
 
-public class PriorityQueueBenchmark extends SimpleBenchmark {
+public class PriorityQueueBenchmark {
     @Param({"100", "1000", "10000"}) private int queueSize;
     @Param({"0", "25", "50", "75", "100"}) private int hitRate;
 
@@ -33,7 +33,8 @@ public class PriorityQueueBenchmark extends SimpleBenchmark {
     private List<Integer> seekElements;
     private Random random = new Random(189279387L);
 
-    @Override protected void setUp() throws Exception {
+    @BeforeExperiment
+    protected void setUp() throws Exception {
         pq = new PriorityQueue<Integer>();
         usepq = new PriorityQueue<Integer>();
         seekElements = new ArrayList<Integer>();
