@@ -37,7 +37,7 @@ class ByteBufferAsCharBuffer extends CharBuffer {      // package-private
         super(-1, 0,
               bb.remaining() >> 1,
               bb.remaining() >> 1);
-        this.bb = bb;
+        this.bb = bb.duplicate().order(bb.order());
         this.isReadOnly = bb.isReadOnly;
         this.address = bb.address;
         this.order = order;
@@ -52,7 +52,7 @@ class ByteBufferAsCharBuffer extends CharBuffer {      // package-private
                            int mark, int pos, int lim, int cap,
                            int off, ByteOrder order) {
         super(mark, pos, lim, cap);
-        this.bb = bb;
+        this.bb = bb.duplicate().order(bb.order());
         this.isReadOnly = bb.isReadOnly;
         this.address = bb.address;
         this.order = order;
