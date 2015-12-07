@@ -16,11 +16,7 @@
 
 package benchmarks.regression;
 
-import com.google.caliper.Param;
-import com.google.caliper.Runner;
-import com.google.caliper.SimpleBenchmark;
-
-public class IntConstantDivisionBenchmark extends SimpleBenchmark {
+public class IntConstantDivisionBenchmark {
     public int timeDivideIntByConstant2(int reps) {
         int result = 1;
         for (int i = 0; i < reps; ++i) {

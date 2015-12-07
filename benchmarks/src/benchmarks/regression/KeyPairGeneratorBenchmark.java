@@ -16,17 +16,13 @@
 
 package benchmarks.regression;
 
+import com.google.caliper.BeforeExperiment;
 import com.google.caliper.Param;
-import com.google.caliper.SimpleBenchmark;
 import java.security.KeyPair;
-import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.security.KeyPairGenerator;
 import java.security.SecureRandom;
-import java.util.HashMap;
-import java.util.Map;
 
-public class KeyPairGeneratorBenchmark extends SimpleBenchmark {
+public class KeyPairGeneratorBenchmark {
     @Param private Algorithm algorithm;
 
     public enum Algorithm {
@@ -42,7 +38,8 @@ public class KeyPairGeneratorBenchmark extends SimpleBenchmark {
     private KeyPairGenerator generator;
     private SecureRandom random;
 
-    @Override protected void setUp() throws Exception {
+    @BeforeExperiment
+    protected void setUp() throws Exception {
         this.generatorAlgorithm = algorithm.toString();
         
         final String provider;

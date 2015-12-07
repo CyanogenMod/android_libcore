@@ -17,16 +17,9 @@
 package benchmarks.regression;
 
 import com.google.caliper.Param;
-import com.google.caliper.Runner;
-import com.google.caliper.SimpleBenchmark;
+import java.nio.ByteBuffer;
 
-import java.io.*;
-import java.nio.*;
-import java.nio.channels.*;
-import java.util.Arrays;
-import java.util.Collection;
-
-public class ByteBufferScalarVersusVectorBenchmark extends SimpleBenchmark {
+public class ByteBufferScalarVersusVectorBenchmark {
   @Param private ByteBufferBenchmark.MyByteOrder byteOrder;
   @Param({"true", "false"}) private boolean aligned;
   @Param private ByteBufferBenchmark.MyBufferType bufferType;

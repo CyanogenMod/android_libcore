@@ -16,14 +16,12 @@
 
 package benchmarks.regression;
 
-import com.google.caliper.SimpleBenchmark;
-
 import java.math.BigDecimal;
 import java.text.AttributedCharacterIterator;
 import java.text.Bidi;
 import java.text.DecimalFormat;
 
-public class BidiBenchmark extends SimpleBenchmark {
+public class BidiBenchmark {
 
     private static final AttributedCharacterIterator charIter =
             DecimalFormat.getInstance().formatToCharacterIterator(new BigDecimal(Math.PI));

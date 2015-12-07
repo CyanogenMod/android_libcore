@@ -16,11 +16,9 @@
 
 package benchmarks.regression;
 
-import com.google.caliper.SimpleBenchmark;
-
 import java.net.IDN;
 
-public class IdnBenchmark extends SimpleBenchmark {
+public class IdnBenchmark {
 
     public void timeToUnicode(int reps) {
         for (int i = 0; i < reps; i++) {

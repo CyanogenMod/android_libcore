@@ -16,10 +16,9 @@
 
 package benchmarks.regression;
 
-import com.google.caliper.SimpleBenchmark;
 import java.util.TimeZone;
 
-public class TimeZoneBenchmark extends SimpleBenchmark {
+public class TimeZoneBenchmark {
     public void timeTimeZone_getDefault(int reps) throws Exception {
         for (int rep = 0; rep < reps; ++rep) {
             TimeZone.getDefault();

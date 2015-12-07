@@ -17,19 +17,18 @@
 package benchmarks.regression;
 
 import android.text.format.DateFormat;
-import com.google.caliper.Runner;
-import com.google.caliper.SimpleBenchmark;
+import com.google.caliper.BeforeExperiment;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-public final class DateToStringBenchmark extends SimpleBenchmark {
+public final class DateToStringBenchmark {
     Date date;
     Calendar calendar;
     SimpleDateFormat format;
 
-    @Override
+    @BeforeExperiment
     protected void setUp() throws Exception {
         date = new Date(0);
         calendar = new GregorianCalendar();
@@ -59,9 +58,5 @@ public final class DateToStringBenchmark extends SimpleBenchmark {
         for (int i = 0; i < reps; i++) {
             DateFormat.format("EEE MMM dd HH:mm:ss zzz yyyy", calendar);
         }
-    }
-
-    public static void main(String[] args) throws Exception {
-        Runner.main(DateToStringBenchmark.class, args);
     }
 }

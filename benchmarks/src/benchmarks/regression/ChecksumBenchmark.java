@@ -16,13 +16,10 @@
 
 package benchmarks.regression;
 
-import com.google.caliper.Param;
-import com.google.caliper.Runner;
-import com.google.caliper.SimpleBenchmark;
 import java.util.zip.Adler32;
 import java.util.zip.CRC32;
 
-public class ChecksumBenchmark extends SimpleBenchmark {
+public class ChecksumBenchmark {
     public void timeAdler_block(int reps) throws Exception {
         byte[] bytes = new byte[10000];
         Adler32 adler = new Adler32();

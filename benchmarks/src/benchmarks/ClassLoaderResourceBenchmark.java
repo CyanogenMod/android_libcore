@@ -16,11 +16,9 @@
 
 package benchmarks;
 
-import com.google.caliper.SimpleBenchmark;
-
 import junit.framework.Assert;
 
-public class ClassLoaderResourceBenchmark extends SimpleBenchmark {
+public class ClassLoaderResourceBenchmark {
 
   private static final String EXISTENT_RESOURCE = "java/util/logging/logging.properties";
   private static final String MISSING_RESOURCE = "missing_entry";

@@ -16,9 +16,8 @@
 
 package benchmarks.regression;
 
+import com.google.caliper.BeforeExperiment;
 import com.google.caliper.Param;
-import com.google.caliper.Runner;
-import com.google.caliper.SimpleBenchmark;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -40,7 +39,7 @@ import org.xmlpull.v1.XmlPullParser;
  * That file contains Twitter feed data, which is representative of what
  * applications will be parsing.
  */
-public final class ParseBenchmark extends SimpleBenchmark {
+public final class ParseBenchmark {
 
     @Param Document document;
     @Param Api api;
@@ -90,7 +89,8 @@ public final class ParseBenchmark extends SimpleBenchmark {
     private String text;
     private Parser parser;
 
-    @Override protected void setUp() throws Exception {
+    @BeforeExperiment
+    protected void setUp() throws Exception {
         text = resourceToString("/" + document.name() + "." + api.extension);
         parser = api.newParser();
     }
@@ -99,10 +99,6 @@ public final class ParseBenchmark extends SimpleBenchmark {
         for (int i = 0; i < reps; i++) {
             parser.parse(text);
         }
-    }
-
-    public static void main(String... args) throws Exception {
-        Runner.main(ParseBenchmark.class, args);
     }
 
     private static String resourceToString(String path) throws Exception {

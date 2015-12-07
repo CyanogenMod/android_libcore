@@ -17,13 +17,11 @@
 package benchmarks;
 
 import com.google.caliper.Param;
-import com.google.caliper.SimpleBenchmark;
-
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
 
-public class DeepArrayOpsBenchmark extends SimpleBenchmark {
+public class DeepArrayOpsBenchmark {
     @Param({"1", "4", "16", "256", "2048"}) int arrayLength;
 
     private Object[] array;

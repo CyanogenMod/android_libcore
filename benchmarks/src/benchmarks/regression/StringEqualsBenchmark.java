@@ -16,9 +16,7 @@
 
 package benchmarks.regression;
 
-import com.google.caliper.Param;
-import com.google.caliper.Runner;
-import com.google.caliper.SimpleBenchmark;
+import com.google.caliper.BeforeExperiment;
 import junit.framework.Assert;
 
 /**
@@ -27,7 +25,7 @@ import junit.framework.Assert;
  * that are not equal, identical strings with different references, strings with different endings,
  * interned strings, and strings of different lengths.
  */
-public class StringEqualsBenchmark extends SimpleBenchmark {
+public class StringEqualsBenchmark {
     private final String long1 = "Ahead-of-time compilation is possible as the compiler may just"
         + "convert an instruction thus: dex code: add-int v1000, v2000, v3000 C code: setIntRegter"
         + "(1000, call_dex_add_int(getIntRegister(2000), getIntRegister(3000)) This means even lid"
@@ -181,7 +179,8 @@ public class StringEqualsBenchmark extends SimpleBenchmark {
 
     // Check assumptions about how the compiler, new String(String), and String.intern() work.
     // Any failures here would invalidate these benchmarks.
-    @Override protected void setUp() throws Exception {
+    @BeforeExperiment
+    protected void setUp() throws Exception {
         // String constants are the same object
         Assert.assertSame("abc", "abc");
         // new String(String) makes a copy

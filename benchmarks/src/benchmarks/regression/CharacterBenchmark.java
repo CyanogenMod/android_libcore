@@ -16,15 +16,14 @@
 
 package benchmarks.regression;
 
+import com.google.caliper.BeforeExperiment;
 import com.google.caliper.Param;
-import com.google.caliper.Runner;
-import com.google.caliper.SimpleBenchmark;
 
 /**
  * Tests various Character methods, intended for testing multiple
  * implementations against each other.
  */
-public class CharacterBenchmark extends SimpleBenchmark {
+public class CharacterBenchmark {
 
     @Param private CharacterSet characterSet;
 
@@ -32,13 +31,14 @@ public class CharacterBenchmark extends SimpleBenchmark {
 
     private char[] chars;
 
-    @Override protected void setUp() throws Exception {
+    @BeforeExperiment
+    protected void setUp() throws Exception {
         this.chars = characterSet.chars;
     }
 
     public enum Overload { CHAR, INT }
 
-    @Override public double nanosToUnits(double nanos) {
+    public double nanosToUnits(double nanos) {
         return nanos / 65536;
     }
 
