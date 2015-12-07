@@ -204,20 +204,17 @@ public class CookieManager extends CookieHandler
         Map<String, List<String>> cookieMap =
                         new java.util.HashMap<String, List<String>>();
         // if there's no default CookieStore, no way for us to get any cookie
-        if (cookieJar == null)
+        if (cookieJar == null) {
             return Collections.unmodifiableMap(cookieMap);
+        }
 
         boolean secureLink = "https".equalsIgnoreCase(uri.getScheme());
         List<HttpCookie> cookies = new java.util.ArrayList<HttpCookie>();
-        String path = uri.getPath();
-        if (path == null || path.isEmpty()) {
-            path = "/";
-        }
         for (HttpCookie cookie : cookieJar.get(uri)) {
             // apply path-matches rule (RFC 2965 sec. 3.3.4)
             // and check for the possible "secure" tag (i.e. don't send
             // 'secure' cookies over unsecure links)
-            if (pathMatches(path, cookie.getPath()) &&
+            if (pathMatches(uri, cookie) &&
                     (secureLink || !cookie.getSecure())) {
 
                 // Let's check the authorize port list if it exists
@@ -302,7 +299,7 @@ public class CookieManager extends CookieHandler
                             cookie.setPath(path);
                         } else {
                             // Validate existing path
-                            if (!pathMatches(uri.getPath(), cookie.getPath())) {
+                            if (!pathMatches(uri, cookie)) {
                                 continue;
                             }
                         }
@@ -389,65 +386,60 @@ public class CookieManager extends CookieHandler
         return false;
     }
 
-    /*
-     * path-matches algorithm, as defined by RFC 2965
+    /**
+     * Return true iff. the path from {@code cookie} matches the path from {@code uri}.
      */
-    private boolean pathMatches(String path, String pathToMatchWith) {
-        if (path == pathToMatchWith)
-            return true;
-        if (path == null || pathToMatchWith == null)
-            return false;
+    private static boolean pathMatches(URI uri, HttpCookie cookie) {
+        return normalizePath(uri.getPath()).startsWith(normalizePath(cookie.getPath()));
+    }
+
+    private static String normalizePath(String path) {
+        if (path == null) {
+            path = "";
+        }
 
         if (!path.endsWith("/")) {
             path = path + "/";
         }
-        if (!pathToMatchWith.endsWith("/")) {
-            pathToMatchWith = pathToMatchWith + "/";
-        }
 
-        if (path.startsWith(pathToMatchWith))
-            return true;
-
-        return false;
+        return path;
     }
 
 
     /*
      * sort cookies with respect to their path: those with more specific Path attributes
-     * precede those with less specific, as defined in RFC 2965 sec. 3.3.4
+     * precede those with less specific, as defined in RFC 2965 sec. 3.3.4.
      */
     private List<String> sortByPath(List<HttpCookie> cookies) {
         Collections.sort(cookies, new CookiePathComparator());
 
-        // ----- BEGIN android -----
-        StringBuilder result = new StringBuilder();
-        // ----- END android -----
+        final StringBuilder result = new StringBuilder();
 
-        List<String> cookieHeader = new java.util.ArrayList<String>();
+        // Netscape cookie spec and RFC 2965 have different format of Cookie
+        // header; RFC 2965 requires a leading $Version="1" string while Netscape
+        // does not.
+        // The workaround here is to add a $Version="1" string in advance
+        int minVersion = 1;
         for (HttpCookie cookie : cookies) {
-            // Netscape cookie spec and RFC 2965 have different format of Cookie
-            // header; RFC 2965 requires a leading $Version="1" string while Netscape
-            // does not.
-            // The workaround here is to add a $Version="1" string in advance
-            if (cookies.indexOf(cookie) == 0 && cookie.getVersion() > 0) {
-                // ----- BEGIN android -----
-                // cookieHeader.add("$Version=\"1\"");
-                result.append("$Version=\"1\"; ");
-                // ----- END android -----
+            if (cookie.getVersion() < minVersion) {
+                minVersion = cookie.getVersion();
             }
+        }
 
-            // ----- BEGIN android -----
-            //cookieHeader.add(cookie.toString());
-            if (cookies.indexOf(cookie) != 0) {
+        if (minVersion == 1) {
+            result.append("$Version=\"1\"; ");
+        }
+
+        for (int i = 0; i < cookies.size(); ++i) {
+            if (i != 0) {
                 result.append("; ");
             }
-            result.append(cookie.toString());
-            // ----- END android -----
 
+            result.append(cookies.get(i).toString());
         }
-        // ----- BEGIN android -----
+
+        List<String> cookieHeader = new java.util.ArrayList<String>();
         cookieHeader.add(result.toString());
-        // ----- END android -----
         return cookieHeader;
     }
 
@@ -461,10 +453,13 @@ public class CookieManager extends CookieHandler
             // path rule only applies to the cookies with same name
             if (!c1.getName().equals(c2.getName())) return 0;
 
+            final String c1Path = normalizePath(c1.getPath());
+            final String c2Path = normalizePath(c2.getPath());
+
             // those with more specific Path attributes precede those with less specific
-            if (c1.getPath().startsWith(c2.getPath()))
+            if (c1Path.startsWith(c2Path))
                 return -1;
-            else if (c2.getPath().startsWith(c1.getPath()))
+            else if (c2Path.startsWith(c1Path))
                 return 1;
             else
                 return 0;
