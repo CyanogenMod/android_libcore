@@ -16,13 +16,10 @@
 
 package benchmarks.regression;
 
-import com.google.caliper.SimpleBenchmark;
-
 import java.util.Locale;
-
 import libcore.icu.ICU;
 
-public class IcuBenchmark extends SimpleBenchmark {
+public class IcuBenchmark {
 
     private static final String ASCII_LOWERCASE = makeUnicodeRange(97, 122);
     private static final String ASCII_UPPERCASE = makeUnicodeRange(65, 90);

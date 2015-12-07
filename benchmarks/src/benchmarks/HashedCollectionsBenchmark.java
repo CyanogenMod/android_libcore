@@ -16,19 +16,15 @@
 
 package benchmarks;
 
-import com.google.caliper.Param;
-import com.google.caliper.Runner;
-import com.google.caliper.SimpleBenchmark;
-
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * How do the various hash maps compare?
  */
-public class HashedCollectionsBenchmark extends SimpleBenchmark {
+public class HashedCollectionsBenchmark {
     public void timeHashMapGet(int reps) {
         HashMap<String, String> map = new HashMap<String, String>();
         map.put("hello", "world");

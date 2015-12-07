@@ -16,20 +16,15 @@
 
 package benchmarks;
 
+import com.google.caliper.BeforeExperiment;
 import com.google.caliper.Param;
-import com.google.caliper.Runner;
-import com.google.caliper.SimpleBenchmark;
-
-import org.xmlpull.v1.*;
-
 import java.io.CharArrayWriter;
-import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Random;
+import org.xmlpull.v1.XmlSerializer;
 
 
-public class XmlSerializeBenchmark extends SimpleBenchmark {
+public class XmlSerializeBenchmark {
 
     @Param( {"0.99 0.7 0.7 0.7 0.7 0.7",
             "0.999 0.3 0.3 0.95 0.9 0.9"})
@@ -84,7 +79,7 @@ public class XmlSerializeBenchmark extends SimpleBenchmark {
     }
 
     @SuppressWarnings("unchecked")
-    @Override
+    @BeforeExperiment
     protected void setUp() throws Exception {
         kxmlConstructor = (Constructor) Class.forName("org.kxml2.io.KXmlSerializer")
                 .getConstructor();
@@ -110,9 +105,5 @@ public class XmlSerializeBenchmark extends SimpleBenchmark {
 
     public void timeFast(int reps) throws Exception {
         internalTimeSerializer(fastConstructor, reps);
-    }
-
-    public static void main(String[] args) {
-        Runner.main(XmlSerializeBenchmark.class, args);
     }
 }

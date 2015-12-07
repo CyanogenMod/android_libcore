@@ -16,14 +16,10 @@
 
 package benchmarks;
 
-import com.google.caliper.Param;
-import com.google.caliper.Runner;
-import com.google.caliper.SimpleBenchmark;
-
 /**
  * How do the various schemes for iterating through a string compare?
  */
-public class StringIterationBenchmark extends SimpleBenchmark {
+public class StringIterationBenchmark {
     public void timeStringIteration0(int reps) {
         String s = "hello, world!";
         for (int rep = 0; rep < reps; ++rep) {

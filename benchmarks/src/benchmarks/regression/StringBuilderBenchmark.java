@@ -17,13 +17,11 @@
 package benchmarks.regression;
 
 import com.google.caliper.Param;
-import com.google.caliper.Runner;
-import com.google.caliper.SimpleBenchmark;
 
 /**
  * Tests the performance of various StringBuilder methods.
  */
-public class StringBuilderBenchmark extends SimpleBenchmark {
+public class StringBuilderBenchmark {
 
     @Param({"1", "10", "100"}) private int length;
 

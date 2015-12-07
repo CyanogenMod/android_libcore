@@ -16,11 +16,7 @@
 
 package benchmarks.regression;
 
-import com.google.caliper.Param;
-import com.google.caliper.Runner;
-import com.google.caliper.SimpleBenchmark;
-
-public class RealToStringBenchmark extends SimpleBenchmark {
+public class RealToStringBenchmark {
 
     private static final float SMALL  = -123.45f;
     private static final float MEDIUM = -123.45e8f;

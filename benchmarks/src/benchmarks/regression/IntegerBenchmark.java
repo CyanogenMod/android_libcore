@@ -16,10 +16,7 @@
 
 package benchmarks.regression;
 
-import com.google.caliper.Param;
-import com.google.caliper.SimpleBenchmark;
-
-public class IntegerBenchmark extends SimpleBenchmark {
+public class IntegerBenchmark {
     public int timeLongSignumBranch(int reps) {
         int t = 0;
         for (int i = 0; i < reps; ++i) {

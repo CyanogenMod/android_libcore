@@ -16,11 +16,7 @@
 
 package benchmarks.regression;
 
-import com.google.caliper.Param;
-import com.google.caliper.Runner;
-import com.google.caliper.SimpleBenchmark;
-
-public class ThreadLocalBenchmark extends SimpleBenchmark {
+public class ThreadLocalBenchmark {
     private static final ThreadLocal<char[]> BUFFER = new ThreadLocal<char[]>() {
         @Override protected char[] initialValue() {
             return new char[20];

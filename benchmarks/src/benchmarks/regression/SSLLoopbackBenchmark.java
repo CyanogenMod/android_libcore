@@ -16,23 +16,12 @@
 
 package benchmarks.regression;
 
-import com.google.caliper.SimpleBenchmark;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.URL;
-import javax.net.SocketFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
-
 import libcore.java.security.TestKeyStore;
 import libcore.javax.net.ssl.TestSSLContext;
 import libcore.javax.net.ssl.TestSSLSocketPair;
 
-public class SSLLoopbackBenchmark extends SimpleBenchmark {
+public class SSLLoopbackBenchmark {
 
     public void time(int reps) throws Exception {
         for (int i = 0; i < reps; ++i) {

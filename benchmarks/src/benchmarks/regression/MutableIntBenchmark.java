@@ -17,11 +17,9 @@
 package benchmarks.regression;
 
 import com.google.caliper.Param;
-import com.google.caliper.Runner;
-import com.google.caliper.SimpleBenchmark;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public final class MutableIntBenchmark extends SimpleBenchmark {
+public final class MutableIntBenchmark {
 
     enum Kind {
         ARRAY() {
@@ -84,9 +82,5 @@ public final class MutableIntBenchmark extends SimpleBenchmark {
 
     public void timeGet(int reps) {
         kind.timeGet(reps);
-    }
-
-    public static void main(String[] args) {
-        Runner.main(MutableIntBenchmark.class, args);
     }
 }

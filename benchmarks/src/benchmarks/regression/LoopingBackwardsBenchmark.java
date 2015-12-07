@@ -17,15 +17,13 @@
 package benchmarks.regression;
 
 import com.google.caliper.Param;
-import com.google.caliper.Runner;
-import com.google.caliper.SimpleBenchmark;
 
 /**
  * Testing the old canard that looping backwards is faster.
  *
  * @author Kevin Bourrillion
  */
-public class LoopingBackwardsBenchmark extends SimpleBenchmark {
+public class LoopingBackwardsBenchmark {
   @Param({"2", "20", "2000", "20000000"}) int max;
 
   public int timeForwards(int reps) {

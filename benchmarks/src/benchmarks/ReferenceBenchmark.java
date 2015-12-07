@@ -16,14 +16,13 @@
 
 package benchmarks;
 
-import com.google.caliper.SimpleBenchmark;
 import java.lang.ref.PhantomReference;
 import java.lang.ref.ReferenceQueue;
 
 /**
  * Benchmark to evaluate the performance of References.
  */
-public class ReferenceBenchmark extends SimpleBenchmark {
+public class ReferenceBenchmark {
 
     private Object object;
 

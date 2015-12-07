@@ -16,11 +16,11 @@
 
 package benchmarks.regression;
 
-import com.google.caliper.Param;
-import com.google.caliper.SimpleBenchmark;
 import com.android.org.bouncycastle.crypto.Digest;
+import com.google.caliper.BeforeExperiment;
+import com.google.caliper.Param;
 
-public class DigestBenchmark extends SimpleBenchmark {
+public class DigestBenchmark {
 
     private static final int DATA_SIZE = 8192;
     private static final byte[] DATA = new byte[DATA_SIZE];
@@ -40,7 +40,8 @@ public class DigestBenchmark extends SimpleBenchmark {
 
     private Class<? extends Digest> digestClass;
 
-    @Override protected void setUp() throws Exception {
+    @BeforeExperiment
+    protected void setUp() throws Exception {
         String className = "com.android.org.bouncycastle.crypto.digests.";
         switch (implementation) {
             case OPENSSL:
