@@ -75,6 +75,17 @@ import libcore.javax.net.ssl.TestTrustManager;
  * accessible via TestKeyStore.get().
  */
 public final class TestKeyStore extends Assert {
+    /** Size of DH keys to generate for testing. */
+    private static final int DH_KEY_SIZE_BITS = 1024;
+
+    /** Size of DSA keys to generate for testing. */
+    private static final int DSA_KEY_SIZE_BITS = 1024;
+
+    /** Size of EC keys to generate for testing. */
+    private static final int EC_KEY_SIZE_BITS = 256;
+
+    /** Size of RSA keys to generate for testing. */
+    private static final int RSA_KEY_SIZE_BITS = 1024;
 
     private static TestKeyStore ROOT_CA;
     private static TestKeyStore INTERMEDIATE_CA;
@@ -460,21 +471,19 @@ public final class TestKeyStore extends Assert {
                     // 1a.) we make the keys
                     int keySize;
                     if (keyAlgorithm.equals("RSA")) {
-                        // 512 breaks SSL_RSA_EXPORT_* on RI and
-                        // TLS_ECDHE_RSA_WITH_RC4_128_SHA for us
-                        keySize = 1024;
+                        keySize = RSA_KEY_SIZE_BITS;
                     } else if (keyAlgorithm.equals("DH_RSA")) {
-                        keySize = 512;
+                        keySize = DH_KEY_SIZE_BITS;
                         keyAlgorithm = "DH";
                     } else if (keyAlgorithm.equals("DSA")) {
-                        keySize = 512;
+                        keySize = DSA_KEY_SIZE_BITS;
                     } else if (keyAlgorithm.equals("DH_DSA")) {
-                        keySize = 512;
+                        keySize = DH_KEY_SIZE_BITS;
                         keyAlgorithm = "DH";
                     } else if (keyAlgorithm.equals("EC")) {
-                        keySize = 256;
+                        keySize = EC_KEY_SIZE_BITS;
                     } else if (keyAlgorithm.equals("EC_RSA")) {
-                        keySize = 256;
+                        keySize = EC_KEY_SIZE_BITS;
                         keyAlgorithm = "EC";
                     } else {
                         throw new IllegalArgumentException("Unknown key algorithm " + keyAlgorithm);
