@@ -28,9 +28,20 @@ import libcore.net.url.FtpURLConnection;
  * <p>The policy currently consists of a single flag: whether cleartext network traffic is
  * permitted. See {@link #isCleartextTrafficPermitted()}.
  */
-public class NetworkSecurityPolicy {
+public abstract class NetworkSecurityPolicy {
 
-    private static volatile boolean cleartextTrafficPermitted = true;
+    private static volatile NetworkSecurityPolicy instance = new DefaultNetworkSecurityPolicy();
+
+    public static NetworkSecurityPolicy getInstance() {
+        return instance;
+    }
+
+    public static void setInstance(NetworkSecurityPolicy policy) {
+        if (policy == null) {
+            throw new NullPointerException("policy == null");
+        }
+        instance = policy;
+    }
 
     /**
      * Returns whether cleartext network traffic (e.g. HTTP, FTP, XMPP, IMAP, SMTP -- without TLS or
@@ -50,17 +61,12 @@ public class NetworkSecurityPolicy {
      *
      * <p>See {@link FtpURLConnection} for an example of honoring this flag.
      */
-    public static boolean isCleartextTrafficPermitted() {
-        return cleartextTrafficPermitted;
-    }
+    public abstract boolean isCleartextTrafficPermitted();
 
-    /**
-     * Sets whether cleartext network traffic (e.g. HTTP, FTP, XMPP, IMAP, SMTP -- without TLS or
-     * STARTTLS) is permitted for this process.
-     *
-     * @see #isCleartextTrafficPermitted()
-     */
-    public static void setCleartextTrafficPermitted(boolean permitted) {
-        cleartextTrafficPermitted = permitted;
+    public static final class DefaultNetworkSecurityPolicy extends NetworkSecurityPolicy {
+        @Override
+        public boolean isCleartextTrafficPermitted() {
+            return true;
+        }
     }
 }
