@@ -16,13 +16,10 @@
 
 package benchmarks.regression;
 
-import com.google.caliper.Param;
-import com.google.caliper.Runner;
-import com.google.caliper.SimpleBenchmark;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-public class DnsBenchmark extends SimpleBenchmark {
+public class DnsBenchmark {
     public void timeDns(int reps) throws Exception {
         String[] hosts = new String[] {
             "www.amazon.com",

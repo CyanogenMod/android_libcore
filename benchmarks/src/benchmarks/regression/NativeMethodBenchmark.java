@@ -16,10 +16,9 @@
 
 package benchmarks.regression;
 
-import com.google.caliper.SimpleBenchmark;
 import org.apache.harmony.dalvik.NativeTestTarget;
 
-public class NativeMethodBenchmark extends SimpleBenchmark {
+public class NativeMethodBenchmark {
     public void time_emptyJniStaticSynchronizedMethod0(int reps) throws Exception {
         for (int i = 0; i < reps; ++i) {
             NativeTestTarget.emptyJniStaticSynchronizedMethod0();

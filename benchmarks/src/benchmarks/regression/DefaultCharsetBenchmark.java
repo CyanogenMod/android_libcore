@@ -17,10 +17,8 @@
 package benchmarks.regression;
 
 import java.nio.charset.Charset;
-import com.google.caliper.Param;
-import com.google.caliper.SimpleBenchmark;
 
-public class DefaultCharsetBenchmark extends SimpleBenchmark {
+public class DefaultCharsetBenchmark {
     public void time_defaultCharset(int reps) throws Exception {
         for (int i = 0; i < reps; ++i) {
             Charset.defaultCharset();

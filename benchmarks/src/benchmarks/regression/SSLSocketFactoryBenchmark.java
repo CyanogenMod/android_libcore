@@ -16,11 +16,9 @@
 
 package benchmarks.regression;
 
-import com.google.caliper.Param;
-import com.google.caliper.SimpleBenchmark;
 import javax.net.ssl.SSLSocketFactory;
 
-public class SSLSocketFactoryBenchmark extends SimpleBenchmark {
+public class SSLSocketFactoryBenchmark {
     public void time(int reps) throws Exception {
         for (int i = 0; i < reps; ++i) {
             SSLSocketFactory.getDefault();

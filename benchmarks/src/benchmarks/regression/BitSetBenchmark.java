@@ -16,17 +16,18 @@
 
 package benchmarks.regression;
 
+import com.google.caliper.BeforeExperiment;
 import com.google.caliper.Param;
-import com.google.caliper.SimpleBenchmark;
 import java.util.BitSet;
 
-public class BitSetBenchmark extends SimpleBenchmark {
+public class BitSetBenchmark {
     @Param({ "1000", "10000" })
     private int size;
 
     private BitSet bs;
 
-    @Override protected void setUp() throws Exception {
+    @BeforeExperiment
+    protected void setUp() throws Exception {
         bs = new BitSet(size);
     }
 

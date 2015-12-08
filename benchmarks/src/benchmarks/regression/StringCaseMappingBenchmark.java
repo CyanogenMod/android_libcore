@@ -16,11 +16,10 @@
 
 package benchmarks.regression;
 
-import java.util.Locale;
 import com.google.caliper.Param;
-import com.google.caliper.SimpleBenchmark;
+import java.util.Locale;
 
-public class StringCaseMappingBenchmark extends SimpleBenchmark {
+public class StringCaseMappingBenchmark {
     enum Inputs {
         EMPTY(""),
 

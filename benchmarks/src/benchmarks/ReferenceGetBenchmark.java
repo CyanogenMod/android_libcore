@@ -17,14 +17,12 @@
 package benchmarks;
 
 import com.google.caliper.Param;
-import com.google.caliper.SimpleBenchmark;
-
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
-import java.lang.reflect.*;
+import java.lang.reflect.Field;
 
-public class ReferenceGetBenchmark extends SimpleBenchmark {
+public class ReferenceGetBenchmark {
     @Param boolean intrinsicDisabled;
 
     private Object obj = "str";

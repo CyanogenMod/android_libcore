@@ -16,12 +16,11 @@
 
 package benchmarks.regression;
 
-import com.google.caliper.Param;
-import com.google.caliper.Runner;
-import com.google.caliper.SimpleBenchmark;
-import java.lang.reflect.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
-public class ReflectionBenchmark extends SimpleBenchmark {
+public class ReflectionBenchmark {
     public void timeObject_getClass(int reps) throws Exception {
         C c = new C();
         for (int rep = 0; rep < reps; ++rep) {

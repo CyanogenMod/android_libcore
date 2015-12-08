@@ -1,13 +1,11 @@
 package benchmarks.regression;
 
-import com.google.caliper.SimpleBenchmark;
-
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Locale;
 
-public class DecimalFormatBenchmark extends SimpleBenchmark {
+public class DecimalFormatBenchmark {
 
     private static final String EXP_PATTERN = "##E0";
 
@@ -155,5 +153,4 @@ public class DecimalFormatBenchmark extends SimpleBenchmark {
     public void time_formatToCharacterIterator10e1000(int reps) {
         formatToCharacterIterator(BD10E1000, reps);
     }
-
 }

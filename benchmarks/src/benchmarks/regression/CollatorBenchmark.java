@@ -16,13 +16,11 @@
 
 package benchmarks.regression;
 
-import com.google.caliper.SimpleBenchmark;
-
 import java.text.Collator;
 import java.text.RuleBasedCollator;
 import java.util.Locale;
 
-public class CollatorBenchmark extends SimpleBenchmark {
+public class CollatorBenchmark {
 
     private static final RuleBasedCollator collator = (RuleBasedCollator)
             Collator.getInstance(Locale.US);

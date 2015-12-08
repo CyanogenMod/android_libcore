@@ -16,14 +16,15 @@
 
 package benchmarks.regression;
 
-import com.google.caliper.Param;
-import com.google.caliper.Runner;
-import com.google.caliper.SimpleBenchmark;
-import java.io.*;
-import java.lang.reflect.*;
-import java.util.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.ObjectStreamClass;
+import java.io.Serializable;
+import java.util.ArrayList;
 
-public class SerializationBenchmark extends SimpleBenchmark {
+public class SerializationBenchmark {
     private static byte[] bytes(Object o) throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
         ObjectOutputStream out = new ObjectOutputStream(baos);

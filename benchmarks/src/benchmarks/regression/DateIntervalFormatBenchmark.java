@@ -16,16 +16,13 @@
 
 package benchmarks.regression;
 
-import com.google.caliper.SimpleBenchmark;
-
-import android.icu.util.ULocale;
 import android.icu.util.TimeZone;
-
+import android.icu.util.ULocale;
 import libcore.icu.DateIntervalFormat;
 
 import static libcore.icu.DateUtilsBridge.*;
 
-public class DateIntervalFormatBenchmark extends SimpleBenchmark {
+public class DateIntervalFormatBenchmark {
   public void timeDateIntervalFormat_formatDateRange_DATE(int reps) throws Exception {
     ULocale l = ULocale.US;
     TimeZone utc = TimeZone.getTimeZone("UTC");
