@@ -75,14 +75,6 @@ import libcore.javax.net.ssl.TestTrustManager;
  * accessible via TestKeyStore.get().
  */
 public final class TestKeyStore extends Assert {
-    /** Size of DSA keys to generate for testing. */
-    private static final DSA_KEY_SIZE_BITS = 1024;
-
-    /** Size of EC keys to generate for testing. */
-    private static final EC_KEY_SIZE_BITS = 256;
-
-    /** Size of RSA keys to generate for testing. */
-    private static final RSA_KEY_SIZE_BITS = 1024;
 
     private static TestKeyStore ROOT_CA;
     private static TestKeyStore INTERMEDIATE_CA;
@@ -468,19 +460,21 @@ public final class TestKeyStore extends Assert {
                     // 1a.) we make the keys
                     int keySize;
                     if (keyAlgorithm.equals("RSA")) {
-                        keySize = RSA_KEY_SIZE_BITS;
+                        // 512 breaks SSL_RSA_EXPORT_* on RI and
+                        // TLS_ECDHE_RSA_WITH_RC4_128_SHA for us
+                        keySize = 1024;
                     } else if (keyAlgorithm.equals("DH_RSA")) {
-                        keySize = RSA_KEY_SIZE_BITS;
+                        keySize = 512;
                         keyAlgorithm = "DH";
                     } else if (keyAlgorithm.equals("DSA")) {
-                        keySize = DSA_KEY_SIZE_BITS;
+                        keySize = 512;
                     } else if (keyAlgorithm.equals("DH_DSA")) {
-                        keySize = DSA_KEY_SIZE_BITS;
+                        keySize = 512;
                         keyAlgorithm = "DH";
                     } else if (keyAlgorithm.equals("EC")) {
-                        keySize = EC_KEY_SIZE_BITS;
+                        keySize = 256;
                     } else if (keyAlgorithm.equals("EC_RSA")) {
-                        keySize = EC_KEY_SIZE_BITS;
+                        keySize = 256;
                         keyAlgorithm = "EC";
                     } else {
                         throw new IllegalArgumentException("Unknown key algorithm " + keyAlgorithm);
