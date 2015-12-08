@@ -4801,16 +4801,9 @@ public class ScannerTest extends TestCase {
         } catch (NullPointerException expected) {
         }
         String result = s.findInLine(Pattern.compile("^"));
-        assertEquals("", result);
-        MatchResult matchResult = s.match();
-        assertEquals(0, matchResult.start());
-        assertEquals(0, matchResult.end());
-
+        assertEquals(null, result);
         result = s.findInLine(Pattern.compile("$"));
-        assertEquals("", result);
-        matchResult = s.match();
-        assertEquals(0, matchResult.start());
-        assertEquals(0, matchResult.end());
+        assertEquals(null, result);
 
         /*
          * When we use the operation of findInLine(Pattern), the match region
@@ -4827,7 +4820,7 @@ public class ScannerTest extends TestCase {
         s = new Scanner("abcd1234test\n");
         result = s.findInLine(Pattern.compile("\\p{Lower}+"));
         assertEquals("abcd", result);
-        matchResult = s.match();
+        MatchResult matchResult = s.match();
         assertEquals(0, matchResult.start());
         assertEquals(4, matchResult.end());
 
@@ -4895,21 +4888,33 @@ public class ScannerTest extends TestCase {
         s = new Scanner("test\u0085\ntest");
         result = s.findInLine("est");
         assertEquals("est", result);
-        result = s.findInLine("est");
-        assertEquals("est", result);
+        // First consume input upto U+0085(a line separator)
+        assertTrue(s.hasNextLine());
+        assertEquals("", s.nextLine());
+        // Then consume input upto the "\n"
+        assertTrue(s.hasNextLine());
+        assertEquals("", s.nextLine());
+        // The next line will be "test", which should match.
+        assertEquals("est", s.findInLine("est"));
 
         s = new Scanner("test\ntest");
         result = s.findInLine("est");
         assertEquals("est", result);
         result = s.findInLine("est");
-        assertEquals("est", result);
+        assertNull(result);
 
         s = new Scanner("test\n123\ntest");
         result = s.findInLine("est");
         assertEquals("est", result);
         result = s.findInLine("est");
-        // RI fails. It is a RI's bug.
         assertNull(result);
+        s.nextLine();
+        result = s.findInLine("est");
+        assertNull(result);
+        s.nextLine();
+        result = s.findInLine("est");
+        assertEquals("est", result);
+
 
         s = new Scanner( "   *\n");
         result = s.findInLine(Pattern.compile( "^\\s*(?:\\*(?=[^/]))"));
@@ -4939,16 +4944,10 @@ public class ScannerTest extends TestCase {
     public void test_findInLine_LString() {
       Scanner s = new Scanner("");
       String result = s.findInLine("^");
-      assertEquals("", result);
-      MatchResult matchResult = s.match();
-      assertEquals(0, matchResult.start());
-      assertEquals(0, matchResult.end());
+      assertNull(result);
 
       result = s.findInLine("$");
-      assertEquals("", result);
-      matchResult = s.match();
-      assertEquals(0, matchResult.start());
-      assertEquals(0, matchResult.end());
+      assertNull(result);
 
       // When we use the operation of findInLine(Pattern), the match region
       // should not span the line separator.
@@ -4963,7 +4962,7 @@ public class ScannerTest extends TestCase {
       s = new Scanner("abcd1234test\n");
       result = s.findInLine("\\p{Lower}+");
       assertEquals("abcd", result);
-      matchResult = s.match();
+      MatchResult matchResult = s.match();
       assertEquals(0, matchResult.start());
       assertEquals(4, matchResult.end());
 
@@ -5024,18 +5023,19 @@ public class ScannerTest extends TestCase {
       result = s.findInLine("est");
       assertEquals("est", result);
       result = s.findInLine("est");
-      assertEquals("est", result);
+      assertNull(result);
 
       s = new Scanner("test\ntest");
       result = s.findInLine("est");
       assertEquals("est", result);
       result = s.findInLine("est");
-      assertEquals("est", result);
+      assertNull(result);
 
       s = new Scanner("test\n123\ntest");
       result = s.findInLine("est");
       assertEquals("est", result);
       result = s.findInLine("est");
+      assertNull(result);
     }
 
     /**
