@@ -1261,4 +1261,42 @@ public class BufferTest extends TestCase {
         }
     }
 
+    // b/26019694
+    public void testIndependentLimit() {
+        // Check if the limit parameter of original ByteBuffer
+        // is not affecting buffer created by its as*Buffer
+        testBuffersIndependentLimit(ByteBuffer.allocateDirect(16));
+        testBuffersIndependentLimit(ByteBuffer.allocate(16));
+    }
+
+    private void testBuffersIndependentLimit(ByteBuffer b) {
+        CharBuffer c = b.asCharBuffer();
+        b.limit(b.capacity()); c.put(1, (char)1);
+        b.limit(0);  c.put(1, (char)1);
+
+        b.limit(b.capacity());
+        ShortBuffer s = b.asShortBuffer();
+        b.limit(b.capacity()); s.put(1, (short)1);
+        b.limit(0);  s.put(1, (short)1);
+
+        b.limit(b.capacity());
+        IntBuffer i = b.asIntBuffer();
+        i.put(1, (int)1);
+        b.limit(0);  i.put(1, (int)1);
+
+        b.limit(b.capacity());
+        LongBuffer l = b.asLongBuffer();
+        l.put(1, (long)1);
+        b.limit(0);  l.put(1, (long)1);
+
+        b.limit(b.capacity());
+        FloatBuffer f = b.asFloatBuffer();
+        f.put(1, (float)1);
+        b.limit(0);  f.put(1, (float)1);
+
+        b.limit(b.capacity());
+        DoubleBuffer d = b.asDoubleBuffer();
+        d.put(1, (double)1);
+        b.limit(0);  d.put(1, (double)1);
+    }
 }
