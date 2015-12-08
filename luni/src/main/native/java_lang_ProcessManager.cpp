@@ -39,13 +39,6 @@ static void CloseNonStandardFds(int status_pipe_fd) {
   // On Cygwin, Linux, and Solaris, the best way to close iterates over "/proc/self/fd/".
   const char* fd_path = "/proc/self/fd";
 
-  // Keep track of the system properties fd so we don't close it.
-  int properties_fd = -1;
-  char* properties_fd_string = getenv("ANDROID_PROPERTY_WORKSPACE");
-  if (properties_fd_string != NULL) {
-    properties_fd = atoi(properties_fd_string);
-  }
-
   DIR* d = opendir(fd_path);
   int dir_fd = dirfd(d);
   dirent* e;
@@ -53,7 +46,7 @@ static void CloseNonStandardFds(int status_pipe_fd) {
     char* end;
     int fd = strtol(e->d_name, &end, 10);
     if (!*end) {
-      if (fd > STDERR_FILENO && fd != dir_fd && fd != status_pipe_fd && fd != properties_fd) {
+      if (fd > STDERR_FILENO && fd != dir_fd && fd != status_pipe_fd) {
         close(fd);
       }
     }
