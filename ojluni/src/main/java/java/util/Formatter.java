@@ -47,8 +47,6 @@ import java.text.DateFormatSymbols;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import sun.misc.FpUtils;
 import sun.misc.DoubleConsts;
@@ -2501,51 +2499,133 @@ public final class Formatter implements Closeable, Flushable {
         return this;
     }
 
-    // %[argument_index$][flags][width][.precision][t]conversion
-    private static final String formatSpecifier
-        = "%(\\d+\\$)?([-#+ 0,(\\<]*)?(\\d+)?(\\.\\d+)?([tT])?([a-zA-Z%])";
-
-    private static Pattern fsPattern = Pattern.compile(formatSpecifier);
-
     /**
      * Finds format specifiers in the format string.
      */
     private FormatString[] parse(String s) {
         ArrayList<FormatString> al = new ArrayList<>();
-        Matcher m = fsPattern.matcher(s);
         for (int i = 0, len = s.length(); i < len; ) {
-            if (m.find(i)) {
-                // Anything between the start of the string and the beginning
-                // of the format specifier is either fixed text or contains
-                // an invalid format string.
-                if (m.start() != i) {
-                    // Make sure we didn't miss any invalid format specifiers
-                    checkText(s, i, m.start());
-                    // Assume previous characters were fixed text
-                    al.add(new FixedString(s.substring(i, m.start())));
-                }
-
-                al.add(new FormatSpecifier(m));
-                i = m.end();
+            int nextPercent = s.indexOf('%', i);
+            if (s.charAt(i) != '%') {
+                // This is plain-text part, find the maximal plain-text
+                // sequence and store it.
+                int plainTextStart = i;
+                int plainTextEnd = (nextPercent == -1) ? len: nextPercent;
+                al.add(new FixedString(s.substring(plainTextStart,
+                                                   plainTextEnd)));
+                i = plainTextEnd;
             } else {
-                // No more valid format specifiers.  Check for possible invalid
-                // format specifiers.
-                checkText(s, i, len);
-                // The rest of the string is fixed text
-                al.add(new FixedString(s.substring(i)));
-                break;
+                // We have a format specifier
+                FormatSpecifierParser fsp = new FormatSpecifierParser(s, i + 1);
+                al.add(fsp.getFormatSpecifier());
+                i = fsp.getEndIdx();
             }
         }
         return al.toArray(new FormatString[al.size()]);
     }
 
-    private static void checkText(String s, int start, int end) {
-        for (int i = start; i < end; i++) {
-            // Any '%' found in the region starts an invalid format specifier.
-            if (s.charAt(i) == '%') {
-                char c = (i == end - 1) ? '%' : s.charAt(i + 1);
-                throw new UnknownFormatConversionException(String.valueOf(c));
+    /**
+     * Parses the format specifier.
+     * %[argument_index$][flags][width][.precision][t]conversion
+     */
+    private class FormatSpecifierParser {
+        private final String format;
+        private int cursor;
+        private FormatSpecifier fs;
+
+        private String index;
+        private String flags;
+        private String width;
+        private String precision;
+        private String tT;
+        private String conv;
+
+        private static final String FLAGS = ",-(+# 0<";
+
+        public FormatSpecifierParser(String format, int startIdx) {
+            this.format = format;
+            cursor = startIdx;
+            // Index
+            if (nextIsInt()) {
+                String nint = nextInt();
+                if (peek() == '$') {
+                    index = nint;
+                    advance();
+                } else if (nint.charAt(0) == '0') {
+                    // This is a flag, skip to parsing flags.
+                    back(nint.length());
+                } else {
+                    // This is the width, skip to parsing precision.
+                    width = nint;
+                }
             }
+            // Flags
+            flags = "";
+            while (width == null && FLAGS.indexOf(peek()) >= 0) {
+                flags += advance();
+            }
+            // Width
+            if (width == null && nextIsInt()) {
+                width = nextInt();
+            }
+            // Precision
+            if (peek() == '.') {
+                advance();
+                if (!nextIsInt()) {
+                    throw new IllegalFormatPrecisionException(peek());
+                }
+                precision = nextInt();
+            }
+            // tT
+            if (peek() == 't' || peek() == 'T') {
+                tT = String.valueOf(advance());
+            }
+            // Conversion
+            conv = String.valueOf(advance());
+
+            fs = new FormatSpecifier(index, flags, width, precision, tT, conv);
+        }
+
+        private String nextInt() {
+            int strBegin = cursor;
+            while (nextIsInt()) {
+                advance();
+            }
+            return format.substring(strBegin, cursor);
+        }
+
+        private boolean nextIsInt() {
+            return !isEnd() && Character.isDigit(peek());
+        }
+
+        private char peek() {
+            if (isEnd()) {
+                throw new UnknownFormatConversionException("End of String");
+            }
+            return format.charAt(cursor);
+        }
+
+        private char advance() {
+            if (isEnd()) {
+                throw new UnknownFormatConversionException("End of String");
+            }
+            return format.charAt(cursor++);
+        }
+
+        private void back(int len) {
+            cursor -= len;
+        }
+
+        private boolean isEnd() {
+            return cursor == format.length();
+        }
+
+        public FormatSpecifier getFormatSpecifier() {
+            return fs;
+        }
+
+        public int getEndIdx() {
+            return cursor;
         }
     }
 
@@ -2577,7 +2657,7 @@ public final class Formatter implements Closeable, Flushable {
         private int index(String s) {
             if (s != null) {
                 try {
-                    index = Integer.parseInt(s.substring(0, s.length() - 1));
+                    index = Integer.parseInt(s);
                 } catch (NumberFormatException x) {
                     assert(false);
                 }
@@ -2624,8 +2704,7 @@ public final class Formatter implements Closeable, Flushable {
             precision = -1;
             if (s != null) {
                 try {
-                    // remove the '.'
-                    precision = Integer.parseInt(s.substring(1));
+                    precision = Integer.parseInt(s);
                     if (precision < 0)
                         throw new IllegalFormatPrecisionException(precision);
                 } catch (NumberFormatException x) {
@@ -2657,22 +2736,22 @@ public final class Formatter implements Closeable, Flushable {
             return c;
         }
 
-        FormatSpecifier(Matcher m) {
+        FormatSpecifier(String indexStr, String flagsStr, String widthStr,
+                        String precisionStr, String tTStr, String convStr) {
             int idx = 1;
 
-            index(m.group(idx++));
-            flags(m.group(idx++));
-            width(m.group(idx++));
-            precision(m.group(idx++));
+            index(indexStr);
+            flags(flagsStr);
+            width(widthStr);
+            precision(precisionStr);
 
-            String tT = m.group(idx++);
-            if (tT != null) {
+            if (tTStr != null) {
                 dt = true;
-                if (tT.equals("T"))
+                if (tTStr.equals("T"))
                     f.add(Flags.UPPERCASE);
             }
 
-            conversion(m.group(idx));
+            conversion(convStr);
 
             if (dt)
                 checkDateTime();

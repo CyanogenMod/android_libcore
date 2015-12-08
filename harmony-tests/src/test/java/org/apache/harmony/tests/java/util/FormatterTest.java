@@ -876,24 +876,27 @@ public class FormatterTest extends TestCase {
         try {
             f = new Formatter(Locale.US);
             f.format("%.s", "hello", "2");
-            fail("should throw UnknownFormatConversionException");
-        } catch (UnknownFormatConversionException e) {
+            fail("should throw Exception");
+        } catch (UnknownFormatConversionException
+                 | IllegalFormatPrecisionException expected) {
             // expected
         }
 
         try {
             f = new Formatter(Locale.US);
             f.format("%.-5s", "123456");
-            fail("should throw UnknownFormatConversionException");
-        } catch (UnknownFormatConversionException e) {
+            fail("should throw Exception");
+        } catch (UnknownFormatConversionException
+                 | IllegalFormatPrecisionException expected) {
             // expected
         }
 
         try {
             f = new Formatter(Locale.US);
             f.format("%1.s", "hello", "2");
-            fail("should throw UnknownFormatConversionException");
-        } catch (UnknownFormatConversionException e) {
+            fail("should throw Exception");
+        } catch (UnknownFormatConversionException
+                 | IllegalFormatPrecisionException expected) {
             // expected
         }
 
@@ -1113,6 +1116,11 @@ public class FormatterTest extends TestCase {
                 fail("should throw UnknownFormatConversionException");
             } catch (UnknownFormatConversionException e) {
                 // expected
+            } catch (IllegalFormatPrecisionException e) {
+                // If i is '.', s can also be interpreted as an illegal precision.
+                if (i != '.') {
+                    throw e;
+                }
             }
         }
     }
