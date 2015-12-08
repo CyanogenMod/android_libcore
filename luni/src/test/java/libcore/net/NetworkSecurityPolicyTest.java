@@ -37,42 +37,40 @@ import java.util.logging.SocketHandler;
 
 public class NetworkSecurityPolicyTest extends TestCase {
 
-    private boolean mCleartextTrafficPermittedOriginalState;
+    private NetworkSecurityPolicy mOriginalPolicy;
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        mCleartextTrafficPermittedOriginalState =
-                NetworkSecurityPolicy.isCleartextTrafficPermitted();
+        mOriginalPolicy = NetworkSecurityPolicy.getInstance();
     }
 
     @Override
     protected void tearDown() throws Exception {
         try {
-            NetworkSecurityPolicy.setCleartextTrafficPermitted(
-                    mCleartextTrafficPermittedOriginalState);
+            NetworkSecurityPolicy.setInstance(mOriginalPolicy);
         } finally {
             super.tearDown();
         }
     }
 
     public void testCleartextTrafficPolicySetterAndGetter() {
-        NetworkSecurityPolicy.setCleartextTrafficPermitted(false);
-        assertEquals(false, NetworkSecurityPolicy.isCleartextTrafficPermitted());
+        NetworkSecurityPolicy.setInstance(new TestNetworkSecurityPolicy(false));
+        assertEquals(false, NetworkSecurityPolicy.getInstance().isCleartextTrafficPermitted());
 
-        NetworkSecurityPolicy.setCleartextTrafficPermitted(true);
-        assertEquals(true, NetworkSecurityPolicy.isCleartextTrafficPermitted());
+        NetworkSecurityPolicy.setInstance(new TestNetworkSecurityPolicy(true));
+        assertEquals(true, NetworkSecurityPolicy.getInstance().isCleartextTrafficPermitted());
 
-        NetworkSecurityPolicy.setCleartextTrafficPermitted(false);
-        assertEquals(false, NetworkSecurityPolicy.isCleartextTrafficPermitted());
+        NetworkSecurityPolicy.setInstance(new TestNetworkSecurityPolicy(false));
+        assertEquals(false, NetworkSecurityPolicy.getInstance().isCleartextTrafficPermitted());
 
-        NetworkSecurityPolicy.setCleartextTrafficPermitted(true);
-        assertEquals(true, NetworkSecurityPolicy.isCleartextTrafficPermitted());
+        NetworkSecurityPolicy.setInstance(new TestNetworkSecurityPolicy(true));
+        assertEquals(true, NetworkSecurityPolicy.getInstance().isCleartextTrafficPermitted());
     }
 
     public void testCleartextTrafficPolicyWithHttpURLConnection() throws Exception {
         // Assert that client transmits some data when cleartext traffic is permitted.
-        NetworkSecurityPolicy.setCleartextTrafficPermitted(true);
+        NetworkSecurityPolicy.setInstance(new TestNetworkSecurityPolicy(true));
         try (CapturingServerSocket server = new CapturingServerSocket()) {
             URL url = new URL("http://localhost:" + server.getPort() + "/test.txt");
             try {
@@ -85,7 +83,7 @@ public class NetworkSecurityPolicyTest extends TestCase {
 
         // Assert that client does not transmit any data when cleartext traffic is not permitted and
         // that URLConnection.openConnection or getContent fail with an IOException.
-        NetworkSecurityPolicy.setCleartextTrafficPermitted(false);
+        NetworkSecurityPolicy.setInstance(new TestNetworkSecurityPolicy(false));
         try (CapturingServerSocket server = new CapturingServerSocket()) {
             URL url = new URL("http://localhost:" + server.getPort() + "/test.txt");
             try {
@@ -99,7 +97,7 @@ public class NetworkSecurityPolicyTest extends TestCase {
 
     public void testCleartextTrafficPolicyWithFtpURLConnection() throws Exception {
         // Assert that client transmits some data when cleartext traffic is permitted.
-        NetworkSecurityPolicy.setCleartextTrafficPermitted(true);
+        NetworkSecurityPolicy.setInstance(new TestNetworkSecurityPolicy(true));
         byte[] serverReplyOnConnect = "220\r\n".getBytes("US-ASCII");
         try (CapturingServerSocket server = new CapturingServerSocket(serverReplyOnConnect)) {
             URL url = new URL("ftp://localhost:" + server.getPort() + "/test.txt");
@@ -113,7 +111,7 @@ public class NetworkSecurityPolicyTest extends TestCase {
 
         // Assert that client does not transmit any data when cleartext traffic is not permitted and
         // that URLConnection.openConnection or getContent fail with an IOException.
-        NetworkSecurityPolicy.setCleartextTrafficPermitted(false);
+        NetworkSecurityPolicy.setInstance(new TestNetworkSecurityPolicy(false));
         try (CapturingServerSocket server = new CapturingServerSocket(serverReplyOnConnect)) {
             URL url = new URL("ftp://localhost:" + server.getPort() + "/test.txt");
             try {
@@ -127,7 +125,7 @@ public class NetworkSecurityPolicyTest extends TestCase {
 
     public void testCleartextTrafficPolicyWithJarHttpURLConnection() throws Exception {
         // Assert that client transmits some data when cleartext traffic is permitted.
-        NetworkSecurityPolicy.setCleartextTrafficPermitted(true);
+        NetworkSecurityPolicy.setInstance(new TestNetworkSecurityPolicy(true));
         try (CapturingServerSocket server = new CapturingServerSocket()) {
             URL url = new URL("jar:http://localhost:" + server.getPort() + "/test.jar!/");
             try {
@@ -140,7 +138,7 @@ public class NetworkSecurityPolicyTest extends TestCase {
 
         // Assert that client does not transmit any data when cleartext traffic is not permitted and
         // that JarURLConnection.openConnection or getManifest fail with an IOException.
-        NetworkSecurityPolicy.setCleartextTrafficPermitted(false);
+        NetworkSecurityPolicy.setInstance(new TestNetworkSecurityPolicy(false));
         try (CapturingServerSocket server = new CapturingServerSocket()) {
             URL url = new URL("jar:http://localhost:" + server.getPort() + "/test.jar!/");
             try {
@@ -154,7 +152,7 @@ public class NetworkSecurityPolicyTest extends TestCase {
 
     public void testCleartextTrafficPolicyWithJarFtpURLConnection() throws Exception {
         // Assert that client transmits some data when cleartext traffic is permitted.
-        NetworkSecurityPolicy.setCleartextTrafficPermitted(true);
+        NetworkSecurityPolicy.setInstance(new TestNetworkSecurityPolicy(true));
         byte[] serverReplyOnConnect = "220\r\n".getBytes("US-ASCII");
         try (CapturingServerSocket server = new CapturingServerSocket(serverReplyOnConnect)) {
             URL url = new URL("jar:ftp://localhost:" + server.getPort() + "/test.jar!/");
@@ -168,7 +166,7 @@ public class NetworkSecurityPolicyTest extends TestCase {
 
         // Assert that client does not transmit any data when cleartext traffic is not permitted and
         // that JarURLConnection.openConnection or getManifest fail with an IOException.
-        NetworkSecurityPolicy.setCleartextTrafficPermitted(false);
+        NetworkSecurityPolicy.setInstance(new TestNetworkSecurityPolicy(false));
         try (CapturingServerSocket server = new CapturingServerSocket(serverReplyOnConnect)) {
             URL url = new URL("jar:ftp://localhost:" + server.getPort() + "/test.jar!/");
             try {
@@ -182,7 +180,7 @@ public class NetworkSecurityPolicyTest extends TestCase {
 
     public void testCleartextTrafficPolicyWithLoggingSocketHandler() throws Exception {
         // Assert that client transmits some data when cleartext traffic is permitted.
-        NetworkSecurityPolicy.setCleartextTrafficPermitted(true);
+        NetworkSecurityPolicy.setInstance(new TestNetworkSecurityPolicy(true));
         try (CapturingServerSocket server = new CapturingServerSocket()) {
             SocketHandler logger = new SocketHandler("localhost", server.getPort());
             MockErrorManager mockErrorManager = new MockErrorManager();
@@ -196,7 +194,7 @@ public class NetworkSecurityPolicyTest extends TestCase {
         }
 
         // Assert that client does not transmit any data when cleartext traffic is not permitted.
-        NetworkSecurityPolicy.setCleartextTrafficPermitted(false);
+        NetworkSecurityPolicy.setInstance(new TestNetworkSecurityPolicy(false));
         try (CapturingServerSocket server = new CapturingServerSocket()) {
             try {
                 new SocketHandler("localhost", server.getPort());
@@ -310,6 +308,19 @@ public class NetworkSecurityPolicyTest extends TestCase {
             synchronized (this) {
                 mMostRecentException = exception;
             }
+        }
+    }
+
+    private static class TestNetworkSecurityPolicy extends NetworkSecurityPolicy {
+        private final boolean mCleartextTrafficPermitted;
+
+        public TestNetworkSecurityPolicy(boolean cleartextTrafficPermitted) {
+            mCleartextTrafficPermitted = cleartextTrafficPermitted;
+        }
+
+        @Override
+        public boolean isCleartextTrafficPermitted() {
+            return mCleartextTrafficPermitted;
         }
     }
 }
