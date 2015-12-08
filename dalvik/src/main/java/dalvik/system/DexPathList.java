@@ -70,6 +70,9 @@ import static android.system.OsConstants.S_ISDIR;
     /** List of system native library directories. */
     private final List<File> systemNativeLibraryDirectories;
 
+    /** The permitted library path for classloader-namespaces */
+    private final String libraryPermittedPath;
+
     /**
      * Exceptions thrown during creation of the dexElements list.
      */
@@ -82,14 +85,19 @@ import static android.system.OsConstants.S_ISDIR;
      * classes should be defined
      * @param dexPath list of dex/resource path elements, separated by
      * {@code File.pathSeparator}
-     * @param libraryPath list of native library directory path elements,
+     * @param librarySearchPath list of native library directory path elements,
      * separated by {@code File.pathSeparator}
+     * @param libraryPermittedPath is path containing permitted directories for
+     * linker isolated namespaces (in addition to librarySearchPath which is allowed
+     * implicitly). Note that this path does not affect the search order for the library
+     * and intended for white-listing additional paths when loading native libraries
+     * by absolute path.
      * @param optimizedDirectory directory where optimized {@code .dex} files
      * should be found and written to, or {@code null} to use the default
      * system directory for same
      */
     public DexPathList(ClassLoader definingContext, String dexPath,
-            String libraryPath, File optimizedDirectory) {
+            String librarySearchPath, String libraryPermittedPath, File optimizedDirectory) {
 
         if (definingContext == null) {
             throw new NullPointerException("definingContext == null");
@@ -124,14 +132,14 @@ import static android.system.OsConstants.S_ISDIR;
         // Native libraries may exist in both the system and
         // application library paths, and we use this search order:
         //
-        //   1. This class loader's library path for application libraries (libraryPath):
+        //   1. This class loader's library path for application libraries (librarySearchPath):
         //   1.1. Native library directories
         //   1.2. Path to libraries in apk-files
         //   2. The VM's library path from the system property for system libraries
         //      also known as java.library.path
         //
         // This order was reversed prior to Gingerbread; see http://b/2933456.
-        this.nativeLibraryDirectories = splitPaths(libraryPath, false);
+        this.nativeLibraryDirectories = splitPaths(librarySearchPath, false);
         this.systemNativeLibraryDirectories =
                 splitPaths(System.getProperty("java.library.path"), true);
         List<File> allNativeLibraryDirectories = new ArrayList<>(nativeLibraryDirectories);
@@ -147,6 +155,8 @@ import static android.system.OsConstants.S_ISDIR;
         } else {
             dexElementsSuppressedExceptions = null;
         }
+
+        this.libraryPermittedPath = libraryPermittedPath;
     }
 
     @Override public String toString() {
@@ -166,6 +176,13 @@ import static android.system.OsConstants.S_ISDIR;
      */
     public List<File> getNativeLibraryDirectories() {
         return nativeLibraryDirectories;
+    }
+
+    /**
+     * For BaseDexClassLoader.getLibraryPermittedPath.
+     */
+    public String getLibraryPermittedPath() {
+        return libraryPermittedPath;
     }
 
     /**
