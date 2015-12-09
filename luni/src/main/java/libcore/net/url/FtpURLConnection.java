@@ -107,7 +107,7 @@ public class FtpURLConnection extends URLConnection {
     protected FtpURLConnection(URL url) throws IOException {
         super(url);
         hostName = url.getHost();
-        if (!NetworkSecurityPolicy.isCleartextTrafficPermitted()) {
+        if (!NetworkSecurityPolicy.getInstance().isCleartextTrafficPermitted()) {
             // Cleartext network traffic is not permitted -- refuse this connection.
             throw new IOException("Cleartext traffic not permitted: "
                     + url.getProtocol() + "://" + hostName
