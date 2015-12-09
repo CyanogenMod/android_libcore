@@ -46,6 +46,7 @@ import java.net.ProxySelector;
 import java.util.StringTokenizer;
 import java.util.Iterator;
 import java.security.Permission;
+import libcore.net.NetworkSecurityPolicy;
 import sun.net.NetworkClient;
 import sun.net.www.MessageHeader;
 import sun.net.www.MeteredStream;
@@ -160,19 +161,26 @@ public class FtpURLConnection extends URLConnection {
      *
      * @param   url     The <code>URL</code> to retrieve or store.
      */
-    public FtpURLConnection(URL url) {
+    public FtpURLConnection(URL url) throws IOException {
         this(url, null);
     }
 
     /**
      * Same as FtpURLconnection(URL) with a per connection proxy specified
      */
-    FtpURLConnection(URL url, Proxy p) {
+    FtpURLConnection(URL url, Proxy p) throws IOException {
         super(url);
         instProxy = p;
         host = url.getHost();
         port = url.getPort();
         String userInfo = url.getUserInfo();
+
+        if (!NetworkSecurityPolicy.getInstance().isCleartextTrafficPermitted()) {
+            // Cleartext network traffic is not permitted -- refuse this connection.
+            throw new IOException("Cleartext traffic not permitted: "
+                    + url.getProtocol() + "://" + host
+                    + ((url.getPort() >= 0) ? (":" + url.getPort()) : ""));
+        }
 
         if (userInfo != null) { // get the user and password
             int delimiter = userInfo.indexOf(':');

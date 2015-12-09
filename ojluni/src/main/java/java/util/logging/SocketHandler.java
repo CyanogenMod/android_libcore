@@ -28,6 +28,7 @@ package java.util.logging;
 
 import java.io.*;
 import java.net.*;
+import libcore.net.NetworkSecurityPolicy;
 
 /**
  * Simple network logging <tt>Handler</tt>.
@@ -148,6 +149,10 @@ public class SocketHandler extends StreamHandler {
         }
         if (host == null) {
             throw new IllegalArgumentException("Null host name: " + host);
+        }
+
+        if (!NetworkSecurityPolicy.getInstance().isCleartextTrafficPermitted()) {
+            throw new IOException("Cleartext traffic not permitted");
         }
 
         // Try to open a new socket.
