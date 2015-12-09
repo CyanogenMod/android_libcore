@@ -37,7 +37,7 @@ class ByteBufferAsFloatBuffer extends FloatBuffer {       // package-private
         super(-1, 0,
               bb.remaining() >> 2,
               bb.remaining() >> 2);
-        this.bb = bb.duplicate().order(bb.order());
+        this.bb = bb;
         this.isReadOnly = bb.isReadOnly;
         this.address = bb.address;
         this.order = order;
@@ -52,7 +52,7 @@ class ByteBufferAsFloatBuffer extends FloatBuffer {       // package-private
                             int mark, int pos, int lim, int cap,
                             int off, ByteOrder order) {
         super(mark, pos, lim, cap);
-        this.bb = bb.duplicate().order(bb.order());
+        this.bb = bb;
         this.isReadOnly = bb.isReadOnly;
         this.address = bb.address;
         this.order = order;
@@ -98,7 +98,7 @@ class ByteBufferAsFloatBuffer extends FloatBuffer {       // package-private
     }
 
     public float get(int i) {
-        return bb.getFloat(ix(i));
+        return bb.getFloatUnchecked(ix(checkIndex(i)));
     }
 
     public FloatBuffer put(float x) {
@@ -107,7 +107,10 @@ class ByteBufferAsFloatBuffer extends FloatBuffer {       // package-private
     }
 
     public FloatBuffer put(int i, float x) {
-        bb.putFloat(ix(i), x);
+        if (isReadOnly) {
+            throw new ReadOnlyBufferException();
+        }
+        bb.putFloatUnchecked(ix(checkIndex(i)), x);
         return this;
     }
 

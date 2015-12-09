@@ -37,7 +37,7 @@ class ByteBufferAsShortBuffer extends ShortBuffer {       // package-private
         super(-1, 0,
               bb.remaining() >> 1,
               bb.remaining() >> 1);
-        this.bb = bb.duplicate().order(bb.order());
+        this.bb = bb;
         this.isReadOnly = bb.isReadOnly;
         this.address = bb.address;
         this.order = order;
@@ -52,7 +52,7 @@ class ByteBufferAsShortBuffer extends ShortBuffer {       // package-private
                             int mark, int pos, int lim, int cap,
                             int off, ByteOrder order) {
         super(mark, pos, lim, cap);
-        this.bb = bb.duplicate().order(bb.order());
+        this.bb = bb;
         this.isReadOnly = bb.isReadOnly;
         this.address = bb.address;
         this.order = order;
@@ -96,7 +96,8 @@ class ByteBufferAsShortBuffer extends ShortBuffer {       // package-private
     }
 
     public short get(int i) {
-        return bb.getShort(ix(i));
+        return bb.getShortUnchecked(ix(checkIndex(i)));
+
     }
 
     public ShortBuffer put(short x) {
@@ -105,7 +106,10 @@ class ByteBufferAsShortBuffer extends ShortBuffer {       // package-private
     }
 
     public ShortBuffer put(int i, short x) {
-        bb.putShort(ix(i), x);
+        if (isReadOnly) {
+            throw new ReadOnlyBufferException();
+        }
+        bb.putShortUnchecked(ix(checkIndex(i)), x);
         return this;
     }
 

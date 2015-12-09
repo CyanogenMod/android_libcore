@@ -38,7 +38,7 @@ class ByteBufferAsDoubleBuffer
         super(-1, 0,
               bb.remaining() >> 3,
               bb.remaining() >> 3);
-        this.bb = bb.duplicate().order(bb.order());
+        this.bb = bb;
         this.isReadOnly = bb.isReadOnly;
         this.address = bb.address;
         this.order = order;
@@ -53,7 +53,7 @@ class ByteBufferAsDoubleBuffer
                              int mark, int pos, int lim, int cap,
                              int off, ByteOrder order) {
         super(mark, pos, lim, cap);
-        this.bb = bb.duplicate().order(bb.order());
+        this.bb = bb;
         this.isReadOnly = bb.isReadOnly;
         this.address = bb.address;
         this.order = order;
@@ -99,7 +99,7 @@ class ByteBufferAsDoubleBuffer
     }
 
     public double get(int i) {
-        return bb.getDouble(ix(i));
+        return bb.getDoubleUnchecked(ix(checkIndex(i)));
     }
 
     public DoubleBuffer put(double x) {
@@ -108,7 +108,10 @@ class ByteBufferAsDoubleBuffer
     }
 
     public DoubleBuffer put(int i, double x) {
-        bb.putDouble(ix(i), x);
+        if (isReadOnly) {
+            throw new ReadOnlyBufferException();
+        }
+        bb.putDoubleUnchecked(ix(checkIndex(i)), x);
         return this;
     }
 

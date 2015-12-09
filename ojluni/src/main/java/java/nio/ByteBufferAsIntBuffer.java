@@ -37,7 +37,7 @@ class ByteBufferAsIntBuffer extends IntBuffer {        // package-private
         super(-1, 0,
               bb.remaining() >> 2,
               bb.remaining() >> 2);
-        this.bb = bb.duplicate().order(bb.order());
+        this.bb = bb;
         this.isReadOnly = bb.isReadOnly;
         this.address = bb.address;
         this.order = order;
@@ -52,7 +52,7 @@ class ByteBufferAsIntBuffer extends IntBuffer {        // package-private
                           int mark, int pos, int lim, int cap,
                           int off, ByteOrder order) {
         super(mark, pos, lim, cap);
-        this.bb = bb.duplicate().order(bb.order());
+        this.bb = bb;
         this.isReadOnly = bb.isReadOnly;
         this.address = bb.address;
         this.order = order;
@@ -98,7 +98,7 @@ class ByteBufferAsIntBuffer extends IntBuffer {        // package-private
     }
 
     public int get(int i) {
-        return bb.getInt(ix(i));
+        return bb.getIntUnchecked(ix(checkIndex(i)));
     }
 
     public IntBuffer put(int x) {
@@ -107,7 +107,10 @@ class ByteBufferAsIntBuffer extends IntBuffer {        // package-private
     }
 
     public IntBuffer put(int i, int x) {
-        bb.putInt(ix(i), x);
+        if (isReadOnly) {
+            throw new ReadOnlyBufferException();
+        }
+        bb.putIntUnchecked(ix(checkIndex(i)), x);
         return this;
     }
 

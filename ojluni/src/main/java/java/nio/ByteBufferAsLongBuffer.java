@@ -37,7 +37,7 @@ class ByteBufferAsLongBuffer extends LongBuffer {                 // package-pri
         super(-1, 0,
               bb.remaining() >> 3,
               bb.remaining() >> 3);
-        this.bb = bb.duplicate().order(bb.order());
+        this.bb = bb;
         this.isReadOnly = bb.isReadOnly;
         this.address = bb.address;
         this.order = order;
@@ -52,7 +52,7 @@ class ByteBufferAsLongBuffer extends LongBuffer {                 // package-pri
                            int mark, int pos, int lim, int cap,
                            int off, ByteOrder order) {
         super(mark, pos, lim, cap);
-        this.bb = bb.duplicate().order(bb.order());
+        this.bb = bb;
         this.isReadOnly = bb.isReadOnly;
         this.address = bb.address;
         this.order = order;
@@ -98,7 +98,7 @@ class ByteBufferAsLongBuffer extends LongBuffer {                 // package-pri
     }
 
     public long get(int i) {
-        return bb.getLong(ix(i));
+        return bb.getLongUnchecked(ix(checkIndex(i)));
     }
 
     public LongBuffer put(long x) {
@@ -107,7 +107,10 @@ class ByteBufferAsLongBuffer extends LongBuffer {                 // package-pri
     }
 
     public LongBuffer put(int i, long x) {
-        bb.putLong(ix(i), x);
+        if (isReadOnly) {
+            throw new ReadOnlyBufferException();
+        }
+        bb.putLongUnchecked(ix(checkIndex(i)), x);
         return this;
     }
 

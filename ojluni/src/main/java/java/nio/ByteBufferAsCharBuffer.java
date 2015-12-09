@@ -37,7 +37,7 @@ class ByteBufferAsCharBuffer extends CharBuffer {      // package-private
         super(-1, 0,
               bb.remaining() >> 1,
               bb.remaining() >> 1);
-        this.bb = bb.duplicate().order(bb.order());
+        this.bb = bb;
         this.isReadOnly = bb.isReadOnly;
         this.address = bb.address;
         this.order = order;
@@ -52,7 +52,7 @@ class ByteBufferAsCharBuffer extends CharBuffer {      // package-private
                            int mark, int pos, int lim, int cap,
                            int off, ByteOrder order) {
         super(mark, pos, lim, cap);
-        this.bb = bb.duplicate().order(bb.order());
+        this.bb = bb;
         this.isReadOnly = bb.isReadOnly;
         this.address = bb.address;
         this.order = order;
@@ -98,7 +98,7 @@ class ByteBufferAsCharBuffer extends CharBuffer {      // package-private
     }
 
     public char get(int i) {
-        return bb.getChar(ix(i));
+        return bb.getCharUnchecked(ix(checkIndex(i)));
     }
 
     public CharBuffer put(char x) {
@@ -107,7 +107,10 @@ class ByteBufferAsCharBuffer extends CharBuffer {      // package-private
     }
 
     public CharBuffer put(int i, char x) {
-        bb.putChar(ix(i), x);
+        if (isReadOnly) {
+            throw new ReadOnlyBufferException();
+        }
+        bb.putCharUnchecked(ix(checkIndex(i)), x);
         return this;
     }
 

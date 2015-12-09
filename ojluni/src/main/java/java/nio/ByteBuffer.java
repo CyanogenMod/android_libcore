@@ -1505,6 +1505,10 @@ public abstract class ByteBuffer
      */
     public abstract char getChar(int index);
 
+    char getCharUnchecked(int index) {
+        throw new UnsupportedOperationException();
+    }
+
     /**
      * Absolute <i>put</i> method for writing a char
      * value&nbsp;&nbsp;<i>(optional operation)</i>.
@@ -1529,6 +1533,10 @@ public abstract class ByteBuffer
      *          If this buffer is read-only
      */
     public abstract ByteBuffer putChar(int index, char value);
+
+    void putCharUnchecked(int index, char value) {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Creates a view of this byte buffer as a char buffer.
@@ -1604,6 +1612,10 @@ public abstract class ByteBuffer
      */
     public abstract short getShort(int index);
 
+    short getShortUnchecked(int index) {
+        throw new UnsupportedOperationException();
+    }
+
     /**
      * Absolute <i>put</i> method for writing a short
      * value&nbsp;&nbsp;<i>(optional operation)</i>.
@@ -1628,6 +1640,10 @@ public abstract class ByteBuffer
      *          If this buffer is read-only
      */
     public abstract ByteBuffer putShort(int index, short value);
+
+    void putShortUnchecked(int index, short value) {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Creates a view of this byte buffer as a short buffer.
@@ -1703,6 +1719,10 @@ public abstract class ByteBuffer
      */
     public abstract int getInt(int index);
 
+    int getIntUnchecked(int index) {
+        throw new UnsupportedOperationException();
+    }
+
     /**
      * Absolute <i>put</i> method for writing an int
      * value&nbsp;&nbsp;<i>(optional operation)</i>.
@@ -1727,6 +1747,10 @@ public abstract class ByteBuffer
      *          If this buffer is read-only
      */
     public abstract ByteBuffer putInt(int index, int value);
+
+    void putIntUnchecked(int index, int value) {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Creates a view of this byte buffer as an int buffer.
@@ -1802,6 +1826,10 @@ public abstract class ByteBuffer
      */
     public abstract long getLong(int index);
 
+    long getLongUnchecked(int index) {
+        throw new UnsupportedOperationException();
+    }
+
     /**
      * Absolute <i>put</i> method for writing a long
      * value&nbsp;&nbsp;<i>(optional operation)</i>.
@@ -1826,6 +1854,10 @@ public abstract class ByteBuffer
      *          If this buffer is read-only
      */
     public abstract ByteBuffer putLong(int index, long value);
+
+    void putLongUnchecked(int index, long value) {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Creates a view of this byte buffer as a long buffer.
@@ -1901,6 +1933,10 @@ public abstract class ByteBuffer
      */
     public abstract float getFloat(int index);
 
+    float getFloatUnchecked(int index) {
+        throw new UnsupportedOperationException();
+    }
+
     /**
      * Absolute <i>put</i> method for writing a float
      * value&nbsp;&nbsp;<i>(optional operation)</i>.
@@ -1925,6 +1961,10 @@ public abstract class ByteBuffer
      *          If this buffer is read-only
      */
     public abstract ByteBuffer putFloat(int index, float value);
+
+    void putFloatUnchecked(int index, float value) {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Creates a view of this byte buffer as a float buffer.
@@ -2000,6 +2040,10 @@ public abstract class ByteBuffer
      */
     public abstract double getDouble(int index);
 
+    double getDoubleUnchecked(int index) {
+        throw new UnsupportedOperationException();
+    }
+
     /**
      * Absolute <i>put</i> method for writing a double
      * value&nbsp;&nbsp;<i>(optional operation)</i>.
@@ -2024,6 +2068,10 @@ public abstract class ByteBuffer
      *          If this buffer is read-only
      */
     public abstract ByteBuffer putDouble(int index, double value);
+
+    void putDoubleUnchecked(int index, double value) {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Creates a view of this byte buffer as a double buffer.

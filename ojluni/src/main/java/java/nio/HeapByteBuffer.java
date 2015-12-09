@@ -217,6 +217,10 @@ class HeapByteBuffer extends ByteBuffer {
         return Bits.getChar(this, ix(checkIndex(i, 2)), bigEndian);
     }
 
+    char getCharUnchecked(int i) {
+        return Bits.getChar(this, ix(i), bigEndian);
+    }
+
     public ByteBuffer putChar(char x) {
         if (isReadOnly) {
             throw new ReadOnlyBufferException();
@@ -231,6 +235,10 @@ class HeapByteBuffer extends ByteBuffer {
         }
         Bits.putChar(this, ix(checkIndex(i, 2)), x, bigEndian);
         return this;
+    }
+
+    void putCharUnchecked(int i, char x) {
+        Bits.putChar(this, ix(i), x, bigEndian);
     }
 
     public CharBuffer asCharBuffer() {
@@ -253,6 +261,10 @@ class HeapByteBuffer extends ByteBuffer {
         return Bits.getShort(this, ix(checkIndex(i, 2)), bigEndian);
     }
 
+    short getShortUnchecked(int i) {
+        return Bits.getShort(this, ix(i), bigEndian);
+    }
+
     public ByteBuffer putShort(short x) {
         if (isReadOnly) {
             throw new ReadOnlyBufferException();
@@ -267,6 +279,10 @@ class HeapByteBuffer extends ByteBuffer {
         }
         Bits.putShort(this, ix(checkIndex(i, 2)), x, bigEndian);
         return this;
+    }
+
+    void putShortUnchecked(int i, short x) {
+        Bits.putShort(this, ix(i), x, bigEndian);
     }
 
     public ShortBuffer asShortBuffer() {
@@ -289,6 +305,10 @@ class HeapByteBuffer extends ByteBuffer {
         return Bits.getInt(this, ix(checkIndex(i, 4)), bigEndian);
     }
 
+    int getIntUnchecked(int i) {
+        return Bits.getInt(this, ix(i), bigEndian);
+    }
+
     public ByteBuffer putInt(int x) {
         if (isReadOnly) {
             throw new ReadOnlyBufferException();
@@ -303,6 +323,10 @@ class HeapByteBuffer extends ByteBuffer {
         }
         Bits.putInt(this, ix(checkIndex(i, 4)), x, bigEndian);
         return this;
+    }
+
+    void putIntUnchecked(int i, int x) {
+        Bits.putInt(this, ix(i), x, bigEndian);
     }
 
     public IntBuffer asIntBuffer() {
@@ -326,6 +350,10 @@ class HeapByteBuffer extends ByteBuffer {
         return Bits.getLong(this, ix(checkIndex(i, 8)), bigEndian);
     }
 
+    long getLongUnchecked(int i) {
+        return Bits.getLong(this, ix(i), bigEndian);
+    }
+
     public ByteBuffer putLong(long x) {
         if (isReadOnly) {
             throw new ReadOnlyBufferException();
@@ -341,6 +369,10 @@ class HeapByteBuffer extends ByteBuffer {
         Bits.putLong(this, ix(checkIndex(i, 8)), x, bigEndian);
         return this;
     }
+
+    void putLongUnchecked(int i, long x) {
+        Bits.putLong(this, ix(i), x, bigEndian);
+   }
 
     public LongBuffer asLongBuffer() {
         int size = this.remaining() >> 3;
@@ -362,7 +394,9 @@ class HeapByteBuffer extends ByteBuffer {
         return Bits.getFloat(this, ix(checkIndex(i, 4)), bigEndian);
     }
 
-
+    float getFloatUnchecked(int i) {
+        return Bits.getFloat(this, ix(i), bigEndian);
+    }
 
     public ByteBuffer putFloat(float x) {
         if (isReadOnly) {
@@ -378,6 +412,10 @@ class HeapByteBuffer extends ByteBuffer {
         }
         Bits.putFloat(this, ix(checkIndex(i, 4)), x, bigEndian);
         return this;
+    }
+
+    void putFloatUnchecked(int i, float x) {
+        Bits.putFloat(this, ix(i), x, bigEndian);
     }
 
     public FloatBuffer asFloatBuffer() {
@@ -400,7 +438,9 @@ class HeapByteBuffer extends ByteBuffer {
         return Bits.getDouble(this, ix(checkIndex(i, 8)), bigEndian);
     }
 
-
+    double getDoubleUnchecked(int i) {
+        return Bits.getDouble(this, ix(i), bigEndian);
+    }
 
     public ByteBuffer putDouble(double x) {
         if (isReadOnly) {
@@ -416,6 +456,10 @@ class HeapByteBuffer extends ByteBuffer {
         }
         Bits.putDouble(this, ix(checkIndex(i, 8)), x, bigEndian);
         return this;
+    }
+
+    void putDoubleUnchecked(int i, double x) {
+        Bits.putDouble(this, ix(i), x, bigEndian);
     }
 
     public DoubleBuffer asDoubleBuffer() {
