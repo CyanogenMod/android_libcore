@@ -109,6 +109,15 @@ public abstract class Reference<T> {
 
     /** @hide */
     public final synchronized boolean enqueueInternal() {
+        if (this instanceof Cleaner) {
+            // If this reference is a Cleaner, then simply invoke the clean method instead
+            // of enqueueing it in the queue. Cleaners are associated with dummy queues that
+            // are never polled and objects are never enqueued on them.
+            Cleaner cl = (sun.misc.Cleaner) this;
+            cl.clean();
+            return true;
+        }
+
         if (queue != null && queueNext == null) {
             queue.enqueue(this);
             queue = null;
@@ -116,7 +125,6 @@ public abstract class Reference<T> {
         }
         return false;
     }
-
 
     /**
      * Adds this reference object to the queue with which it is registered,
