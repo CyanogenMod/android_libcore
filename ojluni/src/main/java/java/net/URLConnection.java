@@ -297,11 +297,6 @@ public abstract class URLConnection {
     private static FileNameMap fileNameMap;
 
     /**
-     * @since 1.2.2
-     */
-    private static boolean fileNameMapLoaded = false;
-
-    /**
      * Loads filename map (a mimetable) from a data file. It will
      * first try to load the user-specific table, defined
      * by &quot;content.types.user.table&quot; property. If that fails,
@@ -313,23 +308,8 @@ public abstract class URLConnection {
      * @see #setFileNameMap(java.net.FileNameMap)
      */
     public static synchronized FileNameMap getFileNameMap() {
-        /* ----- BEGIN android -----
-        if ((fileNameMap == null) && !fileNameMapLoaded) {
-            fileNameMap = sun.net.www.MimeTable.loadTable();
-            fileNameMapLoaded = true;
-        }
-
-        return new FileNameMap() {
-            private FileNameMap map = fileNameMap;
-            public String getContentTypeFor(String fileName) {
-                return map.getContentTypeFor(fileName);
-            }
-        };
-        ----- END android -----*/
-
-        if ((fileNameMap == null) && !fileNameMapLoaded) {
+        if (fileNameMap == null) {
             fileNameMap = new DefaultFileNameMap();
-            fileNameMapLoaded = true;
         }
         return fileNameMap;
     }
