@@ -107,6 +107,17 @@ public abstract class Reference<T> {
         return queueNext != null;
     }
 
+    /** @hide */
+    public final synchronized boolean enqueueInternal() {
+        if (queue != null && queueNext == null) {
+            queue.enqueue(this);
+            queue = null;
+            return true;
+        }
+        return false;
+    }
+
+
     /**
      * Adds this reference object to the queue with which it is registered,
      * if any.
@@ -118,15 +129,6 @@ public abstract class Reference<T> {
      *           enqueued; <code>false</code> if it was already enqueued or if
      *           it was not registered with a queue when it was created
      */
-    public final synchronized boolean enqueueInternal() {
-        if (queue != null && queueNext == null) {
-            queue.enqueue(this);
-            queue = null;
-            return true;
-        }
-        return false;
-    }
-
     public boolean enqueue() {
        return enqueueInternal();
     }
