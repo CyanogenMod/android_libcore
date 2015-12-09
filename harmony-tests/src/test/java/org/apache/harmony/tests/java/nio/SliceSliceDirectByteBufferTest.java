@@ -17,10 +17,12 @@
 package org.apache.harmony.tests.java.nio;
 
 
-public class SliceDirectByteBufferTest extends DirectByteBufferTest {
+public class SliceSliceDirectByteBufferTest extends DirectByteBufferTest {
 
     protected void setUp() throws Exception {
         super.setUp();
+        buf.position(1);
+        buf = buf.slice();
         buf.position(1);
         buf = buf.slice();
         baseBuf = buf;
