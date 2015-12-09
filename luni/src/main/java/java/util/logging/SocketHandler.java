@@ -119,7 +119,7 @@ public class SocketHandler extends StreamHandler {
         }
         // establish the network connection
         try {
-            if (!NetworkSecurityPolicy.isCleartextTrafficPermitted()) {
+            if (!NetworkSecurityPolicy.getInstance().isCleartextTrafficPermitted()) {
                 throw new IOException("Cleartext traffic not permitted");
             }
             this.socket = new Socket(host, p);
