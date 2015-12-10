@@ -62,10 +62,10 @@ JNIEXPORT jint JNICALL PlainSocketImpl_socketAvailable
 /*
  * Class:     java_net_PlainSocketImpl
  * Method:    socketClose0
- * Signature: (Z)V
+ * Signature: ()V
  */
 JNIEXPORT void JNICALL PlainSocketImpl_socketClose0
-  (JNIEnv *, jobject, jboolean);
+  (JNIEnv *, jobject);
 
 /*
  * Class:     java_net_PlainSocketImpl

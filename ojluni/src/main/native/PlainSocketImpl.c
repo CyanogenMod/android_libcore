@@ -76,11 +76,6 @@ jfieldID psi_closePendingID;
 
 extern void setDefaultScopeID(JNIEnv *env, struct sockaddr *him);
 
-/*
- * file descriptor used for dup2
- */
-static int marker_fd = -1;
-
 
 #define SET_NONBLOCKING(fd) {           \
         int flags = fcntl(fd, F_GETFL); \
@@ -92,33 +87,6 @@ static int marker_fd = -1;
         int flags = fcntl(fd, F_GETFL); \
         flags &= ~O_NONBLOCK;           \
         fcntl(fd, F_SETFL, flags);      \
-}
-
-/*
- * Create the marker file descriptor by establishing a loopback connection
- * which we shutdown but do not close the fd. The result is an fd that
- * can be used for read/write.
- */
-static int getMarkerFD()
-{
-    int sv[2];
-
-#ifdef AF_UNIX
-    if (socketpair(AF_UNIX, SOCK_STREAM, 0, sv) == -1) {
-        return -1;
-    }
-#else
-    return -1;
-#endif
-
-    /*
-     * Finally shutdown sv[0] (any reads to this fd will get
-     * EOF; any writes will get an error).
-     */
-    JVM_SocketShutdown(sv[0], 2);
-    JVM_SocketClose(sv[1]);
-
-    return sv[0];
 }
 
 /*
@@ -166,8 +134,6 @@ PlainSocketImpl_initProto(JNIEnv *env, jclass cls) {
     IO_fd_fdID = NET_GetFileDescriptorID(env);
     CHECK_NULL(IO_fd_fdID);
 
-    /* Create the marker fd used for dup2 */
-    marker_fd = getMarkerFD();
 }
 
 /* a global reference to the java.net.SocketException class. In
@@ -832,11 +798,10 @@ PlainSocketImpl_socketAvailable(JNIEnv *env, jobject this) {
 /*
  * Class:     java_net_PlainSocketImpl
  * Method:    socketClose0
- * Signature: (Z)V
+ * Signature: ()V
  */
 JNIEXPORT void JNICALL
-PlainSocketImpl_socketClose0(JNIEnv *env, jobject this,
-                                          jboolean useDeferredClose) {
+PlainSocketImpl_socketClose0(JNIEnv *env, jobject this) {
 
     jobject fdObj = (*env)->GetObjectField(env, this, psi_fdID);
     jint fd;
@@ -849,12 +814,8 @@ PlainSocketImpl_socketClose0(JNIEnv *env, jobject this,
         fd = (*env)->GetIntField(env, fdObj, IO_fd_fdID);
     }
     if (fd != -1) {
-        if (useDeferredClose && marker_fd >= 0) {
-            NET_Dup2(marker_fd, fd);
-        } else {
-            (*env)->SetIntField(env, fdObj, IO_fd_fdID, -1);
-            NET_SocketClose(fd);
-        }
+      (*env)->SetIntField(env, fdObj, IO_fd_fdID, -1);
+      NET_SocketClose(fd);
     }
 }
 
@@ -1118,7 +1079,7 @@ static JNINativeMethod gMethods[] = {
   NATIVE_METHOD(PlainSocketImpl, socketGetOption, "(ILjava/lang/Object;)I"),
   NATIVE_METHOD(PlainSocketImpl, socketSetOption, "(IZLjava/lang/Object;)V"),
   NATIVE_METHOD(PlainSocketImpl, socketShutdown, "(I)V"),
-  NATIVE_METHOD(PlainSocketImpl, socketClose0, "(Z)V"),
+  NATIVE_METHOD(PlainSocketImpl, socketClose0, "()V"),
   NATIVE_METHOD(PlainSocketImpl, socketAccept, "(Ljava/net/SocketImpl;)V"),
   NATIVE_METHOD(PlainSocketImpl, socketAvailable, "()I"),
   NATIVE_METHOD(PlainSocketImpl, socketListen, "(I)V"),
