@@ -2214,14 +2214,6 @@ public class X509CertSelector implements CertSelector {
                 e2.printStackTrace();
             }
             return false;
-        } catch (CertificateException e3) {
-            if (debug != null) {
-                debug.println("X509CertSelector.match: CertificateException "
-                    + "in private key usage check; X509CertSelector: "
-                    + this.toString());
-                e3.printStackTrace();
-            }
-            return false;
         } catch (IOException e4) {
             if (debug != null) {
                 debug.println("X509CertSelector.match: IOException in "
