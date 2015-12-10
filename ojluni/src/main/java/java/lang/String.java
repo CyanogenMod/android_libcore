@@ -656,7 +656,7 @@ public final class String
         if (beginIndex < 0 || endIndex > count || beginIndex > endIndex) {
             throw new IndexOutOfBoundsException();
         }
-        return Character.codePointCount(this, beginIndex, endIndex - beginIndex);
+        return Character.codePointCount(this, beginIndex, endIndex);
     }
 
     /**

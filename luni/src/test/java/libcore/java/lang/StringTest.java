@@ -416,4 +416,13 @@ public class StringTest extends TestCase {
         assertEquals("", splits[6]);
         assertEquals("", splits[7]);
     }
+
+    // http://b/26126818
+    public void testCodePointCount() {
+        String hello = "Hello, fools";
+
+        assertEquals(5, hello.codePointCount(0, 5));
+        assertEquals(7, hello.codePointCount(5, 12));
+        assertEquals(2, hello.codePointCount(10, 12));
+    }
 }
