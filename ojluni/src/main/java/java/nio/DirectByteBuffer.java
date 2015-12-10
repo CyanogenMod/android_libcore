@@ -31,7 +31,6 @@ import sun.misc.VM;
 import sun.nio.ch.DirectBuffer;
 import libcore.io.SizeOf;
 import libcore.io.Memory;
-import dalvik.system.VMRuntime;
 
 class DirectByteBuffer extends MappedByteBuffer
     implements DirectBuffer {
@@ -53,15 +52,16 @@ class DirectByteBuffer extends MappedByteBuffer
 
     private Cleaner cleaner;
 
+    private long actualAddress;
+
     public Cleaner cleaner() { return cleaner; }
 
-    DirectByteBuffer(int capacity) {
-        super(-1, 0, capacity, capacity, (byte[]) VMRuntime.getRuntime()
-              .newNonMovableArray(byte.class, capacity), 0);
-        VMRuntime runtime = VMRuntime.getRuntime();
-        address = runtime.addressOf(hb);
+    DirectByteBuffer(int capacity, long address, byte[] hb, int offset) {
+        super(-1, 0, capacity, capacity, hb, offset);
         // Only have references to java objects, no need for a cleaner since the GC will do all
         // the work.
+        this.address = address + offset;
+        this.actualAddress = address;
         cleaner = null;
         this.isReadOnly = false;
         att = null;
@@ -70,6 +70,7 @@ class DirectByteBuffer extends MappedByteBuffer
     DirectByteBuffer(long addr, int cap, Object ob) {
         super(-1, 0, cap, cap);
         address = addr;
+        actualAddress = addr;
         cleaner = null;
         att = ob;
     }
@@ -79,6 +80,7 @@ class DirectByteBuffer extends MappedByteBuffer
     private DirectByteBuffer(long addr, int cap) {
         super(-1, 0, cap, cap);
         address = addr;
+        actualAddress = addr;
         cleaner = null;
         att = null;
     }
@@ -98,6 +100,7 @@ class DirectByteBuffer extends MappedByteBuffer
         super(-1, 0, cap, cap, fd);
         this.isReadOnly = isReadOnly;
         address = addr;
+        actualAddress = addr;
         cleaner = Cleaner.create(this, unmapper);
         att = null;
     }
@@ -115,7 +118,8 @@ class DirectByteBuffer extends MappedByteBuffer
                      int off, boolean isReadOnly) {
         super(mark, pos, lim, cap, db.hb, off);
         this.isReadOnly = isReadOnly;
-        address = db.address() + off;
+        address = db.address;
+        actualAddress = db.actualAddress;
         cleaner = null;
         att = db;
     }
@@ -124,11 +128,11 @@ class DirectByteBuffer extends MappedByteBuffer
         if (!isAccessible) {
             throw new IllegalStateException("buffer is inaccessible");
         }
-        int pos = this.position();
-        int lim = this.limit();
+        int pos = position();
+        int lim = limit();
         assert (pos <= lim);
         int rem = (pos <= lim ? lim - pos : 0);
-        int off = (pos << 0);
+        int off = (pos << 0) + offset;
         assert (off >= 0);
         return new DirectByteBuffer(this, -1, 0, rem, rem, off, isReadOnly);
     }
@@ -142,7 +146,7 @@ class DirectByteBuffer extends MappedByteBuffer
                                     this.position(),
                                     this.limit(),
                                     this.capacity(),
-                                    0,
+                                    offset,
                                     isReadOnly);
     }
 
@@ -155,7 +159,7 @@ class DirectByteBuffer extends MappedByteBuffer
                                     this.position(),
                                     this.limit(),
                                     this.capacity(),
-                                    0,
+                                    offset,
                                     true);
     }
 
@@ -164,10 +168,10 @@ class DirectByteBuffer extends MappedByteBuffer
     }
 
     private long ix(int i) {
-        return address + (i << 0);
+        return actualAddress + offset + (i << 0);
     }
 
-    public byte get(long a) {
+    private byte get(long a) {
         return Memory.peekByte(a);
     }
 
@@ -175,14 +179,14 @@ class DirectByteBuffer extends MappedByteBuffer
         if (!isAccessible) {
             throw new IllegalStateException("buffer is inaccessible");
         }
-        return get(address + nextGetIndex());
+        return get(ix(nextGetIndex()));
     }
 
     public byte get(int i) {
         if (!isAccessible) {
             throw new IllegalStateException("buffer is inaccessible");
         }
-        return get(address + checkIndex(i));
+        return get(ix(checkIndex(i)));
     }
 
     public ByteBuffer get(byte[] dst, int dstOffset, int length) {
@@ -196,7 +200,7 @@ class DirectByteBuffer extends MappedByteBuffer
         int rem = (pos <= lim ? lim - pos : 0);
         if (length > rem)
             throw new BufferUnderflowException();
-        Memory.peekByteArray(address + pos,
+        Memory.peekByteArray(ix(pos),
                              dst, dstOffset, length);
         position = pos + length;
         return this;
@@ -265,7 +269,7 @@ class DirectByteBuffer extends MappedByteBuffer
         int rem = (pos <= lim ? lim - pos : 0);
         if (length > rem)
             throw new BufferOverflowException();
-        Memory.pokeByteArray(address + pos,
+        Memory.pokeByteArray(ix(pos),
                              src, srcOffset, length);
         position = pos + length;
         return this;
@@ -282,7 +286,7 @@ class DirectByteBuffer extends MappedByteBuffer
         int lim = limit();
         assert (pos <= lim);
         int rem = (pos <= lim ? lim - pos : 0);
-        Memory.memmove(this, 0, this, position, remaining());
+        System.arraycopy(hb, position + offset, hb, offset, remaining());
         position(rem);
         limit(capacity());
         discardMark();
@@ -320,7 +324,7 @@ class DirectByteBuffer extends MappedByteBuffer
         if (newPosition > limit()) {
             throw new BufferUnderflowException();
         }
-        char x = (char) Memory.peekShort(address + position, !nativeByteOrder);
+        char x = (char) Memory.peekShort(ix(position), !nativeByteOrder);
         position = newPosition;
         return x;
     }
@@ -330,7 +334,7 @@ class DirectByteBuffer extends MappedByteBuffer
             throw new IllegalStateException("buffer is inaccessible");
         }
         checkIndex(i, SizeOf.CHAR);
-        char x = (char)Memory.peekShort(address + i, !nativeByteOrder);
+        char x = (char)Memory.peekShort(ix(i), !nativeByteOrder);
         return x;
     }
 

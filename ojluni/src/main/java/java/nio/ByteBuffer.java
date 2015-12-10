@@ -27,7 +27,7 @@
 
 package java.nio;
 
-
+import dalvik.system.VMRuntime;
 
 
 /**
@@ -304,7 +304,14 @@ public abstract class ByteBuffer
         if (capacity < 0) {
             throw new IllegalArgumentException("capacity < 0: " + capacity);
         }
-        return new DirectByteBuffer(capacity);
+
+        VMRuntime runtime = VMRuntime.getRuntime();
+        byte[] hb = (byte[])runtime.newNonMovableArray(byte.class, capacity + 7);
+        long address = runtime.addressOf(hb);
+        // Offset is set to handle the alignment
+        // http://b/16449607
+        int offset = (int)(((address + 7) & ~(long)7) - address);
+        return new DirectByteBuffer(capacity, address, hb, offset);
     }
 
 
