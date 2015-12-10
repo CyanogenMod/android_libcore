@@ -948,7 +948,7 @@ class InetAddress implements java.io.Serializable {
         if (host == null || host.length() == 0) {
             // Android-changed : Return both the Inet4 and Inet6 loopback addresses
             // when host == null or empty.
-            return new InetAddress[] { Inet4Address.LOOPBACK, Inet6Address.LOOPBACK };
+            return loopbackAddresses();
         }
 
         // if host is an IP address, we won't do further lookup

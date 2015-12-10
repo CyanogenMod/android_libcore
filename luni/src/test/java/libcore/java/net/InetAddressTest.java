@@ -349,6 +349,12 @@ public class InetAddressTest extends junit.framework.TestCase {
         assertTrue(inetAddress.isLoopbackAddress());
     }
 
+    public void test_getByName_empty() throws Exception {
+        InetAddress inetAddress = InetAddress.getByName("");
+        assertEquals(LOOPBACK6_BYTES, "localhost", inetAddress);
+        assertTrue(inetAddress.isLoopbackAddress());
+    }
+
     public void test_getAllByName_localhost() throws Exception {
         InetAddress[] inetAddresses = InetAddress.getAllByName("localhost");
         assertEquals(1, inetAddresses.length);
