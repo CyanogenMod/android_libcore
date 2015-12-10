@@ -193,4 +193,11 @@ public final class FileInputStreamTest extends TestCase {
         // ...but not 0-byte reads...
         fis.read(new byte[0], 0, 0);
     }
+
+    // http://b/26117827
+    public void testReadProcVersion() throws IOException {
+        File file = new File("/proc/version");
+        FileInputStream input = new FileInputStream(file);
+        assertTrue(input.available() == 0);
+    }
 }

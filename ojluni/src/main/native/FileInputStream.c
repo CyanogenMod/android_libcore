@@ -103,38 +103,30 @@ FileInputStream_skip0(JNIEnv *env, jobject this, jlong toSkip) {
     return (end - cur);
 }
 
-// Android added:
-// TODO: Where does this function come from ? Needs a detailed code review.
-// Why wasn't IO_Available used.
 static int available(int fd, jlong *bytes) {
-    jlong cur, end;
-    int mode;
-    struct stat64 buf64;
-
-    if (fstat64(fd, &buf64) >= 0) {
-        mode = buf64.st_mode;
-        if (S_ISCHR(mode) || S_ISFIFO(mode) || S_ISSOCK(mode)) {
-            /*
-             * XXX: is the following call interruptible? If so, this might
-             * need to go through the INTERRUPT_IO() wrapper as for other
-             * blocking, interruptible calls in this file.
-             */
-             int n;
-             if (ioctl(fd, FIONREAD, &n) >= 0) {
-                 *bytes = n;
-                 return 1;
-             }
-        }
+  int n;
+  // Unlike the original OpenJdk implementation, we use FIONREAD for all file
+  // types. For regular files, this is specified to return the difference
+  // between the current position and the file size. Note that this can be
+  // negative if we're positioned past the end of the file. We must return 0
+  // in that case.
+  if (ioctl(fd, FIONREAD, &n) != -1) {
+    if (n < 0) {
+      n = 0;
     }
-    if ((cur = lseek64(fd, 0L, SEEK_CUR)) == -1) {
-        return 0;
-    } else if ((end = lseek64(fd, 0L, SEEK_END)) == -1) {
-        return 0;
-    } else if (lseek64(fd, cur, SEEK_SET) == -1) {
-        return 0;
-    }
-    *bytes = end - cur;
+    *bytes = n;
     return 1;
+  }
+
+  // FIONREAD is specified to return ENOTTY when fd refers to a file
+  // type for which this ioctl isn't implemented.
+  if (errno == ENOTTY) {
+    *bytes = 0;
+    return 1;
+  }
+
+  // Raise an exception for all other error types.
+  return 0;
 }
 
 JNIEXPORT jint JNICALL
