@@ -101,6 +101,15 @@ class ByteBufferAsLongBuffer extends LongBuffer {                 // package-pri
         return bb.getLongUnchecked(ix(checkIndex(i)));
     }
 
+    public LongBuffer get(long[] dst, int offset, int length) {
+        checkBounds(offset, length, dst.length);
+        if (length > remaining())
+            throw new BufferUnderflowException();
+        bb.getUnchecked(ix(position), dst, offset, length);
+        position += length;
+        return this;
+    }
+
     public LongBuffer put(long x) {
         put(nextPutIndex(), x);
         return this;
@@ -111,6 +120,15 @@ class ByteBufferAsLongBuffer extends LongBuffer {                 // package-pri
             throw new ReadOnlyBufferException();
         }
         bb.putLongUnchecked(ix(checkIndex(i)), x);
+        return this;
+    }
+
+    public LongBuffer put(long[] src, int offset, int length) {
+        checkBounds(offset, length, src.length);
+        if (length > remaining())
+            throw new BufferOverflowException();
+        bb.putUnchecked(ix(position), src, offset, length);
+        position += length;
         return this;
     }
 

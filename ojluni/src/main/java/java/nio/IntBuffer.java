@@ -186,7 +186,7 @@ package java.nio;
 
 
 
-*
+ *
 
  *
  * <p> Like a byte buffer, an int buffer is either <a
@@ -198,7 +198,7 @@ package java.nio;
  * #isDirect isDirect} method.  </p>
  *
 
-*
+ *
 
 
 
@@ -271,12 +271,12 @@ public abstract class IntBuffer
     // backing array, and array offset
     //
     IntBuffer(int mark, int pos, int lim, int cap,   // package-private
-                 int[] hb, int offset)
-    {
-        super(mark, pos, lim, cap, 2);
-        this.hb = hb;
-        this.offset = offset;
-    }
+              int[] hb, int offset)
+        {
+            super(mark, pos, lim, cap, 2);
+            this.hb = hb;
+            this.offset = offset;
+        }
 
     // Creates a new buffer with the given mark, position, limit, and capacity
     //
@@ -363,7 +363,7 @@ public abstract class IntBuffer
      *          parameters do not hold
      */
     public static IntBuffer wrap(int[] array,
-                                    int offset, int length)
+                                 int offset, int length)
     {
         try {
             return new HeapIntBuffer(array, offset, length);

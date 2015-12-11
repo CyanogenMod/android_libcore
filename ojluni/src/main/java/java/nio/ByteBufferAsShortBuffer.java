@@ -100,6 +100,15 @@ class ByteBufferAsShortBuffer extends ShortBuffer {       // package-private
 
     }
 
+    public ShortBuffer get(short[] dst, int offset, int length) {
+        checkBounds(offset, length, dst.length);
+        if (length > remaining())
+            throw new BufferUnderflowException();
+        bb.getUnchecked(ix(position), dst, offset, length);
+        position += length;
+        return this;
+    }
+
     public ShortBuffer put(short x) {
         put(nextPutIndex(), x);
         return this;
@@ -110,6 +119,15 @@ class ByteBufferAsShortBuffer extends ShortBuffer {       // package-private
             throw new ReadOnlyBufferException();
         }
         bb.putShortUnchecked(ix(checkIndex(i)), x);
+        return this;
+    }
+
+    public ShortBuffer put(short[] src, int offset, int length) {
+        checkBounds(offset, length, src.length);
+        if (length > remaining())
+            throw new BufferOverflowException();
+        bb.putUnchecked(ix(position), src, offset, length);
+        position += length;
         return this;
     }
 
