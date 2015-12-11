@@ -419,6 +419,7 @@ public class Runtime {
 
         // So, find out what the native library search path is for the ClassLoader in question...
         String ldLibraryPath = null;
+        String permittedPath = null;
         String dexPath = null;
         if (loader == null) {
             // We use the given library path for the boot class loader. This is the path
@@ -427,18 +428,20 @@ public class Runtime {
         } else if (loader instanceof BaseDexClassLoader) {
             BaseDexClassLoader dexClassLoader = (BaseDexClassLoader) loader;
             ldLibraryPath = dexClassLoader.getLdLibraryPath();
+            permittedPath = dexClassLoader.getLibraryPermittedPath();
         }
+
         // nativeLoad should be synchronized so there's only one LD_LIBRARY_PATH in use regardless
         // of how many ClassLoaders are in the system, but dalvik doesn't support synchronized
         // internal natives.
         synchronized (this) {
-            return nativeLoad(name, loader, ldLibraryPath);
+            return nativeLoad(name, loader, ldLibraryPath, permittedPath);
         }
     }
 
     // TODO: should be synchronized, but dalvik doesn't support synchronized internal natives.
     private static native String nativeLoad(String filename, ClassLoader loader,
-            String ldLibraryPath);
+            String ldLibraryPath, String libraryPermittedPath);
 
     /**
      * Provides a hint to the runtime that it would be useful to attempt
