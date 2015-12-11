@@ -363,11 +363,13 @@ public final class ServiceLoader<S>
                 c = Class.forName(cn, false, loader);
             } catch (ClassNotFoundException x) {
                 fail(service,
-                     "Provider " + cn + " not found");
+                     "Provider " + cn + " not found", x);
             }
             if (!service.isAssignableFrom(c)) {
+                ClassCastException cce = new ClassCastException(
+                        service.getCanonicalName() + " is not assignable from " + c.getCanonicalName());
                 fail(service,
-                     "Provider " + cn  + " not a subtype");
+                     "Provider " + cn  + " not a subtype", cce);
             }
             try {
                 S p = service.cast(c.newInstance());
