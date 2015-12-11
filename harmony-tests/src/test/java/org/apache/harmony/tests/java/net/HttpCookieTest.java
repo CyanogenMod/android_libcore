@@ -781,7 +781,12 @@ public class HttpCookieTest extends TestCase {
         list = HttpCookie
                 .parse("Set-Cookie:name=test;expires=Sun, 29-Feb-1999 19:14:07 GMT");
         cookie = list.get(0);
-        assertTrue(cookie.getMaxAge() < 0);
+        // A value of "0" means the cookie must be discarded immediately. 29-Feb-1999 is an
+        // invalid date and fails to parse, so it must be discarded immediately.
+        //
+        // Android versions earlier than N returned a negative value here, which means the cookie
+        // is valid for the current session.
+        assertEquals(0, cookie.getMaxAge());
         assertTrue(cookie.hasExpired());
 
         // Parse multiple cookies
