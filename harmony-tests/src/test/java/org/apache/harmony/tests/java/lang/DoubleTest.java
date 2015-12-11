@@ -472,7 +472,14 @@ public class DoubleTest extends TestCase {
         doTestCompareRawBits("-1.2341234124312332E107", 0xd62ae7a25fe706ecL,
                 "-1.2341234124312331E107");
 
-        doTestCompareRawBits("1e23", 0x44b52d02c7e14af6L, "1.0e23");
+        // Java spec requires Double.toString to have exponent corresponding to the
+        // binary value, in this case is 22, since the binary value is very slightly
+        // less than 10^23. Therefore the correct decimal representation is
+        // 9.999999999999999e22.
+        // See ag/831934
+        doTestCompareRawBits("1e23", 0x44b52d02c7e14af6L, "9.999999999999999e22");
+
+        doTestCompareRawBits("1e22", 0x4480F0CF064DD592L, "1.0e22");
 
         /*
          * These particular tests verify that the extreme boundary conditions
