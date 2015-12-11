@@ -1018,20 +1018,24 @@ public class Runtime {
         // dlopen(3) calls made from a .so's JNI_OnLoad to work too.
 
         // So, find out what the native library search path is for the ClassLoader in question...
-        String ldLibraryPath = null;
+        String librarySearchPath = null;
+        String libraryPermittedPath = null;
         if (loader != null && loader instanceof BaseDexClassLoader) {
-            ldLibraryPath = ((BaseDexClassLoader) loader).getLdLibraryPath();
+            BaseDexClassLoader dexClassLoader = (BaseDexClassLoader) loader;
+            librarySearchPath = dexClassLoader.getLdLibraryPath();
+            libraryPermittedPath = dexClassLoader.getLibraryPermittedPath();
         }
         // nativeLoad should be synchronized so there's only one LD_LIBRARY_PATH in use regardless
         // of how many ClassLoaders are in the system, but dalvik doesn't support synchronized
         // internal natives.
         synchronized (this) {
-            return nativeLoad(name, loader, ldLibraryPath);
+            return nativeLoad(name, loader, librarySearchPath, libraryPermittedPath);
         }
     }
 
     // TODO: should be synchronized, but dalvik doesn't support synchronized internal natives.
-    private static native String nativeLoad(String filename, ClassLoader loader, String ldLibraryPath);
+    private static native String nativeLoad(String filename, ClassLoader loader,
+                                            String librarySearchPath, String libraryPermittedPath);
 
     /**
      * Creates a localized version of an input stream. This method takes

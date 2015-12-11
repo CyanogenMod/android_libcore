@@ -77,9 +77,10 @@ Runtime_nativeExit(JNIEnv *env, jclass this, jint status)
 
 JNIEXPORT jstring JNICALL
 Runtime_nativeLoad(JNIEnv* env, jclass ignored, jstring javaFilename, jobject javaLoader,
-                   jstring javaLdLibraryPath)
+                   jstring javaLibrarySearchPath, jstring javaLibraryPermittedPath)
 {
-    return JVM_NativeLoad(env, javaFilename, javaLoader, javaLdLibraryPath);
+    return JVM_NativeLoad(env, javaFilename, javaLoader,
+                          javaLibrarySearchPath, javaLibraryPermittedPath);
 }
 
 static JNINativeMethod gMethods[] = {
@@ -88,7 +89,9 @@ static JNINativeMethod gMethods[] = {
   NATIVE_METHOD(Runtime, maxMemory, "!()J"),
   NATIVE_METHOD(Runtime, gc, "()V"),
   NATIVE_METHOD(Runtime, nativeExit, "(I)V"),
-  NATIVE_METHOD(Runtime, nativeLoad, "(Ljava/lang/String;Ljava/lang/ClassLoader;Ljava/lang/String;)Ljava/lang/String;"),
+  NATIVE_METHOD(Runtime, nativeLoad,
+                "(Ljava/lang/String;Ljava/lang/ClassLoader;Ljava/lang/String;Ljava/lang/String;)"
+                    "Ljava/lang/String;"),
 };
 
 void register_java_lang_Runtime(JNIEnv* env) {
