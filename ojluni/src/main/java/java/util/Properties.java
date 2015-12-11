@@ -365,7 +365,7 @@ class Properties extends Hashtable<Object,Object> {
                     valueStart = keyLen + 1;
                     hasSep = true;
                     break;
-                } else if ((c == ' ' || c == '\t' ||  c == '\f') && !precedingBackslash) {
+                } else if (Character.isWhitespace(c) && !precedingBackslash) {
                     valueStart = keyLen + 1;
                     break;
                 }
@@ -378,7 +378,7 @@ class Properties extends Hashtable<Object,Object> {
             }
             while (valueStart < limit) {
                 c = lr.lineBuf[valueStart];
-                if (c != ' ' && c != '\t' &&  c != '\f') {
+                if (!Character.isWhitespace(c)) {
                     if (!hasSep && (c == '=' ||  c == ':')) {
                         hasSep = true;
                     } else {
@@ -455,7 +455,7 @@ class Properties extends Hashtable<Object,Object> {
                     }
                 }
                 if (skipWhiteSpace) {
-                    if (c == ' ' || c == '\t' || c == '\f') {
+                    if (Character.isWhitespace(c)) {
                         continue;
                     }
                     if (!appendedLineBegin && (c == '\r' || c == '\n')) {
