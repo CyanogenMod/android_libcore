@@ -17,6 +17,7 @@
 
 package org.apache.harmony.tests.java.net;
 
+import java.io.InvalidObjectException;
 import java.io.Serializable;
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -911,6 +912,12 @@ public class Inet6AddressTest extends junit.framework.TestCase {
                 // null interface name
                 InetAddress.getByAddress(localv6) };
 
-        SerializationTest.verifyGolden(this, addresses, COMPARATOR);
+        try {
+            SerializationTest.verifyGolden(this, addresses, COMPARATOR);
+            fail();
+        } catch (InvalidObjectException expected) {
+            // We use different Inet6Address scheme from OpenJDK,
+            // deserialization is not supported and should throw an exception.
+        }
     }
 }
