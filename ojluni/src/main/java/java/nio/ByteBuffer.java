@@ -185,7 +185,7 @@ import dalvik.system.VMRuntime;
  * at the time that the view is created.  </p>
  *
 
-*
+ *
 
 
 
@@ -197,7 +197,7 @@ import dalvik.system.VMRuntime;
 
 
 
-*
+ *
 
 
 
@@ -270,12 +270,12 @@ public abstract class ByteBuffer
     // backing array, and array offset
     //
     ByteBuffer(int mark, int pos, int lim, int cap,   // package-private
-                 byte[] hb, int offset)
-    {
-        super(mark, pos, lim, cap, 0);
-        this.hb = hb;
-        this.offset = offset;
-    }
+               byte[] hb, int offset)
+        {
+            super(mark, pos, lim, cap, 0);
+            this.hb = hb;
+            this.offset = offset;
+        }
 
     // Creates a new buffer with the given mark, position, limit, and capacity
     //
@@ -371,7 +371,7 @@ public abstract class ByteBuffer
      *          parameters do not hold
      */
     public static ByteBuffer wrap(byte[] array,
-                                    int offset, int length)
+                                  int offset, int length)
     {
         try {
             return new HeapByteBuffer(array, offset, length);
@@ -1509,6 +1509,10 @@ public abstract class ByteBuffer
         throw new UnsupportedOperationException();
     }
 
+    void getUnchecked(int pos, char[] dst, int dstOffset, int length) {
+        throw new UnsupportedOperationException();
+    }
+
     /**
      * Absolute <i>put</i> method for writing a char
      * value&nbsp;&nbsp;<i>(optional operation)</i>.
@@ -1535,6 +1539,10 @@ public abstract class ByteBuffer
     public abstract ByteBuffer putChar(int index, char value);
 
     void putCharUnchecked(int index, char value) {
+        throw new UnsupportedOperationException();
+    }
+
+    void putUnchecked(int pos, char[] dst, int srcOffset, int length) {
         throw new UnsupportedOperationException();
     }
 
@@ -1616,6 +1624,10 @@ public abstract class ByteBuffer
         throw new UnsupportedOperationException();
     }
 
+    void getUnchecked(int pos, short[] dst, int dstOffset, int length) {
+        throw new UnsupportedOperationException();
+    }
+
     /**
      * Absolute <i>put</i> method for writing a short
      * value&nbsp;&nbsp;<i>(optional operation)</i>.
@@ -1642,6 +1654,10 @@ public abstract class ByteBuffer
     public abstract ByteBuffer putShort(int index, short value);
 
     void putShortUnchecked(int index, short value) {
+        throw new UnsupportedOperationException();
+    }
+
+    void putUnchecked(int pos, short[] dst, int srcOffset, int length) {
         throw new UnsupportedOperationException();
     }
 
@@ -1723,6 +1739,10 @@ public abstract class ByteBuffer
         throw new UnsupportedOperationException();
     }
 
+    void getUnchecked(int pos, int[] dst, int dstOffset, int length) {
+        throw new UnsupportedOperationException();
+    }
+
     /**
      * Absolute <i>put</i> method for writing an int
      * value&nbsp;&nbsp;<i>(optional operation)</i>.
@@ -1749,6 +1769,10 @@ public abstract class ByteBuffer
     public abstract ByteBuffer putInt(int index, int value);
 
     void putIntUnchecked(int index, int value) {
+        throw new UnsupportedOperationException();
+    }
+
+    void putUnchecked(int pos, int[] dst, int srcOffset, int length) {
         throw new UnsupportedOperationException();
     }
 
@@ -1830,6 +1854,10 @@ public abstract class ByteBuffer
         throw new UnsupportedOperationException();
     }
 
+    void getUnchecked(int pos, long[] dst, int dstOffset, int length) {
+        throw new UnsupportedOperationException();
+    }
+
     /**
      * Absolute <i>put</i> method for writing a long
      * value&nbsp;&nbsp;<i>(optional operation)</i>.
@@ -1856,6 +1884,10 @@ public abstract class ByteBuffer
     public abstract ByteBuffer putLong(int index, long value);
 
     void putLongUnchecked(int index, long value) {
+        throw new UnsupportedOperationException();
+    }
+
+    void putUnchecked(int pos, long[] dst, int srcOffset, int length) {
         throw new UnsupportedOperationException();
     }
 
@@ -1937,6 +1969,10 @@ public abstract class ByteBuffer
         throw new UnsupportedOperationException();
     }
 
+    void getUnchecked(int pos, float[] dst, int dstOffset, int length) {
+        throw new UnsupportedOperationException();
+    }
+
     /**
      * Absolute <i>put</i> method for writing a float
      * value&nbsp;&nbsp;<i>(optional operation)</i>.
@@ -1963,6 +1999,10 @@ public abstract class ByteBuffer
     public abstract ByteBuffer putFloat(int index, float value);
 
     void putFloatUnchecked(int index, float value) {
+        throw new UnsupportedOperationException();
+    }
+
+    void putUnchecked(int pos, float[] dst, int srcOffset, int length) {
         throw new UnsupportedOperationException();
     }
 
@@ -2044,6 +2084,10 @@ public abstract class ByteBuffer
         throw new UnsupportedOperationException();
     }
 
+    void getUnchecked(int pos, double[] dst, int dstOffset, int length) {
+        throw new UnsupportedOperationException();
+    }
+
     /**
      * Absolute <i>put</i> method for writing a double
      * value&nbsp;&nbsp;<i>(optional operation)</i>.
@@ -2070,6 +2114,10 @@ public abstract class ByteBuffer
     public abstract ByteBuffer putDouble(int index, double value);
 
     void putDoubleUnchecked(int index, double value) {
+        throw new UnsupportedOperationException();
+    }
+
+    void putUnchecked(int pos, double[] dst, int srcOffset, int length) {
         throw new UnsupportedOperationException();
     }
 

@@ -101,6 +101,15 @@ class ByteBufferAsFloatBuffer extends FloatBuffer {       // package-private
         return bb.getFloatUnchecked(ix(checkIndex(i)));
     }
 
+    public FloatBuffer get(float[] dst, int offset, int length) {
+        checkBounds(offset, length, dst.length);
+        if (length > remaining())
+            throw new BufferUnderflowException();
+        bb.getUnchecked(ix(position), dst, offset, length);
+        position += length;
+        return this;
+    }
+
     public FloatBuffer put(float x) {
         put(nextPutIndex(), x);
         return this;
@@ -111,6 +120,15 @@ class ByteBufferAsFloatBuffer extends FloatBuffer {       // package-private
             throw new ReadOnlyBufferException();
         }
         bb.putFloatUnchecked(ix(checkIndex(i)), x);
+        return this;
+    }
+
+    public FloatBuffer put(float[] src, int offset, int length) {
+        checkBounds(offset, length, src.length);
+        if (length > remaining())
+            throw new BufferOverflowException();
+        bb.putUnchecked(ix(position), src, offset, length);
+        position += length;
         return this;
     }
 

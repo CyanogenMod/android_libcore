@@ -101,6 +101,15 @@ class ByteBufferAsCharBuffer extends CharBuffer {      // package-private
         return bb.getCharUnchecked(ix(checkIndex(i)));
     }
 
+    public CharBuffer get(char[] dst, int offset, int length) {
+        checkBounds(offset, length, dst.length);
+        if (length > remaining())
+            throw new BufferUnderflowException();
+        bb.getUnchecked(ix(position), dst, offset, length);
+        position += length;
+        return this;
+    }
+
     public CharBuffer put(char x) {
         put(nextPutIndex(), x);
         return this;
@@ -111,6 +120,15 @@ class ByteBufferAsCharBuffer extends CharBuffer {      // package-private
             throw new ReadOnlyBufferException();
         }
         bb.putCharUnchecked(ix(checkIndex(i)), x);
+        return this;
+    }
+
+    public CharBuffer put(char[] src, int offset, int length) {
+        checkBounds(offset, length, src.length);
+        if (length > remaining())
+            throw new BufferOverflowException();
+        bb.putUnchecked(ix(position), src, offset, length);
+        position += length;
         return this;
     }
 

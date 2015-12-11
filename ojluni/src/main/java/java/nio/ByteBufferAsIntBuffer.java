@@ -101,6 +101,15 @@ class ByteBufferAsIntBuffer extends IntBuffer {        // package-private
         return bb.getIntUnchecked(ix(checkIndex(i)));
     }
 
+    public IntBuffer get(int[] dst, int offset, int length) {
+        checkBounds(offset, length, dst.length);
+        if (length > remaining())
+            throw new BufferUnderflowException();
+        bb.getUnchecked(ix(position), dst, offset, length);
+        position += length;
+        return this;
+    }
+
     public IntBuffer put(int x) {
         put(nextPutIndex(), x);
         return this;
@@ -111,6 +120,15 @@ class ByteBufferAsIntBuffer extends IntBuffer {        // package-private
             throw new ReadOnlyBufferException();
         }
         bb.putIntUnchecked(ix(checkIndex(i)), x);
+        return this;
+    }
+
+    public IntBuffer put(int[] src, int offset, int length) {
+        checkBounds(offset, length, src.length);
+        if (length > remaining())
+            throw new BufferOverflowException();
+        bb.putUnchecked(ix(position), src, offset, length);
+        position += length;
         return this;
     }
 

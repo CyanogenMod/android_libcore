@@ -102,6 +102,15 @@ class ByteBufferAsDoubleBuffer
         return bb.getDoubleUnchecked(ix(checkIndex(i)));
     }
 
+    public DoubleBuffer get(double[] dst, int offset, int length) {
+        checkBounds(offset, length, dst.length);
+        if (length > remaining())
+            throw new BufferUnderflowException();
+        bb.getUnchecked(ix(position), dst, offset, length);
+        position += length;
+        return this;
+    }
+
     public DoubleBuffer put(double x) {
         put(nextPutIndex(), x);
         return this;
@@ -112,6 +121,15 @@ class ByteBufferAsDoubleBuffer
             throw new ReadOnlyBufferException();
         }
         bb.putDoubleUnchecked(ix(checkIndex(i)), x);
+        return this;
+    }
+
+    public DoubleBuffer put(double[] src, int offset, int length) {
+        checkBounds(offset, length, src.length);
+        if (length > remaining())
+            throw new BufferOverflowException();
+        bb.putUnchecked(ix(position), src, offset, length);
+        position += length;
         return this;
     }
 

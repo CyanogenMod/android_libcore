@@ -342,6 +342,12 @@ class DirectByteBuffer extends MappedByteBuffer
         return (char)Memory.peekShort(ix(i), !nativeByteOrder);
     }
 
+    void getUnchecked(int pos, char[] dst, int dstOffset, int length) {
+        Memory.peekCharArray(ix(pos),
+                             dst, dstOffset, length, !nativeByteOrder);
+    }
+
+
     private ByteBuffer putChar(long a, char x) {
         Memory.pokeShort(a, (short) x, !nativeByteOrder);
         return this;
@@ -371,6 +377,11 @@ class DirectByteBuffer extends MappedByteBuffer
 
     void putCharUnchecked(int i, char x) {
         putChar(ix(i), x);
+    }
+
+    void putUnchecked(int pos, char[] src, int srcOffset, int length) {
+        Memory.pokeCharArray(ix(pos),
+                             src, srcOffset, length, !nativeByteOrder);
     }
 
     public CharBuffer asCharBuffer() {
@@ -413,6 +424,12 @@ class DirectByteBuffer extends MappedByteBuffer
         return getShort(ix(i));
     }
 
+    void getUnchecked(int pos, short[] dst, int dstOffset, int length) {
+        Memory.peekShortArray(ix(pos),
+                              dst, dstOffset, length, !nativeByteOrder);
+    }
+
+
     private ByteBuffer putShort(long a, short x) {
         Memory.pokeShort(a, x, !nativeByteOrder);
         return this;
@@ -442,6 +459,11 @@ class DirectByteBuffer extends MappedByteBuffer
 
     void putShortUnchecked(int i, short x) {
         putShort(ix(i), x);
+    }
+
+    void putUnchecked(int pos, short[] src, int srcOffset, int length) {
+        Memory.pokeShortArray(ix(pos),
+                              src, srcOffset, length, !nativeByteOrder);
     }
 
     public ShortBuffer asShortBuffer() {
@@ -484,6 +506,11 @@ class DirectByteBuffer extends MappedByteBuffer
         return getInt(ix(i));
     }
 
+    void getUnchecked(int pos, int[] dst, int dstOffset, int length) {
+        Memory.peekIntArray(ix(pos),
+                            dst, dstOffset, length, !nativeByteOrder);
+    }
+
     private ByteBuffer putInt(long a, int x) {
         Memory.pokeInt(a, x, !nativeByteOrder);
         return this;
@@ -514,6 +541,12 @@ class DirectByteBuffer extends MappedByteBuffer
     void putIntUnchecked(int i, int x) {
         putInt(ix(i), x);
     }
+
+    void putUnchecked(int pos, int[] src, int srcOffset, int length) {
+        Memory.pokeIntArray(ix(pos),
+                            src, srcOffset, length, !nativeByteOrder);
+    }
+
 
     public IntBuffer asIntBuffer() {
         if (!isAccessible) {
@@ -555,6 +588,11 @@ class DirectByteBuffer extends MappedByteBuffer
         return getLong(ix(i));
     }
 
+    void getUnchecked(int pos, long[] dst, int dstOffset, int length) {
+        Memory.peekLongArray(ix(pos),
+                             dst, dstOffset, length, !nativeByteOrder);
+    }
+
     private ByteBuffer putLong(long a, long x) {
         Memory.pokeLong(a, x, !nativeByteOrder);
         return this;
@@ -585,6 +623,12 @@ class DirectByteBuffer extends MappedByteBuffer
     void putLongUnchecked(int i, long x) {
         putLong(ix(i), x);
     }
+
+    void putUnchecked(int pos, long[] src, int srcOffset, int length) {
+        Memory.pokeLongArray(ix(pos),
+                             src, srcOffset, length, !nativeByteOrder);
+    }
+
 
     public LongBuffer asLongBuffer() {
         if (!isAccessible) {
@@ -627,6 +671,11 @@ class DirectByteBuffer extends MappedByteBuffer
         return getFloat(ix(i));
     }
 
+    void getUnchecked(int pos, float[] dst, int dstOffset, int length) {
+        Memory.peekFloatArray(ix(pos),
+                              dst, dstOffset, length, !nativeByteOrder);
+    }
+
     private ByteBuffer putFloat(long a, float x) {
         int y = Float.floatToRawIntBits(x);
         Memory.pokeInt(a, y, !nativeByteOrder);
@@ -657,6 +706,11 @@ class DirectByteBuffer extends MappedByteBuffer
 
     void putFloatUnchecked(int i, float x) {
         putFloat(ix(i), x);
+    }
+
+    void putUnchecked(int pos, float[] src, int srcOffset, int length) {
+        Memory.pokeFloatArray(ix(pos),
+                              src, srcOffset, length, !nativeByteOrder);
     }
 
     public FloatBuffer asFloatBuffer() {
@@ -700,6 +754,11 @@ class DirectByteBuffer extends MappedByteBuffer
         return getDouble(ix(i));
     }
 
+    void getUnchecked(int pos, double[] dst, int dstOffset, int length) {
+        Memory.peekDoubleArray(ix(pos),
+                               dst, dstOffset, length, !nativeByteOrder);
+    }
+
     private ByteBuffer putDouble(long a, double x) {
         long y = Double.doubleToRawLongBits(x);
         Memory.pokeLong(a, y, !nativeByteOrder);
@@ -730,6 +789,11 @@ class DirectByteBuffer extends MappedByteBuffer
 
     void putDoubleUnchecked(int i, double x) {
         putDouble(ix(i), x);
+    }
+
+    void putUnchecked(int pos, double[] src, int srcOffset, int length) {
+        Memory.pokeDoubleArray(ix(pos),
+                               src, srcOffset, length, !nativeByteOrder);
     }
 
     public DoubleBuffer asDoubleBuffer() {

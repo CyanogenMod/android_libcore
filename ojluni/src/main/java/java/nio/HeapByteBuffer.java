@@ -27,6 +27,8 @@
 package java.nio;
 
 
+import libcore.io.Memory;
+
 /**
  * A read/write HeapByteBuffer.
  */
@@ -221,6 +223,10 @@ class HeapByteBuffer extends ByteBuffer {
         return Bits.getChar(this, ix(i), bigEndian);
     }
 
+    void getUnchecked(int pos, char[] dst, int dstOffset, int length) {
+        Memory.unsafeBulkGet(dst, dstOffset, length*2, hb, ix(pos), 2, !nativeByteOrder);
+    }
+
     public ByteBuffer putChar(char x) {
         if (isReadOnly) {
             throw new ReadOnlyBufferException();
@@ -239,6 +245,10 @@ class HeapByteBuffer extends ByteBuffer {
 
     void putCharUnchecked(int i, char x) {
         Bits.putChar(this, ix(i), x, bigEndian);
+    }
+
+    void putUnchecked(int pos, char[] src, int srcOffset, int length) {
+        Memory.unsafeBulkPut(hb, ix(pos), length*2, src, srcOffset, 2, !nativeByteOrder);
     }
 
     public CharBuffer asCharBuffer() {
@@ -265,6 +275,10 @@ class HeapByteBuffer extends ByteBuffer {
         return Bits.getShort(this, ix(i), bigEndian);
     }
 
+    void getUnchecked(int pos, short[] dst, int dstOffset, int length) {
+        Memory.unsafeBulkGet(dst, dstOffset, length*2, hb, ix(pos), 2, !nativeByteOrder);
+    }
+
     public ByteBuffer putShort(short x) {
         if (isReadOnly) {
             throw new ReadOnlyBufferException();
@@ -283,6 +297,10 @@ class HeapByteBuffer extends ByteBuffer {
 
     void putShortUnchecked(int i, short x) {
         Bits.putShort(this, ix(i), x, bigEndian);
+    }
+
+    void putUnchecked(int pos, short[] src, int srcOffset, int length) {
+        Memory.unsafeBulkPut(hb, ix(pos), length*2, src, srcOffset, 2, !nativeByteOrder);
     }
 
     public ShortBuffer asShortBuffer() {
@@ -309,6 +327,10 @@ class HeapByteBuffer extends ByteBuffer {
         return Bits.getInt(this, ix(i), bigEndian);
     }
 
+    void getUnchecked(int pos, int[] dst, int dstOffset, int length) {
+        Memory.unsafeBulkGet(dst, dstOffset, length*4, hb, ix(pos), 4, !nativeByteOrder);
+    }
+
     public ByteBuffer putInt(int x) {
         if (isReadOnly) {
             throw new ReadOnlyBufferException();
@@ -327,6 +349,10 @@ class HeapByteBuffer extends ByteBuffer {
 
     void putIntUnchecked(int i, int x) {
         Bits.putInt(this, ix(i), x, bigEndian);
+    }
+
+    void putUnchecked(int pos, int[] src, int srcOffset, int length) {
+        Memory.unsafeBulkPut(hb, ix(pos), length*4, src, srcOffset, 4, !nativeByteOrder);
     }
 
     public IntBuffer asIntBuffer() {
@@ -354,6 +380,10 @@ class HeapByteBuffer extends ByteBuffer {
         return Bits.getLong(this, ix(i), bigEndian);
     }
 
+    void getUnchecked(int pos, long[] dst, int dstOffset, int length) {
+        Memory.unsafeBulkGet(dst, dstOffset, length*8, hb, ix(pos), 8, !nativeByteOrder);
+    }
+
     public ByteBuffer putLong(long x) {
         if (isReadOnly) {
             throw new ReadOnlyBufferException();
@@ -372,7 +402,11 @@ class HeapByteBuffer extends ByteBuffer {
 
     void putLongUnchecked(int i, long x) {
         Bits.putLong(this, ix(i), x, bigEndian);
-   }
+    }
+
+    void putUnchecked(int pos, long[] src, int srcOffset, int length) {
+        Memory.unsafeBulkPut(hb, ix(pos), length*8, src, srcOffset, 8, !nativeByteOrder);
+    }
 
     public LongBuffer asLongBuffer() {
         int size = this.remaining() >> 3;
@@ -398,6 +432,10 @@ class HeapByteBuffer extends ByteBuffer {
         return Bits.getFloat(this, ix(i), bigEndian);
     }
 
+    void getUnchecked(int pos, float[] dst, int dstOffset, int length) {
+        Memory.unsafeBulkGet(dst, dstOffset, length*4, hb, ix(pos), 4, !nativeByteOrder);
+    }
+
     public ByteBuffer putFloat(float x) {
         if (isReadOnly) {
             throw new ReadOnlyBufferException();
@@ -416,6 +454,10 @@ class HeapByteBuffer extends ByteBuffer {
 
     void putFloatUnchecked(int i, float x) {
         Bits.putFloat(this, ix(i), x, bigEndian);
+    }
+
+    void putUnchecked(int pos, float[] src, int srcOffset, int length) {
+        Memory.unsafeBulkPut(hb, ix(pos), length*4, src, srcOffset, 4, !nativeByteOrder);
     }
 
     public FloatBuffer asFloatBuffer() {
@@ -442,6 +484,10 @@ class HeapByteBuffer extends ByteBuffer {
         return Bits.getDouble(this, ix(i), bigEndian);
     }
 
+    void getUnchecked(int pos, double[] dst, int dstOffset, int length) {
+        Memory.unsafeBulkGet(dst, dstOffset, length*8, hb, ix(pos), 8, !nativeByteOrder);
+    }
+
     public ByteBuffer putDouble(double x) {
         if (isReadOnly) {
             throw new ReadOnlyBufferException();
@@ -460,6 +506,10 @@ class HeapByteBuffer extends ByteBuffer {
 
     void putDoubleUnchecked(int i, double x) {
         Bits.putDouble(this, ix(i), x, bigEndian);
+    }
+
+    void putUnchecked(int pos, double[] src, int srcOffset, int length) {
+        Memory.unsafeBulkPut(hb, ix(pos), length*8, src, srcOffset, 8, !nativeByteOrder);
     }
 
     public DoubleBuffer asDoubleBuffer() {
