@@ -2147,8 +2147,16 @@ public final class URI
         String bp = normalize(base.path);
         String cp = normalize(child.path);
         if (!bp.equals(cp)) {
-            if (!bp.endsWith("/"))
-                bp = bp + "/";
+            // Android-changed: The original OpenJdk implementation would append a trailing slash
+            // to paths like "/a/b" before relativizing them. This would relativize /a/b/c to
+            // "/c" against "/a/b" the android implementation did not do this. It would assume that
+            // "b" wasn't a directory and relativize the path to "/b/c". The spec is pretty vague
+            // about this but this change is being made because we have several tests that expect
+            // this behaviour.
+            if (bp.indexOf('/') != -1) {
+                bp = bp.substring(0, bp.lastIndexOf('/') + 1);
+            }
+
             if (!cp.startsWith(bp))
                 return child;
         }
