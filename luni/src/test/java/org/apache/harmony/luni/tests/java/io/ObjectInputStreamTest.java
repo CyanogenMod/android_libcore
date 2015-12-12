@@ -408,14 +408,11 @@ public class ObjectInputStreamTest extends TestCase implements
         BasicObjectInputStream bois = new BasicObjectInputStream();
         assertNull("Test 1:", bois.readObjectOverride());
 
-        // Test 2: Check that readObjectOverride() throws an IOException
-        // if there is an input stream.
+        // Test 2: Check that readObjectOverride() returns null if it isn't overriden.
+        //
+        // On Android M and below, this method threw an IOException.
         bois = new BasicObjectInputStream(new ByteArrayInputStream(buffer));
-        try {
-            bois.readObjectOverride();
-            fail("Test 2: IOException expected.");
-        } catch (IOException e) {}
-
+        assertNull(bois.readObjectOverride());
         bois.close();
     }
 
