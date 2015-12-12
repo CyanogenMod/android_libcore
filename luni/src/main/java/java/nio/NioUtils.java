@@ -39,10 +39,14 @@ public final class NioUtils {
         if (buffer == null) {
             return;
         }
-        Cleaner cl = ((DirectBuffer) buffer).cleaner();
-        if (cl != null) {
-            cl.clean();
+
+        DirectByteBuffer dbb = (DirectByteBuffer) buffer;
+        // Run the cleaner early, if one is defined.
+        if (dbb.cleaner != null) {
+            dbb.cleaner.clean();
         }
+
+        dbb.memoryRef.free();
     }
 
     /**

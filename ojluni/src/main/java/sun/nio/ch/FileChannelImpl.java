@@ -28,6 +28,7 @@ package sun.nio.ch;
 import java.io.FileDescriptor;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.DirectByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.*;
 import java.util.ArrayList;
@@ -894,10 +895,8 @@ public class FileChannelImpl
                 addr = 0;
                 // a valid file descriptor is not required
                 FileDescriptor dummy = new FileDescriptor();
-                if ((!writable) || (imode == MAP_RO))
-                    return Util.newMappedByteBufferR(0, 0, dummy, null);
-                else
-                    return Util.newMappedByteBuffer(0, 0, dummy, null);
+                return new DirectByteBuffer(0, 0, dummy, null,
+                        (!writable) || (imode == MAP_RO) /* readOnly */);
             }
 
             int pagePosition = (int)(position % allocationGranularity);
@@ -937,17 +936,8 @@ public class FileChannelImpl
             assert (addr % allocationGranularity == 0);
             int isize = (int)size;
             Unmapper um = new Unmapper(addr, mapSize, isize, mfd);
-            if ((!writable) || (imode == MAP_RO)) {
-                return Util.newMappedByteBufferR(isize,
-                                                 addr + pagePosition,
-                                                 mfd,
-                                                 um);
-            } else {
-                return Util.newMappedByteBuffer(isize,
-                                                addr + pagePosition,
-                                                mfd,
-                                                um);
-            }
+            return new DirectByteBuffer(isize, addr + pagePosition, mfd, um,
+                    (!writable) || (imode == MAP_RO));
         } finally {
             threads.remove(ti);
             end(IOStatus.checkAll(addr));

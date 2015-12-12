@@ -26,122 +26,135 @@
 package java.nio;
 
 import java.io.FileDescriptor;
+
+import dalvik.system.VMRuntime;
 import sun.misc.Cleaner;
-import sun.misc.VM;
 import sun.nio.ch.DirectBuffer;
 import libcore.io.SizeOf;
 import libcore.io.Memory;
 
-class DirectByteBuffer extends MappedByteBuffer
-    implements DirectBuffer {
+/** @hide */
+public class DirectByteBuffer extends MappedByteBuffer implements DirectBuffer {
 
-    private boolean isAccessible = true;
+    /**
+     * Stores the details of the memory backing a DirectByteBuffer. This could be a pointer
+     * (passed through from JNI or resulting from a mapping) or a non-movable byte array allocated
+     * from Java. Each MemoryRef also has an isAccessible associated with it, which determines
+     * whether the underlying memory is "accessible". The notion of "accessibility" is usually
+     * defined by the allocator of the reference, and is separate from the accessibility of the
+     * memory as defined by the underlying system.
+     *
+     * A single MemoryRef instance is shared across all slices and duplicates of a given buffer.
+     */
+    static class MemoryRef {
+        byte[] buffer;
+        long allocatedAddress;
+        final int offset;
+        boolean isAccessible;
 
-    // Base address, used in all indexing calculations
-    // NOTE: moved up to Buffer.java for speed in JNI GetDirectBufferAddress
-    //    protected long address;
+        MemoryRef(int capacity) {
+            VMRuntime runtime = VMRuntime.getRuntime();
+            buffer  = (byte[])runtime.newNonMovableArray(byte.class, capacity + 7);
+            allocatedAddress = runtime.addressOf(buffer);
+            // Offset is set to handle the alignment: http://b/16449607
+            offset = (int)(((allocatedAddress + 7) & ~(long)7) - allocatedAddress);
+            isAccessible = true;
+        }
 
-    // An object attached to this buffer. If this buffer is a view of another
-    // buffer then we use this field to keep a reference to that buffer to
-    // ensure that its memory isn't freed before we are done with it.
-    private final Object att;
+        MemoryRef(long allocatedAddress) {
+            buffer = null;
+            this.allocatedAddress = allocatedAddress;
+            this.offset = 0;
+            isAccessible = true;
+        }
 
-    public Object attachment() {
-        return att;
+        void free() {
+            buffer = null;
+            allocatedAddress = 0;
+            isAccessible = false;
+        }
     }
 
-    private Cleaner cleaner;
+    final Cleaner cleaner;
+    final MemoryRef memoryRef;
 
-    private long actualAddress;
-
-    public Cleaner cleaner() { return cleaner; }
-
-    DirectByteBuffer(int capacity, long address, byte[] hb, int offset) {
-        super(-1, 0, capacity, capacity, hb, offset);
+    DirectByteBuffer(int capacity, MemoryRef memoryRef) {
+        super(-1, 0, capacity, capacity, memoryRef.buffer, memoryRef.offset);
         // Only have references to java objects, no need for a cleaner since the GC will do all
         // the work.
-        this.address = address + offset;
-        this.actualAddress = address;
+        this.memoryRef = memoryRef;
+        this.address =  memoryRef.allocatedAddress + memoryRef.offset;
         cleaner = null;
         this.isReadOnly = false;
-        att = null;
-    }
-
-    DirectByteBuffer(long addr, int cap, Object ob) {
-        super(-1, 0, cap, cap);
-        address = addr;
-        actualAddress = addr;
-        cleaner = null;
-        att = ob;
     }
 
     // Invoked only by JNI: NewDirectByteBuffer(void*, long)
     //
     private DirectByteBuffer(long addr, int cap) {
         super(-1, 0, cap, cap);
+        memoryRef = new MemoryRef(addr);
         address = addr;
-        actualAddress = addr;
         cleaner = null;
-        att = null;
     }
 
-    // For memory-mapped buffers -- invoked by FileChannelImpl via reflection
-    //
-    protected DirectByteBuffer(int cap, long addr,
-                               FileDescriptor fd,
-                               Runnable unmapper) {
-        this(cap, addr, fd, unmapper, false);
-    }
-
-    protected DirectByteBuffer(int cap, long addr,
-                               FileDescriptor fd,
-                               Runnable unmapper,
-                               boolean isReadOnly) {
+    /** @hide */
+    public DirectByteBuffer(int cap, long addr,
+                            FileDescriptor fd,
+                            Runnable unmapper,
+                            boolean isReadOnly) {
         super(-1, 0, cap, cap, fd);
         this.isReadOnly = isReadOnly;
+        memoryRef = new MemoryRef(addr);
         address = addr;
-        actualAddress = addr;
-        cleaner = Cleaner.create(this, unmapper);
-        att = null;
+        cleaner = Cleaner.create(memoryRef, unmapper);
     }
 
     // For duplicates and slices
     //
-    DirectByteBuffer(DirectByteBuffer db,         // package-private
+    DirectByteBuffer(MemoryRef memoryRef,         // package-private
                      int mark, int pos, int lim, int cap,
                      int off) {
-        this(db, mark, pos, lim, cap, off, false);
+        this(memoryRef, mark, pos, lim, cap, off, false);
     }
 
-    DirectByteBuffer(DirectByteBuffer db,         // package-private
+    DirectByteBuffer(MemoryRef memoryRef,         // package-private
                      int mark, int pos, int lim, int cap,
                      int off, boolean isReadOnly) {
-        super(mark, pos, lim, cap, db.hb, off);
+        super(mark, pos, lim, cap, memoryRef.buffer, off);
         this.isReadOnly = isReadOnly;
-        address = db.address;
-        actualAddress = db.actualAddress;
+        this.memoryRef = memoryRef;
+        address = memoryRef.allocatedAddress + memoryRef.offset;
         cleaner = null;
-        att = db;
+    }
+
+    @Override
+    public Object attachment() {
+        return memoryRef;
+    }
+
+    @Override
+    public Cleaner cleaner() {
+        return cleaner;
     }
 
     public ByteBuffer slice() {
-        if (!isAccessible) {
+        if (!memoryRef.isAccessible) {
             throw new IllegalStateException("buffer is inaccessible");
         }
         int pos = position();
         int lim = limit();
         assert (pos <= lim);
         int rem = (pos <= lim ? lim - pos : 0);
-        int off = (pos << 0) + offset;
+        int off = pos + offset;
         assert (off >= 0);
-        return new DirectByteBuffer(this, -1, 0, rem, rem, off, isReadOnly);
+        return new DirectByteBuffer(memoryRef, -1, 0, rem, rem, off, isReadOnly);
     }
 
     public ByteBuffer duplicate() {
-        if (!isAccessible) {
+        if (!memoryRef.isAccessible) {
             throw new IllegalStateException("buffer is inaccessible");
         }
-        return new DirectByteBuffer(this,
+        return new DirectByteBuffer(memoryRef,
                                     this.markValue(),
                                     this.position(),
                                     this.limit(),
@@ -151,10 +164,10 @@ class DirectByteBuffer extends MappedByteBuffer
     }
 
     public ByteBuffer asReadOnlyBuffer() {
-        if (!isAccessible) {
+        if (!memoryRef.isAccessible) {
             throw new IllegalStateException("buffer is inaccessible");
         }
-        return new DirectByteBuffer(this,
+        return new DirectByteBuffer(memoryRef,
                                     this.markValue(),
                                     this.position(),
                                     this.limit(),
@@ -164,11 +177,13 @@ class DirectByteBuffer extends MappedByteBuffer
     }
 
     public long address() {
+        // TODO(narayan): Investigate how this is used. We might need to return
+        // an address that includes full offset for sliced buffers.
         return address;
     }
 
     private long ix(int i) {
-        return actualAddress + offset + (i << 0);
+        return memoryRef.allocatedAddress + offset + i;
     }
 
     private byte get(long a) {
@@ -176,21 +191,21 @@ class DirectByteBuffer extends MappedByteBuffer
     }
 
     public byte get() {
-        if (!isAccessible) {
+        if (!memoryRef.isAccessible) {
             throw new IllegalStateException("buffer is inaccessible");
         }
         return get(ix(nextGetIndex()));
     }
 
     public byte get(int i) {
-        if (!isAccessible) {
+        if (!memoryRef.isAccessible) {
             throw new IllegalStateException("buffer is inaccessible");
         }
         return get(ix(checkIndex(i)));
     }
 
     public ByteBuffer get(byte[] dst, int dstOffset, int length) {
-        if (!isAccessible) {
+        if (!memoryRef.isAccessible) {
             throw new IllegalStateException("buffer is inaccessible");
         }
         checkBounds(dstOffset, length, dst.length);
@@ -215,7 +230,7 @@ class DirectByteBuffer extends MappedByteBuffer
         if (isReadOnly) {
             throw new ReadOnlyBufferException();
         }
-        if (!isAccessible) {
+        if (!memoryRef.isAccessible) {
             throw new IllegalStateException("buffer is inaccessible");
         }
         put(ix(nextPutIndex()), x);
@@ -226,7 +241,7 @@ class DirectByteBuffer extends MappedByteBuffer
         if (isReadOnly) {
             throw new ReadOnlyBufferException();
         }
-        if (!isAccessible) {
+        if (!memoryRef.isAccessible) {
             throw new IllegalStateException("buffer is inaccessible");
         }
         put(ix(checkIndex(i)), x);
@@ -237,7 +252,7 @@ class DirectByteBuffer extends MappedByteBuffer
         if (isReadOnly) {
             throw new ReadOnlyBufferException();
         }
-        if (!isAccessible) {
+        if (!memoryRef.isAccessible) {
             throw new IllegalStateException("buffer is inaccessible");
         }
         if (src.hb != null) {
@@ -259,7 +274,7 @@ class DirectByteBuffer extends MappedByteBuffer
         if (isReadOnly) {
             throw new ReadOnlyBufferException();
         }
-        if (!isAccessible) {
+        if (!memoryRef.isAccessible) {
             throw new IllegalStateException("buffer is inaccessible");
         }
         checkBounds(srcOffset, length, src.length);
@@ -279,7 +294,7 @@ class DirectByteBuffer extends MappedByteBuffer
         if (isReadOnly) {
             throw new ReadOnlyBufferException();
         }
-        if (!isAccessible) {
+        if (!memoryRef.isAccessible) {
             throw new IllegalStateException("buffer is inaccessible");
         }
         int pos = position();
@@ -310,14 +325,14 @@ class DirectByteBuffer extends MappedByteBuffer
     }
 
     private char getChar(long a) {
-        if (!isAccessible) {
+        if (!memoryRef.isAccessible) {
             throw new IllegalStateException("buffer is inaccessible");
         }
         return (char) Memory.peekShort(position, !nativeByteOrder);
     }
 
     public char getChar() {
-        if (!isAccessible) {
+        if (!memoryRef.isAccessible) {
             throw new IllegalStateException("buffer is inaccessible");
         }
         int newPosition = position + SizeOf.CHAR;
@@ -330,7 +345,7 @@ class DirectByteBuffer extends MappedByteBuffer
     }
 
     public char getChar(int i) {
-        if (!isAccessible) {
+        if (!memoryRef.isAccessible) {
             throw new IllegalStateException("buffer is inaccessible");
         }
         checkIndex(i, SizeOf.CHAR);
@@ -357,7 +372,7 @@ class DirectByteBuffer extends MappedByteBuffer
         if (isReadOnly) {
             throw new ReadOnlyBufferException();
         }
-        if (!isAccessible) {
+        if (!memoryRef.isAccessible) {
             throw new IllegalStateException("buffer is inaccessible");
         }
         putChar(ix(nextPutIndex(SizeOf.CHAR)), x);
@@ -368,7 +383,7 @@ class DirectByteBuffer extends MappedByteBuffer
         if (isReadOnly) {
             throw new ReadOnlyBufferException();
         }
-        if (!isAccessible) {
+        if (!memoryRef.isAccessible) {
             throw new IllegalStateException("buffer is inaccessible");
         }
         putChar(ix(checkIndex(i, SizeOf.CHAR)), x);
@@ -385,7 +400,7 @@ class DirectByteBuffer extends MappedByteBuffer
     }
 
     public CharBuffer asCharBuffer() {
-        if (!isAccessible) {
+        if (!memoryRef.isAccessible) {
             throw new IllegalStateException("buffer is inaccessible");
         }
         int off = this.position();
@@ -407,14 +422,14 @@ class DirectByteBuffer extends MappedByteBuffer
     }
 
     public short getShort() {
-        if (!isAccessible) {
+        if (!memoryRef.isAccessible) {
             throw new IllegalStateException("buffer is inaccessible");
         }
         return getShort(ix(nextGetIndex(SizeOf.SHORT)));
     }
 
     public short getShort(int i) {
-        if (!isAccessible) {
+        if (!memoryRef.isAccessible) {
             throw new IllegalStateException("buffer is inaccessible");
         }
         return getShort(ix(checkIndex(i, SizeOf.SHORT)));
@@ -439,7 +454,7 @@ class DirectByteBuffer extends MappedByteBuffer
         if (isReadOnly) {
             throw new ReadOnlyBufferException();
         }
-        if (!isAccessible) {
+        if (!memoryRef.isAccessible) {
             throw new IllegalStateException("buffer is inaccessible");
         }
         putShort(ix(nextPutIndex(SizeOf.SHORT)), x);
@@ -450,7 +465,7 @@ class DirectByteBuffer extends MappedByteBuffer
         if (isReadOnly) {
             throw new ReadOnlyBufferException();
         }
-        if (!isAccessible) {
+        if (!memoryRef.isAccessible) {
             throw new IllegalStateException("buffer is inaccessible");
         }
         putShort(ix(checkIndex(i, SizeOf.SHORT)), x);
@@ -467,7 +482,7 @@ class DirectByteBuffer extends MappedByteBuffer
     }
 
     public ShortBuffer asShortBuffer() {
-        if (!isAccessible) {
+        if (!memoryRef.isAccessible) {
             throw new IllegalStateException("buffer is inaccessible");
         }
         int off = this.position();
@@ -489,14 +504,14 @@ class DirectByteBuffer extends MappedByteBuffer
     }
 
     public int getInt() {
-        if (!isAccessible) {
+        if (!memoryRef.isAccessible) {
             throw new IllegalStateException("buffer is inaccessible");
         }
         return getInt(ix(nextGetIndex(SizeOf.INT)));
     }
 
     public int getInt(int i) {
-        if (!isAccessible) {
+        if (!memoryRef.isAccessible) {
             throw new IllegalStateException("buffer is inaccessible");
         }
         return getInt(ix(checkIndex(i, (SizeOf.INT))));
@@ -520,7 +535,7 @@ class DirectByteBuffer extends MappedByteBuffer
         if (isReadOnly) {
             throw new ReadOnlyBufferException();
         }
-        if (!isAccessible) {
+        if (!memoryRef.isAccessible) {
             throw new IllegalStateException("buffer is inaccessible");
         }
         putInt(ix(nextPutIndex(SizeOf.INT)), x);
@@ -531,7 +546,7 @@ class DirectByteBuffer extends MappedByteBuffer
         if (isReadOnly) {
             throw new ReadOnlyBufferException();
         }
-        if (!isAccessible) {
+        if (!memoryRef.isAccessible) {
             throw new IllegalStateException("buffer is inaccessible");
         }
         putInt(ix(checkIndex(i, SizeOf.INT)), x);
@@ -549,7 +564,7 @@ class DirectByteBuffer extends MappedByteBuffer
 
 
     public IntBuffer asIntBuffer() {
-        if (!isAccessible) {
+        if (!memoryRef.isAccessible) {
             throw new IllegalStateException("buffer is inaccessible");
         }
         int off = this.position();
@@ -571,14 +586,14 @@ class DirectByteBuffer extends MappedByteBuffer
     }
 
     public long getLong() {
-        if (!isAccessible) {
+        if (!memoryRef.isAccessible) {
             throw new IllegalStateException("buffer is inaccessible");
         }
         return getLong(ix(nextGetIndex(SizeOf.LONG)));
     }
 
     public long getLong(int i) {
-        if (!isAccessible) {
+        if (!memoryRef.isAccessible) {
             throw new IllegalStateException("buffer is inaccessible");
         }
         return getLong(ix(checkIndex(i, SizeOf.LONG)));
@@ -602,7 +617,7 @@ class DirectByteBuffer extends MappedByteBuffer
         if (isReadOnly) {
             throw new ReadOnlyBufferException();
         }
-        if (!isAccessible) {
+        if (!memoryRef.isAccessible) {
             throw new IllegalStateException("buffer is inaccessible");
         }
         putLong(ix(nextPutIndex(SizeOf.LONG)), x);
@@ -613,7 +628,7 @@ class DirectByteBuffer extends MappedByteBuffer
         if (isReadOnly) {
             throw new ReadOnlyBufferException();
         }
-        if (!isAccessible) {
+        if (!memoryRef.isAccessible) {
             throw new IllegalStateException("buffer is inaccessible");
         }
         putLong(ix(checkIndex(i, SizeOf.LONG)), x);
@@ -631,7 +646,7 @@ class DirectByteBuffer extends MappedByteBuffer
 
 
     public LongBuffer asLongBuffer() {
-        if (!isAccessible) {
+        if (!memoryRef.isAccessible) {
             throw new IllegalStateException("buffer is inaccessible");
         }
         int off = this.position();
@@ -654,14 +669,14 @@ class DirectByteBuffer extends MappedByteBuffer
     }
 
     public float getFloat() {
-        if (!isAccessible) {
+        if (!memoryRef.isAccessible) {
             throw new IllegalStateException("buffer is inaccessible");
         }
         return getFloat(ix(nextGetIndex(SizeOf.FLOAT)));
     }
 
     public float getFloat(int i) {
-        if (!isAccessible) {
+        if (!memoryRef.isAccessible) {
             throw new IllegalStateException("buffer is inaccessible");
         }
         return getFloat(ix(checkIndex(i, SizeOf.FLOAT)));
@@ -686,7 +701,7 @@ class DirectByteBuffer extends MappedByteBuffer
         if (isReadOnly) {
             throw new ReadOnlyBufferException();
         }
-        if (!isAccessible) {
+        if (!memoryRef.isAccessible) {
             throw new IllegalStateException("buffer is inaccessible");
         }
         putFloat(ix(nextPutIndex(SizeOf.FLOAT)), x);
@@ -697,7 +712,7 @@ class DirectByteBuffer extends MappedByteBuffer
         if (isReadOnly) {
             throw new ReadOnlyBufferException();
         }
-        if (!isAccessible) {
+        if (!memoryRef.isAccessible) {
             throw new IllegalStateException("buffer is inaccessible");
         }
         putFloat(ix(checkIndex(i, SizeOf.FLOAT)), x);
@@ -714,7 +729,7 @@ class DirectByteBuffer extends MappedByteBuffer
     }
 
     public FloatBuffer asFloatBuffer() {
-        if (!isAccessible) {
+        if (!memoryRef.isAccessible) {
             throw new IllegalStateException("buffer is inaccessible");
         }
         int off = this.position();
@@ -737,14 +752,14 @@ class DirectByteBuffer extends MappedByteBuffer
     }
 
     public double getDouble() {
-        if (!isAccessible) {
+        if (!memoryRef.isAccessible) {
             throw new IllegalStateException("buffer is inaccessible");
         }
         return getDouble(ix(nextGetIndex(SizeOf.DOUBLE)));
     }
 
     public double getDouble(int i) {
-        if (!isAccessible) {
+        if (!memoryRef.isAccessible) {
             throw new IllegalStateException("buffer is inaccessible");
         }
         return getDouble(ix(checkIndex(i, SizeOf.DOUBLE)));
@@ -769,7 +784,7 @@ class DirectByteBuffer extends MappedByteBuffer
         if (isReadOnly) {
             throw new ReadOnlyBufferException();
         }
-        if (!isAccessible) {
+        if (!memoryRef.isAccessible) {
             throw new IllegalStateException("buffer is inaccessible");
         }
         putDouble(ix(nextPutIndex(SizeOf.DOUBLE)), x);
@@ -780,7 +795,7 @@ class DirectByteBuffer extends MappedByteBuffer
         if (isReadOnly) {
             throw new ReadOnlyBufferException();
         }
-        if (!isAccessible) {
+        if (!memoryRef.isAccessible) {
             throw new IllegalStateException("buffer is inaccessible");
         }
         putDouble(ix(checkIndex(i, SizeOf.DOUBLE)), x);
@@ -797,7 +812,7 @@ class DirectByteBuffer extends MappedByteBuffer
     }
 
     public DoubleBuffer asDoubleBuffer() {
-        if (!isAccessible) {
+        if (!memoryRef.isAccessible) {
             throw new IllegalStateException("buffer is inaccessible");
         }
         int off = this.position();
@@ -816,10 +831,10 @@ class DirectByteBuffer extends MappedByteBuffer
     }
 
     public boolean isAccessible() {
-        return isAccessible;
+        return memoryRef.isAccessible;
     }
 
     public void setAccessible(boolean value) {
-        isAccessible = value;
+        memoryRef.isAccessible = value;
     }
 }
