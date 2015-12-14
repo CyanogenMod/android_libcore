@@ -42,7 +42,9 @@ class PlainSocketImpl extends AbstractPlainSocketImpl
     /**
      * Constructs an empty instance.
      */
-    PlainSocketImpl() { }
+    PlainSocketImpl() {
+        this(new FileDescriptor());
+    }
 
     /**
      * Constructs an instance with the given file descriptor.

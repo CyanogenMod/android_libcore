@@ -36,6 +36,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.io.FileDescriptor;
+
 
 public class SocketTest extends junit.framework.TestCase {
     // See http://b/2980559.
@@ -385,6 +387,28 @@ public class SocketTest extends junit.framework.TestCase {
         boolean connectUnblocked = signal.await(2000, TimeUnit.MILLISECONDS);
         assertTrue(connectUnblocked);
     }
+
+
+    // b/25805791
+    public void testFileDescriptorStaysSame() throws Exception {
+        // SocketImplementation FileDescriptor object shouldn't change after calling
+        // bind (and many other methods).
+        Socket s = new Socket();
+
+        // There's an assumption that newly created
+        // socket has a non-null file-descriptor (b/26169052, b/26084000)
+        FileDescriptor fd1 = s.getFileDescriptor$();
+        assertNotNull(fd1);
+        int fd1Val = fd1.getInt$();
+        assertEquals(-1, fd1Val);
+
+        s.bind(new InetSocketAddress(InetAddress.getByName("0.0.0.0"), 0));
+        FileDescriptor fd2 = s.getFileDescriptor$();
+        assertSame(fd1, fd2);
+        int fd2Val = fd2.getInt$();
+        assertTrue(fd1Val != fd2Val); // The actual fd should be different
+    }
+
 
     static class MockServer {
         private ExecutorService executor;
