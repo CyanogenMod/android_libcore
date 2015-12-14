@@ -123,7 +123,6 @@ class SocketOutputStream extends FileOutputStream
                 throw se;
             }
         } finally {
-            impl.releaseFD();
             IoTrace.socketWriteEnd(traceContext, impl.address, impl.port, bytesWritten);
         }
     }
