@@ -49,8 +49,8 @@ public class ClassPathURLStreamHandlerTest extends TestCase {
     private File jarFile;
 
     @Override
-    protected void setUp() {
-        File resources = Support_Resources.createTempFolder();
+    protected void setUp() throws Exception {
+        File resources = Support_Resources.createTempFolder().getCanonicalFile();
         Support_Resources.copyFile(resources, null, JAR);
         jarFile = new File(resources, JAR);
     }
@@ -62,13 +62,13 @@ public class ClassPathURLStreamHandlerTest extends TestCase {
         } catch (IOException expected) {
         }
 
-        String fileName = jarFile.getCanonicalPath();
+        String fileName = jarFile.getPath();
         ClassPathURLStreamHandler streamHandler = new ClassPathURLStreamHandler(fileName);
         streamHandler.close();
     }
 
     public void testGetEntryOrNull() throws Exception {
-        String fileName = jarFile.getCanonicalPath();
+        String fileName = jarFile.getPath();
         ClassPathURLStreamHandler streamHandler = new ClassPathURLStreamHandler(fileName);
 
         assertNotNull(streamHandler.getEntryUrlOrNull(ENTRY_IN_ROOT));
@@ -97,7 +97,7 @@ public class ClassPathURLStreamHandlerTest extends TestCase {
     }
 
     public void testIsEntryStored() throws IOException {
-        String fileName = jarFile.getCanonicalPath();
+        String fileName = jarFile.getPath();
         ClassPathURLStreamHandler streamHandler = new ClassPathURLStreamHandler(fileName);
 
         assertFalse(streamHandler.isEntryStored("this/file/does/not/exist.txt"));
@@ -113,7 +113,7 @@ public class ClassPathURLStreamHandlerTest extends TestCase {
     }
 
     public void testOpenConnection() throws Exception {
-        String fileName = jarFile.getCanonicalPath();
+        String fileName = jarFile.getPath();
         ClassPathURLStreamHandler streamHandler = new ClassPathURLStreamHandler(fileName);
 
         assertOpenConnectionOk(jarFile, ENTRY_IN_ROOT, streamHandler);
