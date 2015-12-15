@@ -38,7 +38,7 @@
 
 package java.text;
 
-import libcore.icu.RuleBasedCollatorICU;
+import libcore.icu.CollationKeyICU;
 
 /**
  * The <code>RuleBasedCollator</code> class is a concrete subclass of
@@ -52,9 +52,9 @@ import libcore.icu.RuleBasedCollatorICU;
  * for efficiency (other subclasses may be used for more complex languages) :
  * <ol>
  * <li>If a special collation rule controlled by a &lt;modifier&gt; is
-      specified it applies to the whole collator object.
+ * specified it applies to the whole collator object.
  * <li>All non-mentioned characters are at the end of the
- *     collation order.
+ * collation order.
  * </ol>
  *
  * <p>
@@ -67,39 +67,39 @@ import libcore.icu.RuleBasedCollatorICU;
  * </pre>
  * The definitions of the rule elements is as follows:
  * <UL Type=disc>
- *    <LI><strong>Text-Argument</strong>: A text-argument is any sequence of
- *        characters, excluding special characters (that is, common
- *        whitespace characters [0009-000D, 0020] and rule syntax characters
- *        [0021-002F, 003A-0040, 005B-0060, 007B-007E]). If those
- *        characters are desired, you can put them in single quotes
- *        (e.g. ampersand => '&'). Note that unquoted white space characters
- *        are ignored; e.g. <code>b c</code> is treated as <code>bc</code>.
- *    <LI><strong>Modifier</strong>: There are currently two modifiers that
- *        turn on special collation rules.
- *        <UL Type=square>
- *            <LI>'@' : Turns on backwards sorting of accents (secondary
- *                      differences), as in French.
- *            <LI>'!' : Turns on Thai/Lao vowel-consonant swapping.  If this
- *                      rule is in force when a Thai vowel of the range
- *                      &#92;U0E40-&#92;U0E44 precedes a Thai consonant of the range
- *                      &#92;U0E01-&#92;U0E2E OR a Lao vowel of the range &#92;U0EC0-&#92;U0EC4
- *                      precedes a Lao consonant of the range &#92;U0E81-&#92;U0EAE then
- *                      the vowel is placed after the consonant for collation
- *                      purposes.
- *        </UL>
- *        <p>'@' : Indicates that accents are sorted backwards, as in French.
- *    <LI><strong>Relation</strong>: The relations are the following:
- *        <UL Type=square>
- *            <LI>'&lt;' : Greater, as a letter difference (primary)
- *            <LI>';' : Greater, as an accent difference (secondary)
- *            <LI>',' : Greater, as a case difference (tertiary)
- *            <LI>'=' : Equal
- *        </UL>
- *    <LI><strong>Reset</strong>: There is a single reset
- *        which is used primarily for contractions and expansions, but which
- *        can also be used to add a modification at the end of a set of rules.
- *        <p>'&' : Indicates that the next rule follows the position to where
- *            the reset text-argument would be sorted.
+ * <LI><strong>Text-Argument</strong>: A text-argument is any sequence of
+ * characters, excluding special characters (that is, common
+ * whitespace characters [0009-000D, 0020] and rule syntax characters
+ * [0021-002F, 003A-0040, 005B-0060, 007B-007E]). If those
+ * characters are desired, you can put them in single quotes
+ * (e.g. ampersand => '&'). Note that unquoted white space characters
+ * are ignored; e.g. <code>b c</code> is treated as <code>bc</code>.
+ * <LI><strong>Modifier</strong>: There are currently two modifiers that
+ * turn on special collation rules.
+ * <UL Type=square>
+ * <LI>'@' : Turns on backwards sorting of accents (secondary
+ * differences), as in French.
+ * <LI>'!' : Turns on Thai/Lao vowel-consonant swapping.  If this
+ * rule is in force when a Thai vowel of the range
+ * &#92;U0E40-&#92;U0E44 precedes a Thai consonant of the range
+ * &#92;U0E01-&#92;U0E2E OR a Lao vowel of the range &#92;U0EC0-&#92;U0EC4
+ * precedes a Lao consonant of the range &#92;U0E81-&#92;U0EAE then
+ * the vowel is placed after the consonant for collation
+ * purposes.
+ * </UL>
+ * <p>'@' : Indicates that accents are sorted backwards, as in French.
+ * <LI><strong>Relation</strong>: The relations are the following:
+ * <UL Type=square>
+ * <LI>'&lt;' : Greater, as a letter difference (primary)
+ * <LI>';' : Greater, as an accent difference (secondary)
+ * <LI>',' : Greater, as a case difference (tertiary)
+ * <LI>'=' : Equal
+ * </UL>
+ * <LI><strong>Reset</strong>: There is a single reset
+ * which is used primarily for contractions and expansions, but which
+ * can also be used to add a modification at the end of a set of rules.
+ * <p>'&' : Indicates that the next rule follows the position to where
+ * the reset text-argument would be sorted.
  * </UL>
  *
  * <p>
@@ -165,13 +165,13 @@ import libcore.icu.RuleBasedCollatorICU;
  * <p>
  * The following are errors:
  * <UL Type=disc>
- *     <LI>A text-argument contains unquoted punctuation symbols
- *        (e.g. "a &lt; b-c &lt; d").
- *     <LI>A relation or reset character not followed by a text-argument
- *        (e.g. "a &lt; ,b").
- *     <LI>A reset where the text-argument (or an initial substring of the
- *         text-argument) is not already in the sequence.
- *         (e.g. "a &lt; b &amp; e &lt; f")
+ * <LI>A text-argument contains unquoted punctuation symbols
+ * (e.g. "a &lt; b-c &lt; d").
+ * <LI>A relation or reset character not followed by a text-argument
+ * (e.g. "a &lt; ,b").
+ * <LI>A reset where the text-argument (or an initial substring of the
+ * text-argument) is not already in the sequence.
+ * (e.g. "a &lt; b &amp; e &lt; f")
  * </UL>
  * If you produce one of these errors, a <code>RuleBasedCollator</code> throws
  * a <code>ParseException</code>.
@@ -179,14 +179,14 @@ import libcore.icu.RuleBasedCollatorICU;
  * <p><strong>Examples</strong>
  * <p>Simple:     "&lt; a &lt; b &lt; c &lt; d"
  * <p>Norwegian:  "&lt; a, A &lt; b, B &lt; c, C &lt; d, D &lt; e, E &lt; f, F
- *                 &lt; g, G &lt; h, H &lt; i, I &lt; j, J &lt; k, K &lt; l, L
- *                 &lt; m, M &lt; n, N &lt; o, O &lt; p, P &lt; q, Q &lt; r, R
- *                 &lt; s, S &lt; t, T &lt; u, U &lt; v, V &lt; w, W &lt; x, X
- *                 &lt; y, Y &lt; z, Z
- *                 &lt; &#92;u00E6, &#92;u00C6
- *                 &lt; &#92;u00F8, &#92;u00D8
- *                 &lt; &#92;u00E5 = a&#92;u030A, &#92;u00C5 = A&#92;u030A;
- *                      aa, AA"
+ * &lt; g, G &lt; h, H &lt; i, I &lt; j, J &lt; k, K &lt; l, L
+ * &lt; m, M &lt; n, N &lt; o, O &lt; p, P &lt; q, Q &lt; r, R
+ * &lt; s, S &lt; t, T &lt; u, U &lt; v, V &lt; w, W &lt; x, X
+ * &lt; y, Y &lt; z, Z
+ * &lt; &#92;u00E6, &#92;u00C6
+ * &lt; &#92;u00F8, &#92;u00D8
+ * &lt; &#92;u00E5 = a&#92;u030A, &#92;u00C5 = A&#92;u030A;
+ * aa, AA"
  *
  * <p>
  * To create a <code>RuleBasedCollator</code> object with specialized
@@ -201,9 +201,15 @@ import libcore.icu.RuleBasedCollatorICU;
  * Or:
  * <blockquote>
  * <pre>
- * String Norwegian = "&lt; a, A &lt; b, B &lt; c, C &lt; d, D &lt; e, E &lt; f, F &lt; g, G &lt; h, H &lt; i, I" +
- *                    "&lt; j, J &lt; k, K &lt; l, L &lt; m, M &lt; n, N &lt; o, O &lt; p, P &lt; q, Q &lt; r, R" +
- *                    "&lt; s, S &lt; t, T &lt; u, U &lt; v, V &lt; w, W &lt; x, X &lt; y, Y &lt; z, Z" +
+ * String Norwegian = "&lt; a, A &lt; b, B &lt; c, C &lt; d, D &lt; e, E &lt; f, F &lt; g, G &lt;
+ * h,
+ * H &lt; i, I" +
+ *                    "&lt; j, J &lt; k, K &lt; l, L &lt; m, M &lt; n, N &lt; o, O &lt; p, P &lt;
+ * q,
+ * Q &lt; r, R" +
+ *                    "&lt; s, S &lt; t, T &lt; u, U &lt; v, V &lt; w, W &lt; x, X &lt; y, Y &lt;
+ * z,
+ * Z" +
  *                    "&lt; &#92;u00E6, &#92;u00C6" +     // Latin letter ae & AE
  *                    "&lt; &#92;u00F8, &#92;u00D8" +     // Latin letter o & O with stroke
  *                    "&lt; &#92;u00E5 = a&#92;u030A," +  // Latin letter a with ring above
@@ -241,8 +247,8 @@ import libcore.icu.RuleBasedCollatorICU;
  * @see        CollationElementIterator
  * @author     Helena Shih, Laura Werner, Richard Gillam
  */
-public class RuleBasedCollator extends Collator{
-    RuleBasedCollator(RuleBasedCollatorICU wrapper) {
+public class RuleBasedCollator extends Collator {
+    RuleBasedCollator(android.icu.text.RuleBasedCollator wrapper) {
         super(wrapper);
     }
     // IMPLEMENTATION NOTES:  The implementation of the collation algorithm is
@@ -271,19 +277,20 @@ public class RuleBasedCollator extends Collator{
      * RuleBasedCollator constructor.  This takes the table rules and builds
      * a collation table out of them.  Please see RuleBasedCollator class
      * description for more details on the collation rule syntax.
-     * @see java.util.Locale
+     *
      * @param rules the collation rules to build the collation table from.
-     * @exception ParseException A format exception
-     * will be thrown if the build process of the rules fails. For
-     * example, build rule "a < ? < d" will cause the constructor to
-     * throw the ParseException because the '?' is not quoted.
+     * @throws ParseException A format exception
+     *                        will be thrown if the build process of the rules fails. For
+     *                        example, build rule "a < ? < d" will cause the constructor to
+     *                        throw the ParseException because the '?' is not quoted.
+     * @see java.util.Locale
      */
     public RuleBasedCollator(String rules) throws ParseException {
         if (rules == null) {
             throw new NullPointerException("rules == null");
         }
         try {
-            icuColl = new RuleBasedCollatorICU(rules);
+            icuColl = new android.icu.text.RuleBasedCollator(rules);
         } catch (Exception e) {
             if (e instanceof ParseException) {
                 throw (ParseException) e;
@@ -298,36 +305,38 @@ public class RuleBasedCollator extends Collator{
 
     /**
      * Gets the table-based rules for the collation object.
+     *
      * @return returns the collation rules that the table collation object
      * was created from.
      */
-    public String getRules()
-    {
-        return icuColl.getRules();
+    public String getRules() {
+        return collAsICU().getRules();
     }
 
     /**
      * Return a CollationElementIterator for the given String.
+     *
      * @see java.text.CollationElementIterator
      */
     public CollationElementIterator getCollationElementIterator(String source) {
         if (source == null) {
             throw new NullPointerException("source == null");
         }
-        return new CollationElementIterator(icuColl.getCollationElementIterator(source));
+        return new CollationElementIterator(collAsICU().getCollationElementIterator(source));
     }
 
     /**
      * Return a CollationElementIterator for the given String.
+     *
      * @see java.text.CollationElementIterator
      * @since 1.2
      */
     public CollationElementIterator getCollationElementIterator(
-                                                CharacterIterator source) {
+            CharacterIterator source) {
         if (source == null) {
             throw new NullPointerException("source == null");
         }
-        return new CollationElementIterator(icuColl.getCollationElementIterator(source));
+        return new CollationElementIterator(collAsICU().getCollationElementIterator(source));
     }
 
     /**
@@ -336,10 +345,9 @@ public class RuleBasedCollator extends Collator{
      * than, greater than or equal to another string in a language.
      * This can be overriden in a subclass.
      *
-     * @exception NullPointerException if <code>source</code> or <code>target</code> is null.
+     * @throws NullPointerException if <code>source</code> or <code>target</code> is null.
      */
-    public synchronized int compare(String source, String target)
-    {
+    public synchronized int compare(String source, String target) {
         if (source == null || target == null) {
             throw new NullPointerException();
         }
@@ -351,20 +359,23 @@ public class RuleBasedCollator extends Collator{
      * with CollationKey.compareTo. This overrides java.text.Collator.getCollationKey.
      * It can be overriden in a subclass.
      */
-    public synchronized CollationKey getCollationKey(String source)
-    {
-        return icuColl.getCollationKey(source);
+    public synchronized CollationKey getCollationKey(String source) {
+        if (source == null) {
+            return null;
+        }
+        return new CollationKeyICU(source, icuColl.getCollationKey(source));
     }
 
     /**
      * Standard override; no change in semantics.
      */
     public Object clone() {
-        return (RuleBasedCollator) super.clone();
+        return super.clone();
     }
 
     /**
      * Compares the equality of two collation objects.
+     *
      * @param obj the table-based collation object to be compared with this.
      * @return true if the current table-based collation object is the same
      * as the table-based collation object obj; false otherwise.
@@ -378,6 +389,10 @@ public class RuleBasedCollator extends Collator{
      * Generates the hash code for the table-based collation object
      */
     public int hashCode() {
-        return icuColl.getRules().hashCode();
+        return icuColl.hashCode();
+    }
+
+    private android.icu.text.RuleBasedCollator collAsICU() {
+        return (android.icu.text.RuleBasedCollator) icuColl;
     }
 }

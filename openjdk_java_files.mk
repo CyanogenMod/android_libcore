@@ -703,7 +703,6 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/java/text/ChoiceFormat.java \
     ojluni/src/main/java/java/text/CollationElementIterator.java \
     ojluni/src/main/java/java/text/CollationKey.java \
-    ojluni/src/main/java/java/text/CollationRules.java \
     ojluni/src/main/java/java/text/Collator.java \
     ojluni/src/main/java/java/text/DateFormat.java \
     ojluni/src/main/java/java/text/DateFormatSymbols.java \
@@ -725,7 +724,6 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/java/text/RBCollationTables.java \
     ojluni/src/main/java/java/text/RBTableBuilder.java \
     ojluni/src/main/java/java/text/RuleBasedBreakIterator.java \
-    ojluni/src/main/java/java/text/RuleBasedCollationKey.java \
     ojluni/src/main/java/java/text/RuleBasedCollator.java \
     ojluni/src/main/java/java/text/SimpleDateFormat.java \
     ojluni/src/main/java/java/text/StringCharacterIterator.java \

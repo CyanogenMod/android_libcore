@@ -38,8 +38,6 @@
 
 package java.text;
 
-import libcore.icu.CollationElementIteratorICU;
-
 /**
  * The <code>CollationElementIterator</code> class is used as an iterator
  * to walk through each character of an international string. Use the iterator
@@ -102,17 +100,16 @@ import libcore.icu.CollationElementIteratorICU;
  * @see                RuleBasedCollator
  * @author             Helena Shih, Laura Werner, Richard Gillam
  */
-public final class CollationElementIterator
-{
+public final class CollationElementIterator {
     /**
      * Null order which indicates the end of string is reached by the
      * cursor.
      */
-    public final static int NULLORDER = 0xffffffff;
+    public final static int NULLORDER = android.icu.text.CollationElementIterator.NULLORDER;
 
-    private CollationElementIteratorICU icuIterator;
+    private android.icu.text.CollationElementIterator icuIterator;
 
-    CollationElementIterator(CollationElementIteratorICU iterator) {
+    CollationElementIterator(android.icu.text.CollationElementIterator iterator) {
         icuIterator = iterator;
     }
 
@@ -120,8 +117,7 @@ public final class CollationElementIterator
      * Resets the cursor to the beginning of the string.  The next call
      * to next() will return the first collation element in the string.
      */
-    public void reset()
-    {
+    public void reset() {
         icuIterator.reset();
     }
 
@@ -139,8 +135,7 @@ public final class CollationElementIterator
      * then call previous(), or call previous() and then call next()), you'll get
      * back the same element twice.</p>
      */
-    public int next()
-    {
+    public int next() {
         return icuIterator.next();
     }
 
@@ -157,39 +152,59 @@ public final class CollationElementIterator
      * updates the pointer.  This means that when you change direction while
      * iterating (i.e., call next() and then call previous(), or call previous()
      * and then call next()), you'll get back the same element twice.</p>
+     *
      * @since 1.2
      */
-    public int previous()
-    {
+    public int previous() {
         return icuIterator.previous();
     }
 
     /**
      * Return the primary component of a collation element.
+     *
      * @param order the collation element
      * @return the element's primary component
      */
-    public final static int primaryOrder(int order)
-    {
-        return CollationElementIteratorICU.primaryOrder(order);
+    public final static int primaryOrder(int order) {
+        return android.icu.text.CollationElementIterator.primaryOrder(order);
     }
+
     /**
      * Return the secondary component of a collation element.
+     *
      * @param order the collation element
      * @return the element's secondary component
      */
-    public final static short secondaryOrder(int order)
-    {
-        return (short) CollationElementIteratorICU.secondaryOrder(order);
+    public final static short secondaryOrder(int order) {
+        return (short) android.icu.text.CollationElementIterator.secondaryOrder(order);
     }
+
     /**
      * Return the tertiary component of a collation element.
+     *
      * @param order the collation element
      * @return the element's tertiary component
      */
-    public final static short tertiaryOrder(int order)
-    {
-        return (short) CollationElementIteratorICU.tertiaryOrder(order);
+    public final static short tertiaryOrder(int order) {
+        return (short) android.icu.text.CollationElementIterator.tertiaryOrder(order);
+    }
+
+    /**
+     * Returns the character offset in the original text corresponding to the next
+     * collation element.  (That is, getOffset() returns the position in the text
+     * corresponding to the collation element that will be returned by the next
+     * call to next().)  This value will always be the index of the FIRST character
+     * corresponding to the collation element (a contracting character sequence is
+     * when two or more characters all correspond to the same collation element).
+     * This means if you do setOffset(x) followed immediately by getOffset(), getOffset()
+     * won't necessarily return x.
+     *
+     * @return The character offset in the original text corresponding to the collation
+     * element that will be returned by the next call to next().
+     * @since 1.2
+     */
+    public int getOffset() {
+        return icuIterator.getOffset();
     }
 
     /**
@@ -207,63 +222,40 @@ public final class CollationElementIterator
      * @param newOffset The new character offset into the original text.
      * @since 1.2
      */
-    public void setOffset(int newOffset)
-    {
+    public void setOffset(int newOffset) {
         icuIterator.setOffset(newOffset);
     }
 
     /**
-     * Returns the character offset in the original text corresponding to the next
-     * collation element.  (That is, getOffset() returns the position in the text
-     * corresponding to the collation element that will be returned by the next
-     * call to next().)  This value will always be the index of the FIRST character
-     * corresponding to the collation element (a contracting character sequence is
-     * when two or more characters all correspond to the same collation element).
-     * This means if you do setOffset(x) followed immediately by getOffset(), getOffset()
-     * won't necessarily return x.
-     *
-     * @return The character offset in the original text corresponding to the collation
-     * element that will be returned by the next call to next().
-     * @since 1.2
-     */
-    public int getOffset()
-    {
-        return icuIterator.getOffset();
-    }
-
-
-    /**
      * Return the maximum length of any expansion sequences that end
      * with the specified comparison order.
+     *
      * @param order a collation order returned by previous or next.
      * @return the maximum length of any expansion sequences ending
-     *         with the specified order.
+     * with the specified order.
      * @since 1.2
      */
-    public int getMaxExpansion(int order)
-    {
+    public int getMaxExpansion(int order) {
         return icuIterator.getMaxExpansion(order);
     }
 
     /**
      * Set a new string over which to iterate.
      *
-     * @param source  the new source text
+     * @param source the new source text
      * @since 1.2
      */
-    public void setText(String source)
-    {
+    public void setText(String source) {
         icuIterator.setText(source);
     }
 
     /**
      * Set a new string over which to iterate.
      *
-     * @param source  the new source text.
+     * @param source the new source text.
      * @since 1.2
      */
-    public void setText(CharacterIterator source)
-    {
+    public void setText(CharacterIterator source) {
         icuIterator.setText(source);
     }
 }

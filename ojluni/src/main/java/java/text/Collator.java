@@ -39,9 +39,8 @@
 package java.text;
 
 import java.util.Locale;
-import libcore.icu.ICU;
-import libcore.icu.RuleBasedCollatorICU;
 
+import libcore.icu.ICU;
 
 /**
  * The <code>Collator</code> class performs locale-sensitive
@@ -121,13 +120,13 @@ import libcore.icu.RuleBasedCollatorICU;
  */
 
 public abstract class Collator
-    implements java.util.Comparator<Object>, Cloneable
-{
+        implements java.util.Comparator<Object>, Cloneable {
     /**
      * Collator strength value.  When set, only PRIMARY differences are
      * considered significant during comparison. The assignment of strengths
      * to language features is locale dependant. A common example is for
      * different base letters ("a" vs "b") to be considered a PRIMARY difference.
+     *
      * @see java.text.Collator#setStrength
      * @see java.text.Collator#getStrength
      */
@@ -138,6 +137,7 @@ public abstract class Collator
      * to language features is locale dependant. A common example is for
      * different accented forms of the same base letter ("a" vs "\u00E4") to be
      * considered a SECONDARY difference.
+     *
      * @see java.text.Collator#setStrength
      * @see java.text.Collator#getStrength
      */
@@ -147,6 +147,7 @@ public abstract class Collator
      * considered significant during comparison. The assignment of strengths
      * to language features is locale dependant. A common example is for
      * case differences ("a" vs "A") to be considered a TERTIARY difference.
+     *
      * @see java.text.Collator#setStrength
      * @see java.text.Collator#getStrength
      */
@@ -170,6 +171,7 @@ public abstract class Collator
      * set, accented characters will not be decomposed for collation. This
      * is the default setting and provides the fastest collation but
      * will only produce correct results for languages that do not use accents.
+     *
      * @see java.text.Collator#getDecomposition
      * @see java.text.Collator#setDecomposition
      */
@@ -185,6 +187,7 @@ public abstract class Collator
      * described in
      * <a href="http://www.unicode.org/unicode/reports/tr15/tr15-23.html">Unicode
      * Technical Report #15</a>.
+     *
      * @see java.text.Collator#getDecomposition
      * @see java.text.Collator#setDecomposition
      */
@@ -204,20 +207,33 @@ public abstract class Collator
      * described in
      * <a href="http://www.unicode.org/unicode/reports/tr15/tr15-23.html">Unicode
      * Technical Report #15</a>.
+     *
      * @see java.text.Collator#getDecomposition
      * @see java.text.Collator#setDecomposition
      */
     public final static int FULL_DECOMPOSITION = 2;
 
-    RuleBasedCollatorICU icuColl;
+    android.icu.text.Collator icuColl;
 
-    Collator(RuleBasedCollatorICU icuColl) {
-      this.icuColl = icuColl;
-  }
+    Collator(android.icu.text.Collator icuColl) {
+        this.icuColl = icuColl;
+    }
+
+    /**
+     * Default constructor.  This constructor is
+     * protected so subclasses can get access to it. Users typically create
+     * a Collator sub-class by calling the factory method getInstance.
+     *
+     * @see java.text.Collator#getInstance
+     */
+    protected Collator() {
+        icuColl = android.icu.text.RuleBasedCollator.getInstance(Locale.getDefault());
+    }
 
     /**
      * Gets the Collator for the current default locale.
      * The default locale is determined by java.util.Locale.getDefault.
+     *
      * @return the Collator for the default locale.(for example, en_US)
      * @see java.util.Locale#getDefault
      */
@@ -227,18 +243,53 @@ public abstract class Collator
 
     /**
      * Gets the Collator for the desired locale.
+     *
      * @param desiredLocale the desired locale.
      * @return the Collator for the desired locale.
      * @see java.util.Locale
      * @see java.util.ResourceBundle
      */
-    public static synchronized
-    Collator getInstance(Locale desiredLocale)
-    {
+    public static synchronized Collator getInstance(Locale desiredLocale) {
         if (desiredLocale == null) {
             throw new NullPointerException("locale == null");
         }
-        return new RuleBasedCollator(new RuleBasedCollatorICU(desiredLocale));
+        return new RuleBasedCollator((android.icu.text.RuleBasedCollator)
+                android.icu.text.Collator.getInstance(desiredLocale));
+    }
+
+    /**
+     * Returns an array of all locales for which the
+     * <code>getInstance</code> methods of this class can return
+     * localized instances.
+     * The returned array represents the union of locales supported
+     * by the Java runtime and by installed
+     * {@link java.text.spi.CollatorProvider CollatorProvider} implementations.
+     * It must contain at least a Locale instance equal to
+     * {@link java.util.Locale#US Locale.US}.
+     *
+     * @return An array of locales for which localized
+     * <code>Collator</code> instances are available.
+     */
+    public static synchronized Locale[] getAvailableLocales() {
+        return ICU.getAvailableCollatorLocales();
+    }
+
+    /**
+     * Returns a new collator with the same decomposition mode and
+     * strength value as this collator.
+     *
+     * @return a shallow copy of this collator.
+     * @see java.lang.Cloneable
+     */
+    @Override
+    public Object clone() {
+        try {
+            Collator clone = (Collator) super.clone();
+            clone.icuColl = (android.icu.text.Collator) icuColl.clone();
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError(e);
+        }
     }
 
     /**
@@ -252,6 +303,7 @@ public abstract class Collator
      * given String will be involved in multiple comparisons, CollationKey.compareTo
      * has the best performance. See the Collator class description for an example
      * using CollationKeys.
+     *
      * @param source the source string.
      * @param target the target string.
      * @return Returns an integer value. Value is less than zero if source is less than
@@ -268,17 +320,17 @@ public abstract class Collator
      * to, or greater than the second.
      * <p>
      * This implementation merely returns
-     *  <code> compare((String)o1, (String)o2) </code>.
+     * <code> compare((String)o1, (String)o2) </code>.
      *
      * @return a negative integer, zero, or a positive integer as the
-     *         first argument is less than, equal to, or greater than the
-     *         second.
-     * @exception ClassCastException the arguments cannot be cast to Strings.
+     * first argument is less than, equal to, or greater than the
+     * second.
+     * @throws ClassCastException the arguments cannot be cast to Strings.
      * @see java.util.Comparator
-     * @since   1.2
+     * @since 1.2
      */
     public int compare(Object o1, Object o2) {
-    return compare((String)o1, (String)o2);
+        return compare((String) o1, (String) o2);
     }
 
     /**
@@ -286,6 +338,7 @@ public abstract class Collator
      * to other CollationKeys. CollationKeys provide better performance than
      * Collator.compare when Strings are involved in multiple comparisons.
      * See the Collator class description for an example using CollationKeys.
+     *
      * @param source the string to be transformed into a collation key.
      * @return the CollationKey for the given String based on this Collator's collation
      * rules. If the source String is null, a null CollationKey is returned.
@@ -297,21 +350,22 @@ public abstract class Collator
     /**
      * Convenience method for comparing the equality of two strings based on
      * this Collator's collation rules.
+     *
      * @param source the source string to be compared with.
      * @param target the target string to be compared with.
      * @return true if the strings are equal according to the collation
      * rules.  false, otherwise.
      * @see java.text.Collator#compare
      */
-    public boolean equals(String source, String target)
-    {
-        return (compare(source, target) == Collator.EQUAL);
+    public boolean equals(String source, String target) {
+        return (compare(source, target) == 0);
     }
 
     /**
      * Returns this Collator's strength property.  The strength property determines
      * the minimum level of difference considered significant during comparison.
      * See the Collator class description for an example of use.
+     *
      * @return this Collator's current strength property.
      * @see java.text.Collator#setStrength
      * @see java.text.Collator#PRIMARY
@@ -319,59 +373,32 @@ public abstract class Collator
      * @see java.text.Collator#TERTIARY
      * @see java.text.Collator#IDENTICAL
      */
-    public synchronized int getStrength()
-    {
-        return strength_ICU_Java(icuColl.getStrength());
-    }
-
-    private int strength_ICU_Java(int value) {
-        int javaValue = value;
-        switch (value) {
-        case RuleBasedCollatorICU.VALUE_PRIMARY:
-            javaValue = Collator.PRIMARY;
-            break;
-        case RuleBasedCollatorICU.VALUE_SECONDARY:
-            javaValue = Collator.SECONDARY;
-            break;
-        case RuleBasedCollatorICU.VALUE_TERTIARY:
-            javaValue = Collator.TERTIARY;
-            break;
-        case RuleBasedCollatorICU.VALUE_IDENTICAL:
-            javaValue = Collator.IDENTICAL;
-            break;
-        }
-        return javaValue;
+    public synchronized int getStrength() {
+        // The value for IDENTICAL in ICU differs from that used in this class.
+        int value = icuColl.getStrength();
+        return (value == android.icu.text.Collator.IDENTICAL) ? IDENTICAL : value;
     }
 
     /**
      * Sets this Collator's strength property.  The strength property determines
      * the minimum level of difference considered significant during comparison.
      * See the Collator class description for an example of use.
-     * @param newStrength  the new strength value.
-     * @see java.text.Collator#getStrength
-     * @see java.text.Collator#PRIMARY
-     * @see java.text.Collator#SECONDARY
-     * @see java.text.Collator#TERTIARY
-     * @see java.text.Collator#IDENTICAL
-     * @exception  IllegalArgumentException If the new strength value is not one of
-     * PRIMARY, SECONDARY, TERTIARY or IDENTICAL.
+     *
+     * @param newStrength the new strength value.
+     * @throws IllegalArgumentException If the new strength value is not one of
+     *                                  PRIMARY, SECONDARY, TERTIARY or IDENTICAL.
+     * @see Collator#getStrength
+     * @see Collator#PRIMARY
+     * @see Collator#SECONDARY
+     * @see Collator#TERTIARY
+     * @see Collator#IDENTICAL
      */
     public synchronized void setStrength(int newStrength) {
-        icuColl.setStrength(strength_Java_ICU(newStrength));
-    }
-
-    private int strength_Java_ICU(int value) {
-        switch (value) {
-        case Collator.PRIMARY:
-            return RuleBasedCollatorICU.VALUE_PRIMARY;
-        case Collator.SECONDARY:
-            return RuleBasedCollatorICU.VALUE_SECONDARY;
-        case Collator.TERTIARY:
-            return RuleBasedCollatorICU.VALUE_TERTIARY;
-        case Collator.IDENTICAL:
-            return RuleBasedCollatorICU.VALUE_IDENTICAL;
+        // The ICU value for IDENTICAL differs from that defined in this class.
+        if (newStrength == IDENTICAL) {
+            newStrength = android.icu.text.Collator.IDENTICAL;
         }
-        throw new IllegalArgumentException("Bad strength: " + value);
+        icuColl.setStrength(newStrength);
     }
 
     /**
@@ -387,39 +414,28 @@ public abstract class Collator
      * </UL>
      * See the documentation for these three constants for a description
      * of their meaning.
+     *
      * @return the decomposition mode
      * @see java.text.Collator#setDecomposition
      * @see java.text.Collator#NO_DECOMPOSITION
      * @see java.text.Collator#CANONICAL_DECOMPOSITION
      * @see java.text.Collator#FULL_DECOMPOSITION
      */
-    public synchronized int getDecomposition()
-    {
+    public synchronized int getDecomposition() {
         return decompositionMode_ICU_Java(icuColl.getDecomposition());
     }
 
-    private int decompositionMode_ICU_Java(int mode) {
-        int javaMode = mode;
-        switch (mode) {
-        case RuleBasedCollatorICU.VALUE_OFF:
-            javaMode = Collator.NO_DECOMPOSITION;
-            break;
-        case RuleBasedCollatorICU.VALUE_ON:
-            javaMode = Collator.CANONICAL_DECOMPOSITION;
-            break;
-        }
-        return javaMode;
-    }
     /**
      * Set the decomposition mode of this Collator. See getDecomposition
      * for a description of decomposition mode.
-     * @param decompositionMode  the new decomposition mode.
+     *
+     * @param decompositionMode the new decomposition mode.
+     * @throws IllegalArgumentException If the given value is not a valid decomposition
+     *                                  mode.
      * @see java.text.Collator#getDecomposition
      * @see java.text.Collator#NO_DECOMPOSITION
      * @see java.text.Collator#CANONICAL_DECOMPOSITION
      * @see java.text.Collator#FULL_DECOMPOSITION
-     * @exception IllegalArgumentException If the given value is not a valid decomposition
-     * mode.
      */
     public synchronized void setDecomposition(int decompositionMode) {
         icuColl.setDecomposition(decompositionMode_Java_ICU(decompositionMode));
@@ -427,53 +443,35 @@ public abstract class Collator
 
     private int decompositionMode_Java_ICU(int mode) {
         switch (mode) {
-        case Collator.CANONICAL_DECOMPOSITION:
-            return RuleBasedCollatorICU.VALUE_ON;
-        case Collator.NO_DECOMPOSITION:
-            return RuleBasedCollatorICU.VALUE_OFF;
+            case Collator.CANONICAL_DECOMPOSITION:
+                return android.icu.text.Collator.CANONICAL_DECOMPOSITION;
+            case Collator.NO_DECOMPOSITION:
+                return android.icu.text.Collator.NO_DECOMPOSITION;
         }
         throw new IllegalArgumentException("Bad mode: " + mode);
     }
 
-    /**
-     * Returns an array of all locales for which the
-     * <code>getInstance</code> methods of this class can return
-     * localized instances.
-     * The returned array represents the union of locales supported
-     * by the Java runtime and by installed
-     * {@link java.text.spi.CollatorProvider CollatorProvider} implementations.
-     * It must contain at least a Locale instance equal to
-     * {@link java.util.Locale#US Locale.US}.
-     *
-     * @return An array of locales for which localized
-     *         <code>Collator</code> instances are available.
-     */
-    public static synchronized Locale[] getAvailableLocales() {
-        return ICU.getAvailableCollatorLocales();
-    }
-
-    /**
-     * Overrides Cloneable
-     */
-    public Object clone()
-    {
-        try {
-            Collator clone = (Collator) super.clone();
-            clone.icuColl = (RuleBasedCollatorICU) icuColl.clone();
-            return clone;
-        } catch (CloneNotSupportedException e) {
-            throw new AssertionError(e);
+    private int decompositionMode_ICU_Java(int mode) {
+        int javaMode = mode;
+        switch (mode) {
+            case android.icu.text.Collator.NO_DECOMPOSITION:
+                javaMode = Collator.NO_DECOMPOSITION;
+                break;
+            case android.icu.text.Collator.CANONICAL_DECOMPOSITION:
+                javaMode = Collator.CANONICAL_DECOMPOSITION;
+                break;
         }
+        return javaMode;
     }
 
     /**
      * Compares the equality of two Collators.
+     *
      * @param that the Collator to be compared with this.
      * @return true if this Collator is the same as that Collator;
      * false otherwise.
      */
-    public boolean equals(Object that)
-    {
+    public boolean equals(Object that) {
         if (this == that) return true;
         if (that == null) return false;
         if (getClass() != that.getClass()) return false;
@@ -485,37 +483,4 @@ public abstract class Collator
      * Generates the hash code for this Collator.
      */
     abstract public int hashCode();
-
-    /**
-     * Default constructor.  This constructor is
-     * protected so subclasses can get access to it. Users typically create
-     * a Collator sub-class by calling the factory method getInstance.
-     * @see java.text.Collator#getInstance
-     */
-    protected Collator()
-    {
-        icuColl = new RuleBasedCollatorICU(Locale.getDefault());
-    }
-
-    //
-    // FIXME: These three constants should be removed.
-    //
-    /**
-     * LESS is returned if source string is compared to be less than target
-     * string in the compare() method.
-     * @see java.text.Collator#compare
-     */
-    final static int LESS = -1;
-    /**
-     * EQUAL is returned if source string is compared to be equal to target
-     * string in the compare() method.
-     * @see java.text.Collator#compare
-     */
-    final static int EQUAL = 0;
-    /**
-     * GREATER is returned if source string is compared to be greater than
-     * target string in the compare() method.
-     * @see java.text.Collator#compare
-     */
-    final static int GREATER = 1;
- }
+}
