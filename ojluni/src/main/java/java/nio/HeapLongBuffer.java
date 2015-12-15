@@ -30,7 +30,7 @@ package java.nio;
  */
 
 class HeapLongBuffer
-    extends LongBuffer {
+        extends LongBuffer {
 
     // For speed these fields are actually declared in X-Buffer;
     // these declarations are here as documentation
@@ -74,33 +74,32 @@ class HeapLongBuffer
 
     public LongBuffer slice() {
         return new HeapLongBuffer(hb,
-                                  -1,
-                                  0,
-                                  this.remaining(),
-                                  this.remaining(),
-                                  this.position() + offset,
-                                  isReadOnly);
+                -1,
+                0,
+                this.remaining(),
+                this.remaining(),
+                this.position() + offset,
+                isReadOnly);
     }
 
     public LongBuffer duplicate() {
         return new HeapLongBuffer(hb,
-                                  this.markValue(),
-                                  this.position(),
-                                  this.limit(),
-                                  this.capacity(),
-                                  offset,
-                                  isReadOnly);
+                this.markValue(),
+                this.position(),
+                this.limit(),
+                this.capacity(),
+                offset,
+                isReadOnly);
     }
 
     public LongBuffer asReadOnlyBuffer() {
         return new HeapLongBuffer(hb,
-                                  this.markValue(),
-                                  this.position(),
-                                  this.limit(),
-                                  this.capacity(),
-                                  offset, true);
+                this.markValue(),
+                this.position(),
+                this.limit(),
+                this.capacity(),
+                offset, true);
     }
-
 
 
     protected int ix(int i) {
@@ -167,12 +166,12 @@ class HeapLongBuffer
         if (src instanceof HeapLongBuffer) {
             if (src == this)
                 throw new IllegalArgumentException();
-            HeapLongBuffer sb = (HeapLongBuffer)src;
+            HeapLongBuffer sb = (HeapLongBuffer) src;
             int n = sb.remaining();
             if (n > remaining())
                 throw new BufferOverflowException();
             System.arraycopy(sb.hb, sb.ix(sb.position()),
-                             hb, ix(position()), n);
+                    hb, ix(position()), n);
             sb.position(sb.position() + n);
             position(position() + n);
         } else if (src.isDirect()) {

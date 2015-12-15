@@ -28,10 +28,10 @@ package java.nio;
 import java.io.FileDescriptor;
 
 import dalvik.system.VMRuntime;
+import libcore.io.Memory;
+import libcore.io.SizeOf;
 import sun.misc.Cleaner;
 import sun.nio.ch.DirectBuffer;
-import libcore.io.SizeOf;
-import libcore.io.Memory;
 
 /** @hide */
 public class DirectByteBuffer extends MappedByteBuffer implements DirectBuffer {
@@ -54,10 +54,10 @@ public class DirectByteBuffer extends MappedByteBuffer implements DirectBuffer {
 
         MemoryRef(int capacity) {
             VMRuntime runtime = VMRuntime.getRuntime();
-            buffer  = (byte[])runtime.newNonMovableArray(byte.class, capacity + 7);
+            buffer = (byte[]) runtime.newNonMovableArray(byte.class, capacity + 7);
             allocatedAddress = runtime.addressOf(buffer);
             // Offset is set to handle the alignment: http://b/16449607
-            offset = (int)(((allocatedAddress + 7) & ~(long)7) - allocatedAddress);
+            offset = (int) (((allocatedAddress + 7) & ~(long) 7) - allocatedAddress);
             isAccessible = true;
         }
 
@@ -83,7 +83,7 @@ public class DirectByteBuffer extends MappedByteBuffer implements DirectBuffer {
         // Only have references to java objects, no need for a cleaner since the GC will do all
         // the work.
         this.memoryRef = memoryRef;
-        this.address =  memoryRef.allocatedAddress + memoryRef.offset;
+        this.address = memoryRef.allocatedAddress + memoryRef.offset;
         cleaner = null;
         this.isReadOnly = false;
     }
@@ -155,12 +155,12 @@ public class DirectByteBuffer extends MappedByteBuffer implements DirectBuffer {
             throw new IllegalStateException("buffer is inaccessible");
         }
         return new DirectByteBuffer(memoryRef,
-                                    this.markValue(),
-                                    this.position(),
-                                    this.limit(),
-                                    this.capacity(),
-                                    offset,
-                                    isReadOnly);
+                this.markValue(),
+                this.position(),
+                this.limit(),
+                this.capacity(),
+                offset,
+                isReadOnly);
     }
 
     public ByteBuffer asReadOnlyBuffer() {
@@ -168,12 +168,12 @@ public class DirectByteBuffer extends MappedByteBuffer implements DirectBuffer {
             throw new IllegalStateException("buffer is inaccessible");
         }
         return new DirectByteBuffer(memoryRef,
-                                    this.markValue(),
-                                    this.position(),
-                                    this.limit(),
-                                    this.capacity(),
-                                    offset,
-                                    true);
+                this.markValue(),
+                this.position(),
+                this.limit(),
+                this.capacity(),
+                offset,
+                true);
     }
 
     public long address() {
@@ -216,7 +216,7 @@ public class DirectByteBuffer extends MappedByteBuffer implements DirectBuffer {
         if (length > rem)
             throw new BufferUnderflowException();
         Memory.peekByteArray(ix(pos),
-                             dst, dstOffset, length);
+                dst, dstOffset, length);
         position = pos + length;
         return this;
     }
@@ -285,7 +285,7 @@ public class DirectByteBuffer extends MappedByteBuffer implements DirectBuffer {
         if (length > rem)
             throw new BufferOverflowException();
         Memory.pokeByteArray(ix(pos),
-                             src, srcOffset, length);
+                src, srcOffset, length);
         position = pos + length;
         return this;
     }
@@ -349,17 +349,17 @@ public class DirectByteBuffer extends MappedByteBuffer implements DirectBuffer {
             throw new IllegalStateException("buffer is inaccessible");
         }
         checkIndex(i, SizeOf.CHAR);
-        char x = (char)Memory.peekShort(ix(i), !nativeByteOrder);
+        char x = (char) Memory.peekShort(ix(i), !nativeByteOrder);
         return x;
     }
 
     char getCharUnchecked(int i) {
-        return (char)Memory.peekShort(ix(i), !nativeByteOrder);
+        return (char) Memory.peekShort(ix(i), !nativeByteOrder);
     }
 
     void getUnchecked(int pos, char[] dst, int dstOffset, int length) {
         Memory.peekCharArray(ix(pos),
-                             dst, dstOffset, length, !nativeByteOrder);
+                dst, dstOffset, length, !nativeByteOrder);
     }
 
 
@@ -396,7 +396,7 @@ public class DirectByteBuffer extends MappedByteBuffer implements DirectBuffer {
 
     void putUnchecked(int pos, char[] src, int srcOffset, int length) {
         Memory.pokeCharArray(ix(pos),
-                             src, srcOffset, length, !nativeByteOrder);
+                src, srcOffset, length, !nativeByteOrder);
     }
 
     public CharBuffer asCharBuffer() {
@@ -408,13 +408,13 @@ public class DirectByteBuffer extends MappedByteBuffer implements DirectBuffer {
         assert (off <= lim);
         int rem = (off <= lim ? lim - off : 0);
         int size = rem >> 1;
-        return  (CharBuffer)(new ByteBufferAsCharBuffer(this,
-                                                        -1,
-                                                        0,
-                                                        size,
-                                                        size,
-                                                        off,
-                                                        order()));
+        return (CharBuffer) (new ByteBufferAsCharBuffer(this,
+                -1,
+                0,
+                size,
+                size,
+                off,
+                order()));
     }
 
     private short getShort(long a) {
@@ -441,7 +441,7 @@ public class DirectByteBuffer extends MappedByteBuffer implements DirectBuffer {
 
     void getUnchecked(int pos, short[] dst, int dstOffset, int length) {
         Memory.peekShortArray(ix(pos),
-                              dst, dstOffset, length, !nativeByteOrder);
+                dst, dstOffset, length, !nativeByteOrder);
     }
 
 
@@ -478,7 +478,7 @@ public class DirectByteBuffer extends MappedByteBuffer implements DirectBuffer {
 
     void putUnchecked(int pos, short[] src, int srcOffset, int length) {
         Memory.pokeShortArray(ix(pos),
-                              src, srcOffset, length, !nativeByteOrder);
+                src, srcOffset, length, !nativeByteOrder);
     }
 
     public ShortBuffer asShortBuffer() {
@@ -490,17 +490,17 @@ public class DirectByteBuffer extends MappedByteBuffer implements DirectBuffer {
         assert (off <= lim);
         int rem = (off <= lim ? lim - off : 0);
         int size = rem >> 1;
-        return (ShortBuffer)(new ByteBufferAsShortBuffer(this,
-                                                         -1,
-                                                         0,
-                                                         size,
-                                                         size,
-                                                         off,
-                                                         order()));
+        return (ShortBuffer) (new ByteBufferAsShortBuffer(this,
+                -1,
+                0,
+                size,
+                size,
+                off,
+                order()));
     }
 
     private int getInt(long a) {
-        return  Memory.peekInt(a, !nativeByteOrder);
+        return Memory.peekInt(a, !nativeByteOrder);
     }
 
     public int getInt() {
@@ -523,7 +523,7 @@ public class DirectByteBuffer extends MappedByteBuffer implements DirectBuffer {
 
     void getUnchecked(int pos, int[] dst, int dstOffset, int length) {
         Memory.peekIntArray(ix(pos),
-                            dst, dstOffset, length, !nativeByteOrder);
+                dst, dstOffset, length, !nativeByteOrder);
     }
 
     private ByteBuffer putInt(long a, int x) {
@@ -559,7 +559,7 @@ public class DirectByteBuffer extends MappedByteBuffer implements DirectBuffer {
 
     void putUnchecked(int pos, int[] src, int srcOffset, int length) {
         Memory.pokeIntArray(ix(pos),
-                            src, srcOffset, length, !nativeByteOrder);
+                src, srcOffset, length, !nativeByteOrder);
     }
 
 
@@ -572,13 +572,13 @@ public class DirectByteBuffer extends MappedByteBuffer implements DirectBuffer {
         assert (off <= lim);
         int rem = (off <= lim ? lim - off : 0);
         int size = rem >> 2;
-        return (IntBuffer)(new ByteBufferAsIntBuffer(this,
-                                                     -1,
-                                                     0,
-                                                     size,
-                                                     size,
-                                                     off,
-                                                     order()));
+        return (IntBuffer) (new ByteBufferAsIntBuffer(this,
+                -1,
+                0,
+                size,
+                size,
+                off,
+                order()));
     }
 
     private long getLong(long a) {
@@ -605,7 +605,7 @@ public class DirectByteBuffer extends MappedByteBuffer implements DirectBuffer {
 
     void getUnchecked(int pos, long[] dst, int dstOffset, int length) {
         Memory.peekLongArray(ix(pos),
-                             dst, dstOffset, length, !nativeByteOrder);
+                dst, dstOffset, length, !nativeByteOrder);
     }
 
     private ByteBuffer putLong(long a, long x) {
@@ -641,7 +641,7 @@ public class DirectByteBuffer extends MappedByteBuffer implements DirectBuffer {
 
     void putUnchecked(int pos, long[] src, int srcOffset, int length) {
         Memory.pokeLongArray(ix(pos),
-                             src, srcOffset, length, !nativeByteOrder);
+                src, srcOffset, length, !nativeByteOrder);
     }
 
 
@@ -654,13 +654,13 @@ public class DirectByteBuffer extends MappedByteBuffer implements DirectBuffer {
         assert (off <= lim);
         int rem = (off <= lim ? lim - off : 0);
         int size = rem >> 3;
-        return (LongBuffer)(new ByteBufferAsLongBuffer(this,
-                                                       -1,
-                                                       0,
-                                                       size,
-                                                       size,
-                                                       off,
-                                                       order()));
+        return (LongBuffer) (new ByteBufferAsLongBuffer(this,
+                -1,
+                0,
+                size,
+                size,
+                off,
+                order()));
     }
 
     private float getFloat(long a) {
@@ -688,7 +688,7 @@ public class DirectByteBuffer extends MappedByteBuffer implements DirectBuffer {
 
     void getUnchecked(int pos, float[] dst, int dstOffset, int length) {
         Memory.peekFloatArray(ix(pos),
-                              dst, dstOffset, length, !nativeByteOrder);
+                dst, dstOffset, length, !nativeByteOrder);
     }
 
     private ByteBuffer putFloat(long a, float x) {
@@ -725,7 +725,7 @@ public class DirectByteBuffer extends MappedByteBuffer implements DirectBuffer {
 
     void putUnchecked(int pos, float[] src, int srcOffset, int length) {
         Memory.pokeFloatArray(ix(pos),
-                              src, srcOffset, length, !nativeByteOrder);
+                src, srcOffset, length, !nativeByteOrder);
     }
 
     public FloatBuffer asFloatBuffer() {
@@ -737,13 +737,13 @@ public class DirectByteBuffer extends MappedByteBuffer implements DirectBuffer {
         assert (off <= lim);
         int rem = (off <= lim ? lim - off : 0);
         int size = rem >> 2;
-        return (FloatBuffer)(new ByteBufferAsFloatBuffer(this,
-                                                         -1,
-                                                         0,
-                                                         size,
-                                                         size,
-                                                         off,
-                                                         order()));
+        return (FloatBuffer) (new ByteBufferAsFloatBuffer(this,
+                -1,
+                0,
+                size,
+                size,
+                off,
+                order()));
     }
 
     private double getDouble(long a) {
@@ -771,7 +771,7 @@ public class DirectByteBuffer extends MappedByteBuffer implements DirectBuffer {
 
     void getUnchecked(int pos, double[] dst, int dstOffset, int length) {
         Memory.peekDoubleArray(ix(pos),
-                               dst, dstOffset, length, !nativeByteOrder);
+                dst, dstOffset, length, !nativeByteOrder);
     }
 
     private ByteBuffer putDouble(long a, double x) {
@@ -808,7 +808,7 @@ public class DirectByteBuffer extends MappedByteBuffer implements DirectBuffer {
 
     void putUnchecked(int pos, double[] src, int srcOffset, int length) {
         Memory.pokeDoubleArray(ix(pos),
-                               src, srcOffset, length, !nativeByteOrder);
+                src, srcOffset, length, !nativeByteOrder);
     }
 
     public DoubleBuffer asDoubleBuffer() {
@@ -821,13 +821,13 @@ public class DirectByteBuffer extends MappedByteBuffer implements DirectBuffer {
         int rem = (off <= lim ? lim - off : 0);
 
         int size = rem >> 3;
-        return (DoubleBuffer)(new ByteBufferAsDoubleBuffer(this,
-                                                           -1,
-                                                           0,
-                                                           size,
-                                                           size,
-                                                           off,
-                                                           order()));
+        return (DoubleBuffer) (new ByteBufferAsDoubleBuffer(this,
+                -1,
+                0,
+                size,
+                size,
+                off,
+                order()));
     }
 
     public boolean isAccessible() {

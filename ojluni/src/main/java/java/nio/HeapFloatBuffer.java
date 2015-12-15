@@ -73,31 +73,31 @@ class HeapFloatBuffer extends FloatBuffer {
 
     public FloatBuffer slice() {
         return new HeapFloatBuffer(hb,
-                                   -1,
-                                   0,
-                                   this.remaining(),
-                                   this.remaining(),
-                                   this.position() + offset,
-                                   isReadOnly);
+                -1,
+                0,
+                this.remaining(),
+                this.remaining(),
+                this.position() + offset,
+                isReadOnly);
     }
 
     public FloatBuffer duplicate() {
         return new HeapFloatBuffer(hb,
-                                   this.markValue(),
-                                   this.position(),
-                                   this.limit(),
-                                   this.capacity(),
-                                   offset,
-                                   isReadOnly);
+                this.markValue(),
+                this.position(),
+                this.limit(),
+                this.capacity(),
+                offset,
+                isReadOnly);
     }
 
     public FloatBuffer asReadOnlyBuffer() {
         return new HeapFloatBuffer(hb,
-                                    this.markValue(),
-                                    this.position(),
-                                    this.limit(),
-                                    this.capacity(),
-                                    offset, true);
+                this.markValue(),
+                this.position(),
+                this.limit(),
+                this.capacity(),
+                offset, true);
     }
 
     protected int ix(int i) {
@@ -164,12 +164,12 @@ class HeapFloatBuffer extends FloatBuffer {
         if (src instanceof HeapFloatBuffer) {
             if (src == this)
                 throw new IllegalArgumentException();
-            HeapFloatBuffer sb = (HeapFloatBuffer)src;
+            HeapFloatBuffer sb = (HeapFloatBuffer) src;
             int n = sb.remaining();
             if (n > remaining())
                 throw new BufferOverflowException();
             System.arraycopy(sb.hb, sb.ix(sb.position()),
-                             hb, ix(position()), n);
+                    hb, ix(position()), n);
             sb.position(sb.position() + n);
             position(position() + n);
         } else if (src.isDirect()) {

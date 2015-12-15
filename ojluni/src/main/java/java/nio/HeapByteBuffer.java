@@ -78,31 +78,31 @@ class HeapByteBuffer extends ByteBuffer {
 
     public ByteBuffer slice() {
         return new HeapByteBuffer(hb,
-                                  -1,
-                                  0,
-                                  remaining(),
-                                  remaining(),
-                                  position() + offset,
-                                  isReadOnly);
+                -1,
+                0,
+                remaining(),
+                remaining(),
+                position() + offset,
+                isReadOnly);
     }
 
     public ByteBuffer duplicate() {
         return new HeapByteBuffer(hb,
-                                  markValue(),
-                                  position(),
-                                  limit(),
-                                  capacity(),
-                                  offset,
-                                  isReadOnly);
+                markValue(),
+                position(),
+                limit(),
+                capacity(),
+                offset,
+                isReadOnly);
     }
 
     public ByteBuffer asReadOnlyBuffer() {
         return new HeapByteBuffer(hb,
-                                  this.markValue(),
-                                  this.position(),
-                                  this.limit(),
-                                  this.capacity(),
-                                  offset, true);
+                this.markValue(),
+                this.position(),
+                this.limit(),
+                this.capacity(),
+                offset, true);
     }
 
     protected int ix(int i) {
@@ -169,12 +169,12 @@ class HeapByteBuffer extends ByteBuffer {
         if (src instanceof HeapByteBuffer) {
             if (src == this)
                 throw new IllegalArgumentException();
-            HeapByteBuffer sb = (HeapByteBuffer)src;
+            HeapByteBuffer sb = (HeapByteBuffer) src;
             int n = sb.remaining();
             if (n > remaining())
                 throw new BufferOverflowException();
             System.arraycopy(sb.hb, sb.ix(sb.position()),
-                             hb, ix(position()), n);
+                    hb, ix(position()), n);
             sb.position(sb.position() + n);
             position(position() + n);
         } else if (src.isDirect()) {
@@ -224,7 +224,7 @@ class HeapByteBuffer extends ByteBuffer {
     }
 
     void getUnchecked(int pos, char[] dst, int dstOffset, int length) {
-        Memory.unsafeBulkGet(dst, dstOffset, length*2, hb, ix(pos), 2, !nativeByteOrder);
+        Memory.unsafeBulkGet(dst, dstOffset, length * 2, hb, ix(pos), 2, !nativeByteOrder);
     }
 
     public ByteBuffer putChar(char x) {
@@ -248,19 +248,19 @@ class HeapByteBuffer extends ByteBuffer {
     }
 
     void putUnchecked(int pos, char[] src, int srcOffset, int length) {
-        Memory.unsafeBulkPut(hb, ix(pos), length*2, src, srcOffset, 2, !nativeByteOrder);
+        Memory.unsafeBulkPut(hb, ix(pos), length * 2, src, srcOffset, 2, !nativeByteOrder);
     }
 
     public CharBuffer asCharBuffer() {
         int size = this.remaining() >> 1;
         int off = position();
-        return (CharBuffer)(new ByteBufferAsCharBuffer(this,
-                                                       -1,
-                                                       0,
-                                                       size,
-                                                       size,
-                                                       off,
-                                                       order()));
+        return (CharBuffer) (new ByteBufferAsCharBuffer(this,
+                -1,
+                0,
+                size,
+                size,
+                off,
+                order()));
     }
 
     public short getShort() {
@@ -276,7 +276,7 @@ class HeapByteBuffer extends ByteBuffer {
     }
 
     void getUnchecked(int pos, short[] dst, int dstOffset, int length) {
-        Memory.unsafeBulkGet(dst, dstOffset, length*2, hb, ix(pos), 2, !nativeByteOrder);
+        Memory.unsafeBulkGet(dst, dstOffset, length * 2, hb, ix(pos), 2, !nativeByteOrder);
     }
 
     public ByteBuffer putShort(short x) {
@@ -300,19 +300,19 @@ class HeapByteBuffer extends ByteBuffer {
     }
 
     void putUnchecked(int pos, short[] src, int srcOffset, int length) {
-        Memory.unsafeBulkPut(hb, ix(pos), length*2, src, srcOffset, 2, !nativeByteOrder);
+        Memory.unsafeBulkPut(hb, ix(pos), length * 2, src, srcOffset, 2, !nativeByteOrder);
     }
 
     public ShortBuffer asShortBuffer() {
         int size = this.remaining() >> 1;
         int off = position();
         return new ByteBufferAsShortBuffer(this,
-                                           -1,
-                                           0,
-                                           size,
-                                           size,
-                                           off,
-                                           order());
+                -1,
+                0,
+                size,
+                size,
+                off,
+                order());
     }
 
     public int getInt() {
@@ -328,7 +328,7 @@ class HeapByteBuffer extends ByteBuffer {
     }
 
     void getUnchecked(int pos, int[] dst, int dstOffset, int length) {
-        Memory.unsafeBulkGet(dst, dstOffset, length*4, hb, ix(pos), 4, !nativeByteOrder);
+        Memory.unsafeBulkGet(dst, dstOffset, length * 4, hb, ix(pos), 4, !nativeByteOrder);
     }
 
     public ByteBuffer putInt(int x) {
@@ -352,20 +352,20 @@ class HeapByteBuffer extends ByteBuffer {
     }
 
     void putUnchecked(int pos, int[] src, int srcOffset, int length) {
-        Memory.unsafeBulkPut(hb, ix(pos), length*4, src, srcOffset, 4, !nativeByteOrder);
+        Memory.unsafeBulkPut(hb, ix(pos), length * 4, src, srcOffset, 4, !nativeByteOrder);
     }
 
     public IntBuffer asIntBuffer() {
         int size = this.remaining() >> 2;
         int off = position();
 
-        return (IntBuffer)(new ByteBufferAsIntBuffer(this,
-                                                     -1,
-                                                     0,
-                                                     size,
-                                                     size,
-                                                     off,
-                                                     order()));
+        return (IntBuffer) (new ByteBufferAsIntBuffer(this,
+                -1,
+                0,
+                size,
+                size,
+                off,
+                order()));
     }
 
     public long getLong() {
@@ -381,7 +381,7 @@ class HeapByteBuffer extends ByteBuffer {
     }
 
     void getUnchecked(int pos, long[] dst, int dstOffset, int length) {
-        Memory.unsafeBulkGet(dst, dstOffset, length*8, hb, ix(pos), 8, !nativeByteOrder);
+        Memory.unsafeBulkGet(dst, dstOffset, length * 8, hb, ix(pos), 8, !nativeByteOrder);
     }
 
     public ByteBuffer putLong(long x) {
@@ -405,19 +405,19 @@ class HeapByteBuffer extends ByteBuffer {
     }
 
     void putUnchecked(int pos, long[] src, int srcOffset, int length) {
-        Memory.unsafeBulkPut(hb, ix(pos), length*8, src, srcOffset, 8, !nativeByteOrder);
+        Memory.unsafeBulkPut(hb, ix(pos), length * 8, src, srcOffset, 8, !nativeByteOrder);
     }
 
     public LongBuffer asLongBuffer() {
         int size = this.remaining() >> 3;
         int off = position();
-        return (LongBuffer)(new ByteBufferAsLongBuffer(this,
-                                                       -1,
-                                                       0,
-                                                       size,
-                                                       size,
-                                                       off,
-                                                       order()));
+        return (LongBuffer) (new ByteBufferAsLongBuffer(this,
+                -1,
+                0,
+                size,
+                size,
+                off,
+                order()));
     }
 
     public float getFloat() {
@@ -433,7 +433,7 @@ class HeapByteBuffer extends ByteBuffer {
     }
 
     void getUnchecked(int pos, float[] dst, int dstOffset, int length) {
-        Memory.unsafeBulkGet(dst, dstOffset, length*4, hb, ix(pos), 4, !nativeByteOrder);
+        Memory.unsafeBulkGet(dst, dstOffset, length * 4, hb, ix(pos), 4, !nativeByteOrder);
     }
 
     public ByteBuffer putFloat(float x) {
@@ -457,19 +457,19 @@ class HeapByteBuffer extends ByteBuffer {
     }
 
     void putUnchecked(int pos, float[] src, int srcOffset, int length) {
-        Memory.unsafeBulkPut(hb, ix(pos), length*4, src, srcOffset, 4, !nativeByteOrder);
+        Memory.unsafeBulkPut(hb, ix(pos), length * 4, src, srcOffset, 4, !nativeByteOrder);
     }
 
     public FloatBuffer asFloatBuffer() {
         int size = this.remaining() >> 2;
         int off = position();
-        return (FloatBuffer)(new ByteBufferAsFloatBuffer(this,
-                                                         -1,
-                                                         0,
-                                                         size,
-                                                         size,
-                                                         off,
-                                                         order()));
+        return (FloatBuffer) (new ByteBufferAsFloatBuffer(this,
+                -1,
+                0,
+                size,
+                size,
+                off,
+                order()));
     }
 
     public double getDouble() {
@@ -485,7 +485,7 @@ class HeapByteBuffer extends ByteBuffer {
     }
 
     void getUnchecked(int pos, double[] dst, int dstOffset, int length) {
-        Memory.unsafeBulkGet(dst, dstOffset, length*8, hb, ix(pos), 8, !nativeByteOrder);
+        Memory.unsafeBulkGet(dst, dstOffset, length * 8, hb, ix(pos), 8, !nativeByteOrder);
     }
 
     public ByteBuffer putDouble(double x) {
@@ -509,18 +509,18 @@ class HeapByteBuffer extends ByteBuffer {
     }
 
     void putUnchecked(int pos, double[] src, int srcOffset, int length) {
-        Memory.unsafeBulkPut(hb, ix(pos), length*8, src, srcOffset, 8, !nativeByteOrder);
+        Memory.unsafeBulkPut(hb, ix(pos), length * 8, src, srcOffset, 8, !nativeByteOrder);
     }
 
     public DoubleBuffer asDoubleBuffer() {
         int size = this.remaining() >> 3;
         int off = position();
-        return (DoubleBuffer)(new ByteBufferAsDoubleBuffer(this,
-                                                           -1,
-                                                           0,
-                                                           size,
-                                                           size,
-                                                           off,
-                                                           order()));
+        return (DoubleBuffer) (new ByteBufferAsDoubleBuffer(this,
+                -1,
+                0,
+                size,
+                size,
+                off,
+                order()));
     }
 }

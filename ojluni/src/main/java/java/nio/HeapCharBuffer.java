@@ -73,33 +73,33 @@ class HeapCharBuffer extends CharBuffer {
 
     public CharBuffer slice() {
         return new HeapCharBuffer(hb,
-                                  -1,
-                                  0,
-                                  this.remaining(),
-                                  this.remaining(),
-                                  this.position() + offset,
-                                  isReadOnly);
+                -1,
+                0,
+                this.remaining(),
+                this.remaining(),
+                this.position() + offset,
+                isReadOnly);
     }
 
     public CharBuffer duplicate() {
         return new HeapCharBuffer(hb,
-                                  this.markValue(),
-                                  this.position(),
-                                  this.limit(),
-                                  this.capacity(),
-                                  offset,
-                                  isReadOnly);
+                this.markValue(),
+                this.position(),
+                this.limit(),
+                this.capacity(),
+                offset,
+                isReadOnly);
     }
 
     public CharBuffer asReadOnlyBuffer() {
 
         return new HeapCharBuffer(hb,
-                                  this.markValue(),
-                                  this.position(),
-                                  this.limit(),
-                                  this.capacity(),
-                                  offset,
-                                  true);
+                this.markValue(),
+                this.position(),
+                this.limit(),
+                this.capacity(),
+                offset,
+                true);
     }
 
     protected int ix(int i) {
@@ -166,12 +166,12 @@ class HeapCharBuffer extends CharBuffer {
         if (src instanceof HeapCharBuffer) {
             if (src == this)
                 throw new IllegalArgumentException();
-            HeapCharBuffer sb = (HeapCharBuffer)src;
+            HeapCharBuffer sb = (HeapCharBuffer) src;
             int n = sb.remaining();
             if (n > remaining())
                 throw new BufferOverflowException();
             System.arraycopy(sb.hb, sb.ix(sb.position()),
-                             hb, ix(position()), n);
+                    hb, ix(position()), n);
             sb.position(sb.position() + n);
             position(position() + n);
         } else if (src.isDirect()) {
@@ -207,16 +207,16 @@ class HeapCharBuffer extends CharBuffer {
 
     public CharBuffer subSequence(int start, int end) {
         if ((start < 0)
-            || (end > length())
-            || (start > end))
+                || (end > length())
+                || (start > end))
             throw new IndexOutOfBoundsException();
         int pos = position();
         return new HeapCharBuffer(hb,
-                                  -1,
-                                  pos + start,
-                                  pos + end,
-                                  capacity(),
-                                  offset, isReadOnly);
+                -1,
+                pos + start,
+                pos + end,
+                capacity(),
+                offset, isReadOnly);
     }
 
     public ByteOrder order() {

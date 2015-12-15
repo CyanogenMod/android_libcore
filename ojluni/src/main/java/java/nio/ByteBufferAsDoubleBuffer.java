@@ -28,7 +28,7 @@ package java.nio;
 import libcore.io.Memory;
 
 class ByteBufferAsDoubleBuffer
-    extends DoubleBuffer {            // package-private
+        extends DoubleBuffer {            // package-private
 
     protected final ByteBuffer bb;
     protected final int offset;
@@ -36,8 +36,8 @@ class ByteBufferAsDoubleBuffer
 
     ByteBufferAsDoubleBuffer(ByteBuffer bb, ByteOrder order) {
         super(-1, 0,
-              bb.remaining() >> 3,
-              bb.remaining() >> 3);
+                bb.remaining() >> 3,
+                bb.remaining() >> 3);
         this.bb = bb;
         this.isReadOnly = bb.isReadOnly;
         this.address = bb.address;
@@ -72,22 +72,22 @@ class ByteBufferAsDoubleBuffer
 
     public DoubleBuffer duplicate() {
         return new ByteBufferAsDoubleBuffer(bb,
-                                            markValue(),
-                                            position(),
-                                            limit(),
-                                            capacity(),
-                                            offset,
-                                            order);
+                markValue(),
+                position(),
+                limit(),
+                capacity(),
+                offset,
+                order);
     }
 
     public DoubleBuffer asReadOnlyBuffer() {
         return new ByteBufferAsDoubleBuffer(bb.asReadOnlyBuffer(),
-                                            markValue(),
-                                            position(),
-                                            limit(),
-                                            capacity(),
-                                            offset,
-                                            order);
+                markValue(),
+                position(),
+                limit(),
+                capacity(),
+                offset,
+                order);
     }
 
     protected int ix(int i) {

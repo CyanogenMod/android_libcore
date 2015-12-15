@@ -35,8 +35,8 @@ class ByteBufferAsCharBuffer extends CharBuffer {      // package-private
 
     ByteBufferAsCharBuffer(ByteBuffer bb, ByteOrder order) {   // package-private
         super(-1, 0,
-              bb.remaining() >> 1,
-              bb.remaining() >> 1);
+                bb.remaining() >> 1,
+                bb.remaining() >> 1);
         this.bb = bb;
         this.isReadOnly = bb.isReadOnly;
         this.address = bb.address;
@@ -71,22 +71,22 @@ class ByteBufferAsCharBuffer extends CharBuffer {      // package-private
 
     public CharBuffer duplicate() {
         return new ByteBufferAsCharBuffer(bb,
-                                          markValue(),
-                                          position(),
-                                          limit(),
-                                          capacity(),
-                                          offset,
-                                          order);
+                markValue(),
+                position(),
+                limit(),
+                capacity(),
+                offset,
+                order);
     }
 
     public CharBuffer asReadOnlyBuffer() {
         return new ByteBufferAsCharBuffer(bb.asReadOnlyBuffer(),
-                                          markValue(),
-                                          position(),
-                                          limit(),
-                                          capacity(),
-                                          offset,
-                                          order);
+                markValue(),
+                position(),
+                limit(),
+                capacity(),
+                offset,
+                order);
     }
 
     protected int ix(int i) {
@@ -188,12 +188,12 @@ class ByteBufferAsCharBuffer extends CharBuffer {      // package-private
         if ((start < 0) || (end > len) || (start > end))
             throw new IndexOutOfBoundsException();
         return new ByteBufferAsCharBuffer(bb,
-                                          -1,
-                                          pos + start,
-                                          pos + end,
-                                          capacity(),
-                                          offset,
-                                          order);
+                -1,
+                pos + start,
+                pos + end,
+                capacity(),
+                offset,
+                order);
     }
 
     public ByteOrder order() {
