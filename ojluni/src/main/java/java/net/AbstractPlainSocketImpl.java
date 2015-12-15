@@ -76,10 +76,9 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
      */
     protected synchronized void create(boolean stream) throws IOException {
         this.stream = stream;
+
         if (!stream) {
             ResourceManager.beforeUdpCreate();
-            // only create the fd after we know we will be able to create the socket
-            fd = new FileDescriptor();
             try {
                 socketCreate(false);
             } catch (IOException ioe) {
@@ -88,7 +87,6 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
                 throw ioe;
             }
         } else {
-            fd = new FileDescriptor();
             socketCreate(true);
         }
         if (socket != null)
