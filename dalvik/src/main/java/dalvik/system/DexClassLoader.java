@@ -56,7 +56,7 @@ public class DexClassLoader extends BaseDexClassLoader {
      */
     public DexClassLoader(String dexPath, String optimizedDirectory,
             String librarySearchPath, ClassLoader parent) {
-        super(dexPath, new File(optimizedDirectory), librarySearchPath, null, parent);
+        super(dexPath, new File(optimizedDirectory), false, librarySearchPath, null, parent);
     }
 
     /**
@@ -88,7 +88,7 @@ public class DexClassLoader extends BaseDexClassLoader {
      */
     public DexClassLoader(String dexPath, String optimizedDirectory,
             String librarySearchPath, String libraryPermittedPath, ClassLoader parent) {
-        super(dexPath, new File(optimizedDirectory), librarySearchPath,
+        super(dexPath, new File(optimizedDirectory), false, librarySearchPath,
               libraryPermittedPath, parent);
     }
 }
