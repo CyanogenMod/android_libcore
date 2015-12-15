@@ -189,6 +189,9 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     /** access flags; low 16 bits are defined by VM spec */
     private transient int accessFlags;
 
+    /** static, private, and &lt;init&gt; methods. */
+    private transient long directMethods;
+
     /**
      * Instance fields. These describe the layout of the contents of an Object. Note that only the
      * fields directly declared by this class are listed in iFields; fields declared by a
@@ -199,11 +202,11 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      */
     private transient long iFields;
 
-    /** All methods with this class as the base for virtual dispatch. */
-    private transient long methods;
-
     /** Static fields */
     private transient long sFields;
+
+    /** Virtual methods defined in this class; invoked through vtable. */
+    private transient long virtualMethods;
 
     /** Class flags to help the GC with object scanning. */
     private transient int classFlags;
@@ -256,12 +259,6 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
 
     /** State of class initialization */
     private transient int status;
-
-    /** Offset of the first virtual method copied from an interface in the methods array. */
-    private transient short copiedMethodsOffset;
-
-    /** Offset of the first virtual method defined in this class in the methods array. */
-    private transient short virtualMethodsOffset;
 
     private Class() {
         // Prevent this class from being instantiated,
