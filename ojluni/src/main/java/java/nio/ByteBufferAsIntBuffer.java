@@ -35,8 +35,8 @@ class ByteBufferAsIntBuffer extends IntBuffer {        // package-private
 
     ByteBufferAsIntBuffer(ByteBuffer bb, ByteOrder order) {   // package-private
         super(-1, 0,
-              bb.remaining() >> 2,
-              bb.remaining() >> 2);
+                bb.remaining() >> 2,
+                bb.remaining() >> 2);
         this.bb = bb;
         this.isReadOnly = bb.isReadOnly;
         this.address = bb.address;
@@ -71,22 +71,22 @@ class ByteBufferAsIntBuffer extends IntBuffer {        // package-private
 
     public IntBuffer duplicate() {
         return new ByteBufferAsIntBuffer(bb,
-                                         markValue(),
-                                         position(),
-                                         limit(),
-                                         capacity(),
-                                         offset,
-                                         order);
+                markValue(),
+                position(),
+                limit(),
+                capacity(),
+                offset,
+                order);
     }
 
     public IntBuffer asReadOnlyBuffer() {
         return new ByteBufferAsIntBuffer(bb.asReadOnlyBuffer(),
-                                         markValue(),
-                                         position(),
-                                         limit(),
-                                         capacity(),
-                                         offset,
-                                         order);
+                markValue(),
+                position(),
+                limit(),
+                capacity(),
+                offset,
+                order);
     }
 
     protected int ix(int i) {

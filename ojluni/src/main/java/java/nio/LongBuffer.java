@@ -28,9 +28,6 @@
 package java.nio;
 
 
-
-
-
 /**
  * A long buffer.
  *
@@ -39,155 +36,30 @@ package java.nio;
  *
  * <ul>
  *
- *   <li><p> Absolute and relative {@link #get() </code><i>get</i><code>} and
- *   {@link #put(long) </code><i>put</i><code>} methods that read and write
- *   single longs; </p></li>
+ * <li><p> Absolute and relative {@link #get() </code><i>get</i><code>} and
+ * {@link #put(long) </code><i>put</i><code>} methods that read and write
+ * single longs; </p></li>
  *
- *   <li><p> Relative {@link #get(long[]) </code><i>bulk get</i><code>}
- *   methods that transfer contiguous sequences of longs from this buffer
- *   into an array; and</p></li>
+ * <li><p> Relative {@link #get(long[]) </code><i>bulk get</i><code>}
+ * methods that transfer contiguous sequences of longs from this buffer
+ * into an array; and</p></li>
  *
- *   <li><p> Relative {@link #put(long[]) </code><i>bulk put</i><code>}
- *   methods that transfer contiguous sequences of longs from a
- *   long array or some other long
- *   buffer into this buffer;&#32;and </p></li>
+ * <li><p> Relative {@link #put(long[]) </code><i>bulk put</i><code>}
+ * methods that transfer contiguous sequences of longs from a
+ * long array or some other long
+ * buffer into this buffer;&#32;and </p></li>
  *
-
-
-
-
-
-
-
-
-
-
-
-
- *
- *   <li><p> Methods for {@link #compact </code>compacting<code>}, {@link
- *   #duplicate </code>duplicating<code>}, and {@link #slice
- *   </code>slicing<code>} a long buffer.  </p></li>
+ * <li><p> Methods for {@link #compact </code>compacting<code>}, {@link
+ * #duplicate </code>duplicating<code>}, and {@link #slice
+ * </code>slicing<code>} a long buffer.  </p></li>
  *
  * </ul>
  *
  * <p> Long buffers can be created either by {@link #allocate
  * </code><i>allocation</i><code>}, which allocates space for the buffer's
- *
-
-
-
-
-
-
- *
  * content, by {@link #wrap(long[]) </code><i>wrapping</i><code>} an existing
  * long array  into a buffer, or by creating a
  * <a href="ByteBuffer.html#views"><i>view</i></a> of an existing byte buffer.
- *
-
- *
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-*
-
  *
  * <p> Like a byte buffer, a long buffer is either <a
  * href="ByteBuffer.html#direct"><i>direct</i> or <i>non-direct</i></a>.  A
@@ -197,57 +69,9 @@ package java.nio;
  * a long buffer is direct may be determined by invoking the {@link
  * #isDirect isDirect} method.  </p>
  *
-
-*
-
-
-
-
-
-
-
-
- *
-
-
-
- *
  * <p> Methods in this class that do not otherwise have a value to return are
  * specified to return the buffer upon which they are invoked.  This allows
  * method invocations to be chained.
- *
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- *
  *
  * @author Mark Reinhold
  * @author JSR-51 Expert Group
@@ -255,9 +79,8 @@ package java.nio;
  */
 
 public abstract class LongBuffer
-    extends Buffer
-    implements Comparable<LongBuffer>
-{
+        extends Buffer
+        implements Comparable<LongBuffer> {
 
     // These fields are declared here rather than in Heap-X-Buffer in order to
     // reduce the number of virtual method invocations needed to access these
@@ -271,8 +94,7 @@ public abstract class LongBuffer
     // backing array, and array offset
     //
     LongBuffer(int mark, int pos, int lim, int cap,   // package-private
-                 long[] hb, int offset)
-    {
+               long[] hb, int offset) {
         super(mark, pos, lim, cap, 3);
         this.hb = hb;
         this.offset = offset;
@@ -285,29 +107,6 @@ public abstract class LongBuffer
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /**
      * Allocates a new long buffer.
      *
@@ -317,13 +116,9 @@ public abstract class LongBuffer
      * </code>backing array<code>}, and its {@link #arrayOffset </code>array
      * offset<code>} will be zero.
      *
-     * @param  capacity
-     *         The new buffer's capacity, in longs
-     *
-     * @return  The new long buffer
-     *
-     * @throws  IllegalArgumentException
-     *          If the <tt>capacity</tt> is a negative integer
+     * @param capacity The new buffer's capacity, in longs
+     * @return The new long buffer
+     * @throws IllegalArgumentException If the <tt>capacity</tt> is a negative integer
      */
     public static LongBuffer allocate(int capacity) {
         if (capacity < 0)
@@ -342,29 +137,21 @@ public abstract class LongBuffer
      * {@link #array </code>backing array<code>} will be the given array, and
      * its {@link #arrayOffset </code>array offset<code>} will be zero.  </p>
      *
-     * @param  array
-     *         The array that will back the new buffer
-     *
-     * @param  offset
-     *         The offset of the subarray to be used; must be non-negative and
-     *         no larger than <tt>array.length</tt>.  The new buffer's position
-     *         will be set to this value.
-     *
-     * @param  length
-     *         The length of the subarray to be used;
-     *         must be non-negative and no larger than
-     *         <tt>array.length - offset</tt>.
-     *         The new buffer's limit will be set to <tt>offset + length</tt>.
-     *
-     * @return  The new long buffer
-     *
-     * @throws  IndexOutOfBoundsException
-     *          If the preconditions on the <tt>offset</tt> and <tt>length</tt>
-     *          parameters do not hold
+     * @param array  The array that will back the new buffer
+     * @param offset The offset of the subarray to be used; must be non-negative and
+     *               no larger than <tt>array.length</tt>.  The new buffer's position
+     *               will be set to this value.
+     * @param length The length of the subarray to be used;
+     *               must be non-negative and no larger than
+     *               <tt>array.length - offset</tt>.
+     *               The new buffer's limit will be set to <tt>offset + length</tt>.
+     * @return The new long buffer
+     * @throws IndexOutOfBoundsException If the preconditions on the <tt>offset</tt> and
+     *                                   <tt>length</tt>
+     *                                   parameters do not hold
      */
     public static LongBuffer wrap(long[] array,
-                                    int offset, int length)
-    {
+                                  int offset, int length) {
         try {
             return new HeapLongBuffer(array, offset, length);
         } catch (IllegalArgumentException x) {
@@ -383,106 +170,12 @@ public abstract class LongBuffer
      * given array, and its {@link #arrayOffset </code>array offset<code>} will
      * be zero.  </p>
      *
-     * @param  array
-     *         The array that will back this buffer
-     *
-     * @return  The new long buffer
+     * @param array The array that will back this buffer
+     * @return The new long buffer
      */
     public static LongBuffer wrap(long[] array) {
         return wrap(array, 0, array.length);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     /**
@@ -500,7 +193,7 @@ public abstract class LongBuffer
      * buffer is direct, and it will be read-only if, and only if, this buffer
      * is read-only.  </p>
      *
-     * @return  The new long buffer
+     * @return The new long buffer
      */
     public abstract LongBuffer slice();
 
@@ -517,7 +210,7 @@ public abstract class LongBuffer
      * and only if, this buffer is direct, and it will be read-only if, and
      * only if, this buffer is read-only.  </p>
      *
-     * @return  The new long buffer
+     * @return The new long buffer
      */
     public abstract LongBuffer duplicate();
 
@@ -537,7 +230,7 @@ public abstract class LongBuffer
      * <p> If this buffer is itself read-only then this method behaves in
      * exactly the same way as the {@link #duplicate duplicate} method.  </p>
      *
-     * @return  The new, read-only long buffer
+     * @return The new, read-only long buffer
      */
     public abstract LongBuffer asReadOnlyBuffer();
 
@@ -548,10 +241,9 @@ public abstract class LongBuffer
      * Relative <i>get</i> method.  Reads the long at this buffer's
      * current position, and then increments the position. </p>
      *
-     * @return  The long at the buffer's current position
-     *
-     * @throws  BufferUnderflowException
-     *          If the buffer's current position is not smaller than its limit
+     * @return The long at the buffer's current position
+     * @throws BufferUnderflowException If the buffer's current position is not smaller than its
+     *                                  limit
      */
     public abstract long get();
 
@@ -561,16 +253,11 @@ public abstract class LongBuffer
      * <p> Writes the given long into this buffer at the current
      * position, and then increments the position. </p>
      *
-     * @param  l
-     *         The long to be written
-     *
-     * @return  This buffer
-     *
-     * @throws  BufferOverflowException
-     *          If this buffer's current position is not smaller than its limit
-     *
-     * @throws  ReadOnlyBufferException
-     *          If this buffer is read-only
+     * @param l The long to be written
+     * @return This buffer
+     * @throws BufferOverflowException If this buffer's current position is not smaller than its
+     *                                 limit
+     * @throws ReadOnlyBufferException If this buffer is read-only
      */
     public abstract LongBuffer put(long l);
 
@@ -578,14 +265,10 @@ public abstract class LongBuffer
      * Absolute <i>get</i> method.  Reads the long at the given
      * index. </p>
      *
-     * @param  index
-     *         The index from which the long will be read
-     *
-     * @return  The long at the given index
-     *
-     * @throws  IndexOutOfBoundsException
-     *          If <tt>index</tt> is negative
-     *          or not smaller than the buffer's limit
+     * @param index The index from which the long will be read
+     * @return The long at the given index
+     * @throws IndexOutOfBoundsException If <tt>index</tt> is negative
+     *                                   or not smaller than the buffer's limit
      */
     public abstract long get(int index);
 
@@ -595,20 +278,12 @@ public abstract class LongBuffer
      * <p> Writes the given long into this buffer at the given
      * index. </p>
      *
-     * @param  index
-     *         The index at which the long will be written
-     *
-     * @param  l
-     *         The long value to be written
-     *
-     * @return  This buffer
-     *
-     * @throws  IndexOutOfBoundsException
-     *          If <tt>index</tt> is negative
-     *          or not smaller than the buffer's limit
-     *
-     * @throws  ReadOnlyBufferException
-     *          If this buffer is read-only
+     * @param index The index at which the long will be written
+     * @param l     The long value to be written
+     * @return This buffer
+     * @throws IndexOutOfBoundsException If <tt>index</tt> is negative
+     *                                   or not smaller than the buffer's limit
+     * @throws ReadOnlyBufferException   If this buffer is read-only
      */
     public abstract LongBuffer put(int index, long l);
 
@@ -641,28 +316,19 @@ public abstract class LongBuffer
      * except that it first checks that there are sufficient longs in
      * this buffer and it is potentially much more efficient. </p>
      *
-     * @param  dst
-     *         The array into which longs are to be written
-     *
-     * @param  offset
-     *         The offset within the array of the first long to be
-     *         written; must be non-negative and no larger than
-     *         <tt>dst.length</tt>
-     *
-     * @param  length
-     *         The maximum number of longs to be written to the given
-     *         array; must be non-negative and no larger than
-     *         <tt>dst.length - offset</tt>
-     *
-     * @return  This buffer
-     *
-     * @throws  BufferUnderflowException
-     *          If there are fewer than <tt>length</tt> longs
-     *          remaining in this buffer
-     *
-     * @throws  IndexOutOfBoundsException
-     *          If the preconditions on the <tt>offset</tt> and <tt>length</tt>
-     *          parameters do not hold
+     * @param dst    The array into which longs are to be written
+     * @param offset The offset within the array of the first long to be
+     *               written; must be non-negative and no larger than
+     *               <tt>dst.length</tt>
+     * @param length The maximum number of longs to be written to the given
+     *               array; must be non-negative and no larger than
+     *               <tt>dst.length - offset</tt>
+     * @return This buffer
+     * @throws BufferUnderflowException  If there are fewer than <tt>length</tt> longs
+     *                                   remaining in this buffer
+     * @throws IndexOutOfBoundsException If the preconditions on the <tt>offset</tt> and
+     *                                   <tt>length</tt>
+     *                                   parameters do not hold
      */
     public LongBuffer get(long[] dst, int offset, int length) {
         checkBounds(offset, length, dst.length);
@@ -684,11 +350,9 @@ public abstract class LongBuffer
      * <pre>
      *     src.get(a, 0, a.length) </pre>
      *
-     * @return  This buffer
-     *
-     * @throws  BufferUnderflowException
-     *          If there are fewer than <tt>length</tt> longs
-     *          remaining in this buffer
+     * @return This buffer
+     * @throws BufferUnderflowException If there are fewer than <tt>length</tt> longs
+     *                                  remaining in this buffer
      */
     public LongBuffer get(long[] dst) {
         return get(dst, 0, dst.length);
@@ -722,21 +386,13 @@ public abstract class LongBuffer
      * except that it first checks that there is sufficient space in this
      * buffer and it is potentially much more efficient. </p>
      *
-     * @param  src
-     *         The source buffer from which longs are to be read;
-     *         must not be this buffer
-     *
-     * @return  This buffer
-     *
-     * @throws  BufferOverflowException
-     *          If there is insufficient space in this buffer
-     *          for the remaining longs in the source buffer
-     *
-     * @throws  IllegalArgumentException
-     *          If the source buffer is this buffer
-     *
-     * @throws  ReadOnlyBufferException
-     *          If this buffer is read-only
+     * @param src The source buffer from which longs are to be read;
+     *            must not be this buffer
+     * @return This buffer
+     * @throws BufferOverflowException  If there is insufficient space in this buffer
+     *                                  for the remaining longs in the source buffer
+     * @throws IllegalArgumentException If the source buffer is this buffer
+     * @throws ReadOnlyBufferException  If this buffer is read-only
      */
     public LongBuffer put(LongBuffer src) {
         if (src == this)
@@ -775,29 +431,18 @@ public abstract class LongBuffer
      * except that it first checks that there is sufficient space in this
      * buffer and it is potentially much more efficient. </p>
      *
-     * @param  src
-     *         The array from which longs are to be read
-     *
-     * @param  offset
-     *         The offset within the array of the first long to be read;
-     *         must be non-negative and no larger than <tt>array.length</tt>
-     *
-     * @param  length
-     *         The number of longs to be read from the given array;
-     *         must be non-negative and no larger than
-     *         <tt>array.length - offset</tt>
-     *
-     * @return  This buffer
-     *
-     * @throws  BufferOverflowException
-     *          If there is insufficient space in this buffer
-     *
-     * @throws  IndexOutOfBoundsException
-     *          If the preconditions on the <tt>offset</tt> and <tt>length</tt>
-     *          parameters do not hold
-     *
-     * @throws  ReadOnlyBufferException
-     *          If this buffer is read-only
+     * @param src    The array from which longs are to be read
+     * @param offset The offset within the array of the first long to be read;
+     *               must be non-negative and no larger than <tt>array.length</tt>
+     * @param length The number of longs to be read from the given array;
+     *               must be non-negative and no larger than
+     *               <tt>array.length - offset</tt>
+     * @return This buffer
+     * @throws BufferOverflowException   If there is insufficient space in this buffer
+     * @throws IndexOutOfBoundsException If the preconditions on the <tt>offset</tt> and
+     *                                   <tt>length</tt>
+     *                                   parameters do not hold
+     * @throws ReadOnlyBufferException   If this buffer is read-only
      */
     public LongBuffer put(long[] src, int offset, int length) {
         checkBounds(offset, length, src.length);
@@ -820,102 +465,13 @@ public abstract class LongBuffer
      * <pre>
      *     dst.put(a, 0, a.length) </pre>
      *
-     * @return  This buffer
-     *
-     * @throws  BufferOverflowException
-     *          If there is insufficient space in this buffer
-     *
-     * @throws  ReadOnlyBufferException
-     *          If this buffer is read-only
+     * @return This buffer
+     * @throws BufferOverflowException If there is insufficient space in this buffer
+     * @throws ReadOnlyBufferException If this buffer is read-only
      */
     public final LongBuffer put(long[] src) {
         return put(src, 0, src.length);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     // -- Other stuff --
@@ -928,8 +484,8 @@ public abstract class LongBuffer
      * and {@link #arrayOffset() arrayOffset} methods may safely be invoked.
      * </p>
      *
-     * @return  <tt>true</tt> if, and only if, this buffer
-     *          is backed by an array and is not read-only
+     * @return <tt>true</tt> if, and only if, this buffer
+     * is backed by an array and is not read-only
      */
     public final boolean hasArray() {
         return (hb != null) && !isReadOnly;
@@ -946,13 +502,9 @@ public abstract class LongBuffer
      * method in order to ensure that this buffer has an accessible backing
      * array.  </p>
      *
-     * @return  The array that backs this buffer
-     *
-     * @throws  ReadOnlyBufferException
-     *          If this buffer is backed by an array but is read-only
-     *
-     * @throws  UnsupportedOperationException
-     *          If this buffer is not backed by an accessible array
+     * @return The array that backs this buffer
+     * @throws ReadOnlyBufferException       If this buffer is backed by an array but is read-only
+     * @throws UnsupportedOperationException If this buffer is not backed by an accessible array
      */
     public final long[] array() {
         if (hb == null)
@@ -973,14 +525,10 @@ public abstract class LongBuffer
      * method in order to ensure that this buffer has an accessible backing
      * array.  </p>
      *
-     * @return  The offset within this buffer's array
-     *          of the first element of the buffer
-     *
-     * @throws  ReadOnlyBufferException
-     *          If this buffer is backed by an array but is read-only
-     *
-     * @throws  UnsupportedOperationException
-     *          If this buffer is not backed by an accessible array
+     * @return The offset within this buffer's array
+     * of the first element of the buffer
+     * @throws ReadOnlyBufferException       If this buffer is backed by an array but is read-only
+     * @throws UnsupportedOperationException If this buffer is not backed by an accessible array
      */
     public final int arrayOffset() {
         if (hb == null)
@@ -1008,42 +556,23 @@ public abstract class LongBuffer
      * followed immediately by an invocation of another relative <i>put</i>
      * method. </p>
      *
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-     *
-     * @return  This buffer
-     *
-     * @throws  ReadOnlyBufferException
-     *          If this buffer is read-only
+     * @return This buffer
+     * @throws ReadOnlyBufferException If this buffer is read-only
      */
     public abstract LongBuffer compact();
 
     /**
      * Tells whether or not this long buffer is direct. </p>
      *
-     * @return  <tt>true</tt> if, and only if, this buffer is direct
+     * @return <tt>true</tt> if, and only if, this buffer is direct
      */
     public abstract boolean isDirect();
-
 
 
     /**
      * Returns a string summarizing the state of this buffer.  </p>
      *
-     * @return  A summary string
+     * @return A summary string
      */
     public String toString() {
         StringBuffer sb = new StringBuffer();
@@ -1059,10 +588,6 @@ public abstract class LongBuffer
     }
 
 
-
-
-
-
     /**
      * Returns the current hash code of this buffer.
      *
@@ -1074,13 +599,13 @@ public abstract class LongBuffer
      * to use buffers as keys in hash maps or similar data structures unless it
      * is known that their contents will not change.  </p>
      *
-     * @return  The current hash code of this buffer
+     * @return The current hash code of this buffer
      */
     public int hashCode() {
         int h = 1;
         int p = position();
         for (int i = limit() - 1; i >= p; i--)
-            h = 31 * h + (int)get(i);
+            h = 31 * h + (int) get(i);
         return h;
     }
 
@@ -1091,37 +616,36 @@ public abstract class LongBuffer
      *
      * <p><ol>
      *
-     *   <li><p> They have the same element type,  </p></li>
+     * <li><p> They have the same element type,  </p></li>
      *
-     *   <li><p> They have the same number of remaining elements, and
-     *   </p></li>
+     * <li><p> They have the same number of remaining elements, and
+     * </p></li>
      *
-     *   <li><p> The two sequences of remaining elements, considered
-     *   independently of their starting positions, are pointwise equal.
-
-
-
-
-
-
-
-     *   </p></li>
+     * <li><p> The two sequences of remaining elements, considered
+     * independently of their starting positions, are pointwise equal.
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     * </p></li>
      *
      * </ol>
      *
      * <p> A long buffer is not equal to any other type of object.  </p>
      *
-     * @param  ob  The object to which this buffer is to be compared
-     *
-     * @return  <tt>true</tt> if, and only if, this buffer is equal to the
-     *           given object
+     * @param ob The object to which this buffer is to be compared
+     * @return <tt>true</tt> if, and only if, this buffer is equal to the
+     * given object
      */
     public boolean equals(Object ob) {
         if (this == ob)
             return true;
         if (!(ob instanceof LongBuffer))
             return false;
-        LongBuffer that = (LongBuffer)ob;
+        LongBuffer that = (LongBuffer) ob;
         if (this.remaining() != that.remaining())
             return false;
         int p = this.position();
@@ -1134,7 +658,6 @@ public abstract class LongBuffer
     private static boolean equals(long x, long y) {
 
 
-
         return x == y;
 
     }
@@ -1145,22 +668,22 @@ public abstract class LongBuffer
      * <p> Two long buffers are compared by comparing their sequences of
      * remaining elements lexicographically, without regard to the starting
      * position of each sequence within its corresponding buffer.
-
-
-
-
-
-
-
-
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
      * Pairs of {@code long} elements are compared as if by invoking
-     * {@link Long#compare(long,long)}.
-
+     * {@link Long#compare(long, long)}.
+     *
      *
      * <p> A long buffer is not comparable to any other type of object.
      *
-     * @return  A negative integer, zero, or a positive integer as this buffer
-     *          is less than, equal to, or greater than the given buffer
+     * @return A negative integer, zero, or a positive integer as this buffer
+     * is less than, equal to, or greater than the given buffer
      */
     public int compareTo(LongBuffer that) {
         int n = this.position() + Math.min(this.remaining(), that.remaining());
@@ -1175,10 +698,6 @@ public abstract class LongBuffer
     private static int compare(long x, long y) {
 
 
-
-
-
-
         return Long.compare(x, y);
 
     }
@@ -1186,200 +705,7 @@ public abstract class LongBuffer
     // -- Other char stuff --
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     // -- Other byte stuff: Access to binary data --
-
 
 
     /**
@@ -1392,60 +718,9 @@ public abstract class LongBuffer
      * href="ByteBuffer.html#views">view</a> of a byte buffer is that of the
      * byte buffer at the moment that the view is created.  </p>
      *
-     * @return  This buffer's byte order
+     * @return This buffer's byte order
      */
     public abstract ByteOrder order();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 }

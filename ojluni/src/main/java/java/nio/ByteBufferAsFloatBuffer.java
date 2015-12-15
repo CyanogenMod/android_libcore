@@ -35,8 +35,8 @@ class ByteBufferAsFloatBuffer extends FloatBuffer {       // package-private
 
     ByteBufferAsFloatBuffer(ByteBuffer bb, ByteOrder order) {   // package-private
         super(-1, 0,
-              bb.remaining() >> 2,
-              bb.remaining() >> 2);
+                bb.remaining() >> 2,
+                bb.remaining() >> 2);
         this.bb = bb;
         this.isReadOnly = bb.isReadOnly;
         this.address = bb.address;
@@ -71,22 +71,22 @@ class ByteBufferAsFloatBuffer extends FloatBuffer {       // package-private
 
     public FloatBuffer duplicate() {
         return new ByteBufferAsFloatBuffer(bb,
-                                           markValue(),
-                                           position(),
-                                           limit(),
-                                           capacity(),
-                                           offset,
-                                           order);
+                markValue(),
+                position(),
+                limit(),
+                capacity(),
+                offset,
+                order);
     }
 
     public FloatBuffer asReadOnlyBuffer() {
         return new ByteBufferAsFloatBuffer(bb.asReadOnlyBuffer(),
-                                           markValue(),
-                                           position(),
-                                           limit(),
-                                           capacity(),
-                                           offset,
-                                           order);
+                markValue(),
+                position(),
+                limit(),
+                capacity(),
+                offset,
+                order);
     }
 
     protected int ix(int i) {

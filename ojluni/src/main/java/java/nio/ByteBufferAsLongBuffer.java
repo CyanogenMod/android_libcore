@@ -35,8 +35,8 @@ class ByteBufferAsLongBuffer extends LongBuffer {                 // package-pri
 
     ByteBufferAsLongBuffer(ByteBuffer bb, ByteOrder order) {
         super(-1, 0,
-              bb.remaining() >> 3,
-              bb.remaining() >> 3);
+                bb.remaining() >> 3,
+                bb.remaining() >> 3);
         this.bb = bb;
         this.isReadOnly = bb.isReadOnly;
         this.address = bb.address;
@@ -71,22 +71,22 @@ class ByteBufferAsLongBuffer extends LongBuffer {                 // package-pri
 
     public LongBuffer duplicate() {
         return new ByteBufferAsLongBuffer(bb,
-                                          this.markValue(),
-                                          this.position(),
-                                          this.limit(),
-                                          this.capacity(),
-                                          offset,
-                                          order);
+                this.markValue(),
+                this.position(),
+                this.limit(),
+                this.capacity(),
+                offset,
+                order);
     }
 
     public LongBuffer asReadOnlyBuffer() {
         return new ByteBufferAsLongBuffer(bb.asReadOnlyBuffer(),
-                                          this.markValue(),
-                                          this.position(),
-                                          this.limit(),
-                                          this.capacity(),
-                                          offset,
-                                          order);
+                this.markValue(),
+                this.position(),
+                this.limit(),
+                this.capacity(),
+                offset,
+                order);
     }
 
     protected int ix(int i) {

@@ -33,10 +33,10 @@ class ByteBufferAsShortBuffer extends ShortBuffer {       // package-private
     protected final int offset;
     private final ByteOrder order;
 
-    ByteBufferAsShortBuffer(ByteBuffer bb, ByteOrder order)  {   // package-private
+    ByteBufferAsShortBuffer(ByteBuffer bb, ByteOrder order) {   // package-private
         super(-1, 0,
-              bb.remaining() >> 1,
-              bb.remaining() >> 1);
+                bb.remaining() >> 1,
+                bb.remaining() >> 1);
         this.bb = bb;
         this.isReadOnly = bb.isReadOnly;
         this.address = bb.address;
@@ -71,20 +71,20 @@ class ByteBufferAsShortBuffer extends ShortBuffer {       // package-private
 
     public ShortBuffer duplicate() {
         return new ByteBufferAsShortBuffer(bb,
-                                           this.markValue(),
-                                           this.position(),
-                                           this.limit(),
-                                           this.capacity(),
-                                           offset, order);
+                this.markValue(),
+                this.position(),
+                this.limit(),
+                this.capacity(),
+                offset, order);
     }
 
     public ShortBuffer asReadOnlyBuffer() {
         return new ByteBufferAsShortBuffer(bb.asReadOnlyBuffer(),
-                                           this.markValue(),
-                                           this.position(),
-                                           this.limit(),
-                                           this.capacity(),
-                                           offset, order);
+                this.markValue(),
+                this.position(),
+                this.limit(),
+                this.capacity(),
+                offset, order);
     }
 
     protected int ix(int i) {

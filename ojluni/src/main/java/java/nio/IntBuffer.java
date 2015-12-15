@@ -28,9 +28,6 @@
 package java.nio;
 
 
-
-
-
 /**
  * An int buffer.
  *
@@ -39,155 +36,31 @@ package java.nio;
  *
  * <ul>
  *
- *   <li><p> Absolute and relative {@link #get() </code><i>get</i><code>} and
- *   {@link #put(int) </code><i>put</i><code>} methods that read and write
- *   single ints; </p></li>
+ * <li><p> Absolute and relative {@link #get() </code><i>get</i><code>} and
+ * {@link #put(int) </code><i>put</i><code>} methods that read and write
+ * single ints; </p></li>
  *
- *   <li><p> Relative {@link #get(int[]) </code><i>bulk get</i><code>}
- *   methods that transfer contiguous sequences of ints from this buffer
- *   into an array; and</p></li>
+ * <li><p> Relative {@link #get(int[]) </code><i>bulk get</i><code>}
+ * methods that transfer contiguous sequences of ints from this buffer
+ * into an array; and</p></li>
  *
- *   <li><p> Relative {@link #put(int[]) </code><i>bulk put</i><code>}
- *   methods that transfer contiguous sequences of ints from an
- *   int array or some other int
- *   buffer into this buffer;&#32;and </p></li>
+ * <li><p> Relative {@link #put(int[]) </code><i>bulk put</i><code>}
+ * methods that transfer contiguous sequences of ints from an
+ * int array or some other int
+ * buffer into this buffer;&#32;and </p></li>
  *
-
-
-
-
-
-
-
-
-
-
-
-
- *
- *   <li><p> Methods for {@link #compact </code>compacting<code>}, {@link
- *   #duplicate </code>duplicating<code>}, and {@link #slice
- *   </code>slicing<code>} an int buffer.  </p></li>
+ * <li><p> Methods for {@link #compact </code>compacting<code>}, {@link
+ * #duplicate </code>duplicating<code>}, and {@link #slice
+ * </code>slicing<code>} an int buffer.  </p></li>
  *
  * </ul>
  *
  * <p> Int buffers can be created either by {@link #allocate
  * </code><i>allocation</i><code>}, which allocates space for the buffer's
  *
-
-
-
-
-
-
- *
  * content, by {@link #wrap(int[]) </code><i>wrapping</i><code>} an existing
  * int array  into a buffer, or by creating a
  * <a href="ByteBuffer.html#views"><i>view</i></a> of an existing byte buffer.
- *
-
- *
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- *
-
  *
  * <p> Like a byte buffer, an int buffer is either <a
  * href="ByteBuffer.html#direct"><i>direct</i> or <i>non-direct</i></a>.  A
@@ -197,57 +70,9 @@ package java.nio;
  * an int buffer is direct may be determined by invoking the {@link
  * #isDirect isDirect} method.  </p>
  *
-
- *
-
-
-
-
-
-
-
-
- *
-
-
-
- *
  * <p> Methods in this class that do not otherwise have a value to return are
  * specified to return the buffer upon which they are invoked.  This allows
  * method invocations to be chained.
- *
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- *
  *
  * @author Mark Reinhold
  * @author JSR-51 Expert Group
@@ -255,9 +80,8 @@ package java.nio;
  */
 
 public abstract class IntBuffer
-    extends Buffer
-    implements Comparable<IntBuffer>
-{
+        extends Buffer
+        implements Comparable<IntBuffer> {
 
     // These fields are declared here rather than in Heap-X-Buffer in order to
     // reduce the number of virtual method invocations needed to access these
@@ -271,41 +95,17 @@ public abstract class IntBuffer
     // backing array, and array offset
     //
     IntBuffer(int mark, int pos, int lim, int cap,   // package-private
-              int[] hb, int offset)
-        {
-            super(mark, pos, lim, cap, 2);
-            this.hb = hb;
-            this.offset = offset;
-        }
+              int[] hb, int offset) {
+        super(mark, pos, lim, cap, 2);
+        this.hb = hb;
+        this.offset = offset;
+    }
 
     // Creates a new buffer with the given mark, position, limit, and capacity
     //
     IntBuffer(int mark, int pos, int lim, int cap) { // package-private
         this(mark, pos, lim, cap, null, 0);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     /**
@@ -317,13 +117,9 @@ public abstract class IntBuffer
      * </code>backing array<code>}, and its {@link #arrayOffset </code>array
      * offset<code>} will be zero.
      *
-     * @param  capacity
-     *         The new buffer's capacity, in ints
-     *
-     * @return  The new int buffer
-     *
-     * @throws  IllegalArgumentException
-     *          If the <tt>capacity</tt> is a negative integer
+     * @param capacity The new buffer's capacity, in ints
+     * @return The new int buffer
+     * @throws IllegalArgumentException If the <tt>capacity</tt> is a negative integer
      */
     public static IntBuffer allocate(int capacity) {
         if (capacity < 0)
@@ -342,29 +138,21 @@ public abstract class IntBuffer
      * {@link #array </code>backing array<code>} will be the given array, and
      * its {@link #arrayOffset </code>array offset<code>} will be zero.  </p>
      *
-     * @param  array
-     *         The array that will back the new buffer
-     *
-     * @param  offset
-     *         The offset of the subarray to be used; must be non-negative and
-     *         no larger than <tt>array.length</tt>.  The new buffer's position
-     *         will be set to this value.
-     *
-     * @param  length
-     *         The length of the subarray to be used;
-     *         must be non-negative and no larger than
-     *         <tt>array.length - offset</tt>.
-     *         The new buffer's limit will be set to <tt>offset + length</tt>.
-     *
-     * @return  The new int buffer
-     *
-     * @throws  IndexOutOfBoundsException
-     *          If the preconditions on the <tt>offset</tt> and <tt>length</tt>
-     *          parameters do not hold
+     * @param array  The array that will back the new buffer
+     * @param offset The offset of the subarray to be used; must be non-negative and
+     *               no larger than <tt>array.length</tt>.  The new buffer's position
+     *               will be set to this value.
+     * @param length The length of the subarray to be used;
+     *               must be non-negative and no larger than
+     *               <tt>array.length - offset</tt>.
+     *               The new buffer's limit will be set to <tt>offset + length</tt>.
+     * @return The new int buffer
+     * @throws IndexOutOfBoundsException If the preconditions on the <tt>offset</tt> and
+     *                                   <tt>length</tt>
+     *                                   parameters do not hold
      */
     public static IntBuffer wrap(int[] array,
-                                 int offset, int length)
-    {
+                                 int offset, int length) {
         try {
             return new HeapIntBuffer(array, offset, length);
         } catch (IllegalArgumentException x) {
@@ -383,106 +171,12 @@ public abstract class IntBuffer
      * given array, and its {@link #arrayOffset </code>array offset<code>} will
      * be zero.  </p>
      *
-     * @param  array
-     *         The array that will back this buffer
-     *
-     * @return  The new int buffer
+     * @param array The array that will back this buffer
+     * @return The new int buffer
      */
     public static IntBuffer wrap(int[] array) {
         return wrap(array, 0, array.length);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     /**
@@ -500,7 +194,7 @@ public abstract class IntBuffer
      * buffer is direct, and it will be read-only if, and only if, this buffer
      * is read-only.  </p>
      *
-     * @return  The new int buffer
+     * @return The new int buffer
      */
     public abstract IntBuffer slice();
 
@@ -517,7 +211,7 @@ public abstract class IntBuffer
      * and only if, this buffer is direct, and it will be read-only if, and
      * only if, this buffer is read-only.  </p>
      *
-     * @return  The new int buffer
+     * @return The new int buffer
      */
     public abstract IntBuffer duplicate();
 
@@ -537,7 +231,7 @@ public abstract class IntBuffer
      * <p> If this buffer is itself read-only then this method behaves in
      * exactly the same way as the {@link #duplicate duplicate} method.  </p>
      *
-     * @return  The new, read-only int buffer
+     * @return The new, read-only int buffer
      */
     public abstract IntBuffer asReadOnlyBuffer();
 
@@ -548,10 +242,9 @@ public abstract class IntBuffer
      * Relative <i>get</i> method.  Reads the int at this buffer's
      * current position, and then increments the position. </p>
      *
-     * @return  The int at the buffer's current position
-     *
-     * @throws  BufferUnderflowException
-     *          If the buffer's current position is not smaller than its limit
+     * @return The int at the buffer's current position
+     * @throws BufferUnderflowException If the buffer's current position is not smaller than its
+     *                                  limit
      */
     public abstract int get();
 
@@ -561,16 +254,11 @@ public abstract class IntBuffer
      * <p> Writes the given int into this buffer at the current
      * position, and then increments the position. </p>
      *
-     * @param  i
-     *         The int to be written
-     *
-     * @return  This buffer
-     *
-     * @throws  BufferOverflowException
-     *          If this buffer's current position is not smaller than its limit
-     *
-     * @throws  ReadOnlyBufferException
-     *          If this buffer is read-only
+     * @param i The int to be written
+     * @return This buffer
+     * @throws BufferOverflowException If this buffer's current position is not smaller than its
+     *                                 limit
+     * @throws ReadOnlyBufferException If this buffer is read-only
      */
     public abstract IntBuffer put(int i);
 
@@ -578,14 +266,10 @@ public abstract class IntBuffer
      * Absolute <i>get</i> method.  Reads the int at the given
      * index. </p>
      *
-     * @param  index
-     *         The index from which the int will be read
-     *
-     * @return  The int at the given index
-     *
-     * @throws  IndexOutOfBoundsException
-     *          If <tt>index</tt> is negative
-     *          or not smaller than the buffer's limit
+     * @param index The index from which the int will be read
+     * @return The int at the given index
+     * @throws IndexOutOfBoundsException If <tt>index</tt> is negative
+     *                                   or not smaller than the buffer's limit
      */
     public abstract int get(int index);
 
@@ -595,20 +279,12 @@ public abstract class IntBuffer
      * <p> Writes the given int into this buffer at the given
      * index. </p>
      *
-     * @param  index
-     *         The index at which the int will be written
-     *
-     * @param  i
-     *         The int value to be written
-     *
-     * @return  This buffer
-     *
-     * @throws  IndexOutOfBoundsException
-     *          If <tt>index</tt> is negative
-     *          or not smaller than the buffer's limit
-     *
-     * @throws  ReadOnlyBufferException
-     *          If this buffer is read-only
+     * @param index The index at which the int will be written
+     * @param i     The int value to be written
+     * @return This buffer
+     * @throws IndexOutOfBoundsException If <tt>index</tt> is negative
+     *                                   or not smaller than the buffer's limit
+     * @throws ReadOnlyBufferException   If this buffer is read-only
      */
     public abstract IntBuffer put(int index, int i);
 
@@ -641,28 +317,19 @@ public abstract class IntBuffer
      * except that it first checks that there are sufficient ints in
      * this buffer and it is potentially much more efficient. </p>
      *
-     * @param  dst
-     *         The array into which ints are to be written
-     *
-     * @param  offset
-     *         The offset within the array of the first int to be
-     *         written; must be non-negative and no larger than
-     *         <tt>dst.length</tt>
-     *
-     * @param  length
-     *         The maximum number of ints to be written to the given
-     *         array; must be non-negative and no larger than
-     *         <tt>dst.length - offset</tt>
-     *
-     * @return  This buffer
-     *
-     * @throws  BufferUnderflowException
-     *          If there are fewer than <tt>length</tt> ints
-     *          remaining in this buffer
-     *
-     * @throws  IndexOutOfBoundsException
-     *          If the preconditions on the <tt>offset</tt> and <tt>length</tt>
-     *          parameters do not hold
+     * @param dst    The array into which ints are to be written
+     * @param offset The offset within the array of the first int to be
+     *               written; must be non-negative and no larger than
+     *               <tt>dst.length</tt>
+     * @param length The maximum number of ints to be written to the given
+     *               array; must be non-negative and no larger than
+     *               <tt>dst.length - offset</tt>
+     * @return This buffer
+     * @throws BufferUnderflowException  If there are fewer than <tt>length</tt> ints
+     *                                   remaining in this buffer
+     * @throws IndexOutOfBoundsException If the preconditions on the <tt>offset</tt> and
+     *                                   <tt>length</tt>
+     *                                   parameters do not hold
      */
     public IntBuffer get(int[] dst, int offset, int length) {
         checkBounds(offset, length, dst.length);
@@ -684,11 +351,9 @@ public abstract class IntBuffer
      * <pre>
      *     src.get(a, 0, a.length) </pre>
      *
-     * @return  This buffer
-     *
-     * @throws  BufferUnderflowException
-     *          If there are fewer than <tt>length</tt> ints
-     *          remaining in this buffer
+     * @return This buffer
+     * @throws BufferUnderflowException If there are fewer than <tt>length</tt> ints
+     *                                  remaining in this buffer
      */
     public IntBuffer get(int[] dst) {
         return get(dst, 0, dst.length);
@@ -722,21 +387,13 @@ public abstract class IntBuffer
      * except that it first checks that there is sufficient space in this
      * buffer and it is potentially much more efficient. </p>
      *
-     * @param  src
-     *         The source buffer from which ints are to be read;
-     *         must not be this buffer
-     *
-     * @return  This buffer
-     *
-     * @throws  BufferOverflowException
-     *          If there is insufficient space in this buffer
-     *          for the remaining ints in the source buffer
-     *
-     * @throws  IllegalArgumentException
-     *          If the source buffer is this buffer
-     *
-     * @throws  ReadOnlyBufferException
-     *          If this buffer is read-only
+     * @param src The source buffer from which ints are to be read;
+     *            must not be this buffer
+     * @return This buffer
+     * @throws BufferOverflowException  If there is insufficient space in this buffer
+     *                                  for the remaining ints in the source buffer
+     * @throws IllegalArgumentException If the source buffer is this buffer
+     * @throws ReadOnlyBufferException  If this buffer is read-only
      */
     public IntBuffer put(IntBuffer src) {
         if (src == this)
@@ -775,29 +432,18 @@ public abstract class IntBuffer
      * except that it first checks that there is sufficient space in this
      * buffer and it is potentially much more efficient. </p>
      *
-     * @param  src
-     *         The array from which ints are to be read
-     *
-     * @param  offset
-     *         The offset within the array of the first int to be read;
-     *         must be non-negative and no larger than <tt>array.length</tt>
-     *
-     * @param  length
-     *         The number of ints to be read from the given array;
-     *         must be non-negative and no larger than
-     *         <tt>array.length - offset</tt>
-     *
-     * @return  This buffer
-     *
-     * @throws  BufferOverflowException
-     *          If there is insufficient space in this buffer
-     *
-     * @throws  IndexOutOfBoundsException
-     *          If the preconditions on the <tt>offset</tt> and <tt>length</tt>
-     *          parameters do not hold
-     *
-     * @throws  ReadOnlyBufferException
-     *          If this buffer is read-only
+     * @param src    The array from which ints are to be read
+     * @param offset The offset within the array of the first int to be read;
+     *               must be non-negative and no larger than <tt>array.length</tt>
+     * @param length The number of ints to be read from the given array;
+     *               must be non-negative and no larger than
+     *               <tt>array.length - offset</tt>
+     * @return This buffer
+     * @throws BufferOverflowException   If there is insufficient space in this buffer
+     * @throws IndexOutOfBoundsException If the preconditions on the <tt>offset</tt> and
+     *                                   <tt>length</tt>
+     *                                   parameters do not hold
+     * @throws ReadOnlyBufferException   If this buffer is read-only
      */
     public IntBuffer put(int[] src, int offset, int length) {
         checkBounds(offset, length, src.length);
@@ -820,102 +466,13 @@ public abstract class IntBuffer
      * <pre>
      *     dst.put(a, 0, a.length) </pre>
      *
-     * @return  This buffer
-     *
-     * @throws  BufferOverflowException
-     *          If there is insufficient space in this buffer
-     *
-     * @throws  ReadOnlyBufferException
-     *          If this buffer is read-only
+     * @return This buffer
+     * @throws BufferOverflowException If there is insufficient space in this buffer
+     * @throws ReadOnlyBufferException If this buffer is read-only
      */
     public final IntBuffer put(int[] src) {
         return put(src, 0, src.length);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     // -- Other stuff --
@@ -928,8 +485,8 @@ public abstract class IntBuffer
      * and {@link #arrayOffset() arrayOffset} methods may safely be invoked.
      * </p>
      *
-     * @return  <tt>true</tt> if, and only if, this buffer
-     *          is backed by an array and is not read-only
+     * @return <tt>true</tt> if, and only if, this buffer
+     * is backed by an array and is not read-only
      */
     public final boolean hasArray() {
         return (hb != null) && !isReadOnly;
@@ -946,13 +503,9 @@ public abstract class IntBuffer
      * method in order to ensure that this buffer has an accessible backing
      * array.  </p>
      *
-     * @return  The array that backs this buffer
-     *
-     * @throws  ReadOnlyBufferException
-     *          If this buffer is backed by an array but is read-only
-     *
-     * @throws  UnsupportedOperationException
-     *          If this buffer is not backed by an accessible array
+     * @return The array that backs this buffer
+     * @throws ReadOnlyBufferException       If this buffer is backed by an array but is read-only
+     * @throws UnsupportedOperationException If this buffer is not backed by an accessible array
      */
     public final int[] array() {
         if (hb == null)
@@ -973,14 +526,10 @@ public abstract class IntBuffer
      * method in order to ensure that this buffer has an accessible backing
      * array.  </p>
      *
-     * @return  The offset within this buffer's array
-     *          of the first element of the buffer
-     *
-     * @throws  ReadOnlyBufferException
-     *          If this buffer is backed by an array but is read-only
-     *
-     * @throws  UnsupportedOperationException
-     *          If this buffer is not backed by an accessible array
+     * @return The offset within this buffer's array
+     * of the first element of the buffer
+     * @throws ReadOnlyBufferException       If this buffer is backed by an array but is read-only
+     * @throws UnsupportedOperationException If this buffer is not backed by an accessible array
      */
     public final int arrayOffset() {
         if (hb == null)
@@ -1008,42 +557,23 @@ public abstract class IntBuffer
      * followed immediately by an invocation of another relative <i>put</i>
      * method. </p>
      *
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-     *
-     * @return  This buffer
-     *
-     * @throws  ReadOnlyBufferException
-     *          If this buffer is read-only
+     * @return This buffer
+     * @throws ReadOnlyBufferException If this buffer is read-only
      */
     public abstract IntBuffer compact();
 
     /**
      * Tells whether or not this int buffer is direct. </p>
      *
-     * @return  <tt>true</tt> if, and only if, this buffer is direct
+     * @return <tt>true</tt> if, and only if, this buffer is direct
      */
     public abstract boolean isDirect();
-
 
 
     /**
      * Returns a string summarizing the state of this buffer.  </p>
      *
-     * @return  A summary string
+     * @return A summary string
      */
     public String toString() {
         StringBuffer sb = new StringBuffer();
@@ -1059,10 +589,6 @@ public abstract class IntBuffer
     }
 
 
-
-
-
-
     /**
      * Returns the current hash code of this buffer.
      *
@@ -1074,13 +600,13 @@ public abstract class IntBuffer
      * to use buffers as keys in hash maps or similar data structures unless it
      * is known that their contents will not change.  </p>
      *
-     * @return  The current hash code of this buffer
+     * @return The current hash code of this buffer
      */
     public int hashCode() {
         int h = 1;
         int p = position();
         for (int i = limit() - 1; i >= p; i--)
-            h = 31 * h + (int)get(i);
+            h = 31 * h + (int) get(i);
         return h;
     }
 
@@ -1091,37 +617,36 @@ public abstract class IntBuffer
      *
      * <p><ol>
      *
-     *   <li><p> They have the same element type,  </p></li>
+     * <li><p> They have the same element type,  </p></li>
      *
-     *   <li><p> They have the same number of remaining elements, and
-     *   </p></li>
+     * <li><p> They have the same number of remaining elements, and
+     * </p></li>
      *
-     *   <li><p> The two sequences of remaining elements, considered
-     *   independently of their starting positions, are pointwise equal.
-
-
-
-
-
-
-
-     *   </p></li>
+     * <li><p> The two sequences of remaining elements, considered
+     * independently of their starting positions, are pointwise equal.
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     * </p></li>
      *
      * </ol>
      *
      * <p> A int buffer is not equal to any other type of object.  </p>
      *
-     * @param  ob  The object to which this buffer is to be compared
-     *
-     * @return  <tt>true</tt> if, and only if, this buffer is equal to the
-     *           given object
+     * @param ob The object to which this buffer is to be compared
+     * @return <tt>true</tt> if, and only if, this buffer is equal to the
+     * given object
      */
     public boolean equals(Object ob) {
         if (this == ob)
             return true;
         if (!(ob instanceof IntBuffer))
             return false;
-        IntBuffer that = (IntBuffer)ob;
+        IntBuffer that = (IntBuffer) ob;
         if (this.remaining() != that.remaining())
             return false;
         int p = this.position();
@@ -1134,7 +659,6 @@ public abstract class IntBuffer
     private static boolean equals(int x, int y) {
 
 
-
         return x == y;
 
     }
@@ -1145,22 +669,22 @@ public abstract class IntBuffer
      * <p> Two int buffers are compared by comparing their sequences of
      * remaining elements lexicographically, without regard to the starting
      * position of each sequence within its corresponding buffer.
-
-
-
-
-
-
-
-
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
      * Pairs of {@code int} elements are compared as if by invoking
-     * {@link Integer#compare(int,int)}.
-
+     * {@link Integer#compare(int, int)}.
+     *
      *
      * <p> A int buffer is not comparable to any other type of object.
      *
-     * @return  A negative integer, zero, or a positive integer as this buffer
-     *          is less than, equal to, or greater than the given buffer
+     * @return A negative integer, zero, or a positive integer as this buffer
+     * is less than, equal to, or greater than the given buffer
      */
     public int compareTo(IntBuffer that) {
         int n = this.position() + Math.min(this.remaining(), that.remaining());
@@ -1175,10 +699,6 @@ public abstract class IntBuffer
     private static int compare(int x, int y) {
 
 
-
-
-
-
         return Integer.compare(x, y);
 
     }
@@ -1186,200 +706,7 @@ public abstract class IntBuffer
     // -- Other char stuff --
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     // -- Other byte stuff: Access to binary data --
-
 
 
     /**
@@ -1392,60 +719,9 @@ public abstract class IntBuffer
      * href="ByteBuffer.html#views">view</a> of a byte buffer is that of the
      * byte buffer at the moment that the view is created.  </p>
      *
-     * @return  This buffer's byte order
+     * @return This buffer's byte order
      */
     public abstract ByteOrder order();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 }
