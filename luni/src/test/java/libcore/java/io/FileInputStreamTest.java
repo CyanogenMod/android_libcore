@@ -107,7 +107,7 @@ public final class FileInputStreamTest extends TestCase {
 
         // Close the second FileDescriptor and check we can't use it...
         fis2.close();
-        // TODO(pszczepaniak): Implement this funcitonality
+
         try {
             fis2.available();
             fail();
@@ -129,6 +129,7 @@ public final class FileInputStreamTest extends TestCase {
         } catch (IOException expected) {
         }
         // ...but that we can still use the first.
+        assertTrue(fis1.getFD().valid());
         assertFalse(fis1.read() == -1);
 
         // Close the first FileDescriptor and check we can't use it...
@@ -153,6 +154,9 @@ public final class FileInputStreamTest extends TestCase {
             fail();
         } catch (IOException expected) {
         }
+
+        // FD is no longer owned by any stream, should be invalidated.
+        assertFalse(fis1.getFD().valid());
     }
 
     public void testClose() throws Exception {

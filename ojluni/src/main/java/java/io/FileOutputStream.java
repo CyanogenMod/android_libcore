@@ -362,6 +362,10 @@ class FileOutputStream extends OutputStream
      * @exception  IOException  if an I/O error occurs.
      */
     public void write(byte b[], int off, int len) throws IOException {
+        if (closed && len > 0) {
+            throw new IOException("Stream Closed");
+        }
+
         Object traceContext = IoTrace.fileWriteBegin(path);
         int bytesWritten = 0;
         try {

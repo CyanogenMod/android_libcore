@@ -284,6 +284,10 @@ class FileInputStream extends InputStream
      * @exception  IOException  if an I/O error occurs.
      */
     public int read(byte b[], int off, int len) throws IOException {
+        if (closed && len > 0) {
+            throw new IOException("Stream Closed");
+        }
+
         Object traceContext = IoTrace.fileReadBegin(path);
         int bytesRead = 0;
         try {
@@ -320,6 +324,10 @@ class FileInputStream extends InputStream
      *             support seek, or if an I/O error occurs.
      */
     public long skip(long n) throws IOException {
+      if (closed) {
+        throw new IOException("Stream Closed");
+      }
+
       try {
         return skip0(n);
       } catch(UseManualSkipException e) {
@@ -351,7 +359,15 @@ class FileInputStream extends InputStream
      * @exception  IOException  if this file input stream has been closed by calling
      *             {@code close} or an I/O error occurs.
      */
-    public native int available() throws IOException;
+    public int available() throws IOException {
+        if (closed) {
+            throw new IOException("Stream Closed");
+        }
+
+        return available0();
+    }
+
+    private native int available0() throws IOException;
 
     /**
      * Closes this file input stream and releases any system resources

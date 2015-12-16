@@ -130,7 +130,7 @@ static int available(int fd, jlong *bytes) {
 }
 
 JNIEXPORT jint JNICALL
-FileInputStream_available(JNIEnv *env, jobject this) {
+FileInputStream_available0(JNIEnv *env, jobject this) {
     jlong ret;
     FD fd = GET_FD(this, fis_fd);
     if (fd == -1) {
@@ -156,7 +156,7 @@ static JNINativeMethod gMethods[] = {
   NATIVE_METHOD(FileInputStream, initIDs, "()V"),
   NATIVE_METHOD(FileInputStream, open, "(Ljava/lang/String;)V"),
   NATIVE_METHOD(FileInputStream, skip0, "(J)J"),
-  NATIVE_METHOD(FileInputStream, available, "()I"),
+  NATIVE_METHOD(FileInputStream, available0, "()I"),
   //NATIVE_METHOD(FileInputStream, read0, "()I"),
   //NATIVE_METHOD(FileInputStream, readBytes, "([BII)I"),
   //NATIVE_METHOD(FileInputStream, close0, "()V"),
