@@ -926,6 +926,20 @@ public class Runtime {
         loadLibrary0(VMStack.getCallingClassLoader(), libname);
     }
 
+    /**
+     * Temporarily preserved for backward compatibility. Applications call this
+     * method using reflection.
+     *
+     * **** THIS METHOD WILL BE REMOVED IN A FUTURE ANDROID VERSION ****
+     *
+     * http://b/26217329
+     *
+     * @hide
+     */
+    public void loadLibrary(String libname, ClassLoader classLoader) {
+        loadLibrary0(classLoader, libname);
+    }
+
     synchronized void loadLibrary0(ClassLoader loader, String libname) {
         if (libname.indexOf((int)File.separatorChar) != -1) {
             throw new UnsatisfiedLinkError(
