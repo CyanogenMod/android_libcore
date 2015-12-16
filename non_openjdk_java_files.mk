@@ -362,7 +362,6 @@ non_openjdk_java_files := \
   luni/src/main/java/libcore/icu/NativeConverter.java \
   luni/src/main/java/libcore/icu/NativeDecimalFormat.java \
   luni/src/main/java/libcore/icu/RelativeDateTimeFormatter.java \
-  luni/src/main/java/libcore/icu/RuleBasedCollatorICU.java \
   luni/src/main/java/libcore/icu/TimeZoneNames.java \
   luni/src/main/java/libcore/internal/StringPool.java \
   luni/src/main/java/libcore/io/AsynchronousCloseMonitor.java \
