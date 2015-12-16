@@ -37,136 +37,15 @@
 
 #include <sys/poll.h>
 
-/*
- * Stack allocated by thread when doing blocking operation
- */
-typedef struct threadEntry {
-    pthread_t thr;                      /* this thread */
-    struct threadEntry *next;           /* next thread */
-    int intr;                           /* interrupted */
-} threadEntry_t;
 
-/*
- * Heap allocated during initialized - one entry per fd
- */
-typedef struct {
-    pthread_mutex_t lock;               /* fd lock */
-    threadEntry_t *threads;             /* threads blocked on fd */
-} fdEntry_t;
+#include "AsynchronousCloseMonitor.h"
+
+extern "C" {
 
 /*
  * Signal to unblock thread
  */
 static int sigWakeup = (__SIGRTMAX - 2);
-
-/*
- * The fd table and the number of file descriptors
- */
-static fdEntry_t *fdTable;
-static int fdCount;
-
-/*
- * Null signal handler
- */
-static void sig_wakeup(int sig) {
-}
-
-/*
- * Initialization routine (executed when library is loaded)
- * Allocate fd tables and sets up signal handler.
- */
-static void __attribute((constructor)) init() {
-    struct rlimit nbr_files;
-    sigset_t sigset;
-    struct sigaction sa;
-
-    /*
-     * Allocate table based on the maximum number of
-     * file descriptors.
-     */
-    getrlimit(RLIMIT_NOFILE, &nbr_files);
-    fdCount = nbr_files.rlim_max;
-    fdTable = (fdEntry_t *)calloc(fdCount, sizeof(fdEntry_t));
-    if (fdTable == NULL) {
-        fprintf(stderr, "library initialization failed - "
-                "unable to allocate file descriptor table - out of memory");
-        abort();
-    }
-
-    /*
-     * Setup the signal handler
-     */
-    sa.sa_handler = sig_wakeup;
-    sa.sa_flags   = 0;
-    sigemptyset(&sa.sa_mask);
-    sigaction(sigWakeup, &sa, NULL);
-
-    sigemptyset(&sigset);
-    sigaddset(&sigset, sigWakeup);
-    sigprocmask(SIG_UNBLOCK, &sigset, NULL);
-}
-
-/*
- * Return the fd table for this fd or NULL is fd out
- * of range.
- */
-static inline fdEntry_t *getFdEntry(int fd)
-{
-    if (fd < 0 || fd >= fdCount) {
-        return NULL;
-    }
-    return &fdTable[fd];
-}
-
-/*
- * Start a blocking operation :-
- *    Insert thread onto thread list for the fd.
- */
-static inline void startOp(fdEntry_t *fdEntry, threadEntry_t *self)
-{
-    self->thr = pthread_self();
-    self->intr = 0;
-
-    pthread_mutex_lock(&(fdEntry->lock));
-    {
-        self->next = fdEntry->threads;
-        fdEntry->threads = self;
-    }
-    pthread_mutex_unlock(&(fdEntry->lock));
-}
-
-/*
- * End a blocking operation :-
- *     Remove thread from thread list for the fd
- *     If fd has been interrupted then set errno to EBADF
- */
-static inline void endOp
-    (fdEntry_t *fdEntry, threadEntry_t *self)
-{
-    int orig_errno = errno;
-    pthread_mutex_lock(&(fdEntry->lock));
-    {
-        threadEntry_t *curr, *prev=NULL;
-        curr = fdEntry->threads;
-        while (curr != NULL) {
-            if (curr == self) {
-                if (curr->intr) {
-                    orig_errno = EBADF;
-                }
-                if (prev == NULL) {
-                    fdEntry->threads = curr->next;
-                } else {
-                    prev->next = curr->next;
-                }
-                break;
-            }
-            prev = curr;
-            curr = curr->next;
-        }
-    }
-    pthread_mutex_unlock(&(fdEntry->lock));
-    errno = orig_errno;
-}
 
 /*
  * Close or dup2 a file descriptor ensuring that all threads blocked on
@@ -179,50 +58,20 @@ static inline void endOp
  */
 static int closefd(int fd1, int fd2) {
     int rv, orig_errno;
-    fdEntry_t *fdEntry = getFdEntry(fd2);
-    if (fdEntry == NULL) {
-        errno = EBADF;
-        return -1;
-    }
+
+    AsynchronousCloseMonitor::signalBlockedThreads(fd2);
 
     /*
-     * Lock the fd to hold-off additional I/O on this fd.
+     * And close/dup the file descriptor
+     * (restart if interrupted by signal)
      */
-    pthread_mutex_lock(&(fdEntry->lock));
-
-    {
-        /*
-         * Send a wakeup signal to all threads blocked on this
-         * file descriptor.
-         */
-        threadEntry_t *curr = fdEntry->threads;
-        while (curr != NULL) {
-            curr->intr = 1;
-            pthread_kill( curr->thr, sigWakeup );
-            curr = curr->next;
-        }
-
-        /*
-         * And close/dup the file descriptor
-         * (restart if interrupted by signal)
-         */
-        do {
-            if (fd1 < 0) {
-                rv = close(fd2);
-            } else {
-                rv = dup2(fd1, fd2);
-            }
-        } while (rv == -1 && errno == EINTR);
-
-    }
-
-    /*
-     * Unlock without destroying errno
-     */
-    orig_errno = errno;
-    pthread_mutex_unlock(&(fdEntry->lock));
-    errno = orig_errno;
-
+    do {
+      if (fd1 < 0) {
+        rv = close(fd2);
+      } else {
+        rv = dup2(fd1, fd2);
+      }
+    } while (rv == -1 && errno == EINTR);
     return rv;
 }
 
@@ -257,19 +106,20 @@ int NET_SocketClose(int fd) {
  */
 #define BLOCKING_IO_RETURN_INT(FD, FUNC) {      \
     int ret;                                    \
-    threadEntry_t self;                         \
-    fdEntry_t *fdEntry = getFdEntry(FD);        \
-    if (fdEntry == NULL) {                      \
-        errno = EBADF;                          \
-        return -1;                              \
-    }                                           \
+    int _syscallErrno; \
     do {                                        \
-        startOp(fdEntry, &self);                \
-        ret = FUNC;                             \
-        endOp(fdEntry, &self);                  \
+        bool _wasSignaled; \
+        {                                       \
+            AsynchronousCloseMonitor _monitor(FD); \
+            ret = FUNC;                            \
+            _syscallErrno = errno; \
+            _wasSignaled = _monitor.wasSignaled(); \
+        } \
+        errno = _wasSignaled ? EBADF : _syscallErrno; \
     } while (ret == -1 && errno == EINTR);      \
     return ret;                                 \
 }
+
 
 int NET_Read(int s, void* buf, size_t len) {
     BLOCKING_IO_RETURN_INT( s, recv(s, buf, len, 0) );
@@ -329,15 +179,6 @@ int NET_Select(int s, fd_set *readfds, fd_set *writefds,
 int NET_Timeout(int s, long timeout) {
     long prevtime = 0, newtime;
     struct timeval t;
-    fdEntry_t *fdEntry = getFdEntry(s);
-
-    /*
-     * Check that fd hasn't been closed.
-     */
-    if (fdEntry == NULL) {
-        errno = EBADF;
-        return -1;
-    }
 
     /*
      * Pick up current time as may need to adjust timeout
@@ -350,7 +191,6 @@ int NET_Timeout(int s, long timeout) {
     for(;;) {
         struct pollfd pfd;
         int rv;
-        threadEntry_t self;
 
         /*
          * Poll the fd. If interrupted by our wakeup signal
@@ -359,9 +199,15 @@ int NET_Timeout(int s, long timeout) {
         pfd.fd = s;
         pfd.events = POLLIN | POLLERR;
 
-        startOp(fdEntry, &self);
-        rv = poll(&pfd, 1, timeout);
-        endOp(fdEntry, &self);
+        bool wasSignaled;
+        int syscallErrno;
+        {
+          AsynchronousCloseMonitor monitor(s);
+          rv = poll(&pfd, 1, timeout);
+          syscallErrno = errno;
+          wasSignaled = monitor.wasSignaled();
+        }
+        errno = wasSignaled ? EBADF : syscallErrno;
 
         /*
          * If interrupted then adjust timeout. If timeout
@@ -382,4 +228,6 @@ int NET_Timeout(int s, long timeout) {
         }
 
     }
+}
+
 }

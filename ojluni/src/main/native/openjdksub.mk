@@ -43,7 +43,7 @@ LOCAL_SRC_FILES := \
     MappedByteBuffer.c \
     Inet6Address.c \
     Inet4Address.c \
-    linux_close.c \
+    linux_close.cpp \
     PlainSocketImpl.c \
     PlainDatagramSocketImpl.c \
     NetworkInterface.c \

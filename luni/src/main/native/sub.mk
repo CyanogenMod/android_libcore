@@ -4,7 +4,6 @@
 # or BUILD_*_LIBRARY.
 
 LOCAL_SRC_FILES := \
-    AsynchronousCloseMonitor.cpp \
     ExecStrings.cpp \
     IcuUtilities.cpp \
     JniException.cpp \
