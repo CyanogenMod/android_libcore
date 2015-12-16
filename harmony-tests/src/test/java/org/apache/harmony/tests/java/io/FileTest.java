@@ -1141,10 +1141,6 @@ public class FileTest extends TestCase {
         assertEquals("LastModified Time Incorrect",
                 315550800000L, lastModifiedTime);
         f.delete();
-
-        // Regression for HARMONY-2146
-        f = new File("/../");
-        assertTrue(f.lastModified() > 0);
     }
 
     /**
