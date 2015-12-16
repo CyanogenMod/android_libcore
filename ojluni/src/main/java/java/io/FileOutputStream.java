@@ -56,7 +56,7 @@ class FileOutputStream extends OutputStream
     /**
      * The system dependent file descriptor.
      */
-    private FileDescriptor fd;
+    private final FileDescriptor fd;
 
     /**
      * The path of the referenced file (null if the stream is created with a file descriptor)
@@ -72,11 +72,6 @@ class FileOutputStream extends OutputStream
      * The associated channel, initalized lazily.
      */
     private FileChannel channel;
-
-    /**
-     * True if the current stream owns the file descriptor.
-     */
-    private boolean isOwner;
 
     private final Object closeLock = new Object();
     private volatile boolean closed = false;
@@ -220,7 +215,6 @@ class FileOutputStream extends OutputStream
             throw new FileNotFoundException("Invalid file path");
         }
         this.fd = new FileDescriptor();
-        this.isOwner = true;
         this.append = append;
         this.path = name;
         fd.incrementAndGetUseCount();
@@ -266,7 +260,6 @@ class FileOutputStream extends OutputStream
         }
 
         this.fd = fdObj;
-        this.isOwner = isFdOwner;
         this.path = null;
         this.append = false;
 
@@ -409,13 +402,15 @@ class FileOutputStream extends OutputStream
         int useCount = fd.decrementAndGetUseCount();
 
         /*
-         * The file descriptor will close with the closing of
-         * the owner thread.
+         * If FileDescriptor is still in use by another stream, the finalizer
+         * will not close it.
          */
-        if (isOwner) {
+        // Android change, make sure only last close closes FD.
+        if ((useCount <= 0)) { // || !isRunningFinalize()) {
+            /* ----- BEGIN android -----
+            close0(); */
             IoBridge.closeAndSignalBlockedThreads(fd);
-        } else {
-            fd = new FileDescriptor();
+            // ----- END android -----
         }
     }
 
