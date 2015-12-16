@@ -615,20 +615,6 @@ public class BufferTest extends TestCase {
         assertEquals(0, array[b.arrayOffset()]);
     }
 
-    // Test that direct byte buffers are 8 byte aligned.
-    // http://b/16449607
-    public void testDirectByteBufferAlignment() throws Exception {
-        ByteBuffer b = ByteBuffer.allocateDirect(10);
-        Field addressField = Buffer.class.getDeclaredField("address");
-        assertTrue(addressField != null);
-        addressField.setAccessible(true);
-        long address = addressField.getLong(b);
-        // Check that the address field is aligned by 8.
-        // Normally reading this field happens in native code by calling
-        // GetDirectBufferAddress.
-        assertEquals(0, address % 8);
-    }
-
     public void testSliceOffset() throws Exception {
         // Slicing changes the array offset.
         ByteBuffer buffer = ByteBuffer.allocate(10);

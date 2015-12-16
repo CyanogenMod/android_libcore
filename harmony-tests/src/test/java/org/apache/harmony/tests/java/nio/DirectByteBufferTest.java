@@ -15,6 +15,8 @@
  */
 package org.apache.harmony.tests.java.nio;
 
+import java.lang.reflect.Field;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
@@ -37,7 +39,6 @@ public class DirectByteBufferTest extends ByteBufferTest {
 
     /**
      * @tests java.nio.ByteBuffer#allocateDirect(int)
-     *
      */
     public void testAllocatedByteBuffer_IllegalArg() {
         try {
@@ -75,7 +76,7 @@ public class DirectByteBufferTest extends ByteBufferTest {
 
             // 2 byte swaps.
             ShortBuffer shortBuf = buf.asShortBuffer();
-            short[] shortArray = new short[] { 42, 24 };
+            short[] shortArray = new short[]{42, 24};
 
             // Write.
             shortBuf.put(shortArray);
@@ -89,7 +90,7 @@ public class DirectByteBufferTest extends ByteBufferTest {
             buf.position(i);
             // 4 byte swaps.
             IntBuffer intBuf = buf.asIntBuffer();
-            int[] intArray = new int[] { 967, 1983 };
+            int[] intArray = new int[]{967, 1983};
             // Write.
             intBuf.put(intArray);
             // Read
@@ -103,7 +104,7 @@ public class DirectByteBufferTest extends ByteBufferTest {
             buf.position(i);
             // 8 byte swaps.
             LongBuffer longBuf = buf.asLongBuffer();
-            long[] longArray = new long[] { 2147484614L, 2147485823L };
+            long[] longArray = new long[]{2147484614L, 2147485823L};
             // Write.
             longBuf.put(longArray);
             // Read
@@ -118,24 +119,29 @@ public class DirectByteBufferTest extends ByteBufferTest {
     public void testIsAccessible() {
         buf.clear();
         assertTrue(buf.isAccessible());
-        loadTestData1(buf);
+        buf.get(0);
         buf.setAccessible(false);
         try {
-            loadTestData1(buf);
+            buf.get(0);
             fail("should throw exception");
         } catch (IllegalStateException e) {
             // expected
         }
-
         buf.setAccessible(true);
-        loadTestData1(buf);
+        buf.get(0);
     }
 
-    private void loadTestData1(ByteBuffer buf) {
-        buf.clear();
-        for (int i = 0; i < buf.capacity(); i++) {
-            buf.put(i, (byte) i);
-        }
+    // Test that direct byte buffers are 8 byte aligned.
+    // http://b/16449607
+    public void testDirectByteBufferAlignment() throws Exception {
+        Field addressField = Buffer.class.getDeclaredField("address");
+        assertTrue(addressField != null);
+        addressField.setAccessible(true);
+        long address = addressField.getLong(buf);
+        // Check that the address field is aligned by 8.
+        // Normally reading this field happens in native code by calling
+        // GetDirectBufferAddress.
+        assertEquals(0, address % 8);
     }
 
 }
