@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1996, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1996, 2013, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -450,6 +450,62 @@ public class X509CertImpl extends X509Certificate implements DerEncoder {
         if (verificationResult == false) {
             throw new SignatureException("Signature does not match.");
         }
+    }
+
+    /**
+     * Throws an exception if the certificate was not signed using the
+     * verification key provided.  This method uses the signature verification
+     * engine supplied by the specified provider. Note that the specified
+     * Provider object does not have to be registered in the provider list.
+     * Successfully verifying a certificate does <em>not</em> indicate that one
+     * should trust the entity which it represents.
+     *
+     * @param key the public key used for verification.
+     * @param sigProvider the provider.
+     *
+     * @exception NoSuchAlgorithmException on unsupported signature
+     * algorithms.
+     * @exception InvalidKeyException on incorrect key.
+     * @exception SignatureException on signature errors.
+     * @exception CertificateException on encoding errors.
+     */
+    public synchronized void verify(PublicKey key, Provider sigProvider)
+            throws CertificateException, NoSuchAlgorithmException,
+            InvalidKeyException, SignatureException {
+        if (signedCert == null) {
+            throw new CertificateEncodingException("Uninitialized certificate");
+        }
+        // Verify the signature ...
+        Signature sigVerf = null;
+        if (sigProvider == null) {
+            sigVerf = Signature.getInstance(algId.getName());
+        } else {
+            sigVerf = Signature.getInstance(algId.getName(), sigProvider);
+        }
+        sigVerf.initVerify(key);
+
+        byte[] rawCert = info.getEncodedInfo();
+        sigVerf.update(rawCert, 0, rawCert.length);
+
+        // verify may throw SignatureException for invalid encodings, etc.
+        verificationResult = sigVerf.verify(signature);
+        verifiedPublicKey = key;
+
+        if (verificationResult == false) {
+            throw new SignatureException("Signature does not match.");
+        }
+    }
+
+     /**
+     * This static method is the default implementation of the
+     * verify(PublicKey key, Provider sigProvider) method in X509Certificate.
+     * Called from java.security.cert.X509Certificate.verify(PublicKey key,
+     * Provider sigProvider)
+     */
+    public static void verify(X509Certificate cert, PublicKey key,
+            Provider sigProvider) throws CertificateException,
+            NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+        cert.verify(key, sigProvider);
     }
 
     /**

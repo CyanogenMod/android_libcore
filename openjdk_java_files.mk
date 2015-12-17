@@ -512,6 +512,7 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/java/security/cert/CertPathBuilderSpi.java \
     ojluni/src/main/java/java/security/cert/CertPathHelperImpl.java \
     ojluni/src/main/java/java/security/cert/CertPath.java \
+    ojluni/src/main/java/java/security/cert/CertPathChecker.java \
     ojluni/src/main/java/java/security/cert/CertPathParameters.java \
     ojluni/src/main/java/java/security/cert/CertPathValidatorException.java \
     ojluni/src/main/java/java/security/cert/CertPathValidator.java \
@@ -536,6 +537,7 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/java/security/cert/PKIXCertPathValidatorResult.java \
     ojluni/src/main/java/java/security/cert/PKIXParameters.java \
     ojluni/src/main/java/java/security/cert/PKIXReason.java \
+    ojluni/src/main/java/java/security/cert/PKIXRevocationChecker.java \
     ojluni/src/main/java/java/security/cert/PolicyNode.java \
     ojluni/src/main/java/java/security/cert/PolicyQualifierInfo.java \
     ojluni/src/main/java/java/security/cert/TrustAnchor.java \
