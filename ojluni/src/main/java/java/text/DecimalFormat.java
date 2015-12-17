@@ -796,6 +796,11 @@ public class DecimalFormat extends NumberFormat {
      *             <code>pos</code> is null.
      */
     public Number parse(String text, ParsePosition pos) {
+        // Return early if the parse position is bogus.
+        if (pos.index < 0 || pos.index >= text.length()) {
+            return null;
+        }
+
         // This might return android.icu.math.BigDecimal, java.math.BigInteger or a primitive type.
         Number number = icuDecimalFormat.parse(text, pos);
         if (number == null) {
