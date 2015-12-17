@@ -156,12 +156,10 @@ class SourceChannelImpl
     }
 
     public int read(ByteBuffer dst) throws IOException {
-        ensureOpen();
-        // ----- BEGIN android -----
         if (dst == null) {
-          throw new NullPointerException();
+            throw new NullPointerException();
         }
-        // ----- END android -----
+        ensureOpen();
         synchronized (lock) {
             int n = 0;
             try {
