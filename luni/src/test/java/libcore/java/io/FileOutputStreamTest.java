@@ -57,6 +57,9 @@ public class FileOutputStreamTest extends TestCase {
             fail();
         } catch (IOException expected) {
         }
+
+        // FD is no longer owned by any stream, should be invalidated.
+        assertFalse(fos1.getFD().valid());
     }
 
     public void testClose() throws Exception {
