@@ -38,8 +38,14 @@ import java.nio.ShortBuffer;
 import java.nio.channels.FileChannel;
 import java.util.Arrays;
 import libcore.io.SizeOf;
+import libcore.io.Memory;
 
 public class BufferTest extends TestCase {
+
+    static {
+        System.loadLibrary("javacoretests");
+    }
+
     private static ByteBuffer allocateMapped(int size) throws Exception {
         File f = File.createTempFile("mapped", "tmp");
         f.deleteOnExit();
@@ -613,6 +619,65 @@ public class BufferTest extends TestCase {
         assertEquals(1, array[b.arrayOffset()]);
         b.put(0, (byte) 0);
         assertEquals(0, array[b.arrayOffset()]);
+    }
+
+    // Test that direct byte buffers are 8 byte aligned.
+    // http://b/16449607
+    public void testDirectByteBufferAlignment() throws Exception {
+        ByteBuffer b = ByteBuffer.allocateDirect(10);
+        Field addressField = Buffer.class.getDeclaredField("address");
+        assertTrue(addressField != null);
+        addressField.setAccessible(true);
+        long address = addressField.getLong(b);
+        // Check that the address field is aligned by 8.
+        // Normally reading this field happens in native code by calling
+        // GetDirectBufferAddress.
+        assertEquals(0, address % 8);
+    }
+
+    public static native long jniGetDirectBufferAddress(Buffer buf);
+    public static native long jniGetDirectBufferCapacity(Buffer buf);
+
+    // Test that JNI GetDirectBufferAddress and GetDirectBufferCapacity work as expected for
+    // direct ByteBuffers.
+    // http://b/26233076
+    public void testDirectByteBufferJniGetDirectBufferAddressAndCapacity() throws Exception {
+        // Create a direct ByteBuffer with the following contents.
+        byte[] contents = "Testing, 1, 2, 3...".getBytes("US-ASCII");
+        ByteBuffer original = ByteBuffer.allocateDirect(contents.length);
+        original.put(contents);
+
+        // Check the content of the original buffer by reading the memory it references.
+        long originalAddress = jniGetDirectBufferAddress(original);
+        if (originalAddress == 0) {
+            fail("Obtaining address of direct ByteBuffer not supported");
+        }
+        long originalCapacity = jniGetDirectBufferCapacity(original);
+        assertEquals(contents.length, originalCapacity);
+        byte[] originalData = new byte[original.capacity()];
+        Memory.peekByteArray(originalAddress, originalData, 0, originalData.length);
+        assertTrue(new String(originalData, "US-ASCII"), Arrays.equals(contents, originalData));
+
+        // Slice the buffer and check the content of the result.
+        // The slice starts at offset 3 of the original and is 5 bytes shorter than the original.
+        original.position(3);
+        original.limit(original.capacity() - 2);
+        ByteBuffer slice = original.slice();
+        System.out.println("original: " + original + ", slice: " + slice);
+
+        long sliceAddress = jniGetDirectBufferAddress(slice);
+        System.out.println("originalAddress: 0x" + Long.toHexString(originalAddress)
+            + ", sliceAddress: 0x" + Long.toHexString(sliceAddress));
+        assertEquals(3 + originalAddress, sliceAddress);
+        long sliceCapacity = jniGetDirectBufferCapacity(slice);
+        assertEquals(originalCapacity - 5, sliceCapacity);
+        byte[] actualSliceData = new byte[slice.capacity()];
+        Memory.peekByteArray(sliceAddress, actualSliceData, 0, actualSliceData.length);
+        byte[] expectedSliceData = new byte[slice.capacity()];
+        System.arraycopy(originalData, 3, expectedSliceData, 0, expectedSliceData.length);
+        assertTrue(
+                new String(actualSliceData, "US-ASCII"),
+                Arrays.equals(expectedSliceData, actualSliceData));
     }
 
     public void testSliceOffset() throws Exception {

@@ -123,7 +123,7 @@ public class DirectByteBuffer extends MappedByteBuffer implements DirectBuffer {
         super(mark, pos, lim, cap, memoryRef.buffer, off);
         this.isReadOnly = isReadOnly;
         this.memoryRef = memoryRef;
-        address = memoryRef.allocatedAddress + memoryRef.offset;
+        address = memoryRef.allocatedAddress + off;
         cleaner = null;
     }
 
@@ -176,14 +176,13 @@ public class DirectByteBuffer extends MappedByteBuffer implements DirectBuffer {
                 true);
     }
 
+    @Override
     public long address() {
-        // TODO(narayan): Investigate how this is used. We might need to return
-        // an address that includes full offset for sliced buffers.
         return address;
     }
 
     private long ix(int i) {
-        return memoryRef.allocatedAddress + offset + i;
+        return address + i;
     }
 
     private byte get(long a) {
