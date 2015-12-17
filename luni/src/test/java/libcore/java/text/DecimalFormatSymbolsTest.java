@@ -111,11 +111,8 @@ public class DecimalFormatSymbolsTest extends junit.framework.TestCase {
     // http://b/18785260
     public void testMultiCharMinusSignAndPercentage() {
         DecimalFormatSymbols dfs = new DecimalFormatSymbols(Locale.forLanguageTag("ar-AR"));
-        // TODO(narayan): Investigate.
-        // assertTrue(dfs.getMinusSign().length() > 1);
-        // assertTrue(dfs.getPercent().length() > 1);
 
-        assertEquals('%', dfs.getPercent());
+        assertEquals('٪', dfs.getPercent());
         assertEquals('-', dfs.getMinusSign());
     }
 

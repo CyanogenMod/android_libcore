@@ -44,7 +44,6 @@ import java.io.Serializable;
 import java.text.spi.DecimalFormatSymbolsProvider;
 import java.util.Currency;
 import java.util.Locale;
-import java.util.ResourceBundle;
 import java.util.concurrent.ConcurrentHashMap;
 import libcore.icu.LocaleData;
 
@@ -565,15 +564,15 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
             LocaleData localeData = LocaleData.get(locale);
             data = new Object[3];
             String[] values = new String[11];
-            values[0] = localeData.decimalSeparator + "";
-            values[1] = localeData.groupingSeparator + "";
-            values[2] = localeData.patternSeparator + "";
-            values[3] = localeData.percent + "";
-            values[4] = localeData.zeroDigit + "";
+            values[0] = String.valueOf(localeData.decimalSeparator);
+            values[1] = String.valueOf(localeData.groupingSeparator);
+            values[2] = String.valueOf(localeData.patternSeparator);
+            values[3] = String.valueOf(localeData.percent);
+            values[4] = String.valueOf(localeData.zeroDigit);
             values[5] = "#";
             values[6] = localeData.minusSign;
             values[7] = localeData.exponentSeparator;
-            values[8] = localeData.perMill + "";
+            values[8] = String.valueOf(localeData.perMill);
             values[9] = localeData.infinity;
             values[10] = localeData.NaN;
             data[0] = values;
@@ -585,10 +584,10 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
         decimalSeparator = numberElements[0].charAt(0);
         groupingSeparator = numberElements[1].charAt(0);
         patternSeparator = numberElements[2].charAt(0);
-        percent = numberElements[3].charAt(0);
+        percent = maybeStripMarkers(numberElements[3], '%');
         zeroDigit = numberElements[4].charAt(0); //different for Arabic,etc.
         digit = numberElements[5].charAt(0);
-        minusSign = numberElements[6].charAt(0);
+        minusSign = maybeStripMarkers(numberElements[6], '-');
         exponential = numberElements[7].charAt(0);
         exponentialSeparator = numberElements[7]; //string representation new since 1.6
         perMill = numberElements[8].charAt(0);
@@ -633,6 +632,28 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
         if (needCacheUpdate) {
             cachedLocaleData.putIfAbsent(locale, data);
         }
+    }
+
+    /**
+     * Attempts to strip RTL, LTR and Arabic letter markers from {@code symbol}. If the symbol's
+     * length is 1, then the first char of the symbol is returned. If the symbol's length is 2 and
+     * the first char is a marker, then the second char is returned. In all other cases,
+     * {@code fallback} is returned.
+     */
+    private static char maybeStripMarkers(String symbol, char fallback) {
+        final int length = symbol.length();
+        if (length == 1) {
+            return symbol.charAt(0);
+        }
+
+        if (length == 2) {
+            char first = symbol.charAt(0);
+            if (first =='\u200E' || first =='\u200F' || first =='\u061C'); {
+                return symbol.charAt(1);
+            }
+        }
+
+        return fallback;
     }
 
     /**
