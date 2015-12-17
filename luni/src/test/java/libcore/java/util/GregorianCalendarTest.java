@@ -17,40 +17,49 @@
 package libcore.java.util;
 
 
-import junit.framework.TestCase;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.Locale;
+import java.util.TimeZone;
+import junit.framework.TestCase;
 
 public class GregorianCalendarTest extends TestCase {
 
-    // https://code.google.com/p/android/issues/detail?id=61993
+    private static final TimeZone LOS_ANGELES = TimeZone.getTimeZone("America/Los_Angeles");
+
+    // Documented a previous difference in behavior between this and the RI, see
+    // https://code.google.com/p/android/issues/detail?id=61993 for more details.
+    // Switching to OpenJDK has fixed that issue and so this test has been changed to reflect
+    // the correct behavior.
     public void test_computeFields_dayOfWeekAndWeekOfYearSet() {
-        Calendar greg = GregorianCalendar.getInstance();
+        Calendar greg = new GregorianCalendar(LOS_ANGELES, Locale.ENGLISH);
+
+        // Ensure we use different values to the default ones.
+        int differentWeekOfYear = greg.get(Calendar.WEEK_OF_YEAR) == 1 ? 2 : 1;
+        int differentDayOfWeek = greg.get(Calendar.DAY_OF_WEEK) == Calendar.MONDAY
+                ? Calendar.TUESDAY : Calendar.MONDAY;
 
         // Setting WEEK_OF_YEAR and DAY_OF_WEEK with an intervening
         // call to computeFields will work.
-        greg.set(Calendar.WEEK_OF_YEAR, 1);
-        assertEquals(1, greg.get(Calendar.WEEK_OF_YEAR));
-        greg.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
-        assertEquals(1, greg.get(Calendar.WEEK_OF_YEAR));
+        greg.set(Calendar.WEEK_OF_YEAR, differentWeekOfYear);
+        assertEquals(differentWeekOfYear, greg.get(Calendar.WEEK_OF_YEAR));
+        greg.set(Calendar.DAY_OF_WEEK, differentDayOfWeek);
+        assertEquals(differentWeekOfYear, greg.get(Calendar.WEEK_OF_YEAR));
 
         // Setting WEEK_OF_YEAR after DAY_OF_WEEK with no intervening
         // call to computeFields will work.
-        greg = GregorianCalendar.getInstance();
-        greg.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
-        greg.set(Calendar.WEEK_OF_YEAR, 1);
-        assertEquals(1, greg.get(Calendar.WEEK_OF_YEAR));
-        assertEquals(Calendar.MONDAY, greg.get(Calendar.DAY_OF_WEEK));
+        greg = new GregorianCalendar(LOS_ANGELES, Locale.ENGLISH);
+        greg.set(Calendar.DAY_OF_WEEK, differentDayOfWeek);
+        greg.set(Calendar.WEEK_OF_YEAR, differentWeekOfYear);
+        assertEquals(differentWeekOfYear, greg.get(Calendar.WEEK_OF_YEAR));
+        assertEquals(differentDayOfWeek, greg.get(Calendar.DAY_OF_WEEK));
 
-        // Setting DAY_OF_WEEK *after* WEEK_OF_YEAR with no intervening computeFields
-        // will make WEEK_OF_YEAR have no effect. This is a limitation of the API.
-        // Combinations are chosen based *only* on the value of the last field set,
-        // which in this case is DAY_OF_WEEK.
-        greg = GregorianCalendar.getInstance();
-        int weekOfYear = greg.get(Calendar.WEEK_OF_YEAR);
-        greg.set(Calendar.WEEK_OF_YEAR, 1);
-        greg.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
-        // Unchanged WEEK_OF_YEAR.
-        assertEquals(weekOfYear, greg.get(Calendar.WEEK_OF_YEAR));
+        // Setting DAY_OF_WEEK after WEEK_OF_YEAR with no intervening
+        // call to computeFields will work.
+        greg = new GregorianCalendar(LOS_ANGELES, Locale.ENGLISH);
+        greg.set(Calendar.WEEK_OF_YEAR, differentWeekOfYear);
+        greg.set(Calendar.DAY_OF_WEEK, differentDayOfWeek);
+        assertEquals(differentWeekOfYear, greg.get(Calendar.WEEK_OF_YEAR));
+        assertEquals(differentDayOfWeek, greg.get(Calendar.DAY_OF_WEEK));
     }
 }
