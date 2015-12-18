@@ -1314,11 +1314,41 @@ openjdk_java_files := \
     ojluni/src/main/java/sun/security/pkcs/PKCS9Attributes.java \
     ojluni/src/main/java/sun/security/pkcs/SignerInfo.java \
     ojluni/src/main/java/sun/security/pkcs/SigningCertificateInfo.java \
+    ojluni/src/main/java/sun/security/provider/certpath/AdaptableX509CertSelector.java \
+    ojluni/src/main/java/sun/security/provider/certpath/AdjacencyList.java \
     ojluni/src/main/java/sun/security/provider/certpath/AlgorithmChecker.java \
+    ojluni/src/main/java/sun/security/provider/certpath/BasicChecker.java \
+    ojluni/src/main/java/sun/security/provider/certpath/BuildStep.java \
+    ojluni/src/main/java/sun/security/provider/certpath/Builder.java \
+    ojluni/src/main/java/sun/security/provider/certpath/CertId.java \
     ojluni/src/main/java/sun/security/provider/certpath/CertPathHelper.java \
+    ojluni/src/main/java/sun/security/provider/certpath/CertStoreHelper.java \
+    ojluni/src/main/java/sun/security/provider/certpath/ConstraintsChecker.java \
+    ojluni/src/main/java/sun/security/provider/certpath/DistributionPointFetcher.java \
+    ojluni/src/main/java/sun/security/provider/certpath/ForwardBuilder.java \
+    ojluni/src/main/java/sun/security/provider/certpath/ForwardState.java \
+    ojluni/src/main/java/sun/security/provider/certpath/KeyChecker.java \
+    ojluni/src/main/java/sun/security/provider/certpath/OCSP.java \
+    ojluni/src/main/java/sun/security/provider/certpath/OCSPRequest.java \
+    ojluni/src/main/java/sun/security/provider/certpath/OCSPResponse.java \
+    ojluni/src/main/java/sun/security/provider/certpath/PKIX.java \
+    ojluni/src/main/java/sun/security/provider/certpath/PKIXCertPathValidator.java \
+    ojluni/src/main/java/sun/security/provider/certpath/PKIXMasterCertPathValidator.java \
+    ojluni/src/main/java/sun/security/provider/certpath/PolicyChecker.java \
+    ojluni/src/main/java/sun/security/provider/certpath/PolicyNodeImpl.java \
+    ojluni/src/main/java/sun/security/provider/certpath/ReverseBuilder.java \
+    ojluni/src/main/java/sun/security/provider/certpath/ReverseState.java \
+    ojluni/src/main/java/sun/security/provider/certpath/RevocationChecker.java \
+    ojluni/src/main/java/sun/security/provider/certpath/State.java \
+    ojluni/src/main/java/sun/security/provider/certpath/SunCertPathBuilder.java \
+    ojluni/src/main/java/sun/security/provider/certpath/SunCertPathBuilderException.java \
+    ojluni/src/main/java/sun/security/provider/certpath/SunCertPathBuilderParameters.java \
+    ojluni/src/main/java/sun/security/provider/certpath/SunCertPathBuilderResult.java \
+    ojluni/src/main/java/sun/security/provider/certpath/URICertStore.java \
     ojluni/src/main/java/sun/security/provider/certpath/UntrustedChecker.java \
-    ojluni/src/main/java/sun/security/provider/certpath/X509CertificatePair.java \
+    ojluni/src/main/java/sun/security/provider/certpath/Vertex.java \
     ojluni/src/main/java/sun/security/provider/certpath/X509CertPath.java \
+    ojluni/src/main/java/sun/security/provider/certpath/X509CertificatePair.java \
     ojluni/src/main/java/sun/security/provider/NativePRNG.java \
     ojluni/src/main/java/sun/security/provider/NativeSeedGenerator.java \
     ojluni/src/main/java/sun/security/provider/SecureRandom.java \

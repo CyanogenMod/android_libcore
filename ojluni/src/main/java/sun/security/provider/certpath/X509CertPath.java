@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2012, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -25,7 +25,6 @@
 
 package sun.security.provider.certpath;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -34,9 +33,10 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
+import java.security.cert.CertPath;
 import java.security.cert.X509Certificate;
 import java.util.*;
-import java.security.cert.CertPath;
+
 import sun.security.pkcs.ContentInfo;
 import sun.security.pkcs.PKCS7;
 import sun.security.pkcs.SignerInfo;
@@ -44,7 +44,6 @@ import sun.security.x509.AlgorithmId;
 import sun.security.util.DerValue;
 import sun.security.util.DerOutputStream;
 import sun.security.util.DerInputStream;
-
 
 /**
  * A {@link java.security.cert.CertPath CertPath} (certification path)
@@ -84,7 +83,7 @@ public class X509CertPath extends CertPath {
     private static final Collection<String> encodingList;
 
     static {
-        List<String> list = new ArrayList<String>(2);
+        List<String> list = new ArrayList<>(2);
         list.add(PKIPATH_ENCODING);
         list.add(PKCS7_ENCODING);
         encodingList = Collections.unmodifiableCollection(list);
@@ -101,11 +100,18 @@ public class X509CertPath extends CertPath {
      * @exception CertificateException if <code>certs</code> contains an element
      *                      that is not an <code>X509Certificate</code>
      */
+    @SuppressWarnings("unchecked")
     public X509CertPath(List<? extends Certificate> certs) throws CertificateException {
         super("X.509");
 
         // Ensure that the List contains only X509Certificates
-        for (Object obj : (List<?>)certs) {
+        //
+        // Note; The certs parameter is not necessarily to be of Certificate
+        // for some old code. For compatibility, to make sure the exception
+        // is CertificateException, rather than ClassCastException, please
+        // don't use
+        //     for (Certificate obj : certs)
+        for (Object obj : certs) {
             if (obj instanceof X509Certificate == false) {
                 throw new CertificateException
                     ("List is not all X509Certificates: "
@@ -147,12 +153,15 @@ public class X509CertPath extends CertPath {
             throws CertificateException {
         super("X.509");
 
-        if (PKIPATH_ENCODING.equals(encoding)) {
-            certs = parsePKIPATH(is);
-        } else if (PKCS7_ENCODING.equals(encoding)) {
-            certs = parsePKCS7(is);
-        } else {
-            throw new CertificateException("unsupported encoding");
+        switch (encoding) {
+            case PKIPATH_ENCODING:
+                certs = parsePKIPATH(is);
+                break;
+            case PKCS7_ENCODING:
+                certs = parsePKCS7(is);
+                break;
+            default:
+                throw new CertificateException("unsupported encoding");
         }
     }
 
@@ -192,10 +201,8 @@ public class X509CertPath extends CertPath {
             return Collections.unmodifiableList(certList);
 
         } catch (IOException ioe) {
-            CertificateException ce = new CertificateException("IOException" +
-                " parsing PkiPath data: " + ioe);
-            ce.initCause(ioe);
-            throw ce;
+            throw new CertificateException("IOException parsing PkiPath data: "
+                    + ioe, ioe);
         }
     }
 
@@ -220,7 +227,7 @@ public class X509CertPath extends CertPath {
                 // Copy the entire input stream into an InputStream that does
                 // support mark
                 is = new ByteArrayInputStream(readAllBytes(is));
-            };
+            }
             PKCS7 pkcs7 = new PKCS7(is);
 
             X509Certificate[] certArray = pkcs7.getCertificates();
@@ -265,6 +272,7 @@ public class X509CertPath extends CertPath {
      * @return the encoded bytes
      * @exception CertificateEncodingException if an encoding error occurs
      */
+    @Override
     public byte[] getEncoded() throws CertificateEncodingException {
         // @@@ Should cache the encoded form
         return encodePKIPATH();
@@ -301,10 +309,8 @@ public class X509CertPath extends CertPath {
             return derout.toByteArray();
 
         } catch (IOException ioe) {
-           CertificateEncodingException ce = new CertificateEncodingException
-                ("IOException encoding PkiPath data: " + ioe);
-           ce.initCause(ioe);
-           throw ce;
+           throw new CertificateEncodingException("IOException encoding " +
+                   "PkiPath data: " + ioe, ioe);
         }
     }
 
@@ -337,14 +343,16 @@ public class X509CertPath extends CertPath {
      * @exception CertificateEncodingException if an encoding error occurs or
      *   the encoding requested is not supported
      */
+    @Override
     public byte[] getEncoded(String encoding)
             throws CertificateEncodingException {
-        if (PKIPATH_ENCODING.equals(encoding)) {
-            return encodePKIPATH();
-        } else if (PKCS7_ENCODING.equals(encoding)) {
-            return encodePKCS7();
-        } else {
-            throw new CertificateEncodingException("unsupported encoding");
+        switch (encoding) {
+            case PKIPATH_ENCODING:
+                return encodePKIPATH();
+            case PKCS7_ENCODING:
+                return encodePKCS7();
+            default:
+                throw new CertificateEncodingException("unsupported encoding");
         }
     }
 
@@ -370,6 +378,7 @@ public class X509CertPath extends CertPath {
      * @return an <code>Iterator</code> over the names of the supported
      *         encodings (as Strings)
      */
+    @Override
     public Iterator<String> getEncodings() {
         return getEncodingsStatic();
     }
@@ -381,6 +390,7 @@ public class X509CertPath extends CertPath {
      * @return an immutable <code>List</code> of <code>X509Certificate</code>s
      *         (may be empty, but not null)
      */
+    @Override
     public List<X509Certificate> getCertificates() {
         return certs;
     }
