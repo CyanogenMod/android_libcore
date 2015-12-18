@@ -866,6 +866,10 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/java/util/Vector.java \
     ojluni/src/main/java/java/util/WeakHashMap.java \
     ojluni/src/main/java/java/util/XMLUtils.java \
+    ojluni/src/main/java/java/util/regex/PatternSyntaxException.java \
+    ojluni/src/main/java/java/util/regex/Pattern.java \
+    ojluni/src/main/java/java/util/regex/Matcher.java \
+    ojluni/src/main/java/java/util/regex/MatchResult.java \
     ojluni/src/main/java/java/util/zip/Adler32.java \
     ojluni/src/main/java/java/util/zip/CheckedInputStream.java \
     ojluni/src/main/java/java/util/zip/CheckedOutputStream.java \
