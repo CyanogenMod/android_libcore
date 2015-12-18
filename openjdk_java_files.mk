@@ -1353,6 +1353,7 @@ openjdk_java_files := \
     ojluni/src/main/java/sun/security/provider/NativeSeedGenerator.java \
     ojluni/src/main/java/sun/security/provider/SecureRandom.java \
     ojluni/src/main/java/sun/security/provider/SeedGenerator.java \
+    ojluni/src/main/java/sun/security/provider/Sun.java \
     ojluni/src/main/java/sun/security/provider/SunEntries.java \
     ojluni/src/main/java/sun/security/provider/VerificationProvider.java \
     ojluni/src/main/java/sun/security/provider/X509Factory.java \
