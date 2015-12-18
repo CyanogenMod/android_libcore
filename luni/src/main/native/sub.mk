@@ -18,9 +18,7 @@ LOCAL_SRC_FILES := \
     java_util_regex_Matcher.cpp \
     java_util_regex_Pattern.cpp \
     libcore_icu_ICU.cpp \
-    libcore_icu_NativeCollation.cpp \
     libcore_icu_NativeConverter.cpp \
-    libcore_icu_NativeDecimalFormat.cpp \
     libcore_icu_TimeZoneNames.cpp \
     libcore_io_AsynchronousCloseMonitor.cpp \
     libcore_io_Memory.cpp \

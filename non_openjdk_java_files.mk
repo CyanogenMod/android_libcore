@@ -345,16 +345,13 @@ non_openjdk_java_files := \
   dalvik/src/main/java/dalvik/system/profiler/ThreadSampler.java \
   luni/src/main/java/android/system/UnixSocketAddress.java \
   luni/src/main/java/java/net/AddressCache.java \
-  luni/src/main/java/libcore/icu/CollationElementIteratorICU.java \
   luni/src/main/java/libcore/icu/CollationKeyICU.java \
   luni/src/main/java/libcore/icu/DateIntervalFormat.java \
   luni/src/main/java/libcore/icu/DateTimeFormat.java \
   luni/src/main/java/libcore/icu/DateUtilsBridge.java \
   luni/src/main/java/libcore/icu/ICU.java \
   luni/src/main/java/libcore/icu/LocaleData.java \
-  luni/src/main/java/libcore/icu/NativeCollation.java \
   luni/src/main/java/libcore/icu/NativeConverter.java \
-  luni/src/main/java/libcore/icu/NativeDecimalFormat.java \
   luni/src/main/java/libcore/icu/RelativeDateTimeFormatter.java \
   luni/src/main/java/libcore/icu/TimeZoneNames.java \
   luni/src/main/java/libcore/internal/StringPool.java \
