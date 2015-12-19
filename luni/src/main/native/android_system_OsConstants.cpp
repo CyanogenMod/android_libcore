@@ -218,6 +218,7 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "FD_CLOEXEC", FD_CLOEXEC);
     initConstant(env, c, "FIONREAD", FIONREAD);
     initConstant(env, c, "F_DUPFD", F_DUPFD);
+    initConstant(env, c, "F_DUPFD_CLOEXEC", F_DUPFD_CLOEXEC);
     initConstant(env, c, "F_GETFD", F_GETFD);
     initConstant(env, c, "F_GETFL", F_GETFL);
     initConstant(env, c, "F_GETLK", F_GETLK);

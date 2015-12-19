@@ -246,6 +246,7 @@ public final class OsConstants {
     public static final int FD_CLOEXEC = placeholder();
     public static final int FIONREAD = placeholder();
     public static final int F_DUPFD = placeholder();
+    /** @hide */ public static final int F_DUPFD_CLOEXEC = placeholder();
     public static final int F_GETFD = placeholder();
     public static final int F_GETFL = placeholder();
     public static final int F_GETLK = placeholder();
