@@ -166,7 +166,8 @@ JNIEXPORT jint JNICALL
 JVM_ActiveProcessorCount(void);
 
 JNIEXPORT jstring JVM_NativeLoad(JNIEnv* env, jstring javaFilename, jobject javaLoader,
-                                 jstring javaLibrarySearchPath, jstring javaLibraryPermittedPath);
+                                 jboolean isBundled, jstring javaLibrarySearchPath,
+                                 jstring javaLibraryPermittedPath);
 
 JNIEXPORT void * JNICALL
 JVM_LoadLibrary(const char *name);
