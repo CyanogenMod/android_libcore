@@ -547,6 +547,19 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
             int result = zeroDigit;
             result = result * 37 + groupingSeparator;
             result = result * 37 + decimalSeparator;
+            result = result * 37 + percent;
+            result = result * 37 + perMill;
+            result = result * 37 + digit;
+            result = result * 37 + minusSign;
+            result = result * 37 + patternSeparator;
+            result = result * 37 + infinity.hashCode();
+            result = result * 37 + NaN.hashCode();
+            result = result * 37 + currencySymbol.hashCode();
+            result = result * 37 + intlCurrencySymbol.hashCode();
+            result = result * 37 + currency.hashCode();
+            result = result * 37 + monetarySeparator;
+            result = result * 37 + exponentialSeparator.hashCode();
+            result = result * 37 + locale.hashCode();
             return result;
     }
 
