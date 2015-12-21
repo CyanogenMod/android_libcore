@@ -35,7 +35,7 @@ public class PathClassLoader extends BaseDexClassLoader {
      * @param parent the parent class loader
      */
     public PathClassLoader(String dexPath, ClassLoader parent) {
-        super(dexPath, null, null, null, parent);
+        super(dexPath, null, false, null, null, parent);
     }
 
     /**
@@ -63,7 +63,7 @@ public class PathClassLoader extends BaseDexClassLoader {
      * This method will be deprecated in the next release
      */
     public PathClassLoader(String dexPath, String librarySearchPath, ClassLoader parent) {
-        super(dexPath, null, librarySearchPath, null, parent);
+        super(dexPath, null, false, librarySearchPath, null, parent);
     }
 
     /**
@@ -83,6 +83,11 @@ public class PathClassLoader extends BaseDexClassLoader {
      * @param dexPath the list of jar/apk files containing classes and
      * resources, delimited by {@code File.pathSeparator}, which
      * defaults to {@code ":"} on Android
+     * @param isSharedNamespace whether this classloader should use the shared linker
+     * namespace. If the shared linker namespace is used, the classloader will have
+     * access to all native libraries loaded by the platform. This should be limited
+     * to the classloaders used by the bundled apps - bundled apps are part of the
+     * platform
      * @param librarySearchPath the list of directories containing native
      * libraries, delimited by {@code File.pathSeparator}; may be
      * {@code null}
@@ -95,8 +100,8 @@ public class PathClassLoader extends BaseDexClassLoader {
      *
      * @hide
      */
-    public PathClassLoader(String dexPath, String librarySearchPath, String libraryPermittedPath,
-            ClassLoader parent) {
-        super(dexPath, null, librarySearchPath, libraryPermittedPath, parent);
+    public PathClassLoader(String dexPath, boolean isSharedNamespace, String librarySearchPath,
+            String libraryPermittedPath, ClassLoader parent) {
+        super(dexPath, null, isSharedNamespace, librarySearchPath, libraryPermittedPath, parent);
     }
 }

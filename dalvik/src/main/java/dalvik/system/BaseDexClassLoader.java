@@ -28,6 +28,7 @@ import java.util.List;
  */
 public class BaseDexClassLoader extends ClassLoader {
     private final DexPathList pathList;
+    private final boolean sharedNamespace;
 
     /**
      * Constructs an instance.
@@ -46,7 +47,7 @@ public class BaseDexClassLoader extends ClassLoader {
      */
     public BaseDexClassLoader(String dexPath, File optimizedDirectory,
             String librarySearchPath, ClassLoader parent) {
-        this(dexPath, optimizedDirectory, librarySearchPath, null, parent);
+        this(dexPath, optimizedDirectory, false, librarySearchPath, null, parent);
     }
 
     /**
@@ -57,6 +58,11 @@ public class BaseDexClassLoader extends ClassLoader {
      * defaults to {@code ":"} on Android
      * @param optimizedDirectory directory where optimized dex files
      * should be written; may be {@code null}
+     * @param isSharedNamespace whether this classloader should use the shared linker
+     * namespace. If the shared linker namespace is used, the classloader will have
+     * access to all native libraries loaded by the platform. This should be limited
+     * to the classloaders used by the bundled apps - bundled apps are part of the
+     * platform
      * @param librarySearchPath the list of directories containing native
      * libraries, delimited by {@code File.pathSeparator}; may be
      * {@code null}; directories in this list are used to search for
@@ -72,11 +78,12 @@ public class BaseDexClassLoader extends ClassLoader {
      *
      * @hide
      */
-    public BaseDexClassLoader(String dexPath, File optimizedDirectory,
+    public BaseDexClassLoader(String dexPath, File optimizedDirectory, boolean isSharedNamespace,
             String librarySearchPath, String libraryPermittedPath, ClassLoader parent) {
         super(parent);
         this.pathList = new DexPathList(this, dexPath, librarySearchPath,
                                         libraryPermittedPath, optimizedDirectory);
+        this.sharedNamespace = isSharedNamespace;
     }
 
     @Override
@@ -170,6 +177,13 @@ public class BaseDexClassLoader extends ClassLoader {
      */
     public String getLibraryPermittedPath() {
         return pathList.getLibraryPermittedPath();
+    }
+
+    /**
+     * @hide
+     */
+    public boolean isSharedNamespace() {
+      return sharedNamespace;
     }
 
     @Override public String toString() {
