@@ -418,30 +418,33 @@ public class Runtime {
         // dlopen(3) calls made from a .so's JNI_OnLoad to work too.
 
         // So, find out what the native library search path is for the ClassLoader in question...
-        String ldLibraryPath = null;
-        String permittedPath = null;
+        String librarySearchPath = null;
+        String libraryPermittedPath = null;
+        boolean isSharedNamespace = false;
         String dexPath = null;
         if (loader == null) {
             // We use the given library path for the boot class loader. This is the path
             // also used in loadLibraryName if loader is null.
-            ldLibraryPath = System.getProperty("java.library.path");
+            librarySearchPath = System.getProperty("java.library.path");
         } else if (loader instanceof BaseDexClassLoader) {
             BaseDexClassLoader dexClassLoader = (BaseDexClassLoader) loader;
-            ldLibraryPath = dexClassLoader.getLdLibraryPath();
-            permittedPath = dexClassLoader.getLibraryPermittedPath();
+            librarySearchPath = dexClassLoader.getLdLibraryPath();
+            libraryPermittedPath = dexClassLoader.getLibraryPermittedPath();
+            isSharedNamespace = dexClassLoader.isSharedNamespace();
         }
 
         // nativeLoad should be synchronized so there's only one LD_LIBRARY_PATH in use regardless
         // of how many ClassLoaders are in the system, but dalvik doesn't support synchronized
         // internal natives.
         synchronized (this) {
-            return nativeLoad(name, loader, ldLibraryPath, permittedPath);
+            return nativeLoad(name, loader, isSharedNamespace,
+                              librarySearchPath, libraryPermittedPath);
         }
     }
 
     // TODO: should be synchronized, but dalvik doesn't support synchronized internal natives.
     private static native String nativeLoad(String filename, ClassLoader loader,
-            String ldLibraryPath, String libraryPermittedPath);
+            boolean isSharedNamespace, String librarySearchPath, String libraryPermittedPath);
 
     /**
      * Provides a hint to the runtime that it would be useful to attempt
