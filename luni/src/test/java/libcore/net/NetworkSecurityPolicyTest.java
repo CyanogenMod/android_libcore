@@ -25,6 +25,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
@@ -66,6 +68,27 @@ public class NetworkSecurityPolicyTest extends TestCase {
 
         NetworkSecurityPolicy.setInstance(new TestNetworkSecurityPolicy(true));
         assertEquals(true, NetworkSecurityPolicy.getInstance().isCleartextTrafficPermitted());
+    }
+
+    public void testHostnameAwareCleartextTrafficPolicySetterAndGetter() {
+        NetworkSecurityPolicy.setInstance(new TestNetworkSecurityPolicy(false));
+        assertEquals(false,
+                NetworkSecurityPolicy.getInstance().isCleartextTrafficPermitted("localhost"));
+
+        NetworkSecurityPolicy.setInstance(new TestNetworkSecurityPolicy(true));
+        assertEquals(true,
+                NetworkSecurityPolicy.getInstance().isCleartextTrafficPermitted("localhost"));
+
+        TestNetworkSecurityPolicy policy = new TestNetworkSecurityPolicy(false);
+        policy.addHostMapping("localhost", true);
+        policy.addHostMapping("example.com", false);
+        NetworkSecurityPolicy.setInstance(policy);
+        assertEquals(false, NetworkSecurityPolicy.getInstance().isCleartextTrafficPermitted());
+        assertEquals(true,
+                NetworkSecurityPolicy.getInstance().isCleartextTrafficPermitted("localhost"));
+        assertEquals(false,
+                NetworkSecurityPolicy.getInstance().isCleartextTrafficPermitted("example.com"));
+
     }
 
     public void testCleartextTrafficPolicyWithHttpURLConnection() throws Exception {
@@ -313,14 +336,28 @@ public class NetworkSecurityPolicyTest extends TestCase {
 
     private static class TestNetworkSecurityPolicy extends NetworkSecurityPolicy {
         private final boolean mCleartextTrafficPermitted;
+        private final Map<String, Boolean> mHostMap = new HashMap<String, Boolean>();
 
         public TestNetworkSecurityPolicy(boolean cleartextTrafficPermitted) {
             mCleartextTrafficPermitted = cleartextTrafficPermitted;
         }
 
+        public void addHostMapping(String hostname, boolean isCleartextTrafficPermitted) {
+            mHostMap.put(hostname, isCleartextTrafficPermitted);
+        }
+
         @Override
         public boolean isCleartextTrafficPermitted() {
             return mCleartextTrafficPermitted;
+        }
+
+        @Override
+        public boolean isCleartextTrafficPermitted(String hostname) {
+            if (mHostMap.containsKey(hostname)) {
+                return mHostMap.get(hostname);
+            }
+
+            return isCleartextTrafficPermitted();
         }
     }
 }
