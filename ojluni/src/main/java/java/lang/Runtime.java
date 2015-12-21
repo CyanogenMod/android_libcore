@@ -870,6 +870,19 @@ public class Runtime {
         load0(VMStack.getStackClass2(), filename);
     }
 
+    // Fixes b/25859957 regression. Depending on private methods is bad, mkay.
+    void load(String absolutePath, ClassLoader loader) {
+        java.lang.System.logE("java.lang.Runtime#load(String, ClassLoader)" +
+                              " is private and will be removed in a future Android release");
+        if (absolutePath == null) {
+            throw new NullPointerException("absolutePath == null");
+        }
+        String error = doLoad(absolutePath, loader);
+        if (error != null) {
+            throw new UnsatisfiedLinkError(error);
+        }
+    }
+
     synchronized void load0(Class fromClass, String filename) {
         if (!(new File(filename).isAbsolute())) {
             throw new UnsatisfiedLinkError(
@@ -937,6 +950,8 @@ public class Runtime {
      * @hide
      */
     public void loadLibrary(String libname, ClassLoader classLoader) {
+        java.lang.System.logE("java.lang.Runtime#loadLibrary(String, ClassLoader)" +
+                              " is private and will be removed in a future Android release");
         loadLibrary0(classLoader, libname);
     }
 
