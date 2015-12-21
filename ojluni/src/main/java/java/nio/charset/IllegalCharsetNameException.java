@@ -1,53 +1,68 @@
 /*
- *  Licensed to the Apache Software Foundation (ASF) under one or more
- *  contributor license agreements.  See the NOTICE file distributed with
- *  this work for additional information regarding copyright ownership.
- *  The ASF licenses this file to You under the Apache License, Version 2.0
- *  (the "License"); you may not use this file except in compliance with
- *  the License.  You may obtain a copy of the License at
+ * Copyright (c) 2000, 2007, Oracle and/or its affiliates. All rights reserved.
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * This code is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License version 2 only, as
+ * published by the Free Software Foundation.  Oracle designates this
+ * particular file as subject to the "Classpath" exception as provided
+ * by Oracle in the LICENSE file that accompanied this code.
+ *
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * version 2 for more details (a copy is included in the LICENSE file that
+ * accompanied this code).
+ *
+ * You should have received a copy of the GNU General Public License version
+ * 2 along with this work; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
+ * or visit www.oracle.com if you need additional information or have any
+ * questions.
+ *
  */
+
+// -- This file was mechanically generated: Do not edit! -- //
 
 package java.nio.charset;
 
-/**
- * An {@code IllegalCharsetNameException} is thrown when an illegal charset name
- * is encountered.
- */
-public class IllegalCharsetNameException extends IllegalArgumentException {
 
-    /*
-     * This constant is used during deserialization to check the version
-     * which created the serialized object.
-     */
+/**
+ * Unchecked exception thrown when a string that is not a
+ * <a href=Charset.html#names>legal charset name</a> is used as such.
+ *
+ * @since 1.4
+ */
+
+public class IllegalCharsetNameException
+    extends IllegalArgumentException
+{
+
     private static final long serialVersionUID = 1457525358470002989L;
 
-    // The illegal charset name
     private String charsetName;
 
     /**
-     * Constructs a new {@code IllegalCharsetNameException} with the supplied
-     * charset name.
+     * Constructs an instance of this class. </p>
      *
-     * @param charsetName
-     *            the encountered illegal charset name.
+     * @param  charsetName
+     *         The illegal charset name
      */
     public IllegalCharsetNameException(String charsetName) {
-        super((charsetName != null) ? charsetName : "null");
-        this.charsetName = charsetName;
+        super(String.valueOf(charsetName));
+	this.charsetName = charsetName;
     }
 
     /**
-     * Returns the encountered illegal charset name.
+     * Retrieves the illegal charset name. </p>
+     *
+     * @return  The illegal charset name
      */
     public String getCharsetName() {
         return charsetName;
     }
+
 }
