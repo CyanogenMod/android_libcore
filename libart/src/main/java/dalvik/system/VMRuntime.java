@@ -349,7 +349,8 @@ public final class VMRuntime {
     /**
      * Register application info
      */
-    public static native void registerAppInfo(String appDir, String processName, String pkgname);
+    public static native void registerAppInfo(String packageName, String appDir,
+             String[] codePaths);
 
     /**
      * Returns the runtime instruction set corresponding to a given ABI. Multiple
