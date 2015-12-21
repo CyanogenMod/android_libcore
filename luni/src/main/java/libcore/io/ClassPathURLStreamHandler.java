@@ -25,9 +25,11 @@ import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.net.URLStreamHandler;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
+import sun.net.www.ParseUtil;
 import sun.net.www.protocol.jar.Handler;
 
 /**
@@ -57,9 +59,10 @@ public class ClassPathURLStreamHandler extends Handler {
   public URL getEntryUrlOrNull(String entryName) {
     if (findEntryWithDirectoryFallback(jarFile, entryName) != null) {
       try {
-        // We rely on the URL/the stream handler to deal with any url encoding necessary here, and
-        // we assume it is completely reversible.
-        return new URL("jar", null, -1, fileUri + "!/" + entryName, this);
+        // Encode the path to ensure that any special characters like # survive their trip through
+        // the URL. Entry names must use / as the path separator.
+        String encodedName = ParseUtil.encodePath(entryName, false);
+        return new URL("jar", null, -1, fileUri + "!/" + encodedName, this);
       } catch (MalformedURLException e) {
         throw new RuntimeException("Invalid entry name", e);
       }
