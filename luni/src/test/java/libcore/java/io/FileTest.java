@@ -322,5 +322,17 @@ public class FileTest extends junit.framework.TestCase {
         }
     }
 
+    // http://b/25859957
+    //
+    // OpenJdk is treating empty parent string as a special case,
+    // it substitutes parent string with the filesystem default parent value "/"
+    // This wasn't the case before the switch to openJdk.
+    public void testEmptyParentString() {
+        File f1 = new File("", "foo.bar");
+        File f2 = new File((String)null, "foo.bar");
+        assertEquals("foo.bar", f1.toString());
+        assertEquals("foo.bar", f2.toString());
+    }
+
     private static native void nativeTestFilesWithSurrogatePairs(String base);
 }
