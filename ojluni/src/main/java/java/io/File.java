@@ -315,14 +315,9 @@ public class File
         if (child == null) {
             throw new NullPointerException();
         }
-        if (parent != null) {
-            if (parent.equals("")) {
-                this.path = fs.resolve(fs.getDefaultParent(),
-                                       fs.normalize(child));
-            } else {
-                this.path = fs.resolve(fs.normalize(parent),
-                                       fs.normalize(child));
-            }
+        if (parent != null && !parent.isEmpty()) {
+            this.path = fs.resolve(fs.normalize(parent),
+                                   fs.normalize(child));
         } else {
             this.path = fs.normalize(child);
         }
@@ -1880,7 +1875,7 @@ public class File
             throws IOException
         {
             // Android-changed: Use Math.randomIntInternal. This (pseudo) random number
-            // is initialized post-fork 
+            // is initialized post-fork
             int n = Math.randomIntInternal();
             if (n == Integer.MIN_VALUE) {
                 n = 0;      // corner case
