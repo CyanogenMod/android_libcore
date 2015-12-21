@@ -28,7 +28,6 @@
 #include "jvm.h"
 #include "nio.h"
 #include "nio_util.h"
-#include "sun_nio_ch_FileKey.h"
 #include "JNIHelp.h"
 
 #define NATIVE_METHOD(className, functionName, signature) \

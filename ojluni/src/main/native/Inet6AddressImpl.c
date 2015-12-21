@@ -44,8 +44,6 @@
 #include <netinet/icmp6.h>
 #endif
 
-#include "java_net_Inet4AddressImpl.h"
-#include "java_net_Inet6AddressImpl.h"
 #include "JNIHelp.h"
 
 #define NATIVE_METHOD(className, functionName, signature) \

@@ -28,7 +28,6 @@
 #include "jvm.h"
 #include "jlong.h"
 
-#include "sun_nio_ch_EPollArrayWrapper.h"
 
 #include <unistd.h>
 #include <sys/time.h>

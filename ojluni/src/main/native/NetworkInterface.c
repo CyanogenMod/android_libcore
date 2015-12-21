@@ -98,7 +98,6 @@ typedef struct _netif {
  * NetworkInterface
  */
 
-#include "java_net_NetworkInterface.h"
 
 /************************************************************************
  * NetworkInterface

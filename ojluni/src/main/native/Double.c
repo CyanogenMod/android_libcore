@@ -28,7 +28,6 @@
 #include "jlong.h"
 #include "jvm.h"
 
-#include "java_lang_Double.h"
 #include "JNIHelp.h"
 
 #define NATIVE_METHOD(className, functionName, signature) \

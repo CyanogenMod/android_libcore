@@ -26,7 +26,6 @@
 #include "jni.h"
 #include "jvm.h"
 
-#include "java_io_ObjectStreamClass.h"
 #include "JNIHelp.h"
 
 #define NATIVE_METHOD(className, functionName, signature) \

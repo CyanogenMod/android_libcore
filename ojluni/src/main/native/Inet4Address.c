@@ -25,7 +25,6 @@
 
 #include <string.h>
 
-#include "java_net_Inet4Address.h"
 #include "net_util.h"
 #include "JNIHelp.h"
 

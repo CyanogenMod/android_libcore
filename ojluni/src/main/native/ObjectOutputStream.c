@@ -28,9 +28,6 @@
 #include "jni_util.h"
 #include "jlong.h"
 
-#include "java_lang_Float.h"
-#include "java_lang_Double.h"
-#include "java_io_ObjectOutputStream.h"
 
 /*
  * Class:     java_io_ObjectOutputStream

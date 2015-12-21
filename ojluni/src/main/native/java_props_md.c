@@ -43,7 +43,6 @@
 #include <errno.h>
 
 #ifdef MACOSX
-#include "java_props_macosx.h"
 #endif
 
 #if defined(_ALLBSD_SOURCE)
@@ -54,7 +53,6 @@
 #endif
 
 #include "locale_str.h"
-#include "java_props.h"
 
 #if !defined(_ALLBSD_SOURCE)
 #ifdef __linux__

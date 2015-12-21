@@ -40,7 +40,6 @@
 #include "net_util.h"
 #include "jvm.h"
 #include "jlong.h"
-#include "sun_nio_ch_SocketChannelImpl.h"
 #include "nio_util.h"
 #include "nio.h"
 

@@ -31,7 +31,6 @@
 #include "jni.h"
 #include "jvm.h"
 
-#include "java_lang_Thread.h"
 
 #define THD "Ljava/lang/Thread;"
 #define OBJ "Ljava/lang/Object;"

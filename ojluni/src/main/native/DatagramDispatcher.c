@@ -32,7 +32,6 @@
 #include "jlong.h"
 // Android removed.
 //
-// #include "sun_nio_ch_DatagramDispatcher.h"
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/uio.h>

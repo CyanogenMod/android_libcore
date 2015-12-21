@@ -29,7 +29,6 @@
 #include "jni_util.h"
 #include "jvm.h"
 #include "jlong.h"
-#include "sun_nio_ch_NativeThread.h"
 #include "nio_util.h"
 #include "JNIHelp.h"
 

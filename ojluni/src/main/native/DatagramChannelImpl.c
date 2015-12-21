@@ -44,7 +44,6 @@
 #include "nio.h"
 #include "nio_util.h"
 
-#include "sun_nio_ch_DatagramChannelImpl.h"
 
 #include "JNIHelp.h"
 

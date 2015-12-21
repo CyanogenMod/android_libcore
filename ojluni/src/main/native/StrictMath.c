@@ -26,7 +26,6 @@
 #include "jni.h"
 #include "../../external/fdlibm/fdlibm.h"
 
-#include "java_lang_StrictMath.h"
 #include "JNIHelp.h"
 
 #define NATIVE_METHOD(className, functionName, signature) \

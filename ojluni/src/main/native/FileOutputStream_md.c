@@ -29,7 +29,6 @@
 
 #include "io_util.h"
 #include "io_util_md.h"
-#include "java_io_FileOutputStream.h"
 
 #include <fcntl.h>
 #include "JNIHelp.h"

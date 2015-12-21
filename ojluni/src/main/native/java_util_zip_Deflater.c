@@ -35,7 +35,6 @@
 #include "jni_util.h"
 #include <zlib.h>
 
-#include "java_util_zip_Deflater.h"
 
 #define NATIVE_METHOD(className, functionName, signature) \
 { #functionName, signature, (void*)(className ## _ ## functionName) }

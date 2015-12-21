@@ -36,7 +36,6 @@
 
 #include "jvm.h"
 
-#include "java_io_FileInputStream.h"
 
 #include <fcntl.h>
 #include <limits.h>

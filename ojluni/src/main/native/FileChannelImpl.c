@@ -32,7 +32,6 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include "sun_nio_ch_FileChannelImpl.h"
-#include "java_lang_Integer.h"
 #include "nio.h"
 #include "nio_util.h"
 #include <dlfcn.h>

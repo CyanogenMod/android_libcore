@@ -28,7 +28,6 @@
 #include "jvm.h"
 #include "jvm_md.h"
 #include "jlong.h"
-#include "sun_net_spi_DefaultProxySelector.h"
 #include <dlfcn.h>
 #include <stdio.h>
 #if defined(__linux__) || defined(_ALLBSD_SOURCE)

@@ -26,7 +26,6 @@
 #include "jni.h"
 #include "jni_util.h"
 #include "jvm.h"
-#include "java_io_Console.h"
 
 #include <stdlib.h>
 #include <unistd.h>

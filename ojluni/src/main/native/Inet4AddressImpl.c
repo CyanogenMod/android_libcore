@@ -45,7 +45,6 @@
 #include "jni_util.h"
 #include "net_util.h"
 
-#include "java_net_Inet4AddressImpl.h"
 #include "JNIHelp.h"
 
 #define NATIVE_METHOD(className, functionName, signature) \

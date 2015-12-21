@@ -27,7 +27,6 @@
 #include "jni_util.h"
 #include "jvm.h"
 #include "jlong.h"
-#include "java_nio_MappedByteBuffer.h"
 #include <sys/mman.h>
 #include <stddef.h>
 #include <stdlib.h>

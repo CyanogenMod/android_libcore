@@ -31,7 +31,6 @@
 #include "jni_util.h"
 #include "jvm.h"
 #include "jlong.h"
-#include "sun_nio_ch_IOUtil.h"
 #include "java_lang_Integer.h"
 #include "nio.h"
 #include "nio_util.h"

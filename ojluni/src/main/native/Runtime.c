@@ -39,7 +39,6 @@
 #include "jni_util.h"
 #include "jvm.h"
 
-#include "java_lang_Runtime.h"
 #include "JNIHelp.h"
 
 #define NATIVE_METHOD(className, functionName, signature) \

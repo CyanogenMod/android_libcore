@@ -33,7 +33,6 @@
 #include "jvm.h"
 #include "net_util.h"
 
-#include "java_net_SocketOutputStream.h"
 #include "JNIHelp.h"
 
 #define NATIVE_METHOD(className, functionName, signature) \

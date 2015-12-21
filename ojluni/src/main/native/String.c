@@ -24,7 +24,6 @@
  */
 
 #include "jvm.h"
-#include "java_lang_String.h"
 #include "JNIHelp.h"
 
 #define NATIVE_METHOD(className, functionName, signature) \

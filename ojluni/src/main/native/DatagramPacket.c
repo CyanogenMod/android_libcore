@@ -23,7 +23,6 @@
  * questions.
  */
 
-#include "java_net_DatagramPacket.h"
 #include "net_util.h"
 #include "JNIHelp.h"
 

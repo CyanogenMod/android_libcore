@@ -25,7 +25,6 @@
 
 #include "jni.h"
 #include "jni_util.h"
-#include "java_io_FileSystem.h"
 #include "JNIHelp.h"
 
 #define NATIVE_METHOD(className, functionName, signature) \

@@ -29,7 +29,6 @@
 #include "jni_util.h"
 #include "jvm.h"
 
-#include "java_lang_System.h"
 
 #include "openssl/opensslv.h"
 #include "zlib.h"
