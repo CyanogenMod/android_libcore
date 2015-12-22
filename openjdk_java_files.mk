@@ -695,7 +695,6 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/java/text/AttributedCharacterIterator.java \
     ojluni/src/main/java/java/text/AttributedString.java \
     ojluni/src/main/java/java/text/Bidi.java \
-    ojluni/src/main/java/java/text/BreakDictionary.java \
     ojluni/src/main/java/java/text/BreakIterator.java \
     ojluni/src/main/java/java/text/CalendarBuilder.java \
     ojluni/src/main/java/java/text/CharacterIteratorFieldDelegate.java \
@@ -708,7 +707,6 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/java/text/DateFormatSymbols.java \
     ojluni/src/main/java/java/text/DecimalFormat.java \
     ojluni/src/main/java/java/text/DecimalFormatSymbols.java \
-    ojluni/src/main/java/java/text/DictionaryBasedBreakIterator.java \
     ojluni/src/main/java/java/text/DigitList.java \
     ojluni/src/main/java/java/text/DontCareFieldPosition.java \
     ojluni/src/main/java/java/text/EntryPair.java \
@@ -723,7 +721,7 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/java/text/PatternEntry.java \
     ojluni/src/main/java/java/text/RBCollationTables.java \
     ojluni/src/main/java/java/text/RBTableBuilder.java \
-    ojluni/src/main/java/java/text/RuleBasedBreakIterator.java \
+    ojluni/src/main/java/java/text/IcuIteratorWrapper.java \
     ojluni/src/main/java/java/text/RuleBasedCollator.java \
     ojluni/src/main/java/java/text/SimpleDateFormat.java \
     ojluni/src/main/java/java/text/StringCharacterIterator.java \
