@@ -43,6 +43,7 @@ LOCAL_MODULE_STEM := currency.data
 LOCAL_SRC_FILES := ojluni/currency.data
 LOCAL_MODULE_CLASS := ETC
 LOCAL_MODULE_TAGS := optional
+LOCAL_NOTICE_FILE := $(LOCAL_PATH)/ojluni/NOTICE
 LOCAL_MODULE_PATH := $(TARGET_OUT)/usr/share
 include $(BUILD_PREBUILT)
 
@@ -52,6 +53,7 @@ LOCAL_MODULE_STEM := currency.data
 LOCAL_SRC_FILES := ojluni/currency.data
 LOCAL_MODULE_CLASS := ETC
 LOCAL_MODULE_TAGS := optional
+LOCAL_NOTICE_FILE := $(LOCAL_PATH)/ojluni/NOTICE
 LOCAL_MODULE_PATH := $(HOST_OUT)/usr/share
 include $(BUILD_PREBUILT)
 
