@@ -24,14 +24,7 @@
  */
 package java.net;
 
-import java.io.InputStream;
-import java.io.IOException;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-
-import sun.net.idn.StringPrep;
-import sun.net.idn.Punycode;
-import sun.text.normalizer.UCharacterIterator;
+import android.icu.text.IDNA;
 
 /**
  * Provides methods to convert internationalized domain names (IDNs) between
@@ -83,6 +76,9 @@ public final class IDN {
      */
     public static final int USE_STD3_ASCII_RULES = 0x02;
 
+    private IDN() {
+    }
+
 
     /**
      * Translates a string from Unicode to ASCII Compatible Encoding (ACE),
@@ -104,23 +100,16 @@ public final class IDN {
      * @param input     the string to be processed
      * @param flag      process flag; can be 0 or any logical OR of possible flags
      *
-     * @return          the translated <tt>String</tt>
+     * @return the translated <tt>String</tt>
      *
      * @throws IllegalArgumentException   if the input string doesn't conform to RFC 3490 specification
      */
-    public static String toASCII(String input, int flag)
-    {
-        int p = 0, q = 0;
-        StringBuffer out = new StringBuffer();
-
-        while (p < input.length()) {
-            q = searchDots(input, p);
-            out.append(toASCIIInternal(input.substring(p, q),  flag));
-            p = q + 1;
-            if (p < input.length()) out.append('.');
+    public static String toASCII(String input, int flag) {
+        try {
+            return IDNA.convertIDNToASCII(input, flag).toString();
+        } catch (android.icu.text.StringPrepParseException e) {
+            throw new IllegalArgumentException("Invalid input to toASCII: " + input, e);
         }
-
-        return out.toString();
     }
 
 
@@ -136,7 +125,7 @@ public final class IDN {
      *
      * @param input     the string to be processed
      *
-     * @return          the translated <tt>String</tt>
+     * @return the translated <tt>String</tt>
      *
      * @throws IllegalArgumentException   if the input string doesn't conform to RFC 3490 specification
      */
@@ -161,20 +150,31 @@ public final class IDN {
      * @param input     the string to be processed
      * @param flag      process flag; can be 0 or any logical OR of possible flags
      *
-     * @return          the translated <tt>String</tt>
+     * @return the translated <tt>String</tt>
      */
     public static String toUnicode(String input, int flag) {
-        int p = 0, q = 0;
-        StringBuffer out = new StringBuffer();
-
-        while (p < input.length()) {
-            q = searchDots(input, p);
-            out.append(toUnicodeInternal(input.substring(p, q),  flag));
-            p = q + 1;
-            if (p < input.length()) out.append('.');
+        try {
+            // ICU only translates separators to ASCII for toASCII.
+            // Java expects the translation for toUnicode too.
+            return convertFullStop(IDNA.convertIDNToUnicode(input, flag)).toString();
+        } catch (android.icu.text.StringPrepParseException e) {
+            // The RI documentation explicitly states that if the conversion was unsuccessful
+            // the original string is returned.
+            return input;
         }
+    }
 
-        return out.toString();
+    private static boolean isLabelSeperator(char c) {
+        return (c == '\u3002' || c == '\uff0e' || c == '\uff61');
+    }
+
+    private static StringBuffer convertFullStop(StringBuffer input) {
+        for (int i = 0; i < input.length(); i++) {
+            if (isLabelSeperator(input.charAt(i))) {
+                input.setCharAt(i, '.');
+            }
+        }
+        return input;
     }
 
 
@@ -190,279 +190,9 @@ public final class IDN {
      *
      * @param input     the string to be processed
      *
-     * @return          the translated <tt>String</tt>
+     * @return the translated <tt>String</tt>
      */
     public static String toUnicode(String input) {
         return toUnicode(input, 0);
-    }
-
-
-    /* ---------------- Private members -------------- */
-
-    // ACE Prefix is "xn--"
-    private static final String ACE_PREFIX = "xn--";
-    private static final int ACE_PREFIX_LENGTH = ACE_PREFIX.length();
-
-    private static final int MAX_LABEL_LENGTH   = 63;
-
-    // single instance of nameprep
-    private static StringPrep namePrep = null;
-
-    static {
-        InputStream stream = null;
-
-        try {
-            final String IDN_PROFILE = "/sun/net/idn/uidna.spp";
-            if (System.getSecurityManager() != null) {
-                stream = AccessController.doPrivileged(new PrivilegedAction<InputStream>() {
-                    public InputStream run() {
-                        return StringPrep.class.getResourceAsStream(IDN_PROFILE);
-                    }
-                });
-            } else {
-                stream = StringPrep.class.getResourceAsStream(IDN_PROFILE);
-            }
-
-            namePrep = new StringPrep(stream);
-            stream.close();
-        } catch (IOException e) {
-            // should never reach here
-            assert false;
-        }
-    }
-
-
-    /* ---------------- Private operations -------------- */
-
-
-    //
-    // to suppress the default zero-argument constructor
-    //
-    private IDN() {}
-
-    //
-    // toASCII operation; should only apply to a single label
-    //
-    private static String toASCIIInternal(String label, int flag)
-    {
-        // step 1
-        // Check if the string contains code points outside the ASCII range 0..0x7c.
-        boolean isASCII  = isAllASCII(label);
-        StringBuffer dest;
-
-        // step 2
-        // perform the nameprep operation; flag ALLOW_UNASSIGNED is used here
-        if (!isASCII) {
-            UCharacterIterator iter = UCharacterIterator.getInstance(label);
-            try {
-                dest = namePrep.prepare(iter, flag);
-            } catch (java.text.ParseException e) {
-                throw new IllegalArgumentException(e);
-            }
-        } else {
-            dest = new StringBuffer(label);
-        }
-
-        // step 3
-        // Verify the absence of non-LDH ASCII code points
-        //   0..0x2c, 0x2e..0x2f, 0x3a..0x40, 0x5b..0x60, 0x7b..0x7f
-        // Verify the absence of leading and trailing hyphen
-        boolean useSTD3ASCIIRules = ((flag & USE_STD3_ASCII_RULES) != 0);
-        if (useSTD3ASCIIRules) {
-            for (int i = 0; i < dest.length(); i++) {
-                int c = dest.charAt(i);
-                if (!isLDHChar(c)) {
-                    throw new IllegalArgumentException("Contains non-LDH characters");
-                }
-            }
-
-            if (dest.charAt(0) == '-' || dest.charAt(dest.length() - 1) == '-') {
-                throw new IllegalArgumentException("Has leading or trailing hyphen");
-            }
-        }
-
-        if (!isASCII) {
-            // step 4
-            // If all code points are inside 0..0x7f, skip to step 8
-            if (!isAllASCII(dest.toString())) {
-                // step 5
-                // verify the sequence does not begin with ACE prefix
-                if(!startsWithACEPrefix(dest)){
-
-                    // step 6
-                    // encode the sequence with punycode
-                    try {
-                        dest = Punycode.encode(dest, null);
-                    } catch (java.text.ParseException e) {
-                        throw new IllegalArgumentException(e);
-                    }
-
-                    dest = toASCIILower(dest);
-
-                    // step 7
-                    // prepend the ACE prefix
-                    dest.insert(0, ACE_PREFIX);
-                } else {
-                    throw new IllegalArgumentException("The input starts with the ACE Prefix");
-                }
-
-            }
-        }
-
-        // step 8
-        // the length must be inside 1..63
-        if(dest.length() > MAX_LABEL_LENGTH){
-            throw new IllegalArgumentException("The label in the input is too long");
-        }
-
-        return dest.toString();
-    }
-
-    //
-    // toUnicode operation; should only apply to a single label
-    //
-    private static String toUnicodeInternal(String label, int flag) {
-        boolean[] caseFlags = null;
-        StringBuffer dest;
-
-        // step 1
-        // find out if all the codepoints in input are ASCII
-        boolean isASCII = isAllASCII(label);
-
-        if(!isASCII){
-            // step 2
-            // perform the nameprep operation; flag ALLOW_UNASSIGNED is used here
-            try {
-                UCharacterIterator iter = UCharacterIterator.getInstance(label);
-                dest = namePrep.prepare(iter, flag);
-            } catch (Exception e) {
-                // toUnicode never fails; if any step fails, return the input string
-                return label;
-            }
-        } else {
-            dest = new StringBuffer(label);
-        }
-
-        // step 3
-        // verify ACE Prefix
-        if(startsWithACEPrefix(dest)) {
-
-            // step 4
-            // Remove the ACE Prefix
-            String temp = dest.substring(ACE_PREFIX_LENGTH, dest.length());
-
-            try {
-                // step 5
-                // Decode using punycode
-                StringBuffer decodeOut = Punycode.decode(new StringBuffer(temp), null);
-
-                // step 6
-                // Apply toASCII
-                String toASCIIOut = toASCII(decodeOut.toString(), flag);
-
-                // step 7
-                // verify
-                if (toASCIIOut.equalsIgnoreCase(dest.toString())) {
-                    // step 8
-                    // return output of step 5
-                    return decodeOut.toString();
-                }
-            } catch (Exception ignored) {
-                // no-op
-            }
-        }
-
-        // just return the input
-        return label;
-    }
-
-
-    //
-    // LDH stands for "letter/digit/hyphen", with characters restricted to the
-    // 26-letter Latin alphabet <A-Z a-z>, the digits <0-9>, and the hyphen
-    // <->
-    // non-LDH = 0..0x2C, 0x2E..0x2F, 0x3A..0x40, 0x56..0x60, 0x7B..0x7F
-    //
-    private static boolean isLDHChar(int ch){
-        // high runner case
-        if(ch > 0x007A){
-            return false;
-        }
-        //['-' '0'..'9' 'A'..'Z' 'a'..'z']
-        if((ch == 0x002D) ||
-           (0x0030 <= ch && ch <= 0x0039) ||
-           (0x0041 <= ch && ch <= 0x005A) ||
-           (0x0061 <= ch && ch <= 0x007A)
-          ){
-            return true;
-        }
-        return false;
-    }
-
-
-    //
-    // search dots in a string and return the index of that character;
-    // or if there is no dots, return the length of input string
-    // dots might be: \u002E (full stop), \u3002 (ideographic full stop), \uFF0E (fullwidth full stop),
-    // and \uFF61 (halfwidth ideographic full stop).
-    //
-    private static int searchDots(String s, int start) {
-        int i;
-        for (i = start; i < s.length(); i++) {
-            char c = s.charAt(i);
-            if (c == '.' || c == '\u3002' || c == '\uFF0E' || c == '\uFF61') {
-                break;
-            }
-        }
-
-        return i;
-    }
-
-
-    //
-    // to check if a string only contains US-ASCII code point
-    //
-    private static boolean isAllASCII(String input) {
-        boolean isASCII = true;
-        for (int i = 0; i < input.length(); i++) {
-            int c = input.charAt(i);
-            if (c > 0x7F) {
-                isASCII = false;
-                break;
-            }
-        }
-        return isASCII;
-    }
-
-    //
-    // to check if a string starts with ACE-prefix
-    //
-    private static boolean startsWithACEPrefix(StringBuffer input){
-        boolean startsWithPrefix = true;
-
-        if(input.length() < ACE_PREFIX_LENGTH){
-            return false;
-        }
-        for(int i = 0; i < ACE_PREFIX_LENGTH; i++){
-            if(toASCIILower(input.charAt(i)) != ACE_PREFIX.charAt(i)){
-                startsWithPrefix = false;
-            }
-        }
-        return startsWithPrefix;
-    }
-
-    private static char toASCIILower(char ch){
-        if('A' <= ch && ch <= 'Z'){
-            return (char)(ch + 'a' - 'A');
-        }
-        return ch;
-    }
-
-    private static StringBuffer toASCIILower(StringBuffer input){
-        StringBuffer dest = new StringBuffer();
-        for(int i = 0; i < input.length();i++){
-            dest.append(toASCIILower(input.charAt(i)));
-        }
-        return dest;
     }
 }
