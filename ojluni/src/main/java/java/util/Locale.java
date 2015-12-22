@@ -872,6 +872,7 @@ public final class Locale implements Cloneable, Serializable {
         setDefault(Category.DISPLAY, newLocale);
         setDefault(Category.FORMAT, newLocale);
         defaultLocale = newLocale;
+        ICU.setDefaultLocale(newLocale.toLanguageTag());
     }
 
     /**
