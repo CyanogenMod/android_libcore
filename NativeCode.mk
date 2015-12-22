@@ -126,6 +126,7 @@ LOCAL_SHARED_LIBRARIES += libopenjdkjvm libnativehelper libdl
 LOCAL_STATIC_LIBRARIES := $(core_static_libraries) libfdlibm
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := libopenjdk
+LOCAL_NOTICE_FILE := $(LOCAL_PATH)/ojluni/NOTICE
 LOCAL_CXX_STL := libc++
 include $(BUILD_SHARED_LIBRARY)
 
@@ -215,6 +216,7 @@ LOCAL_STATIC_LIBRARIES := $(core_static_libraries) libfdlibm
 LOCAL_MODULE_TAGS := optional
 LOCAL_LDLIBS += -ldl -lpthread
 LOCAL_MODULE := libopenjdk
+LOCAL_NOTICE_FILE := $(LOCAL_PATH)/ojluni/NOTICE
 LOCAL_MULTILIB := both
 include $(BUILD_HOST_SHARED_LIBRARY)
 
