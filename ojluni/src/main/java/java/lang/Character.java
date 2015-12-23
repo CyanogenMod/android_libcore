@@ -27,9 +27,9 @@
 package java.lang;
 
 import java.util.Arrays;
-import java.util.Map;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * The {@code Character} class wraps a value of the primitive
@@ -675,8 +675,14 @@ class Character implements java.io.Serializable, Comparable<Character> {
          * This name must be the same as the block identifier.
          */
         private UnicodeBlock(String idName) {
+            this(idName, true);
+        }
+
+        private UnicodeBlock(String idName, boolean isMap) {
             super(idName);
-            map.put(idName, this);
+            if (isMap) {
+                map.put(idName, this);
+            }
         }
 
         /**
@@ -684,7 +690,7 @@ class Character implements java.io.Serializable, Comparable<Character> {
          * alias name.
          */
         private UnicodeBlock(String idName, String alias) {
-            this(idName);
+            this(idName, true);
             map.put(alias, this);
         }
 
@@ -693,7 +699,7 @@ class Character implements java.io.Serializable, Comparable<Character> {
          * alias names.
          */
         private UnicodeBlock(String idName, String... aliases) {
-            this(idName);
+            this(idName, true);
             for (String alias : aliases)
                 map.put(alias, this);
         }
@@ -1257,7 +1263,7 @@ class Character implements java.io.Serializable, Comparable<Character> {
          */
         @Deprecated
         public static final UnicodeBlock SURROGATES_AREA =
-            new UnicodeBlock("SURROGATES_AREA");
+            new UnicodeBlock("SURROGATES_AREA", false);
 
         /**
          * Constant for the "Syriac" Unicode character block.
