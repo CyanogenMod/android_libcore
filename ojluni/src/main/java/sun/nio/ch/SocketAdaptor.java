@@ -158,6 +158,11 @@ public class SocketAdaptor
     }
 
     public InetAddress getInetAddress() {
+        // Use #remoteAddress and do manual isConnected check. #getRemoteAddress() returns
+        // non-null result before connection.
+        if (!isConnected()) {
+            return null;
+        }
         SocketAddress remote = sc.remoteAddress();
         if (remote == null) {
             return null;
@@ -176,6 +181,11 @@ public class SocketAdaptor
     }
 
     public int getPort() {
+        // Use #remoteAddress and do manual isConnected check. #getRemoteAddress() returns
+        // non-null result before connection.
+        if (!isConnected()) {
+          return 0;
+        }
         SocketAddress remote = sc.remoteAddress();
         if (remote == null) {
             return 0;
