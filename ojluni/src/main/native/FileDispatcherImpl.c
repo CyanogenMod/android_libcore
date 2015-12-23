@@ -56,22 +56,6 @@
 #define fdatasync fsync
 #endif
 
-static int preCloseFD = -1;     /* File descriptor to which we dup other fd's
-                                   before closing them for real */
-
-
-JNIEXPORT void JNICALL
-FileDispatcherImpl_init(JNIEnv *env, jclass cl)
-{
-    int sp[2];
-    if (socketpair(PF_UNIX, SOCK_STREAM, 0, sp) < 0) {
-        JNU_ThrowIOExceptionWithLastError(env, "socketpair failed");
-        return;
-    }
-    preCloseFD = sp[0];
-    close(sp[1]);
-}
-
 JNIEXPORT jint JNICALL
 FileDispatcherImpl_read0(JNIEnv *env, jclass clazz,
                              jobject fdo, jlong address, jint len)
@@ -256,11 +240,15 @@ JNIEXPORT void JNICALL
 FileDispatcherImpl_preClose0(JNIEnv *env, jclass clazz, jobject fdo)
 {
     jint fd = fdval(env, fdo);
-    if (preCloseFD >= 0) {
-        if (dup2(preCloseFD, fd) < 0) {
-            JNU_ThrowIOExceptionWithLastError(env, "dup2 failed");
-        }
+    int preCloseFD = open("/dev/null", O_RDWR | O_CLOEXEC);
+    if (preCloseFD < 0) {
+        JNU_ThrowIOExceptionWithLastError(env, "open(\"/dev/null\") failed");
+        return;
     }
+    if (dup2(preCloseFD, fd) < 0) {
+        JNU_ThrowIOExceptionWithLastError(env, "dup2 failed");
+    }
+    close(preCloseFD);
 }
 
 JNIEXPORT void JNICALL
@@ -284,7 +272,6 @@ static JNINativeMethod gMethods[] = {
   NATIVE_METHOD(FileDispatcherImpl, readv0, "(Ljava/io/FileDescriptor;JI)J"),
   NATIVE_METHOD(FileDispatcherImpl, pread0, "(Ljava/io/FileDescriptor;JIJ)I"),
   NATIVE_METHOD(FileDispatcherImpl, read0, "(Ljava/io/FileDescriptor;JI)I"),
-  NATIVE_METHOD(FileDispatcherImpl, init, "()V"),
 };
 
 void register_sun_nio_ch_FileDispatcherImpl(JNIEnv* env) {

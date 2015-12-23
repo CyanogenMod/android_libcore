@@ -32,7 +32,6 @@ class FileDispatcherImpl extends FileDispatcher
 
     static {
         Util.load();
-        init();
     }
 
     FileDispatcherImpl(boolean append) {
@@ -147,7 +146,5 @@ class FileDispatcherImpl extends FileDispatcher
     static native void preClose0(FileDescriptor fd) throws IOException;
 
     static native void closeIntFD(int fd) throws IOException;
-
-    static native void init();
 
 }
