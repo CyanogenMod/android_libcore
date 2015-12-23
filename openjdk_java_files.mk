@@ -1086,11 +1086,6 @@ openjdk_java_files := \
     ojluni/src/main/java/sun/net/ftp/FtpReplyCode.java \
     ojluni/src/main/java/sun/net/ftp/impl/DefaultFtpClientProvider.java \
     ojluni/src/main/java/sun/net/ftp/impl/FtpClient.java \
-    ojluni/src/main/java/sun/net/idn/Punycode.java \
-    ojluni/src/main/java/sun/net/idn/StringPrepDataReader.java \
-    ojluni/src/main/java/sun/net/idn/StringPrep.java \
-    ojluni/src/main/java/sun/net/idn/UCharacterDirection.java \
-    ojluni/src/main/java/sun/net/idn/UCharacterEnums.java \
     ojluni/src/main/java/sun/net/InetAddressCachePolicy.java \
     ojluni/src/main/java/sun/net/NetHooks.java \
     ojluni/src/main/java/sun/net/NetProperties.java \
