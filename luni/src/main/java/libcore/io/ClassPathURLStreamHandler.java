@@ -25,11 +25,12 @@ import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.net.URLStreamHandler;
 import java.util.jar.JarFile;
-import java.util.jar.StrictJarFile;
 import java.util.zip.ZipEntry;
-import libcore.net.url.JarHandler;
+import sun.net.www.ParseUtil;
+import sun.net.www.protocol.jar.Handler;
 
 /**
  * A {@link URLStreamHandler} for a specific class path {@link JarFile}. This class avoids the need
@@ -38,18 +39,12 @@ import libcore.net.url.JarHandler;
  *
  * <p>Use {@link #getEntryUrlOrNull(String)} to obtain a URL backed by this stream handler.
  */
-public class ClassPathURLStreamHandler extends JarHandler {
+public class ClassPathURLStreamHandler extends Handler {
   private final String fileUri;
-  private final StrictJarFile strictJarFile;
-  /**
-   * Created on demand if somebody calls {@link JarURLConnection#getJarFile()} and
-   * {@link URLConnection#getUseCaches()} is true.
-   */
-  private JarFile jarFile;
+  private final JarFile jarFile;
 
   public ClassPathURLStreamHandler(String jarFileName) throws IOException {
-    // We use StrictJarFile because it is much less heap memory hungry than ZipFile / JarFile.
-    strictJarFile = new StrictJarFile(jarFileName);
+    jarFile = new JarFile(jarFileName);
 
     // File.toURI() is compliant with RFC 1738 in always creating absolute path names. If we
     // construct the URL by concatenating strings, we might end up with illegal URLs for relative
@@ -58,27 +53,16 @@ public class ClassPathURLStreamHandler extends JarHandler {
   }
 
   /**
-   * Obtains a cached {@link JarFile} that points to the same jar file as {@link #strictJarFile}.
-   */
-  JarFile getSharedJarFile() throws IOException {
-    synchronized (this) {
-      if (jarFile == null) {
-        jarFile = new JarFile(strictJarFile.getName());
-      }
-    }
-    return jarFile;
-  }
-
-  /**
    * Returns a URL backed by this stream handler for the named resource, or {@code null} if the
    * entry cannot be found under the exact name presented.
    */
   public URL getEntryUrlOrNull(String entryName) {
-    if (findEntryWithDirectoryFallback(strictJarFile, entryName) != null) {
+    if (findEntryWithDirectoryFallback(jarFile, entryName) != null) {
       try {
-        // We rely on the URL/the stream handler to deal with any url encoding necessary here, and
-        // we assume it is completely reversible.
-        return new URL("jar", null, -1, fileUri + "!/" + entryName, this);
+        // Encode the path to ensure that any special characters like # survive their trip through
+        // the URL. Entry names must use / as the path separator.
+        String encodedName = ParseUtil.encodePath(entryName, false);
+        return new URL("jar", null, -1, fileUri + "!/" + encodedName, this);
       } catch (MalformedURLException e) {
         throw new RuntimeException("Invalid entry name", e);
       }
@@ -91,7 +75,7 @@ public class ClassPathURLStreamHandler extends JarHandler {
    * and false otherwise.
    */
   public boolean isEntryStored(String entryName) {
-    ZipEntry entry = strictJarFile.findEntry(entryName);
+    ZipEntry entry = jarFile.getEntry(entryName);
     return entry != null && entry.getMethod() == ZipEntry.STORED;
   }
 
@@ -102,28 +86,25 @@ public class ClassPathURLStreamHandler extends JarHandler {
 
   /** Used from tests to indicate this stream handler is finished with. */
   public void close() throws IOException {
-    strictJarFile.close();
-    if (jarFile != null) {
-      jarFile.close();
-    }
+    jarFile.close();
   }
 
   /**
    * Finds an entry with the specified name in the {@code jarFile}. If an exact match isn't found it
    * will also try with "/" appended, if appropriate. This is to maintain compatibility with
-   * {@link libcore.net.url.JarHandler} and its treatment of directory entries.
+   * {@link sun.net.www.protocol.jar.Handler} and its treatment of directory entries.
    */
-  static ZipEntry findEntryWithDirectoryFallback(StrictJarFile jarFile, String entryName) {
-    ZipEntry entry = jarFile.findEntry(entryName);
+  static ZipEntry findEntryWithDirectoryFallback(JarFile jarFile, String entryName) {
+    ZipEntry entry = jarFile.getEntry(entryName);
     if (entry == null && !entryName.endsWith("/") ) {
-      entry = jarFile.findEntry(entryName + "/");
+      entry = jarFile.getEntry(entryName + "/");
     }
     return entry;
   }
 
   private class ClassPathURLConnection extends JarURLConnection {
-    // The StrictJarFile instance is shared across URLConnections and must not be closed.
-    private final StrictJarFile strictJarFile;
+    // The JarFile instance is shared across URLConnections and must not be closed.
+    private JarFile connectionJarFile;
 
     private ZipEntry jarEntry;
     private InputStream jarInput;
@@ -133,24 +114,24 @@ public class ClassPathURLStreamHandler extends JarHandler {
      * Indicates the behavior of the {@link #jarFile}. If true, the reference is shared and should
      * not be closed. If false, it must be closed.
      */
-    private boolean jarFileMustBehaveAsCached;
-    private JarFile jarFile;
+    private boolean useCachedJarFile;
+
 
     public ClassPathURLConnection(URL url) throws MalformedURLException {
       super(url);
-      this.strictJarFile = ClassPathURLStreamHandler.this.strictJarFile;
     }
 
     @Override
     public void connect() throws IOException {
       if (!connected) {
-        this.jarEntry = findEntryWithDirectoryFallback(strictJarFile, getEntryName());
+        this.jarEntry = findEntryWithDirectoryFallback(ClassPathURLStreamHandler.this.jarFile,
+            getEntryName());
         if (jarEntry == null) {
           throw new FileNotFoundException(
               "URL does not correspond to an entry in the zip file. URL=" + url
-              + ", zipfile=" + strictJarFile.getName());
+              + ", zipfile=" + jarFile.getName());
         }
-        jarFileMustBehaveAsCached = getUseCaches();
+        useCachedJarFile = getUseCaches();
         connected = true;
       }
     }
@@ -159,16 +140,14 @@ public class ClassPathURLStreamHandler extends JarHandler {
     public JarFile getJarFile() throws IOException {
       connect();
 
-      // This is more expensive than JarURLConnectionImpl because we only pretend that we wrap a
-      // JarFile. We do cache in the surrounding class if jarFileMustBehaveAsCached is true to
+      // We do cache in the surrounding class if useCachedJarFile is true to
       // preserve garbage collection semantics to avoid leak warnings.
-      String jarFileName = strictJarFile.getName();
-      if (jarFileMustBehaveAsCached) {
-        jarFile = ClassPathURLStreamHandler.this.getSharedJarFile();
+      if (useCachedJarFile) {
+        connectionJarFile = jarFile;
       } else {
-        jarFile = new JarFile(jarFileName);
+        connectionJarFile = new JarFile(jarFile.getName());
       }
-      return jarFile;
+      return connectionJarFile;
     }
 
     @Override
@@ -180,14 +159,14 @@ public class ClassPathURLStreamHandler extends JarHandler {
       if (jarInput != null) {
         return jarInput;
       }
-      return jarInput = new FilterInputStream(strictJarFile.getInputStream(jarEntry)) {
+      return jarInput = new FilterInputStream(jarFile.getInputStream(jarEntry)) {
         @Override
         public void close() throws IOException {
           super.close();
           // If the jar file is not cached closing the input stream will close the URLConnection and
           // any JarFile returned from getJarFile().
-          if (jarFile != null && !jarFileMustBehaveAsCached) {
-            jarFile.close();
+          if (connectionJarFile != null && !useCachedJarFile) {
+            connectionJarFile.close();
             closed = true;
           }
         }

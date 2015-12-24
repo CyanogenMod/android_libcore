@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package tests.api.javax.xml.parsers;
+package org.apache.harmony.tests.javax.xml.parsers;
 
 import java.io.File;
 import java.io.FileInputStream;

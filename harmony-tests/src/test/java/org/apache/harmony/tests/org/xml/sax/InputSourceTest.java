@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package tests.api.org.xml.sax;
+package org.apache.harmony.tests.org.xml.sax;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;

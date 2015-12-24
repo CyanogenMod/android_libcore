@@ -40,6 +40,7 @@ public class ClassTest extends junit.framework.TestCase {
 
     // Relative resource paths.
     private static final String SHARP_RESOURCE_RELATIVE_NAME = "test#.properties";
+    private static final String QUERY_RESOURCE_RELATIVE_NAME = "test?.properties";
     private static final String RESOURCE_RELATIVE_NAME = "test.properties";
 
     // Absolute resource paths.
@@ -47,6 +48,8 @@ public class ClassTest extends junit.framework.TestCase {
             ClassTest.class.getPackage().getName().replace('.', '/');
     public static final String SHARP_RESOURCE_ABS_NAME =
             ABS_PATH + "/" + SHARP_RESOURCE_RELATIVE_NAME;
+    public static final String QUERY_RESOURCE_ABS_NAME =
+            ABS_PATH + "/" + QUERY_RESOURCE_RELATIVE_NAME;
     public static final String RESOURCE_ABS_NAME = ABS_PATH + "/" + RESOURCE_RELATIVE_NAME;
 
     public static class TestClass {
@@ -570,11 +573,50 @@ public class ClassTest extends junit.framework.TestCase {
         assertResourceExists("/" + SHARP_RESOURCE_ABS_NAME);
         assertResourceExists(SHARP_RESOURCE_RELATIVE_NAME);
 
-
         InputStream in =
                 this.getClass().getClassLoader().getResourceAsStream(SHARP_RESOURCE_ABS_NAME);
         assertNotNull(in);
         in.close();
+    }
+
+    public void test_getResource_withSharpChar() throws Exception {
+        // Class.getResourceAsStream() requires a leading "/" for absolute paths.
+        assertNull(getClass().getResource(SHARP_RESOURCE_ABS_NAME));
+        URL absoluteURL = getClass().getResource("/" + SHARP_RESOURCE_ABS_NAME);
+
+        // Make sure the name has been encoded.
+        assertEquals(ABS_PATH + "/test%23.properties",
+                absoluteURL.getFile().replaceAll("^.*!/", ""));
+
+        // Make sure accessing it via an absolute and relative path produces the same result.
+        URL relativeURL = getClass().getResource(SHARP_RESOURCE_RELATIVE_NAME);
+        assertEquals(absoluteURL, relativeURL);
+    }
+
+    public void test_getResourceAsStream_withQueryChar() throws Exception {
+        // Class.getResourceAsStream() requires a leading "/" for absolute paths.
+        assertNull(getClass().getResourceAsStream(QUERY_RESOURCE_ABS_NAME));
+        assertResourceExists("/" + QUERY_RESOURCE_ABS_NAME);
+        assertResourceExists(QUERY_RESOURCE_RELATIVE_NAME);
+
+        InputStream in =
+                this.getClass().getClassLoader().getResourceAsStream(QUERY_RESOURCE_ABS_NAME);
+        assertNotNull(in);
+        in.close();
+    }
+
+    public void test_getResource_withQueryChar() throws Exception {
+        // Class.getResourceAsStream() requires a leading "/" for absolute paths.
+        assertNull(getClass().getResource(QUERY_RESOURCE_ABS_NAME));
+        URL absoluteURL = getClass().getResource("/" + QUERY_RESOURCE_ABS_NAME);
+
+        // Make sure the name has been encoded.
+        assertEquals(ABS_PATH + "/test%3f.properties",
+                absoluteURL.getFile().replaceAll("^.*!/", ""));
+
+        // Make sure accessing it via an absolute and relative path produces the same result.
+        URL relativeURL = getClass().getResource(QUERY_RESOURCE_RELATIVE_NAME);
+        assertEquals(absoluteURL, relativeURL);
     }
 
     public void test_getResourceAsStream() throws Exception {

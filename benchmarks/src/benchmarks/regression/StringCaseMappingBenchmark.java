@@ -87,7 +87,7 @@ public class StringCaseMappingBenchmark {
 
     public void timeToLowerCase_US(int reps) {
         for (int i = 0; i < reps; ++i) {
-            s.value.toUpperCase(Locale.US);
+            s.value.toLowerCase(Locale.US);
         }
     }
 
@@ -99,7 +99,7 @@ public class StringCaseMappingBenchmark {
 
     public void timeToLowerCase_Ascii(int reps) {
         for (int i = 0; i < reps; ++i) {
-            toUpperCaseAscii(s.value);
+            toLowerCaseAscii(s.value);
         }
     }
 

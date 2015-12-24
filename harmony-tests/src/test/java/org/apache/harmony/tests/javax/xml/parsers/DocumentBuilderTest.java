@@ -14,9 +14,13 @@
  * limitations under the License.
  */
 
-package tests.api.javax.xml.parsers;
+package org.apache.harmony.tests.javax.xml.parsers;
 
 import junit.framework.TestCase;
+
+import org.apache.harmony.tests.org.xml.sax.support.MethodLogger;
+import org.apache.harmony.tests.org.xml.sax.support.MockHandler;
+import org.apache.harmony.tests.org.xml.sax.support.MockResolver;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -27,13 +31,12 @@ import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
-import tests.api.org.xml.sax.support.MethodLogger;
-import tests.api.org.xml.sax.support.MockHandler;
-import tests.api.org.xml.sax.support.MockResolver;
+
 import tests.support.resource.Support_Resources;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;

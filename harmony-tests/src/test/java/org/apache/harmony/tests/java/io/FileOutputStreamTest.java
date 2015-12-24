@@ -23,6 +23,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 
 import junit.framework.TestCase;
 
@@ -288,8 +290,7 @@ public class FileOutputStreamTest extends TestCase {
         fos.flush();
         fos.close();
         FileOutputStream f = new FileOutputStream(tmpfile, true);
-        // Harmony expected 10, but the RI and Android report 0.
-        assertEquals(0, f.getChannel().position());
+        assertEquals(10, f.getChannel().position());
     }
 
     public void test_getChannel_Append() throws IOException {
@@ -358,8 +359,7 @@ public class FileOutputStreamTest extends TestCase {
         fos.close();
 
         fos = new FileOutputStream(tmpfile, true);
-        // Harmony expected 10, but the RI and Android report 0.
-        assertEquals(0, fos.getChannel().position());
+        assertEquals(10, fos.getChannel().position());
         fos.close();
     }
 
@@ -387,8 +387,10 @@ public class FileOutputStreamTest extends TestCase {
         fos.close();
 
         fos = new FileOutputStream(tmpfile, true);
-        // Harmony expected 10, but the RI and Android report 0.
-        assertEquals(0, fos.getChannel().position());
+        FileChannel fc = fos.getChannel();
+        assertEquals(10, fc.position());
+        fc.write(ByteBuffer.wrap("hello".getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+        assertEquals(15, fc.position());
         fos.close();
     }
 }

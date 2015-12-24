@@ -98,7 +98,15 @@ public final class CollectionsTest extends TestCase {
         }
     }
 
-    public void testSortFastPath_incrementsModcount() {
+    public static final class ArrayListInheritor<T> extends ArrayList<T> {
+        public ArrayListInheritor(int capacity) {
+            super(capacity);
+        }
+    }
+
+    public void testSort_leavesModcountUnmodified() {
+        // This tests the fast path for ArrayLists where we can get away without
+        // a copy.
         ArrayList<String> list = new ArrayList<String>(16);
         list.add("coven");
         list.add("asylum");
@@ -108,11 +116,18 @@ public final class CollectionsTest extends TestCase {
         Iterator<String> it = list.iterator();
         it.next();
         Collections.sort(list);
-        try {
-            it.next();
-            fail();
-        } catch (ConcurrentModificationException expected) {
-        }
+        it.next();
+
+        list = new ArrayListInheritor<String>(16);
+        list.add("apples");
+        list.add("oranges");
+        list.add("pineapples");
+        list.add("bacon");
+
+        it = list.iterator();
+        it.next();
+        Collections.sort(list);
+        it.next();
     }
 
     /**

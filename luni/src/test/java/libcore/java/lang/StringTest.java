@@ -173,6 +173,7 @@ public class StringTest extends TestCase {
     }
 
     /**
+
      * Test that strings interned manually and then later loaded as literals
      * maintain reference equality. http://b/3098960
      */
@@ -401,5 +402,27 @@ public class StringTest extends TestCase {
         assertEquals(2, "azz".compareToIgnoreCase("a"));
         assertEquals(3, "aaaa".compareToIgnoreCase("a"));
         assertEquals(3, "azzz".compareToIgnoreCase("a"));
+    }
+
+    // http://b/25943996
+    public void testSplit_trailingSeparators() {
+        String[] splits = "test\0message\0\0\0\0\0\0".split("\0", -1);
+        assertEquals("test", splits[0]);
+        assertEquals("message", splits[1]);
+        assertEquals("", splits[2]);
+        assertEquals("", splits[3]);
+        assertEquals("", splits[4]);
+        assertEquals("", splits[5]);
+        assertEquals("", splits[6]);
+        assertEquals("", splits[7]);
+    }
+
+    // http://b/26126818
+    public void testCodePointCount() {
+        String hello = "Hello, fools";
+
+        assertEquals(5, hello.codePointCount(0, 5));
+        assertEquals(7, hello.codePointCount(5, 12));
+        assertEquals(2, hello.codePointCount(10, 12));
     }
 }

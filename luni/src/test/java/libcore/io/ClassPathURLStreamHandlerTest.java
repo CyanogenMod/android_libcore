@@ -105,8 +105,8 @@ public class ClassPathURLStreamHandlerTest extends TestCase {
         assertFalse(streamHandler.isEntryStored(ENTRY_IN_SUBDIR));
         assertTrue(streamHandler.isEntryStored(ENTRY_STORED));
 
-        // isEntryStored is used internally and requires an exact name match.
-        assertFalse(streamHandler.isEntryStored(DIR_ENTRY_WITHOUT_SLASH));
+        assertTrue(streamHandler.isEntryStored(DIR_ENTRY_WITHOUT_SLASH));
+
         // Directory entries are just stored, empty entries with "/" on the end of the name, so
         // "true".
         assertTrue(streamHandler.isEntryStored(DIR_ENTRY_WITH_SLASH));

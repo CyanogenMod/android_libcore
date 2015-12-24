@@ -498,7 +498,7 @@ public class DatagramChannelTest extends TestCase {
         assertFalse(this.channel1.isConnected());
 
         assertEquals(this.channel1, this.channel1
-                .connect(new InetSocketAddress("", 1081))); //$NON-NLS-1$
+                .connect(new InetSocketAddress("", 1081)));
 
     }
 
@@ -1086,9 +1086,8 @@ public class DatagramChannelTest extends TestCase {
         ByteBuffer writeBuf = ByteBuffer.allocateDirect(CAPACITY_NORMAL);
         try {
             sendDataBlocking(null, writeBuf);
-            fail("Should throw a NPE here.");
-        } catch (NullPointerException e) {
-            // correct
+            fail("Should throw a IAE here.");
+        } catch (IllegalArgumentException expected) {
         }
     }
 
@@ -1096,16 +1095,15 @@ public class DatagramChannelTest extends TestCase {
         ByteBuffer writeBuf = ByteBuffer.allocateDirect(CAPACITY_NORMAL);
         try {
             sendDataBlocking(null, writeBuf);
-            fail("Should throw a NPE here.");
-        } catch (NullPointerException e) {
-            // correct
+            fail("Should throw a IAE here.");
+        } catch (IllegalArgumentException expected) {
         }
+
         sendDataBlocking(datagramSocket1Address, writeBuf);
         try {
             channel1.send(writeBuf, null);
-            fail("Should throw NPE");
-        } catch (NullPointerException e) {
-            // correct
+            fail("Should throw a IAE here.");
+        } catch (IllegalArgumentException expected) {
         }
     }
 

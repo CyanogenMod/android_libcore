@@ -109,6 +109,7 @@ public class IntegerTest extends junit.framework.TestCase {
     } catch (NumberFormatException expected) {}
   }
 
+  /*
   public void testParsePositiveInt() throws Exception {
     assertEquals(0, Integer.parsePositiveInt("0", 10));
     assertEquals(473, Integer.parsePositiveInt("473", 10));
@@ -129,5 +130,6 @@ public class IntegerTest extends junit.framework.TestCase {
       fail();
     } catch (NumberFormatException e) {}
   }
+  */
 
 }

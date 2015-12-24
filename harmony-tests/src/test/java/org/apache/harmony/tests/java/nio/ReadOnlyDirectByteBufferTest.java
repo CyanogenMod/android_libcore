@@ -21,6 +21,7 @@ public class ReadOnlyDirectByteBufferTest extends DirectByteBufferTest {
 
     protected void setUp() throws Exception {
         super.setUp();
+        buf.put((byte)'a');
         buf = buf.asReadOnlyBuffer();
         baseBuf = buf;
     }

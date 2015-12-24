@@ -35,13 +35,10 @@ public class ReferenceTest extends junit.framework.TestCase {
     static TestWeakReference twr;
     static AssertionFailedError error;
     static boolean testObjectFinalized;
+
     static class TestWeakReference<T> extends WeakReference<T> {
         public volatile boolean clearSeen = false;
         public volatile boolean enqueueSeen = false;
-
-        public TestWeakReference(T referent) {
-            super(referent);
-        }
 
         public TestWeakReference(T referent, ReferenceQueue<? super T> q) {
             super(referent, q);
@@ -49,31 +46,11 @@ public class ReferenceTest extends junit.framework.TestCase {
 
         public void clear() {
             clearSeen = true;
-            if (testObjectFinalized) {
-                error = new AssertionFailedError("Clear should happen " +
-                        "before finalization.");
-                throw error;
-            }
-            if (enqueueSeen) {
-                error = new AssertionFailedError("Clear should happen " +
-                        "before enqueue.");
-                throw error;
-            }
             super.clear();
         }
 
         public boolean enqueue() {
             enqueueSeen = true;
-            if (!clearSeen) {
-                error = new AssertionFailedError("Clear should happen " +
-                        "before enqueue.");
-                throw error;
-            }
-
-            /* Do this last;  it may notify the main test thread,
-             * and anything we'd do after it (e.g., setting clearSeen)
-             * wouldn't be seen.
-             */
             return super.enqueue();
         }
     }
@@ -218,12 +195,13 @@ public class ReferenceTest extends junit.framework.TestCase {
             assertNotNull("Object not garbage collected.", ref);
             assertTrue("Unexpected reference.", ref == twr);
             assertNull("Object could not be reclaimed.", twr.get());
-            //assertTrue("Overridden clear() should have been called.",
-            //       twr.clearSeen);
-            //assertTrue("Overridden enqueue() should have been called.",
-            //        twr.enqueueSeen);
-            assertTrue("finalize() should have been called.",
-                    testObjectFinalized);
+
+            // enqueue() and clear() will not be called by the garbage collector. The GC
+            // will perform the equivalent operations directly.
+            assertFalse(twr.clearSeen);
+            assertFalse(twr.enqueueSeen);
+
+            assertTrue(testObjectFinalized);
         } catch (InterruptedException e) {
             fail("InterruptedException : " + e.getMessage());
         }

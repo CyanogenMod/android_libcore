@@ -18,6 +18,7 @@
 package org.apache.harmony.tests.javax.net.ssl;
 
 import libcore.java.security.StandardNames;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -27,6 +28,7 @@ import java.security.KeyStore;
 import java.security.Principal;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
+
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -36,7 +38,9 @@ import javax.net.ssl.SSLSessionBindingEvent;
 import javax.net.ssl.SSLSessionBindingListener;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.TrustManager;
+
 import junit.framework.TestCase;
+
 import libcore.io.Base64;
 import org.apache.harmony.tests.javax.net.ssl.HandshakeCompletedEventTest.MyHandshakeListener;
 import org.apache.harmony.tests.javax.net.ssl.HandshakeCompletedEventTest.TestTrustManager;

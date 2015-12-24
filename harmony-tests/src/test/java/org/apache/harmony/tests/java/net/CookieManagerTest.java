@@ -24,6 +24,7 @@ import java.net.HttpCookie;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -300,4 +301,64 @@ public class CookieManagerTest extends TestCase {
         assertNotNull(store);
     }
 
+    // http://b/25763487
+    public void testCookieWithNullPath() throws Exception {
+        FakeSingleCookieStore fscs = new FakeSingleCookieStore();
+        CookieManager cm = new CookieManager(fscs, CookiePolicy.ACCEPT_ALL);
+
+        HttpCookie cookie = new HttpCookie("foo", "bar");
+        cookie.setDomain("http://www.foo.com");
+        cookie.setVersion(0);
+
+        fscs.setNextCookie(cookie);
+
+        Map<String, List<String>> cookieHeaders = cm.get(
+                new URI("http://www.foo.com/log/me/in"), Collections.EMPTY_MAP);
+
+        List<String> cookies = cookieHeaders.get("Cookie");
+        assertEquals("foo=bar", cookies.get(0));
+    }
+
+    /**
+     * A cookie store that always returns one cookie per URI (without any sort of
+     * rule matching). The cookie that's returned is provided via a call to setNextCookie
+     */
+    public static class FakeSingleCookieStore implements CookieStore {
+        private List<HttpCookie> cookies;
+
+        void setNextCookie(HttpCookie cookie) {
+            cookies = Collections.singletonList(cookie);
+        }
+
+        @Override
+        public void add(URI uri, HttpCookie cookie) {
+        }
+
+        @Override
+        public List<HttpCookie> get(URI uri) {
+            return cookies;
+        }
+
+        @Override
+        public List<HttpCookie> getCookies() {
+            return cookies;
+        }
+
+        @Override
+        public List<URI> getURIs() {
+            return null;
+        }
+
+        @Override
+        public boolean remove(URI uri, HttpCookie cookie) {
+            cookies = Collections.EMPTY_LIST;
+            return true;
+        }
+
+        @Override
+        public boolean removeAll() {
+            cookies = Collections.EMPTY_LIST;
+            return true;
+        }
+    }
 }

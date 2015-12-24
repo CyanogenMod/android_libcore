@@ -713,5 +713,10 @@ public final class URITest extends TestCase {
         assertEquals("a_b.c.d.net", uri.getHost());
     }
 
+    // http://b/25991669
+    public void testHostWithLeadingPeriod() throws Exception {
+        assertEquals(".vk.com", new URI("https://.vk.com/").getHost());
+    }
+
     // Adding a new test? Consider adding an equivalent test to URLTest.java
 }

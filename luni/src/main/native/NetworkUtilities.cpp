@@ -97,9 +97,12 @@ static bool inetAddressToSockaddr(JNIEnv* env, jobject inetAddress, int port, so
         return false;
     }
 
+    // Get holder.
+    static jfieldID holderFid = env->GetFieldID(JniConstants::inetAddressClass, "holder", "Ljava/net/InetAddress$InetAddressHolder;");
+    ScopedLocalRef<jobject> holder(env, env->GetObjectField(inetAddress, holderFid));
     // Get the address family.
-    static jfieldID familyFid = env->GetFieldID(JniConstants::inetAddressClass, "family", "I");
-    ss.ss_family = env->GetIntField(inetAddress, familyFid);
+    static jfieldID familyFid = env->GetFieldID(JniConstants::inetAddressHolderClass, "family", "I");
+    ss.ss_family = env->GetIntField(holder.get(), familyFid);
     if (ss.ss_family == AF_UNSPEC) {
         sa_len = sizeof(ss.ss_family);
         return true; // Job done!
@@ -113,8 +116,8 @@ static bool inetAddressToSockaddr(JNIEnv* env, jobject inetAddress, int port, so
     }
 
     // Get the byte array that stores the IP address bytes in the InetAddress.
-    static jfieldID bytesFid = env->GetFieldID(JniConstants::inetAddressClass, "ipaddress", "[B");
-    ScopedLocalRef<jbyteArray> addressBytes(env, reinterpret_cast<jbyteArray>(env->GetObjectField(inetAddress, bytesFid)));
+    static jmethodID bytesMid = env->GetMethodID(JniConstants::inetAddressClass, "getAddressInternal", "()[B");
+    ScopedLocalRef<jbyteArray> addressBytes(env, reinterpret_cast<jbyteArray>(env->CallObjectMethod(inetAddress, bytesMid)));
     if (addressBytes.get() == NULL) {
         jniThrowNullPointerException(env, NULL);
         return false;

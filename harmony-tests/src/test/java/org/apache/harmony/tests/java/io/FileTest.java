@@ -1141,10 +1141,6 @@ public class FileTest extends TestCase {
         assertEquals("LastModified Time Incorrect",
                 315550800000L, lastModifiedTime);
         f.delete();
-
-        // Regression for HARMONY-2146
-        f = new File("/../");
-        assertTrue(f.lastModified() > 0);
     }
 
     /**
@@ -2076,9 +2072,9 @@ public class FileTest extends TestCase {
         String newDirURL = dir.getAbsolutePath();
         newDirURL = newDirURL.replace(File.separatorChar, '/');
         if (newDirURL.startsWith("/")) {
-            newDirURL = "file:" + newDirURL;
+            newDirURL = "file://" + newDirURL;
         } else {
-            newDirURL = "file:/" + newDirURL;
+            newDirURL = "file:///" + newDirURL;
         }
         if (!newDirURL.endsWith("/")) {
             newDirURL += '/';
@@ -2091,9 +2087,9 @@ public class FileTest extends TestCase {
         String newURL = f.getAbsolutePath();
         newURL = newURL.replace(File.separatorChar, '/');
         if (newURL.startsWith("/")) {
-            newURL = "file:" + newURL;
+            newURL = "file://" + newURL;
         } else {
-            newURL = "file:/" + newURL;
+            newURL = "file:///" + newURL;
         }
         assertEquals("Test 2: Incorrect URL Returned.",
                 f.toURL().toString(), newURL);
