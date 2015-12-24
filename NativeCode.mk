@@ -79,8 +79,17 @@ $(foreach dir, \
 core_c_includes := libcore/include $(LOCAL_C_INCLUDES)
 core_shared_libraries := $(LOCAL_SHARED_LIBRARIES)
 core_static_libraries := $(LOCAL_STATIC_LIBRARIES)
-core_cflags := $(LOCAL_CFLAGS) -Wall -Wextra -Werror
+libart_cflags := $(LOCAL_CFLAGS) -Wall -Wextra -Werror
 core_cppflags += -std=gnu++11 -DU_USING_ICU_NAMESPACE=0
+# TODO(narayan): Prune down this list of exclusions once the underlying
+# issues have been fixed. Most of these are small changes except for
+# -Wunused-parameter.
+openjdk_cflags := $(libart_cflags) \
+    -Wno-unused-parameter \
+    -Wno-unused-variable \
+    -Wno-parentheses-equality \
+    -Wno-constant-logical-operand \
+    -Wno-sometimes-uninitialized
 
 core_test_files := \
   luni/src/test/native/dalvik_system_JniTest.cpp \
@@ -92,7 +101,7 @@ core_test_files := \
 #
 
 include $(CLEAR_VARS)
-LOCAL_CFLAGS += $(core_cflags)
+LOCAL_CFLAGS += $(libart_cflags)
 LOCAL_CPPFLAGS += $(core_cppflags)
 LOCAL_SRC_FILES += $(core_src_files)
 LOCAL_C_INCLUDES += $(core_c_includes)
@@ -109,16 +118,15 @@ include $(BUILD_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
 
-LOCAL_CFLAGS += -Wall
-LOCAL_CFLAGS += $(core_cflags)
+LOCAL_CFLAGS += $(libart_cflags)
 LOCAL_CPPFLAGS += $(core_cppflags)
 ifeq ($(TARGET_ARCH),arm)
 # Ignore "note: the mangling of 'va_list' has changed in GCC 4.4"
 LOCAL_CFLAGS += -Wno-psabi
 endif
-LOCAL_CFLAGS += -Wno-error
 
 # Define the rules.
+LOCAL_CFLAGS += $(openjdk_cflags)
 LOCAL_SRC_FILES := $(openjdk_core_src_files)
 LOCAL_C_INCLUDES := $(core_c_includes)
 LOCAL_SHARED_LIBRARIES := $(core_shared_libraries) libcrypto libicuuc libssl libz
@@ -134,7 +142,7 @@ include $(BUILD_SHARED_LIBRARY)
 ifeq ($(LIBCORE_SKIP_TESTS),)
 
 include $(CLEAR_VARS)
-LOCAL_CFLAGS += $(core_cflags)
+LOCAL_CFLAGS += $(libart_cflags)
 LOCAL_CPPFLAGS += $(core_cppflags)
 LOCAL_SRC_FILES += $(core_test_files)
 LOCAL_C_INCLUDES += libcore/include
@@ -149,7 +157,7 @@ endif # LIBCORE_SKIP_TESTS
 
 # Set of gtest unit tests.
 include $(CLEAR_VARS)
-LOCAL_CFLAGS += $(core_cflags)
+LOCAL_CFLAGS += $(libart_cflags)
 LOCAL_CPPFLAGS += $(core_cppflags)
 LOCAL_SRC_FILES += \
   luni/src/test/native/libcore_io_Memory_test.cpp \
@@ -164,7 +172,7 @@ include $(BUILD_NATIVE_TEST)
 
 # Set of benchmarks for libjavacore functions.
 include $(CLEAR_VARS)
-LOCAL_CFLAGS += $(core_cflags)
+LOCAL_CFLAGS += $(libart_cflags)
 LOCAL_CPPFLAGS += $(core_cppflags)
 LOCAL_SRC_FILES += \
   luni/src/benchmark/native/libcore_io_Memory_bench.cpp \
@@ -190,7 +198,7 @@ ifeq ($(HOST_OS),linux)
 include $(CLEAR_VARS)
 LOCAL_CLANG := true
 LOCAL_SRC_FILES += $(core_src_files)
-LOCAL_CFLAGS += $(core_cflags)
+LOCAL_CFLAGS += $(libart_cflags)
 LOCAL_C_INCLUDES += $(core_c_includes)
 LOCAL_CPPFLAGS += $(core_cppflags)
 LOCAL_LDLIBS += -ldl -lpthread
@@ -210,6 +218,7 @@ include $(CLEAR_VARS)
 LOCAL_SRC_FILES := $(openjdk_core_src_files)
 LOCAL_C_INCLUDES := $(core_c_includes)
 LOCAL_CFLAGS := -D_LARGEFILE64_SOURCE -D_GNU_SOURCE -DLINUX -D__GLIBC__ # Sigh.
+LOCAL_CFLAGS += $(openjdk_cflags)
 LOCAL_SHARED_LIBRARIES := $(core_shared_libraries) libicuuc-host libcrypto-host libz-host
 LOCAL_SHARED_LIBRARIES += libopenjdkjvm libnativehelper
 LOCAL_STATIC_LIBRARIES := $(core_static_libraries) libfdlibm
@@ -224,7 +233,7 @@ ifeq ($(LIBCORE_SKIP_TESTS),)
     include $(CLEAR_VARS)
     LOCAL_CLANG := true
     LOCAL_SRC_FILES += $(core_test_files)
-    LOCAL_CFLAGS += $(core_cflags)
+    LOCAL_CFLAGS += $(libart_cflags)
     LOCAL_C_INCLUDES += libcore/include
     LOCAL_CPPFLAGS += $(core_cppflags)
     LOCAL_LDLIBS += -ldl -lpthread
