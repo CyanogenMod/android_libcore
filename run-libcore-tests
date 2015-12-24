@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# make sure there's a vogar on the path, but prefer the user's one.
+# Make sure there's a vogar on the path, but prefer the user's one.
 export PATH=$PATH:~dalvik-prebuild/vogar/bin
 
 VOGAR="vogar $VOGAR_FLAGS"
