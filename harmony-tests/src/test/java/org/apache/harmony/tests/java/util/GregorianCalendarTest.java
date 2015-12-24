@@ -441,14 +441,6 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
         }
         assertTrue("Wrong least max for " + result + " = " + values, result
                 .length() == 0);
-
-        // Regression test for harmony-2947
-        Date date = new Date(Date.parse("Jan 1 00:00:01 GMT 2000"));
-        gc = new GregorianCalendar();
-        gc.setGregorianChange(date);
-        gc.setTime(date);
-        assertEquals(gc.getActualMaximum(Calendar.WEEK_OF_YEAR), gc
-                .getLeastMaximum(Calendar.WEEK_OF_YEAR));
     }
 
     /**

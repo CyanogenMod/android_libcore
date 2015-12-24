@@ -67,9 +67,10 @@ public class ParsePositionTest extends junit.framework.TestCase {
 	 * @tests java.text.ParsePosition#hashCode()
 	 */
 	public void test_hashCode() {
+		ParsePosition pp2 = new ParsePosition(Integer.MAX_VALUE);
 		// Test for method int java.text.ParsePosition.hashCode()
-		assertTrue("Wrong hashCode returned", (pp.hashCode() == pp.getIndex()
-				+ pp.getErrorIndex()));
+                // Test that the hashcode is stable (and not the identity hashCode).
+		assertEquals(pp.hashCode(), pp2.hashCode());
 	}
 
 	/**
@@ -96,7 +97,7 @@ public class ParsePositionTest extends junit.framework.TestCase {
 	public void test_toString() {
 		// Test for method java.lang.String java.text.ParsePosition.toString()
 		assertEquals("toString failed.", 
-				"java.text.ParsePosition[index=2147483647, errorIndex=-1]", pp.toString());
+				"java.text.ParsePosition[index=2147483647,errorIndex=-1]", pp.toString());
 	}
 
 	/**

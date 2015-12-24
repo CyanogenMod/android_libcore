@@ -107,6 +107,7 @@ public final class FileInputStreamTest extends TestCase {
 
         // Close the second FileDescriptor and check we can't use it...
         fis2.close();
+
         try {
             fis2.available();
             fail();
@@ -128,6 +129,7 @@ public final class FileInputStreamTest extends TestCase {
         } catch (IOException expected) {
         }
         // ...but that we can still use the first.
+        assertTrue(fis1.getFD().valid());
         assertFalse(fis1.read() == -1);
 
         // Close the first FileDescriptor and check we can't use it...
@@ -152,6 +154,9 @@ public final class FileInputStreamTest extends TestCase {
             fail();
         } catch (IOException expected) {
         }
+
+        // FD is no longer owned by any stream, should be invalidated.
+        assertFalse(fis1.getFD().valid());
     }
 
     public void testClose() throws Exception {
@@ -191,5 +196,12 @@ public final class FileInputStreamTest extends TestCase {
         }
         // ...but not 0-byte reads...
         fis.read(new byte[0], 0, 0);
+    }
+
+    // http://b/26117827
+    public void testReadProcVersion() throws IOException {
+        File file = new File("/proc/version");
+        FileInputStream input = new FileInputStream(file);
+        assertTrue(input.available() == 0);
     }
 }

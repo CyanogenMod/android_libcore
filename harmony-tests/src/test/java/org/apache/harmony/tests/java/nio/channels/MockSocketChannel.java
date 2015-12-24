@@ -20,9 +20,12 @@ package org.apache.harmony.tests.java.nio.channels;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.net.SocketOption;
 import java.nio.ByteBuffer;
+import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
+import java.util.Set;
 
 class MockSocketChannel extends SocketChannel {
 
@@ -81,6 +84,47 @@ class MockSocketChannel extends SocketChannel {
 
     @Override
     protected void implConfigureBlocking(boolean arg0) throws IOException {
+    }
+
+    @Override
+    public SocketAddress getRemoteAddress() throws IOException {
+        return null;
+    }
+
+    @Override
+    public SocketChannel shutdownOutput() throws IOException {
+        return null;
+    }
+
+    @Override
+    public SocketChannel shutdownInput() throws IOException {
+        return null;
+    }
+
+    @Override
+    public <T> SocketChannel setOption(SocketOption<T> name, T value)
+        throws IOException {
+        return null;
+    }
+
+    @Override
+    public SocketChannel bind(SocketAddress local) throws IOException {
+        return null;
+    }
+
+    @Override
+    public Set<SocketOption<?>> supportedOptions() {
+        return null;
+    }
+
+    @Override
+    public <T> T getOption(SocketOption<T> name) throws IOException {
+        return null;
+    }
+
+    @Override
+    public SocketAddress getLocalAddress() throws IOException {
+        return null;
     }
 
 }

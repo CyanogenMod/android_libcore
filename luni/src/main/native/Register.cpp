@@ -34,29 +34,12 @@ jint JNI_OnLoad(JavaVM* vm, void*) {
 
 #define REGISTER(FN) extern void FN(JNIEnv*); FN(env)
     REGISTER(register_android_system_OsConstants);
-    REGISTER(register_java_io_File);
-    REGISTER(register_java_io_FileDescriptor);
-    REGISTER(register_java_io_ObjectStreamClass);
-    REGISTER(register_java_lang_Character);
-    REGISTER(register_java_lang_Double);
-    REGISTER(register_java_lang_Float);
-    REGISTER(register_java_lang_Math);
-    REGISTER(register_java_lang_ProcessManager);
-    REGISTER(register_java_lang_RealToString);
-    REGISTER(register_java_lang_StrictMath);
-    REGISTER(register_java_lang_StringToReal);
-    REGISTER(register_java_lang_System);
+    //    REGISTER(register_java_lang_StringToReal);
     REGISTER(register_java_math_NativeBN);
-    REGISTER(register_java_util_jar_StrictJarFile);
     REGISTER(register_java_util_regex_Matcher);
     REGISTER(register_java_util_regex_Pattern);
-    REGISTER(register_java_util_zip_Adler32);
-    REGISTER(register_java_util_zip_CRC32);
-    REGISTER(register_java_util_zip_Deflater);
-    REGISTER(register_java_util_zip_Inflater);
     REGISTER(register_libcore_icu_ICU);
     REGISTER(register_libcore_icu_NativeConverter);
-    REGISTER(register_libcore_icu_NativeDecimalFormat);
     REGISTER(register_libcore_icu_TimeZoneNames);
     REGISTER(register_libcore_io_AsynchronousCloseMonitor);
     REGISTER(register_libcore_io_Memory);

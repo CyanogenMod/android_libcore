@@ -38,8 +38,14 @@ import java.nio.ShortBuffer;
 import java.nio.channels.FileChannel;
 import java.util.Arrays;
 import libcore.io.SizeOf;
+import libcore.io.Memory;
 
 public class BufferTest extends TestCase {
+
+    static {
+        System.loadLibrary("javacoretests");
+    }
+
     private static ByteBuffer allocateMapped(int size) throws Exception {
         File f = File.createTempFile("mapped", "tmp");
         f.deleteOnExit();
@@ -619,7 +625,7 @@ public class BufferTest extends TestCase {
     // http://b/16449607
     public void testDirectByteBufferAlignment() throws Exception {
         ByteBuffer b = ByteBuffer.allocateDirect(10);
-        Field addressField = Buffer.class.getDeclaredField("effectiveDirectAddress");
+        Field addressField = Buffer.class.getDeclaredField("address");
         assertTrue(addressField != null);
         addressField.setAccessible(true);
         long address = addressField.getLong(b);
@@ -627,6 +633,51 @@ public class BufferTest extends TestCase {
         // Normally reading this field happens in native code by calling
         // GetDirectBufferAddress.
         assertEquals(0, address % 8);
+    }
+
+    public static native long jniGetDirectBufferAddress(Buffer buf);
+    public static native long jniGetDirectBufferCapacity(Buffer buf);
+
+    // Test that JNI GetDirectBufferAddress and GetDirectBufferCapacity work as expected for
+    // direct ByteBuffers.
+    // http://b/26233076
+    public void testDirectByteBufferJniGetDirectBufferAddressAndCapacity() throws Exception {
+        // Create a direct ByteBuffer with the following contents.
+        byte[] contents = "Testing, 1, 2, 3...".getBytes("US-ASCII");
+        ByteBuffer original = ByteBuffer.allocateDirect(contents.length);
+        original.put(contents);
+
+        // Check the content of the original buffer by reading the memory it references.
+        long originalAddress = jniGetDirectBufferAddress(original);
+        if (originalAddress == 0) {
+            fail("Obtaining address of direct ByteBuffer not supported");
+        }
+        long originalCapacity = jniGetDirectBufferCapacity(original);
+        assertEquals(contents.length, originalCapacity);
+        byte[] originalData = new byte[original.capacity()];
+        Memory.peekByteArray(originalAddress, originalData, 0, originalData.length);
+        assertTrue(new String(originalData, "US-ASCII"), Arrays.equals(contents, originalData));
+
+        // Slice the buffer and check the content of the result.
+        // The slice starts at offset 3 of the original and is 5 bytes shorter than the original.
+        original.position(3);
+        original.limit(original.capacity() - 2);
+        ByteBuffer slice = original.slice();
+        System.out.println("original: " + original + ", slice: " + slice);
+
+        long sliceAddress = jniGetDirectBufferAddress(slice);
+        System.out.println("originalAddress: 0x" + Long.toHexString(originalAddress)
+            + ", sliceAddress: 0x" + Long.toHexString(sliceAddress));
+        assertEquals(3 + originalAddress, sliceAddress);
+        long sliceCapacity = jniGetDirectBufferCapacity(slice);
+        assertEquals(originalCapacity - 5, sliceCapacity);
+        byte[] actualSliceData = new byte[slice.capacity()];
+        Memory.peekByteArray(sliceAddress, actualSliceData, 0, actualSliceData.length);
+        byte[] expectedSliceData = new byte[slice.capacity()];
+        System.arraycopy(originalData, 3, expectedSliceData, 0, expectedSliceData.length);
+        assertTrue(
+                new String(actualSliceData, "US-ASCII"),
+                Arrays.equals(expectedSliceData, actualSliceData));
     }
 
     public void testSliceOffset() throws Exception {
@@ -884,27 +935,12 @@ public class BufferTest extends TestCase {
         mapped.get();
     }
 
-    public void testElementSizeShifts() {
-        // Element size shifts are the log base 2 of the element size
-        // of this buffer.
-        assertEquals(1, 1 << ByteBuffer.allocate(0).getElementSizeShift());
-
-        assertEquals(SizeOf.CHAR, 1 << CharBuffer.allocate(0).getElementSizeShift());
-        assertEquals(SizeOf.SHORT, 1 << ShortBuffer.allocate(0).getElementSizeShift());
-
-        assertEquals(SizeOf.INT, 1 << IntBuffer.allocate(0).getElementSizeShift());
-        assertEquals(SizeOf.FLOAT, 1 << FloatBuffer.allocate(0).getElementSizeShift());
-
-        assertEquals(SizeOf.LONG, 1 << LongBuffer.allocate(0).getElementSizeShift());
-        assertEquals(SizeOf.DOUBLE, 1 << DoubleBuffer.allocate(0).getElementSizeShift());
-    }
-
     public void testFreed() {
         ByteBuffer b1 = ByteBuffer.allocateDirect(1);
         ByteBuffer b2 = b1.duplicate();
         NioUtils.freeDirectBuffer(b1);
         for (ByteBuffer b: new ByteBuffer[] { b1, b2 }) {
-            assertFalse(b.isAccessible());
+          //assertFalse(b.isAccessible());
             try {
                 b.compact();
                 fail();
@@ -922,6 +958,7 @@ public class BufferTest extends TestCase {
         }
     }
 
+    /* setAccessible is not available in OpenJdk's buffers.
     public void testAccess() {
         ByteBuffer b1 = ByteBuffer.allocate(1);
         ByteBuffer b2 = b1.duplicate();
@@ -1005,7 +1042,7 @@ public class BufferTest extends TestCase {
             testAsMethods(b);
             testGetMethods(b);
         }
-    }
+        }*/
 
     private void testPutMethods(ByteBuffer b) {
         b.position(0);
@@ -1275,4 +1312,42 @@ public class BufferTest extends TestCase {
         }
     }
 
+    // b/26019694
+    public void testIndependentLimit() {
+        // Check if the limit parameter of original ByteBuffer
+        // is not affecting buffer created by its as*Buffer
+        testBuffersIndependentLimit(ByteBuffer.allocateDirect(16));
+        testBuffersIndependentLimit(ByteBuffer.allocate(16));
+    }
+
+    private void testBuffersIndependentLimit(ByteBuffer b) {
+        CharBuffer c = b.asCharBuffer();
+        b.limit(b.capacity()); c.put(1, (char)1);
+        b.limit(0);  c.put(1, (char)1);
+
+        b.limit(b.capacity());
+        ShortBuffer s = b.asShortBuffer();
+        b.limit(b.capacity()); s.put(1, (short)1);
+        b.limit(0);  s.put(1, (short)1);
+
+        b.limit(b.capacity());
+        IntBuffer i = b.asIntBuffer();
+        i.put(1, (int)1);
+        b.limit(0);  i.put(1, (int)1);
+
+        b.limit(b.capacity());
+        LongBuffer l = b.asLongBuffer();
+        l.put(1, (long)1);
+        b.limit(0);  l.put(1, (long)1);
+
+        b.limit(b.capacity());
+        FloatBuffer f = b.asFloatBuffer();
+        f.put(1, (float)1);
+        b.limit(0);  f.put(1, (float)1);
+
+        b.limit(b.capacity());
+        DoubleBuffer d = b.asDoubleBuffer();
+        d.put(1, (double)1);
+        b.limit(0);  d.put(1, (double)1);
+    }
 }

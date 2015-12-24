@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package tests.api.pkg1;
+package org.apache.harmony.tests.pkg1;
 
 import java.io.Serializable;
 

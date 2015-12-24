@@ -179,8 +179,8 @@ public class NumberFormatTest extends junit.framework.TestCase {
                 "Test7: NumberFormat.getIntegerInstance(new Locale(\"ar\", \"AE\")).toPattern() returned wrong pattern",
                 variant, format.toPattern());
         assertEquals(
-                "Test8: NumberFormat.getIntegerInstance(new Locale(\"ar\", \"AE\")).format(-35.76) returned wrong value",
-                "\u200f-\u0666", format.format(-6));
+                "Test8: NumberFormat.getIntegerInstance(new Locale(\"ar\", \"AE\")).format(-6) returned wrong value",
+                "-\u0666", format.format(-6));
         assertEquals(
                 "Test9: NumberFormat.getIntegerInstance(new Locale(\"ar\", \"AE\")).parse(\"-36-\") returned wrong number",
                 new Long(36), format.parse("36-"));

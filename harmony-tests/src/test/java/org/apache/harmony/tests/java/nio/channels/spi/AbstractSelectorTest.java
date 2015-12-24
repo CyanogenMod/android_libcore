@@ -17,6 +17,7 @@
 package org.apache.harmony.tests.java.nio.channels.spi;
 
 import java.io.IOException;
+import java.nio.channels.ClosedSelectorException;
 import java.nio.channels.IllegalBlockingModeException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -135,8 +136,8 @@ public class AbstractSelectorTest extends TestCase {
         assertFalse(acceptSelector.isOpen());
         try {
             ssc.register(acceptSelector, SelectionKey.OP_ACCEPT);
-            fail("should throw NullPointerException");
-        } catch (NullPointerException e) {
+            fail("should throw ClosedSelectorException");
+        } catch (ClosedSelectorException e) {
             // expected
         }
         assertFalse(ssc.isRegistered());

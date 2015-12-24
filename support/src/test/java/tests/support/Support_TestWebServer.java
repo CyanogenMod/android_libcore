@@ -732,7 +732,8 @@ public class Support_TestWebServer implements Support_HttpConstants {
                 // 404 status already sent
                 return;
             }
-            SimpleDateFormat df = new SimpleDateFormat("EE, dd MMM yyyy HH:mm:ss");
+            SimpleDateFormat df = new SimpleDateFormat("EE, dd MMM yyyy HH:mm:ss z");
+            df.setTimeZone(TimeZone.getTimeZone("GMT"));
 
             psPrint(ps,"Server: TestWebServer"+mPort);
             psWriteEOL(ps);

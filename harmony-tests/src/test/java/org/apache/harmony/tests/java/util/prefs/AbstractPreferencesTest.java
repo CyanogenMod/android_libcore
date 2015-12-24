@@ -27,7 +27,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.prefs.AbstractPreferences;
 import java.util.prefs.BackingStoreException;
-import java.util.prefs.FilePreferencesImpl;
+import java.util.prefs.FileSystemPreferences;
 import java.util.prefs.NodeChangeEvent;
 import java.util.prefs.NodeChangeListener;
 import java.util.prefs.PreferenceChangeEvent;
@@ -48,9 +48,16 @@ public class AbstractPreferencesTest extends TestCase {
         private final Preferences userPrefs;
         private final Preferences systemPrefs;
 
-        public TestPreferencesFactory(String root) {
-            userPrefs = new FilePreferencesImpl(root + "/user", true);
-            systemPrefs = new FilePreferencesImpl(root + "/system", false);
+        private final File userLockFile;
+        private final File systemLockFile;
+
+        public TestPreferencesFactory(String root) throws IOException {
+            userLockFile = new File(root, "user.lock");
+            systemLockFile = new File(root, "system.lock");
+            assertTrue(userLockFile.createNewFile());
+            assertTrue(systemLockFile.createNewFile());
+            userPrefs = new FileSystemPreferences(root + "/user", userLockFile, true);
+            systemPrefs = new FileSystemPreferences(root + "/system", systemLockFile, false);
         }
 
         public Preferences userRoot() {

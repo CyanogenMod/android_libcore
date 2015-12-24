@@ -864,7 +864,7 @@ public class URLConnectionTest extends TestCase {
         URL url = new URL("http", "test", 80, "index.html", new NewHandler());
         URLConnection urlCon = url.openConnection();
         urlCon.setRequestProperty("test", "testProperty");
-        assertNull(urlCon.getRequestProperty("test"));
+        assertEquals("testProperty", urlCon.getRequestProperty("test"));
 
         urlCon.connect();
         try {

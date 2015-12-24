@@ -25,6 +25,7 @@ LOCAL_STATIC_JAVA_LIBRARIES := mockwebserver core-tests-support
 LOCAL_NO_STANDARD_LIBRARIES := true
 LOCAL_JAVA_LIBRARIES := \
   caliper-api-target \
+  core-oj \
   core-libart \
   conscrypt \
   core-junit \

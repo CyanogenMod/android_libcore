@@ -117,7 +117,7 @@ public class OldURLClassLoaderTest extends junit.framework.TestCase {
 
         URL [] urls = {new URL("http://foo.com/foo"),
                        new URL("jar:file://foo.jar!/foo.c"),
-                       new URL("ftp://foo1/foo2/foo.c"), null};
+                       new URL("ftp://foo1/foo2/foo.c")};
 
         TestURLClassLoader tucl = new TestURLClassLoader(u);
 

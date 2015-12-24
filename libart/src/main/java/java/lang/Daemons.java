@@ -234,6 +234,9 @@ public final class Daemons {
             } catch (Throwable ex) {
                 // The RI silently swallows these, but Android has always logged.
                 System.logE("Uncaught exception thrown by finalizer", ex);
+            } finally {
+                // Done finalizing, stop holding the object as live.
+                finalizingObject = null;
             }
         }
     }

@@ -37,7 +37,6 @@ import java.security.cert.Certificate;
 import java.security.spec.DSAParameterSpec;
 import java.util.HashSet;
 import java.util.Set;
-import libcore.java.security.StandardNames;
 
 public class Signature2Test extends junit.framework.TestCase {
 
@@ -68,17 +67,15 @@ public class Signature2Test extends junit.framework.TestCase {
      * java.security.Signature#clone()
      */
     public void test_clone() throws Exception {
-        // A Signature may be cloneable according to the API, in practice the implementation isn't
-        // once it has been initialized. Checking for runtime exceptions rather than useful
-        // behavior.
-        Signature s = Signature.getInstance("DSA");
+        // First test with a mocked instance which is cloneable..
+        Signature s = Signature.getInstance("DSA", new MySignatureProvider());
         Signature clone = (Signature) s.clone();
         assertNotNull(clone);
         assertEquals(s.getAlgorithm(), clone.getAlgorithm());
         assertEquals(s.getProvider(), clone.getProvider());
 
-        KeyPair keyPair = getDsaKeys();
-        s.initSign(keyPair.getPrivate());
+        // And then with an instance that isn't..
+        s = Signature.getInstance("DSA");
         try {
             s.clone();
             fail();
@@ -491,7 +488,15 @@ public class Signature2Test extends junit.framework.TestCase {
         }
     }
 
-    class MyProvider extends Provider {
+    class MySignatureProvider extends Provider {
+        public MySignatureProvider() {
+            super("MySignatureProvider", 1.0, "Provider for testing");
+            put("Signature.DSA", MySignature.class.getName());
+        }
+    }
+
+
+    public static class MyProvider extends Provider {
         private Set<Provider.Service> services = null;
 
         MyProvider() {
@@ -531,7 +536,11 @@ public class Signature2Test extends junit.framework.TestCase {
     }
 
     @SuppressWarnings("unused")
-    private class MySignature extends Signature {
+    public static class MySignature extends Signature implements Cloneable {
+
+        public MySignature() {
+            super("DSA");
+        }
 
         protected MySignature(String algorithm) {
             super(algorithm);
@@ -590,6 +599,5 @@ public class Signature2Test extends junit.framework.TestCase {
                 return null;
             }
         }
-
     }
 }

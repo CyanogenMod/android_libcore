@@ -18,9 +18,12 @@ package libcore.java.lang.ref;
 
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+
 import junit.framework.TestCase;
+import sun.misc.Cleaner;
 
 public final class ReferenceQueueTest extends TestCase {
 
@@ -87,6 +90,34 @@ public final class ReferenceQueueTest extends TestCase {
         long durationNanos = System.nanoTime() - startNanos;
         long durationMillis = TimeUnit.NANOSECONDS.toMillis(durationNanos);
         assertTrue(durationMillis > 250 && durationMillis < 750);
+    }
+
+    public void testCleanersCleaned() {
+        Object object = new Object();
+        final CountDownLatch cdl = new CountDownLatch(1);
+
+        Cleaner cleaner = Cleaner.create(object, new Runnable() {
+            @Override
+            public void run() {
+                cdl.countDown();
+            }
+        });
+
+        boolean countedDown = false;
+        object = null;
+        for (int i = 0; i < 5; ++i) {
+            Runtime.getRuntime().gc();
+            try {
+                countedDown = cdl.await(1000, TimeUnit.MILLISECONDS);
+                if (countedDown) {
+                    break;
+                }
+            } catch (InterruptedException ie) {
+                fail();
+            }
+        }
+
+        assertTrue(countedDown);
     }
 
     private void runLater(Runnable runnable, int delayMillis) {

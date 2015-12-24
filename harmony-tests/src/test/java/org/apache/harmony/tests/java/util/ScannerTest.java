@@ -135,10 +135,11 @@ public class ScannerTest extends TestCase {
         } catch (FileNotFoundException expected) {
         }
 
+        // Bogus test : Depends on the order in which expections are thrown.
         try {
             s = new Scanner(tmpFile, null);
             fail();
-        } catch (FileNotFoundException expected) {
+        } catch (IllegalArgumentException expected) {
         }
 
         tmpFile = File.createTempFile("TestFileForScanner", ".tmp");
@@ -2659,17 +2660,22 @@ public class ScannerTest extends TestCase {
         assertEquals(-123, s.nextByte(10));
     }
 
+    // This is a bogus test : The cached value is returned only if the radix
+    // matches.
     public void test_hasNextByteI_cache() throws IOException{
         //regression for HARMONY-2063
         s = new Scanner("123 45");
         assertTrue(s.hasNextByte(8));
-        assertEquals(83, s.nextByte());
+        // Note that the cached value isn't returned here.
+        assertEquals(123, s.nextByte());
         assertEquals(45, s.nextByte());
 
         s = new Scanner("123 45");
         assertTrue(s.hasNextByte(10));
         assertTrue(s.hasNextByte(8));
-        assertEquals(83, s.nextByte());
+
+        // The values are returned according to the supplied radix.
+        assertEquals(123, s.nextByte());
         assertEquals(45, s.nextByte());
 
         s = new Scanner("-123 -45");
@@ -2937,7 +2943,7 @@ public class ScannerTest extends TestCase {
         //regression for HARMONY-2063
         s = new Scanner("123 123456789123456789");
         assertTrue(s.hasNextBigInteger(16));
-        assertEquals(new BigInteger("291"), s.nextBigInteger());
+        assertEquals(new BigInteger("123"), s.nextBigInteger());
         assertEquals(new BigInteger("123456789123456789"), s.nextBigInteger());
 
         s = new Scanner("123456789123456789 456");
@@ -3287,13 +3293,13 @@ public class ScannerTest extends TestCase {
         //regression for HARMONY-2063
         s = new Scanner("123 456");
         assertTrue(s.hasNextInt(16));
-        assertEquals(291, s.nextInt(10));
+        assertEquals(123, s.nextInt(10));
         assertEquals(456, s.nextInt());
 
         s = new Scanner("123 456");
         assertTrue(s.hasNextInt(16));
         assertTrue(s.hasNextInt(8));
-        assertEquals(83, s.nextInt());
+        assertEquals(123, s.nextInt());
         assertEquals(456, s.nextInt());
 
         s = new Scanner("-123 -456 -789");
@@ -3926,13 +3932,13 @@ public class ScannerTest extends TestCase {
         //regression for HARMONY-2063
         s = new Scanner("123 456");
         assertTrue(s.hasNextShort(16));
-        assertEquals(291, s.nextShort());
+        assertEquals(123, s.nextShort());
         assertEquals(456, s.nextShort());
 
         s = new Scanner("123 456");
         assertTrue(s.hasNextShort(16));
         assertTrue(s.hasNextShort(8));
-        assertEquals(83, s.nextShort());
+        assertEquals(123, s.nextShort());
         assertEquals(456, s.nextShort());
 
         s = new Scanner("-123 -456 -789");
@@ -4122,13 +4128,13 @@ public class ScannerTest extends TestCase {
         //regression for HARMONY-2063
         s = new Scanner("123 456");
         assertTrue(s.hasNextLong(16));
-        assertEquals(291, s.nextLong());
+        assertEquals(123, s.nextLong());
         assertEquals(456, s.nextLong());
 
         s = new Scanner("123 456");
         assertTrue(s.hasNextLong(16));
         assertTrue(s.hasNextLong(8));
-        assertEquals(83, s.nextLong());
+        assertEquals(123, s.nextLong());
         assertEquals(456, s.nextLong());
 
         s = new Scanner("-123 -456 -789");
@@ -4795,16 +4801,9 @@ public class ScannerTest extends TestCase {
         } catch (NullPointerException expected) {
         }
         String result = s.findInLine(Pattern.compile("^"));
-        assertEquals("", result);
-        MatchResult matchResult = s.match();
-        assertEquals(0, matchResult.start());
-        assertEquals(0, matchResult.end());
-
+        assertEquals(null, result);
         result = s.findInLine(Pattern.compile("$"));
-        assertEquals("", result);
-        matchResult = s.match();
-        assertEquals(0, matchResult.start());
-        assertEquals(0, matchResult.end());
+        assertEquals(null, result);
 
         /*
          * When we use the operation of findInLine(Pattern), the match region
@@ -4821,7 +4820,7 @@ public class ScannerTest extends TestCase {
         s = new Scanner("abcd1234test\n");
         result = s.findInLine(Pattern.compile("\\p{Lower}+"));
         assertEquals("abcd", result);
-        matchResult = s.match();
+        MatchResult matchResult = s.match();
         assertEquals(0, matchResult.start());
         assertEquals(4, matchResult.end());
 
@@ -4889,21 +4888,33 @@ public class ScannerTest extends TestCase {
         s = new Scanner("test\u0085\ntest");
         result = s.findInLine("est");
         assertEquals("est", result);
-        result = s.findInLine("est");
-        assertEquals("est", result);
+        // First consume input upto U+0085(a line separator)
+        assertTrue(s.hasNextLine());
+        assertEquals("", s.nextLine());
+        // Then consume input upto the "\n"
+        assertTrue(s.hasNextLine());
+        assertEquals("", s.nextLine());
+        // The next line will be "test", which should match.
+        assertEquals("est", s.findInLine("est"));
 
         s = new Scanner("test\ntest");
         result = s.findInLine("est");
         assertEquals("est", result);
         result = s.findInLine("est");
-        assertEquals("est", result);
+        assertNull(result);
 
         s = new Scanner("test\n123\ntest");
         result = s.findInLine("est");
         assertEquals("est", result);
         result = s.findInLine("est");
-        // RI fails. It is a RI's bug.
         assertNull(result);
+        s.nextLine();
+        result = s.findInLine("est");
+        assertNull(result);
+        s.nextLine();
+        result = s.findInLine("est");
+        assertEquals("est", result);
+
 
         s = new Scanner( "   *\n");
         result = s.findInLine(Pattern.compile( "^\\s*(?:\\*(?=[^/]))"));
@@ -4933,16 +4944,10 @@ public class ScannerTest extends TestCase {
     public void test_findInLine_LString() {
       Scanner s = new Scanner("");
       String result = s.findInLine("^");
-      assertEquals("", result);
-      MatchResult matchResult = s.match();
-      assertEquals(0, matchResult.start());
-      assertEquals(0, matchResult.end());
+      assertNull(result);
 
       result = s.findInLine("$");
-      assertEquals("", result);
-      matchResult = s.match();
-      assertEquals(0, matchResult.start());
-      assertEquals(0, matchResult.end());
+      assertNull(result);
 
       // When we use the operation of findInLine(Pattern), the match region
       // should not span the line separator.
@@ -4957,7 +4962,7 @@ public class ScannerTest extends TestCase {
       s = new Scanner("abcd1234test\n");
       result = s.findInLine("\\p{Lower}+");
       assertEquals("abcd", result);
-      matchResult = s.match();
+      MatchResult matchResult = s.match();
       assertEquals(0, matchResult.start());
       assertEquals(4, matchResult.end());
 
@@ -5018,18 +5023,19 @@ public class ScannerTest extends TestCase {
       result = s.findInLine("est");
       assertEquals("est", result);
       result = s.findInLine("est");
-      assertEquals("est", result);
+      assertNull(result);
 
       s = new Scanner("test\ntest");
       result = s.findInLine("est");
       assertEquals("est", result);
       result = s.findInLine("est");
-      assertEquals("est", result);
+      assertNull(result);
 
       s = new Scanner("test\n123\ntest");
       result = s.findInLine("est");
       assertEquals("est", result);
       result = s.findInLine("est");
+      assertNull(result);
     }
 
     /**
