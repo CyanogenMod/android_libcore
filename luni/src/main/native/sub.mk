@@ -23,6 +23,7 @@ LOCAL_SRC_FILES := \
     libcore_io_AsynchronousCloseMonitor.cpp \
     libcore_io_Memory.cpp \
     libcore_io_Posix.cpp \
+    libcore_util_NativeAllocationRegistry.cpp \
     org_apache_harmony_xml_ExpatParser.cpp \
     readlink.cpp \
     sun_misc_Unsafe.cpp \
