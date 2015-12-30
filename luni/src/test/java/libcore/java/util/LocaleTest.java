@@ -1175,7 +1175,7 @@ public class LocaleTest extends junit.framework.TestCase {
             System.setUnchangeableSystemProperty("user.language", "en");
             System.setUnchangeableSystemProperty("user.region", "US");
 
-            Locale l = Locale.getDefaultLocaleFromSystemProperties();
+            Locale l = Locale.initDefault();
             assertEquals("de", l.getLanguage());
             assertEquals("DE", l.getCountry());
 
@@ -1184,7 +1184,7 @@ public class LocaleTest extends junit.framework.TestCase {
             System.setUnchangeableSystemProperty("user.language", "en");
             System.setUnchangeableSystemProperty("user.region", "US");
 
-            l = Locale.getDefaultLocaleFromSystemProperties();
+            l = Locale.initDefault();
             assertEquals("de", l.getLanguage());
             assertEquals("DE", l.getCountry());
             assertEquals("Latn", l.getScript());
@@ -1193,7 +1193,7 @@ public class LocaleTest extends junit.framework.TestCase {
             // that we don't end up with a null default locale or an exception.
             System.setUnchangeableSystemProperty("user.locale", "dexx-Latn-DE");
 
-            l = Locale.getDefaultLocaleFromSystemProperties();
+            l = Locale.initDefault();
             assertEquals("", l.getLanguage());
             assertEquals("DE", l.getCountry());
         } finally {
