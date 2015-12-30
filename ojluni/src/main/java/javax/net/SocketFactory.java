@@ -104,6 +104,13 @@ public abstract class SocketFactory
         return theFactory;
     }
 
+    /** @hide Visible for testing only */
+    public static void setDefault(SocketFactory factory) {
+        synchronized (SocketFactory.class) {
+            theFactory = factory;
+        }
+    }
+
 
     /**
      * Creates an unconnected socket.
