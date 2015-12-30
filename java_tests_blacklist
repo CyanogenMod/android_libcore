@@ -88,6 +88,7 @@ luni/src/test/java/libcore/net/url/UrlUtilsTest.java
 luni/src/test/java/libcore/io/StrictLineReaderTest.java
 luni/src/test/java/libcore/java/util/zip/Zip64Test.java
 luni/src/test/java/libcore/net/http/ResponseUtilsTest.java
+luni/src/test/java/libcore/java/util/LocaleTest.java
 luni/src/test/java/libcore/java/util/zip/Zip64FileTest.java
 luni/src/test/java/libcore/java/util/zip/ZipEntryTest.java
 luni/src/test/java/libcore/io/Base64Test.java
