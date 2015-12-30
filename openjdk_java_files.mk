@@ -719,8 +719,6 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/java/text/ParseException.java \
     ojluni/src/main/java/java/text/ParsePosition.java \
     ojluni/src/main/java/java/text/PatternEntry.java \
-    ojluni/src/main/java/java/text/RBCollationTables.java \
-    ojluni/src/main/java/java/text/RBTableBuilder.java \
     ojluni/src/main/java/java/text/IcuIteratorWrapper.java \
     ojluni/src/main/java/java/text/RuleBasedCollator.java \
     ojluni/src/main/java/java/text/SimpleDateFormat.java \
@@ -1486,41 +1484,6 @@ openjdk_java_files := \
     ojluni/src/main/java/sun/security/x509/X509CRLEntryImpl.java \
     ojluni/src/main/java/sun/security/x509/X509CRLImpl.java \
     ojluni/src/main/java/sun/security/x509/X509Key.java \
-    ojluni/src/main/java/sun/text/CollatorUtilities.java \
-    ojluni/src/main/java/sun/text/CompactByteArray.java \
-    ojluni/src/main/java/sun/text/ComposedCharIter.java \
-    ojluni/src/main/java/sun/text/IntHashtable.java \
-    ojluni/src/main/java/sun/text/normalizer/CharacterIteratorWrapper.java \
-    ojluni/src/main/java/sun/text/normalizer/CharTrie.java \
-    ojluni/src/main/java/sun/text/normalizer/ICUBinary.java \
-    ojluni/src/main/java/sun/text/normalizer/ICUData.java \
-    ojluni/src/main/java/sun/text/normalizer/IntTrie.java \
-    ojluni/src/main/java/sun/text/Normalizer.java \
-    ojluni/src/main/java/sun/text/normalizer/NormalizerBase.java \
-    ojluni/src/main/java/sun/text/normalizer/NormalizerDataReader.java \
-    ojluni/src/main/java/sun/text/normalizer/NormalizerImpl.java \
-    ojluni/src/main/java/sun/text/normalizer/RangeValueIterator.java \
-    ojluni/src/main/java/sun/text/normalizer/Replaceable.java \
-    ojluni/src/main/java/sun/text/normalizer/ReplaceableString.java \
-    ojluni/src/main/java/sun/text/normalizer/ReplaceableUCharacterIterator.java \
-    ojluni/src/main/java/sun/text/normalizer/RuleCharacterIterator.java \
-    ojluni/src/main/java/sun/text/normalizer/SymbolTable.java \
-    ojluni/src/main/java/sun/text/normalizer/TrieIterator.java \
-    ojluni/src/main/java/sun/text/normalizer/Trie.java \
-    ojluni/src/main/java/sun/text/normalizer/UBiDiProps.java \
-    ojluni/src/main/java/sun/text/normalizer/UCharacterIterator.java \
-    ojluni/src/main/java/sun/text/normalizer/UCharacter.java \
-    ojluni/src/main/java/sun/text/normalizer/UCharacterProperty.java \
-    ojluni/src/main/java/sun/text/normalizer/UCharacterPropertyReader.java \
-    ojluni/src/main/java/sun/text/normalizer/UnicodeMatcher.java \
-    ojluni/src/main/java/sun/text/normalizer/UnicodeSetIterator.java \
-    ojluni/src/main/java/sun/text/normalizer/UnicodeSet.java \
-    ojluni/src/main/java/sun/text/normalizer/UTF16.java \
-    ojluni/src/main/java/sun/text/normalizer/Utility.java \
-    ojluni/src/main/java/sun/text/normalizer/VersionInfo.java \
-    ojluni/src/main/java/sun/text/resources/BreakIteratorInfo.java \
-    ojluni/src/main/java/sun/text/SupplementaryCharacterData.java \
-    ojluni/src/main/java/sun/text/UCompactIntArray.java \
     ojluni/src/main/java/sun/util/calendar/AbstractCalendar.java \
     ojluni/src/main/java/sun/util/calendar/BaseCalendar.java \
     ojluni/src/main/java/sun/util/calendar/CalendarDate.java \
