@@ -71,7 +71,6 @@ support/src/test/java/org/apache/harmony/security/tests/support/MyProvider.java
 support/src/test/java/org/apache/harmony/security/tests/support/TestKeyStoreSpi.java
 luni/src/test/java/libcore/net/url/UrlUtilsTest.java
 luni/src/test/java/libcore/java/util/zip/Zip64Test.java
-luni/src/test/java/libcore/java/util/LocaleTest.java
 luni/src/test/java/libcore/java/util/zip/Zip64FileTest.java
 luni/src/test/java/libcore/java/util/zip/ZipEntryTest.java
 luni/src/test/java/libcore/java/security/cert/X509CertificateTest.java
