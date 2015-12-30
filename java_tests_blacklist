@@ -92,5 +92,3 @@ luni/src/test/java/libcore/java/util/zip/Zip64FileTest.java
 luni/src/test/java/libcore/java/util/zip/ZipEntryTest.java
 luni/src/test/java/libcore/io/Base64Test.java
 luni/src/test/java/libcore/java/security/cert/X509CertificateTest.java
-luni/src/test/java/libcore/java/text/DecimalFormatSymbolsTest.java
-luni/src/test/java/libcore/java/util/jar/StrictJarFileTest.java
