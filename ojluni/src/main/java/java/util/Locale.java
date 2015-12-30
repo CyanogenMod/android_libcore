@@ -744,7 +744,7 @@ public final class Locale implements Cloneable, Serializable {
         // do not synchronize this method - see 4071298
         // it's OK if more than one default locale happens to be created
         if (defaultLocale == null) {
-            initDefault();
+            Locale locale = initDefault();
         }
         return defaultLocale;
     }
@@ -771,12 +771,12 @@ public final class Locale implements Cloneable, Serializable {
         switch (category) {
         case DISPLAY:
             if (defaultDisplayLocale == null) {
-                initDefault(category);
+                defaultDisplayLocale = initDefault(category);
             }
             return defaultDisplayLocale;
         case FORMAT:
             if (defaultFormatLocale == null) {
-                initDefault(category);
+                defaultFormatLocale = initDefault(category);
             }
             return defaultFormatLocale;
         default:
@@ -785,13 +785,14 @@ public final class Locale implements Cloneable, Serializable {
         return getDefault();
     }
 
-    private static void initDefault() {
+    /**
+     * @hide visible for testing.
+     */
+    public static Locale initDefault() {
         String language, region, script, country, variant;
-        language = AccessController.doPrivileged(
-            new GetPropertyAction("user.language", "en"));
+        language = System.getProperty("user.language", "en");
         // for compatibility, check for old user.region property
-        region = AccessController.doPrivileged(
-            new GetPropertyAction("user.region"));
+        region = System.getProperty("user.region");
         if (region != null) {
             // region can be of form country, country_variant, or _variant
             int i = region.indexOf('_');
@@ -804,41 +805,23 @@ public final class Locale implements Cloneable, Serializable {
             }
             script = "";
         } else {
-            script = AccessController.doPrivileged(
-                new GetPropertyAction("user.script", ""));
-            country = AccessController.doPrivileged(
-                new GetPropertyAction("user.country", ""));
-            variant = AccessController.doPrivileged(
-                new GetPropertyAction("user.variant", ""));
+            script = System.getProperty("user.script", "");
+            country = System.getProperty("user.country", "");
+            variant = System.getProperty("user.variant", "");
         }
-        defaultLocale = getInstance(language, script, country, variant, null);
+        return getInstance(language, script, country, variant, null);
     }
 
-    private static void initDefault(Locale.Category category) {
+    private static Locale initDefault(Locale.Category category) {
         // make sure defaultLocale is initialized
-        if (defaultLocale == null) {
-            initDefault();
-        }
+        final Locale defaultLocale = getDefault();
 
-        Locale defaultCategoryLocale = getInstance(
-            AccessController.doPrivileged(
-                new GetPropertyAction(category.languageKey, defaultLocale.getLanguage())),
-            AccessController.doPrivileged(
-                new GetPropertyAction(category.scriptKey, defaultLocale.getScript())),
-            AccessController.doPrivileged(
-                new GetPropertyAction(category.countryKey, defaultLocale.getCountry())),
-            AccessController.doPrivileged(
-                new GetPropertyAction(category.variantKey, defaultLocale.getVariant())),
+        return getInstance(
+            System.getProperty(category.languageKey, defaultLocale.getLanguage()),
+            System.getProperty(category.scriptKey, defaultLocale.getScript()),
+            System.getProperty(category.countryKey, defaultLocale.getCountry()),
+            System.getProperty(category.variantKey, defaultLocale.getVariant()),
             null);
-
-        switch (category) {
-        case DISPLAY:
-            defaultDisplayLocale = defaultCategoryLocale;
-            break;
-        case FORMAT:
-            defaultFormatLocale = defaultCategoryLocale;
-            break;
-        }
     }
 
     /**
