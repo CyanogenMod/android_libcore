@@ -15,8 +15,6 @@
  */
 package org.apache.harmony.tests.java.nio;
 
-import java.lang.reflect.Field;
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
@@ -130,18 +128,4 @@ public class DirectByteBufferTest extends ByteBufferTest {
         buf.setAccessible(true);
         buf.get(0);
     }
-
-    // Test that direct byte buffers are 8 byte aligned.
-    // http://b/16449607
-    public void testDirectByteBufferAlignment() throws Exception {
-        Field addressField = Buffer.class.getDeclaredField("address");
-        assertTrue(addressField != null);
-        addressField.setAccessible(true);
-        long address = addressField.getLong(buf);
-        // Check that the address field is aligned by 8.
-        // Normally reading this field happens in native code by calling
-        // GetDirectBufferAddress.
-        assertEquals(0, address % 8);
-    }
-
 }
