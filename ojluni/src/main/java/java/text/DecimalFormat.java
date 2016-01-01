@@ -1341,7 +1341,8 @@ public class DecimalFormat extends NumberFormat {
         // Set the international currency symbol, and currency symbol on the DecimalFormatSymbols
         // object and tell ICU to use that. Trying to set the currency on icuDecimalFormat will
         // cause the fractional digits to be update
-        if (currency != symbols.getCurrency()) {
+        if (currency != symbols.getCurrency()
+            || !currency.getSymbol().equals(symbols.getCurrencySymbol())) {
             symbols.setCurrency(currency);
         }
         icuDecimalFormat.setDecimalFormatSymbols(symbols.getIcuDecimalFormatSymbols());
