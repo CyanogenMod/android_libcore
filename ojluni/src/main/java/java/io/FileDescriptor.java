@@ -25,6 +25,10 @@
 
 package java.io;
 
+import android.system.ErrnoException;
+import android.system.Os;
+import static android.system.OsConstants.F_DUPFD_CLOEXEC;
+
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -74,7 +78,7 @@ public final class FileDescriptor {
      *
      * @see     java.lang.System#in
      */
-    public static final FileDescriptor in = new FileDescriptor(0);
+    public static final FileDescriptor in = dupFd(0);
 
     /**
      * A handle to the standard output stream. Usually, this file
@@ -82,7 +86,7 @@ public final class FileDescriptor {
      * known as <code>System.out</code>.
      * @see     java.lang.System#out
      */
-    public static final FileDescriptor out = new FileDescriptor(1);
+    public static final FileDescriptor out = dupFd(1);
 
     /**
      * A handle to the standard error stream. Usually, this file
@@ -91,7 +95,7 @@ public final class FileDescriptor {
      *
      * @see     java.lang.System#err
      */
-    public static final FileDescriptor err = new FileDescriptor(2);
+    public static final FileDescriptor err = dupFd(2);
 
     /**
      * Tests if this file descriptor object is valid.
@@ -167,6 +171,15 @@ public final class FileDescriptor {
     // Android-added.
     public boolean isSocket$() {
         return isSocket(descriptor);
+    }
+
+    // Android-added.
+    private static FileDescriptor dupFd(int fd) {
+        try {
+            return new FileDescriptor(Os.fcntlInt(new FileDescriptor(fd), F_DUPFD_CLOEXEC, 0));
+        } catch (ErrnoException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static native boolean isSocket(int descriptor);
