@@ -1449,6 +1449,7 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
                                     ERA_MASK|MONTH_MASK|DAY_OF_WEEK_MASK|AM_PM_MASK)) {
             return null;
         }
+        complete();
 
         // ALL_STYLES
         if (style == ALL_STYLES) {
