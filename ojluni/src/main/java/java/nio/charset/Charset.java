@@ -345,9 +345,8 @@ public abstract class Charset
     private static Iterator providers() {
         return new Iterator() {
 
-                ClassLoader cl = ClassLoader.getSystemClassLoader();
                 ServiceLoader<CharsetProvider> sl =
-                    ServiceLoader.load(CharsetProvider.class, cl);
+                    ServiceLoader.load(CharsetProvider.class);
                 Iterator<CharsetProvider> i = sl.iterator();
 
                 Object next = null;
