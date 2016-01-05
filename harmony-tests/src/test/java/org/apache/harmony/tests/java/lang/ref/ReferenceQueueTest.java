@@ -42,17 +42,13 @@ public class ReferenceQueueTest extends junit.framework.TestCase {
 
         public void run() {
             try {
-                rq.wait(1000);
-            } catch (Exception e) {
-            }
-            synchronized (rq) {
-                // store in a static so it won't be gc'ed because the jit
-                // optimized it out
-                integer = new Integer(667);
-                SoftReference sr = new SoftReference(integer, rq);
-                sr.enqueue();
-                rq.notify();
-            }
+                Thread.sleep(100);
+            } catch (Exception e) {}
+            // store in a static so it won't be gc'ed because the jit
+            // optimized it out
+            integer = new Integer(667);
+            SoftReference sr = new SoftReference(integer, rq);
+            sr.enqueue();
         }
     }
 
