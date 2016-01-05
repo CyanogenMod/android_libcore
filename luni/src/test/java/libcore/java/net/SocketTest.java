@@ -28,6 +28,7 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.SocketImpl;
+import java.net.UnknownHostException;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.Callable;
@@ -446,5 +447,63 @@ public class SocketTest extends junit.framework.TestCase {
             serverSocket.close();
             executor.shutdown();
         }
+    }
+
+    // b/26354315
+    public void testDoNotCallCloseFromSocketCtor() {
+        // Original openJdk7 Socket implementation may call Socket#close() inside a constructor.
+        // In this case, classes that extend Socket wont be fully constructed when they
+        // receive #close() call. This test makes sure this won't happen
+
+        // Extend Socket
+        class SocketThatFailOnClose extends Socket {
+            public SocketThatFailOnClose(String host, int port)
+                throws UnknownHostException, IOException {
+                super(host, port);
+            }
+            public SocketThatFailOnClose(InetAddress address, int port) throws IOException {
+                super(address, port);
+            }
+            public SocketThatFailOnClose(String host, int port, InetAddress localAddr,
+                                         int localPort) throws IOException {
+                super(host, port, localAddr, localPort);
+            }
+            public SocketThatFailOnClose(InetAddress address, int port, InetAddress localAddr,
+                                         int localPort) throws IOException {
+                super(address, port, localAddr, localPort);
+            }
+            public SocketThatFailOnClose(String host, int port, boolean stream) throws IOException {
+                super(host, port, stream);
+            }
+            public SocketThatFailOnClose(InetAddress host, int port, boolean stream)
+                throws IOException {
+                super(host, port, stream);
+            }
+
+            @Override
+            public void close() {
+                fail("Do not call close from the Socket constructor");
+            }
+        }
+
+        // Test all Socket ctors
+        try {
+            new SocketThatFailOnClose("localhost", 1);
+        } catch(IOException expected) {}
+        try {
+            new SocketThatFailOnClose(InetAddress.getLocalHost(), 1);
+        } catch(IOException expected) {}
+        try {
+            new SocketThatFailOnClose("localhost", 1, null, 0);
+        } catch(IOException expected) {}
+        try {
+            new SocketThatFailOnClose(InetAddress.getLocalHost(), 1, null, 0);
+        } catch(IOException expected) {}
+        try {
+            new SocketThatFailOnClose("localhost", 1, true);
+        } catch(IOException expected) {}
+        try {
+            new SocketThatFailOnClose(InetAddress.getLocalHost(), 1, true);
+        } catch(IOException expected) {}
     }
 }
