@@ -126,6 +126,42 @@ LOCAL_REQUIRED_MODULES := tzdata
 include $(BUILD_JAVA_LIBRARY)
 
 ifeq ($(LIBCORE_SKIP_TESTS),)
+# A guaranteed unstripped version of core-oj and core-libart. This is required for ART testing in
+# preopted configurations. See b/24535627.
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES := $(openjdk_java_files)
+LOCAL_JAVA_RESOURCE_DIRS := $(core_resource_dirs)
+LOCAL_NO_STANDARD_LIBRARIES := true
+LOCAL_JAVACFLAGS := $(local_javac_flags)
+LOCAL_DX_FLAGS := --core-library
+LOCAL_MODULE_TAGS := optional
+LOCAL_DEX_PREOPT := false
+LOCAL_MODULE := core-oj-testdex
+LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
+LOCAL_JAVA_LIBRARIES := core-all
+LOCAL_NOTICE_FILE := $(LOCAL_PATH)/ojluni/NOTICE
+LOCAL_REQUIRED_MODULES := tzdata
+LOCAL_CORE_LIBRARY := true
+LOCAL_REQUIRED_MODULES := currency.data-target
+include $(BUILD_JAVA_LIBRARY)
+
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES := $(non_openjdk_java_files) $(android_icu4j_src_files)
+LOCAL_JAVA_RESOURCE_DIRS := $(android_icu4j_resource_dirs)
+LOCAL_NO_STANDARD_LIBRARIES := true
+LOCAL_JAVACFLAGS := $(local_javac_flags)
+LOCAL_DX_FLAGS := --core-library
+LOCAL_MODULE_TAGS := optional
+LOCAL_DEX_PREOPT := false
+LOCAL_MODULE := core-libart-testdex
+LOCAL_ADDITIONAL_DEPENDENCIES += $(LOCAL_PATH)/JavaLibrary.mk
+LOCAL_JAVA_LIBRARIES := core-all
+LOCAL_CORE_LIBRARY := true
+LOCAL_REQUIRED_MODULES := tzdata
+include $(BUILD_JAVA_LIBRARY)
+endif
+
+ifeq ($(LIBCORE_SKIP_TESTS),)
 # Make the core-tests library.
 include $(CLEAR_VARS)
 LOCAL_SRC_FILES := $(test_src_files)
