@@ -32,23 +32,9 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.UnresolvedAddressException;
 import java.util.Set;
 
-import tests.io.MockOs;
-
 import static android.system.OsConstants.*;
 
 public class SocketChannelTest extends junit.framework.TestCase {
-
-  private final MockOs mockOs = new MockOs();
-
-  @Override
-  public void setUp() throws Exception {
-    mockOs.install();
-  }
-
-  @Override
-  protected void tearDown() throws Exception {
-    mockOs.uninstall();
-  }
 
   public void test_read_intoReadOnlyByteArrays() throws Exception {
     ByteBuffer readOnly = ByteBuffer.allocate(1).asReadOnlyBuffer();
@@ -74,8 +60,6 @@ public class SocketChannelTest extends junit.framework.TestCase {
 
   // https://code.google.com/p/android/issues/detail?id=56684
   public void test_56684() throws Exception {
-    mockOs.enqueueFault("connect", ENETUNREACH);
-
     SocketChannel sc = SocketChannel.open();
     sc.configureBlocking(false);
 
@@ -83,7 +67,13 @@ public class SocketChannelTest extends junit.framework.TestCase {
     SelectionKey selectionKey = sc.register(selector, SelectionKey.OP_CONNECT);
 
     try {
-      sc.connect(new InetSocketAddress(InetAddress.getByAddress(new byte[] { 0, 0, 0, 0 }), 0));
+      // This test originally mocked the connect syscall to return ENETUNREACH.
+      // This is not easily doable in openJdk libcore, but a connect to broadcast
+      // address (255.255.255.255) for a TCP connection produces ENETUNREACH
+      // Kernel code that does it is at
+      // http://lxr.free-electrons.com/source/net/ipv4/tcp_ipv4.c?v=3.18#L182
+      sc.connect(new InetSocketAddress(InetAddress.getByAddress(new byte[] {
+                    (byte) 255, (byte) 255, (byte)255, (byte)255 }), 0));
       fail();
     } catch (ConnectException ex) {
     }
