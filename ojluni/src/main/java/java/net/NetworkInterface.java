@@ -49,6 +49,7 @@ public final class NetworkInterface {
     private NetworkInterface childs[];
     private NetworkInterface parent = null;
     private boolean virtual = false;
+    private byte[] hardwareAddr;
     private static final NetworkInterface defaultInterface;
     private static final int defaultIndex; /* index of defaultInterface */
 
@@ -431,23 +432,7 @@ public final class NetworkInterface {
      * @since 1.6
      */
     public byte[] getHardwareAddress() throws SocketException {
-        SecurityManager sec = System.getSecurityManager();
-        if (sec != null) {
-            try {
-                sec.checkPermission(new NetPermission("getNetworkInformation"));
-            } catch (SecurityException e) {
-                if (!getInetAddresses().hasMoreElements()) {
-                    // don't have connect permission to any local address
-                    return null;
-                }
-            }
-        }
-        for (InetAddress addr : addrs) {
-            if (addr instanceof Inet4Address) {
-                return getMacAddr0(((Inet4Address)addr).getAddress(), name, index);
-            }
-        }
-        return getMacAddr0(null, name, index);
+        return (hardwareAddr != null) ? hardwareAddr.clone() : null;
     }
 
     /**
@@ -482,7 +467,6 @@ public final class NetworkInterface {
     private native static boolean isLoopback0(String name, int ind) throws SocketException;
     private native static boolean supportsMulticast0(String name, int ind) throws SocketException;
     private native static boolean isP2P0(String name, int ind) throws SocketException;
-    private native static byte[] getMacAddr0(byte[] inAddr, String name, int ind) throws SocketException;
     private native static int getMTU0(String name, int ind) throws SocketException;
 
     /**
