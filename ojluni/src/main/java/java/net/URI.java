@@ -2612,6 +2612,10 @@ public final class URI
     private static final long L_DASH = lowMask("-");
     private static final long H_DASH = highMask("-");
 
+    // UNDERSCORE, for use in domainlabel and toplabel
+    private static final long L_UNDERSCORE = lowMask("_");
+    private static final long H_UNDERSCORE = highMask("_");
+
     // Dot, for use in hostnames
     private static final long L_DOT = lowMask(".");
     private static final long H_DOT = highMask(".");
@@ -3371,8 +3375,8 @@ public final class URI
         }
 
         // hostname      = domainlabel [ "." ] | 1*( domainlabel "." ) toplabel [ "." ]
-        // domainlabel   = alphanum | alphanum *( alphanum | "-" ) alphanum
-        // toplabel      = alpha | alpha *( alphanum | "-" ) alphanum
+        // domainlabel   = alphanum | alphanum *( alphanum | "-" | "_" ) alphanum
+        // toplabel      = alpha | alpha *( alphanum | "-" | "_" ) alphanum
         //
         private int parseHostname(int start, int n)
             throws URISyntaxException
@@ -3382,14 +3386,21 @@ public final class URI
             int l = -1;                 // Start of last parsed label
 
             do {
-                // domainlabel = alphanum [ *( alphanum | "-" ) alphanum ]
+                // domainlabel = alphanum [ *( alphanum | "-" | "_" ) alphanum ]
+                //
+                // The RFCs don't permit underscores in hostnames, but URI has to because a certain
+                // large website doesn't seem to care about standards and specs.
+                // http://code.google.com/p/android/issues/detail?id=37577
+                // http://b/17579865
+                // http://b/18016625
+                // http://b/18023709
                 q = scan(p, n, L_ALPHANUM, H_ALPHANUM);
                 if (q <= p)
                     break;
                 l = p;
                 if (q > p) {
                     p = q;
-                    q = scan(p, n, L_ALPHANUM | L_DASH, H_ALPHANUM | H_DASH);
+                    q = scan(p, n, L_ALPHANUM | L_DASH | L_UNDERSCORE, H_ALPHANUM | H_DASH | H_UNDERSCORE);
                     if (q > p) {
                         if (charAt(q - 1) == '-')
                             fail("Illegal character in hostname", q - 1);
