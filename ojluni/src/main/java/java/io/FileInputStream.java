@@ -62,16 +62,6 @@ class FileInputStream extends InputStream
     private final Object closeLock = new Object();
     private volatile boolean closed = false;
 
-    private static final ThreadLocal<Boolean> runningFinalize =
-        new ThreadLocal<>();
-
-    private static boolean isRunningFinalize() {
-        Boolean val;
-        if ((val = runningFinalize.get()) != null)
-            return val.booleanValue();
-        return false;
-    }
-
     /**
      * Creates a <code>FileInputStream</code> by
      * opening a connection to an actual file,
@@ -208,14 +198,6 @@ class FileInputStream extends InputStream
     public int read() throws IOException {
         Object traceContext = IoTrace.fileReadBegin(path);
 
-        /* ----- BEGIN android -----
-        int b = 0;
-        try {
-            b = read0();
-        } finally {
-            IoTrace.fileReadEnd(traceContext, b == -1 ? 0 : 1);
-        }
-        return b;*/
         byte[] b = new byte[1];
         int res = -1;
         try {
@@ -224,23 +206,7 @@ class FileInputStream extends InputStream
             IoTrace.fileReadEnd(traceContext, res);
         }
         return (res != -1) ? b[0] & 0xff : -1;
-        // ----- END android -----
     }
-
-    /* ----- BEGIN android -----
-    private native int read0() throws IOException;
-    ----- END android -----*/
-
-    /**
-     * Reads a subarray as a sequence of bytes.
-     * @param b the data to be written
-     * @param off the start offset in the data
-     * @param len the number of bytes that are written
-     * @exception IOException If an I/O error has occurred.
-     */
-    /* ----- BEGIN android -----
-    private native int readBytes(byte b[], int off, int len) throws IOException;
-    ----- END android -----*/
 
     /**
      * Reads up to <code>b.length</code> bytes of data from this input
@@ -254,15 +220,6 @@ class FileInputStream extends InputStream
      * @exception  IOException  if an I/O error occurs.
      */
     public int read(byte b[]) throws IOException {
-        /* ----- BEGIN android -----
-        Object traceContext = IoTrace.fileReadBegin(path);
-        int bytesRead = 0;
-        try {
-            bytesRead = readBytes(b, 0, b.length);
-        } finally {
-            IoTrace.fileReadEnd(traceContext, bytesRead == -1 ? 0 : bytesRead);
-        }
-        return bytesRead;*/
         return read(b, 0, b.length);
     }
 
@@ -292,10 +249,7 @@ class FileInputStream extends InputStream
         Object traceContext = IoTrace.fileReadBegin(path);
         int bytesRead = 0;
         try {
-            /* ----- BEGIN android -----
-            bytesRead = readBytes(b, off, len);*/
             bytesRead = IoBridge.read(fd, b, off, len);
-            // ----- END android -----
         } finally {
             IoTrace.fileReadEnd(traceContext, bytesRead == -1 ? 0 : bytesRead);
         }
@@ -325,15 +279,15 @@ class FileInputStream extends InputStream
      *             support seek, or if an I/O error occurs.
      */
     public long skip(long n) throws IOException {
-      if (closed) {
-        throw new IOException("Stream Closed");
-      }
+        if (closed) {
+            throw new IOException("Stream Closed");
+        }
 
-      try {
-        return skip0(n);
-      } catch(UseManualSkipException e) {
-        return super.skip(n);
-      }
+        try {
+            return skip0(n);
+        } catch(UseManualSkipException e) {
+            return super.skip(n);
+        }
     }
 
     private native long skip0(long n) throws IOException, UseManualSkipException;
@@ -409,11 +363,8 @@ class FileInputStream extends InputStream
          * will not close it.
          */
         // Android change, make sure only last close closes FD.
-        if ((useCount <= 0)) { //  || !isRunningFinalize()) {
-            /* ----- BEGIN android -----
-               close0(); */
+        if ((useCount <= 0)) {
             IoBridge.closeAndSignalBlockedThreads(fd);
-            // ----- END android -----
         }
     }
 
@@ -466,8 +417,6 @@ class FileInputStream extends InputStream
 
     private static native void initIDs();
 
-    private native void close0() throws IOException;
-
     static {
         initIDs();
     }
@@ -481,18 +430,7 @@ class FileInputStream extends InputStream
      */
     protected void finalize() throws IOException {
         if ((fd != null) &&  (fd != FileDescriptor.in)) {
-
-            /*
-             * Finalizer should not release the FileDescriptor if another
-             * stream is still using it. If the user directly invokes
-             * close() then the FileDescriptor is also released.
-             */
-            runningFinalize.set(Boolean.TRUE);
-            try {
-                close();
-            } finally {
-                runningFinalize.set(Boolean.FALSE);
-            }
+            close();
         }
     }
 }
