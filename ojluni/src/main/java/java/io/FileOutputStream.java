@@ -76,15 +76,6 @@ class FileOutputStream extends OutputStream
 
     private final Object closeLock = new Object();
     private volatile boolean closed = false;
-    private static final ThreadLocal<Boolean> runningFinalize =
-        new ThreadLocal<>();
-
-    private static boolean isRunningFinalize() {
-        Boolean val;
-        if ((val = runningFinalize.get()) != null)
-            return val.booleanValue();
-        return false;
-    }
 
     /**
      * Creates a file output stream to write to the file with the
@@ -281,17 +272,6 @@ class FileOutputStream extends OutputStream
         throws FileNotFoundException;
 
     /**
-     * Writes the specified byte to this file output stream.
-     *
-     * @param   b   the byte to be written.
-     * @param   append   {@code true} if the write operation first
-     *     advances the position to the end of file
-     */
-    /* ----- BEGIN android -----
-    private native void write(int b, boolean append) throws IOException;
-    ----- END android ----- */
-
-    /**
      * Writes the specified byte to this file output stream. Implements
      * the <code>write</code> method of <code>OutputStream</code>.
      *
@@ -300,31 +280,7 @@ class FileOutputStream extends OutputStream
      */
     public void write(int b) throws IOException {
         write(new byte[] { (byte) b }, 0, 1);
-        /* ----- BEGIN android -----
-        Object traceContext = IoTrace.fileWriteBegin(path);
-        int bytesWritten = 0;
-        try {
-            write(b, append);
-            bytesWritten = 1;
-        } finally {
-            IoTrace.fileWriteEnd(traceContext, bytesWritten);
-        }
-        ----- END android ----- */
     }
-
-    /**
-     * Writes a sub array as a sequence of bytes.
-     * @param b the data to be written
-     * @param off the start offset in the data
-     * @param len the number of bytes that are written
-     * @param append {@code true} to first advance the position to the
-     *     end of file
-     * @exception IOException If an I/O error has occurred.
-     */
-    /* ----- BEGIN android -----
-    private native void writeBytes(byte b[], int off, int len, boolean append)
-        throws IOException;
-       ----- END android ----- */
 
     /**
      * Writes <code>b.length</code> bytes from the specified byte array
@@ -334,15 +290,6 @@ class FileOutputStream extends OutputStream
      * @exception  IOException  if an I/O error occurs.
      */
     public void write(byte b[]) throws IOException {
-        /* ----- BEGIN android -----
-        Object traceContext = IoTrace.fileWriteBegin(path);
-        int bytesWritten = 0;
-        try {
-            writeBytes(b, 0, b.length, append);
-            bytesWritten = b.length;
-        } finally {
-            IoTrace.fileWriteEnd(traceContext, bytesWritten);
-        } ----- END android ----- */
         write(b, 0, b.length);
     }
 
@@ -411,11 +358,8 @@ class FileOutputStream extends OutputStream
          * will not close it.
          */
         // Android change, make sure only last close closes FD.
-        if ((useCount <= 0)) { // || !isRunningFinalize()) {
-            /* ----- BEGIN android -----
-            close0(); */
+        if ((useCount <= 0)) {
             IoBridge.closeAndSignalBlockedThreads(fd);
-            // ----- END android -----
         }
     }
 
@@ -480,29 +424,14 @@ class FileOutputStream extends OutputStream
             if (fd == FileDescriptor.out || fd == FileDescriptor.err) {
                 flush();
             } else {
-
-                /*
-                 * Finalizer should not release the FileDescriptor if another
-                 * stream is still using it. If the user directly invokes
-                 * close() then the FileDescriptor is also released.
-                 */
-                runningFinalize.set(Boolean.TRUE);
-                try {
-                    close();
-                } finally {
-                    runningFinalize.set(Boolean.FALSE);
-                }
+                close();
             }
         }
     }
-
-    /* ----- BEGIN android -----
-    private native void close0() throws IOException; */
 
     private static native void initIDs();
 
     static {
         initIDs();
     }
-
 }
