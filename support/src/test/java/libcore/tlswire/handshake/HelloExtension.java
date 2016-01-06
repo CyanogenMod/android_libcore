@@ -31,6 +31,7 @@ public class HelloExtension {
     public static final int TYPE_SERVER_NAME = 0;
     public static final int TYPE_PADDING = 21;
     public static final int TYPE_SESSION_TICKET = 35;
+    public static final int TYPE_RENEGOTIATION_INFO = 65281;
 
     private static final Map<Integer, String> TYPE_TO_NAME = new HashMap<Integer, String>();
     static {
@@ -60,7 +61,7 @@ public class HelloExtension {
         TYPE_TO_NAME.put(13172, "next_protocol_negotiation");
         TYPE_TO_NAME.put(30031, "Channel ID (old)");
         TYPE_TO_NAME.put(30032, "Channel ID (new)");
-        TYPE_TO_NAME.put(65281, "renegotiation_info");
+        TYPE_TO_NAME.put(TYPE_RENEGOTIATION_INFO, "renegotiation_info");
     }
 
     public int type;
