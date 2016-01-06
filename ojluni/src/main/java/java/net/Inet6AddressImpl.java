@@ -24,26 +24,126 @@
  * questions.
  */
 package java.net;
+import android.system.ErrnoException;
+import android.system.GaiException;
+import android.system.StructAddrinfo;
+import dalvik.system.BlockGuard;
+import libcore.io.Libcore;
+
 import java.io.IOException;
+
+import static android.system.OsConstants.AF_UNSPEC;
+import static android.system.OsConstants.AI_ADDRCONFIG;
+import static android.system.OsConstants.EACCES;
+import static android.system.OsConstants.SOCK_STREAM;
 
 /*
  * Package private implementation of InetAddressImpl for dual
- * IPv4/IPv6 stack.
- * <p>
- * If InetAddress.preferIPv6Address is true then anyLocalAddress(),
- * loopbackAddress(), and localHost() will return IPv6 addresses,
- * otherwise IPv4 addresses.
+ * IPv4/IPv6 stack. {@code #anyLocalAddress()} will always return an IPv6 address.
  *
  * @since 1.4
  */
 
 class Inet6AddressImpl implements InetAddressImpl {
-    public native String getLocalHostName() throws UnknownHostException;
-    public native InetAddress[]
-        lookupAllHostAddr(String hostname) throws UnknownHostException;
-    public native String getHostByAddr(byte[] addr) throws UnknownHostException;
-    private native boolean isReachable0(byte[] addr, int scope, int timeout, byte[] inf, int ttl, int if_scope) throws IOException;
 
+    private static final InetAddress ANY_LOCAL_ADDRESS;
+    private static final InetAddress[] LOOPBACK_ADDRESSES;
+
+    static {
+        ANY_LOCAL_ADDRESS = new Inet6Address();
+        ANY_LOCAL_ADDRESS.holder().hostName = "::";
+
+        LOOPBACK_ADDRESSES = new InetAddress[] { Inet6Address.LOOPBACK, Inet4Address.LOOPBACK };
+    }
+
+    private static final AddressCache addressCache = new AddressCache();
+
+    @Override
+    public InetAddress[] lookupAllHostAddr(String host, int netId) throws UnknownHostException {
+        if (host == null || host.isEmpty()) {
+            // Android-changed : Return both the Inet4 and Inet6 loopback addresses
+            // when host == null or empty.
+            return loopbackAddresses();
+        }
+
+        // Is it a numeric address?
+        InetAddress result = InetAddress.parseNumericAddressNoThrow(host);
+        if (result != null) {
+            result = InetAddress.disallowDeprecatedFormats(host, result);
+            if (result == null) {
+                throw new UnknownHostException("Deprecated IPv4 address format: " + host);
+            }
+            return new InetAddress[] { result };
+        }
+
+        return lookupHostByName(host, netId).clone();
+    }
+
+    /**
+     * Resolves a hostname to its IP addresses using a cache.
+     *
+     * @param host the hostname to resolve.
+     * @param netId the network to perform resolution upon.
+     * @return the IP addresses of the host.
+     */
+    private static InetAddress[] lookupHostByName(String host, int netId)
+            throws UnknownHostException {
+        BlockGuard.getThreadPolicy().onNetwork();
+        // Do we have a result cached?
+        Object cachedResult = addressCache.get(host, netId);
+        if (cachedResult != null) {
+            if (cachedResult instanceof InetAddress[]) {
+                // A cached positive result.
+                return (InetAddress[]) cachedResult;
+            } else {
+                // A cached negative result.
+                throw new UnknownHostException((String) cachedResult);
+            }
+        }
+        try {
+            StructAddrinfo hints = new StructAddrinfo();
+            hints.ai_flags = AI_ADDRCONFIG;
+            hints.ai_family = AF_UNSPEC;
+            // If we don't specify a socket type, every address will appear twice, once
+            // for SOCK_STREAM and one for SOCK_DGRAM. Since we do not return the family
+            // anyway, just pick one.
+            hints.ai_socktype = SOCK_STREAM;
+            InetAddress[] addresses = Libcore.os.android_getaddrinfo(host, hints, netId);
+            // TODO: should getaddrinfo set the hostname of the InetAddresses it returns?
+            for (InetAddress address : addresses) {
+                address.holder().hostName = host;
+            }
+            addressCache.put(host, netId, addresses);
+            return addresses;
+        } catch (GaiException gaiException) {
+            // If the failure appears to have been a lack of INTERNET permission, throw a clear
+            // SecurityException to aid in debugging this common mistake.
+            // http://code.google.com/p/android/issues/detail?id=15722
+            if (gaiException.getCause() instanceof ErrnoException) {
+                if (((ErrnoException) gaiException.getCause()).errno == EACCES) {
+                    throw new SecurityException("Permission denied (missing INTERNET permission?)", gaiException);
+                }
+            }
+            // Otherwise, throw an UnknownHostException.
+            String detailMessage = "Unable to resolve host \"" + host + "\": " + Libcore.os.gai_strerror(gaiException.error);
+            addressCache.putUnknownHost(host, netId, detailMessage);
+            throw gaiException.rethrowAsUnknownHostException(detailMessage);
+        }
+    }
+
+    @Override
+    public String getHostByAddr(byte[] addr) throws UnknownHostException {
+        BlockGuard.getThreadPolicy().onNetwork();
+
+        return getHostByAddr0(addr);
+    }
+
+    @Override
+    public void clearAddressCache() {
+        addressCache.clear();
+    }
+
+    @Override
     public boolean isReachable(InetAddress addr, int timeout, NetworkInterface netif, int ttl) throws IOException {
         byte[] ifaddr = null;
         int scope = -1;
@@ -75,27 +175,21 @@ class Inet6AddressImpl implements InetAddressImpl {
         }
         if (addr instanceof Inet6Address)
             scope = ((Inet6Address) addr).getScopeId();
+
+        BlockGuard.getThreadPolicy().onNetwork();
         return isReachable0(addr.getAddress(), scope, timeout, ifaddr, ttl, netif_scope);
     }
 
-    public synchronized InetAddress anyLocalAddress() {
-        if (anyLocalAddress == null) {
-            anyLocalAddress = new Inet6Address();
-            anyLocalAddress.holder().hostName = "::";
-        }
-        return anyLocalAddress;
+    @Override
+    public InetAddress anyLocalAddress() {
+        return ANY_LOCAL_ADDRESS;
     }
 
-    public synchronized InetAddress loopbackAddress() {
-        if (loopbackAddress == null) {
-            byte[] loopback =
-                {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01};
-            loopbackAddress = new Inet6Address("localhost", loopback);
-        }
-        return loopbackAddress;
+    @Override
+    public InetAddress[] loopbackAddresses() {
+        return LOOPBACK_ADDRESSES;
     }
 
-    private InetAddress      anyLocalAddress;
-    private InetAddress      loopbackAddress;
+    private native String getHostByAddr0(byte[] addr) throws UnknownHostException;
+    private native boolean isReachable0(byte[] addr, int scope, int timeout, byte[] inf, int ttl, int if_scope) throws IOException;
 }

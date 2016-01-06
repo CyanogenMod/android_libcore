@@ -35,14 +35,34 @@ import java.io.IOException;
  * @since 1.4
  */
 interface InetAddressImpl {
+    /**
+     * Lookup all addresses for {@code hostname} on the given {@code netId}.
+     */
+    InetAddress[] lookupAllHostAddr(String hostname, int netId) throws UnknownHostException;
 
-    String getLocalHostName() throws UnknownHostException;
-    InetAddress[]
-        lookupAllHostAddr(String hostname) throws UnknownHostException;
+    /**
+     * Reverse-lookup the host name for a given {@code addr}.
+     */
     String getHostByAddr(byte[] addr) throws UnknownHostException;
 
+    /**
+     * Clear address caches (if any).
+     */
+    public void clearAddressCache();
+
+    /**
+     * Return the "any" local address.
+     */
     InetAddress anyLocalAddress();
-    InetAddress loopbackAddress();
+
+    /**
+     * Return a list of loop back adresses for this implementation.
+     */
+    InetAddress[] loopbackAddresses();
+
+    /**
+     * Whether {@code addr} is reachable over {@code netif}.
+     */
     boolean isReachable(InetAddress addr, int timeout, NetworkInterface netif,
                         int ttl) throws IOException;
 }
