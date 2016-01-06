@@ -41,7 +41,6 @@ jfieldID ia_holderID;
 jfieldID iac_addressID;
 jfieldID iac_familyID;
 jfieldID iac_hostNameID;
-jfieldID ia_preferIPv6AddressID;
 
 /*
  * Class:     java_net_InetAddress
@@ -59,8 +58,6 @@ InetAddress_init(JNIEnv *env, jclass cls) {
     iac_class = (*env)->NewGlobalRef(env, c);
     ia_holderID = (*env)->GetFieldID(env, ia_class, "holder", "Ljava/net/InetAddress$InetAddressHolder;");
     CHECK_NULL(ia_holderID);
-    ia_preferIPv6AddressID = (*env)->GetStaticFieldID(env, ia_class, "preferIPv6Address", "Z");
-    CHECK_NULL(ia_preferIPv6AddressID);
 
     iac_addressID = (*env)->GetFieldID(env, iac_class, "address", "I");
     CHECK_NULL(iac_addressID);

@@ -26,11 +26,7 @@
 
 package java.net;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Random;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.ArrayList;
 import java.security.AccessController;
@@ -41,7 +37,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectInputStream.GetField;
 import java.io.ObjectOutputStream;
 import java.io.ObjectOutputStream.PutField;
-import java.net.AddressCache;
 import sun.security.action.*;
 import sun.net.util.IPAddressUtil;
 import sun.misc.Service;
@@ -195,23 +190,6 @@ import static android.system.OsConstants.*;
  */
 public
 class InetAddress implements java.io.Serializable {
-    /* ----- BEGIN android -----
-    Use AF_INET for IPv4 and AF_INET6 for IPv6 (and AF_UNIX for unix sockets)
-    //
-    // Specify the address family: Internet Protocol, Version 4
-    // @since 1.4
-    //
-    static final int IPv4 = 1;
-
-    //
-    // Specify the address family: Internet Protocol, Version 6
-    // @since 1.4
-    //
-    static final int IPv6 = 2;
-    ----- END android ----- */
-
-    /* Specify address family preference */
-    static transient boolean preferIPv6Address = false;
 
     static class InetAddressHolder {
 
@@ -249,7 +227,7 @@ class InetAddress implements java.io.Serializable {
         }
     }
 
-    final transient InetAddressHolder holder;
+    transient InetAddressHolder holder;
 
     InetAddressHolder holder() {
         return holder;
@@ -268,8 +246,6 @@ class InetAddress implements java.io.Serializable {
      * Load net library into runtime, and perform initializations.
      */
     static {
-        preferIPv6Address = java.security.AccessController.doPrivileged(
-            new GetBooleanAction("java.net.preferIPv6Addresses")).booleanValue();
         init();
     }
 
@@ -836,6 +812,7 @@ class InetAddress implements java.io.Serializable {
         throw new UnknownHostException("addr is of illegal length");
     }
 
+    // Do not delete. Called from native code.
     private static InetAddress getByAddress(String host, byte[] addr, int scopeId)
         throws UnknownHostException {
         if (host != null && host.length() > 0 && host.charAt(0) == '[') {
@@ -891,12 +868,6 @@ class InetAddress implements java.io.Serializable {
     public static InetAddress getByName(String host)
         throws UnknownHostException {
         return InetAddress.getAllByName(host)[0];
-    }
-
-    // called from deployment cache manager
-    private static InetAddress getByName(String host, InetAddress reqAddr)
-        throws UnknownHostException {
-        return InetAddress.getAllByName(host, reqAddr)[0];
     }
 
     /**
@@ -1009,12 +980,6 @@ class InetAddress implements java.io.Serializable {
         return zone;
     }
 
-    private static InetAddress[] getAllByName0 (String host)
-        throws UnknownHostException
-    {
-        return getAllByName0(host, true);
-    }
-
     /**
      * package private so SocketPermission can call it
      */
@@ -1067,11 +1032,6 @@ class InetAddress implements java.io.Serializable {
         throws UnknownHostException {
         return getByAddress(null, addr);
     }
-
-    private static InetAddress cachedLocalHost = null;
-    private static long cacheTime = 0;
-    private static final long maxCacheTime = 5000L;
-    private static final Object cacheLock = new Object();
 
     /**
      * Returns the address of the local host. This is achieved by retrieving
@@ -1175,24 +1135,8 @@ class InetAddress implements java.io.Serializable {
         }
     }
 
-    private static final long FIELDS_OFFSET;
-    private static final sun.misc.Unsafe UNSAFE;
     // Android-changed : Don't use null to mean the boot classloader.
-    private static final ClassLoader BOOT_CLASSLOADER;
-
-    static {
-        try {
-            sun.misc.Unsafe unsafe = sun.misc.Unsafe.getUnsafe();
-            FIELDS_OFFSET = unsafe.objectFieldOffset(
-                InetAddress.class.getDeclaredField("holder")
-            );
-            UNSAFE = unsafe;
-        } catch (ReflectiveOperationException e) {
-            throw new Error(e);
-        }
-
-        BOOT_CLASSLOADER = Class.class.getClassLoader();
-    }
+    private static final ClassLoader BOOT_CLASSLOADER = Object.class.getClassLoader();
 
     private void readObject (ObjectInputStream s) throws
                          IOException, ClassNotFoundException {
@@ -1204,8 +1148,7 @@ class InetAddress implements java.io.Serializable {
         String host = (String)gf.get("hostName", null);
         int address= gf.get("address", 0);
         int family= gf.get("family", 0);
-        InetAddressHolder h = new InetAddressHolder(host, address, family);
-        UNSAFE.putObject(this, FIELDS_OFFSET, h);
+        holder = new InetAddressHolder(host, address, family);
     }
 
     /* needed because the serializable fields no longer exist */
