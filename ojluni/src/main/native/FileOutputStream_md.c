@@ -62,28 +62,9 @@ FileOutputStream_open(JNIEnv *env, jobject this,
              O_WRONLY | O_CREAT | (append ? O_APPEND : O_TRUNC));
 }
 
-JNIEXPORT void JNICALL
-FileOutputStream_write(JNIEnv *env, jobject this, jint byte, jboolean append) {
-    writeSingle(env, this, byte, append, fos_fd);
-}
-
-JNIEXPORT void JNICALL
-FileOutputStream_writeBytes(JNIEnv *env,
-    jobject this, jbyteArray bytes, jint off, jint len, jboolean append) {
-    writeBytes(env, this, bytes, off, len, append, fos_fd);
-}
-
-JNIEXPORT void JNICALL
-FileOutputStream_close0(JNIEnv *env, jobject this) {
-    fileClose(env, this, fos_fd);
-}
-
 static JNINativeMethod gMethods[] = {
   NATIVE_METHOD(FileOutputStream, initIDs, "()V"),
   NATIVE_METHOD(FileOutputStream, open, "(Ljava/lang/String;Z)V"),
-  //NATIVE_METHOD(FileOutputStream, write, "(IZ)V"),
-  //NATIVE_METHOD(FileOutputStream, writeBytes, "([BIIZ)V"),
-  //NATIVE_METHOD(FileOutputStream, close0, "()V"),
 };
 
 void register_java_io_FileOutputStream(JNIEnv* env) {

@@ -70,17 +70,6 @@ FileInputStream_open(JNIEnv *env, jobject this, jstring path) {
     fileOpen(env, this, path, fis_fd, O_RDONLY);
 }
 
-JNIEXPORT jint JNICALL
-FileInputStream_read0(JNIEnv *env, jobject this) {
-    return readSingle(env, this, fis_fd);
-}
-
-JNIEXPORT jint JNICALL
-FileInputStream_readBytes(JNIEnv *env, jobject this,
-        jbyteArray bytes, jint off, jint len) {
-    return readBytes(env, this, bytes, off, len, fis_fd);
-}
-
 JNIEXPORT jlong JNICALL
 FileInputStream_skip0(JNIEnv *env, jobject this, jlong toSkip) {
     jlong cur = jlong_zero;
@@ -146,19 +135,11 @@ FileInputStream_available0(JNIEnv *env, jobject this) {
     return 0;
 }
 
-JNIEXPORT void JNICALL
-FileInputStream_close0(JNIEnv *env, jobject this) {
-    fileClose(env, this, fis_fd);
-}
-
 static JNINativeMethod gMethods[] = {
   NATIVE_METHOD(FileInputStream, initIDs, "()V"),
   NATIVE_METHOD(FileInputStream, open, "(Ljava/lang/String;)V"),
   NATIVE_METHOD(FileInputStream, skip0, "(J)J"),
   NATIVE_METHOD(FileInputStream, available0, "()I"),
-  //NATIVE_METHOD(FileInputStream, read0, "()I"),
-  //NATIVE_METHOD(FileInputStream, readBytes, "([BII)I"),
-  //NATIVE_METHOD(FileInputStream, close0, "()V"),
 };
 
 void register_java_io_FileInputStream(JNIEnv* env) {
