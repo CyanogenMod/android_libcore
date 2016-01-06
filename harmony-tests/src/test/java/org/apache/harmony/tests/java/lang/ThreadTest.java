@@ -547,10 +547,15 @@ public class ThreadTest extends junit.framework.TestCase {
     public void test_isDaemon() {
         // Test for method boolean java.lang.Thread.isDaemon()
         st = new Thread(new SimpleThread(1), "SimpleThread10");
-        assertTrue("Non-Daemon thread returned true", !st.isDaemon());
+        assertEquals(Thread.currentThread().isDaemon(), st.isDaemon());
         st.setDaemon(true);
         assertTrue("Daemon thread returned false", st.isDaemon());
         st.start();
+        try {
+            st.join();
+        } catch (InterruptedException ie) {
+            fail();
+        }
     }
 
     /**
