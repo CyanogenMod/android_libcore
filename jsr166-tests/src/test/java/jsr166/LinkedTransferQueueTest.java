@@ -742,7 +742,8 @@ public class LinkedTransferQueueTest extends BlockingQueueTest {
             }});
 
         threadStarted.await();
-        waitForThreadToEnterWaitState(t, SMALL_DELAY_MS);
+        // waitForThreadToEnterWaitState(t, SMALL_DELAY_MS);
+        waitForThreadToEnterWaitStateNoTimeout(t);
         assertEquals(1, q.getWaitingConsumerCount());
         assertTrue(q.hasWaitingConsumer());
 
@@ -781,7 +782,8 @@ public class LinkedTransferQueueTest extends BlockingQueueTest {
             }});
 
         threadStarted.await();
-        waitForThreadToEnterWaitState(t, SMALL_DELAY_MS);
+        // waitForThreadToEnterWaitState(t, SMALL_DELAY_MS);
+        waitForThreadToEnterWaitStateNoTimeout(t);
         assertEquals(1, q.size());
         assertSame(five, q.poll());
         checkEmpty(q);
