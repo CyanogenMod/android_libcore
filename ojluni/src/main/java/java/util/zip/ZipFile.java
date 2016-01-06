@@ -43,6 +43,8 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.security.AccessController;
+
+import dalvik.system.CloseGuard;
 import sun.security.action.GetPropertyAction;
 
 import static java.util.zip.ZipConstants64.*;
@@ -63,6 +65,8 @@ class ZipFile implements ZipConstants, Closeable {
     private final int total;       // total number of entries
     private final boolean locsig;  // if zip file starts with LOCSIG (usually true)
     private volatile boolean closeRequested = false;
+
+    private final CloseGuard guard = CloseGuard.get();
 
     private static final int STORED = ZipEntry.STORED;
     private static final int DEFLATED = ZipEntry.DEFLATED;
@@ -217,7 +221,6 @@ class ZipFile implements ZipConstants, Closeable {
         if (charset == null)
             throw new NullPointerException("charset is null");
         this.zc = ZipCoder.get(charset);
-        long t0 = System.nanoTime();
         jzfile = open(name, mode, file.lastModified(), usemmap);
         this.name = name;
         this.total = getTotal(jzfile);
@@ -245,6 +248,8 @@ class ZipFile implements ZipConstants, Closeable {
             }
             entryNames.add(entryName);
         }
+
+        guard.open("close");
     }
 
     /**
@@ -600,6 +605,7 @@ class ZipFile implements ZipConstants, Closeable {
     public void close() throws IOException {
         if (closeRequested)
             return;
+        guard.close();
         closeRequested = true;
 
         synchronized (this) {
@@ -651,6 +657,10 @@ class ZipFile implements ZipConstants, Closeable {
      * @see    java.util.zip.ZipFile#close()
      */
     protected void finalize() throws IOException {
+        if (guard != null) {
+            guard.warnIfOpen();
+        }
+
         close();
     }
 
