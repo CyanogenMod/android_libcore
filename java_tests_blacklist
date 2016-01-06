@@ -17,7 +17,6 @@ luni/src/test/java/org/apache/harmony/crypto/tests/javax/crypto/KeyAgreementTest
 luni/src/test/java/org/apache/harmony/crypto/tests/javax/crypto/KeyGeneratorTest.java
 luni/src/test/java/org/apache/harmony/crypto/tests/javax/crypto/MacTest.java
 luni/src/test/java/org/apache/harmony/crypto/tests/javax/crypto/SecretKeyFactoryTest.java
-luni/src/test/java/org/apache/harmony/security/tests/AlgNameMapperTest.java
 luni/src/test/java/org/apache/harmony/security/tests/java/security/AlgorithmParameterGenerator1Test.java
 luni/src/test/java/org/apache/harmony/security/tests/java/security/AlgorithmParameterGenerator2Test.java
 luni/src/test/java/org/apache/harmony/security/tests/java/security/AlgorithmParametersTest.java
@@ -84,11 +83,8 @@ support/src/test/java/org/apache/harmony/security/tests/support/MyProvider.java
 support/src/test/java/org/apache/harmony/security/tests/support/TestKeyStoreSpi.java
 support/src/test/java/org/apache/harmony/xnet/tests/support/mySSLSession.java
 luni/src/test/java/libcore/net/url/UrlUtilsTest.java
-luni/src/test/java/libcore/io/StrictLineReaderTest.java
 luni/src/test/java/libcore/java/util/zip/Zip64Test.java
-luni/src/test/java/libcore/net/http/ResponseUtilsTest.java
 luni/src/test/java/libcore/java/util/LocaleTest.java
 luni/src/test/java/libcore/java/util/zip/Zip64FileTest.java
 luni/src/test/java/libcore/java/util/zip/ZipEntryTest.java
-luni/src/test/java/libcore/io/Base64Test.java
 luni/src/test/java/libcore/java/security/cert/X509CertificateTest.java
