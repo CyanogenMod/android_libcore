@@ -100,6 +100,7 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/java/lang/annotation/IncompleteAnnotationException.java \
     ojluni/src/main/java/java/lang/annotation/Inherited.java \
     ojluni/src/main/java/java/lang/annotation/Retention.java \
+    ojluni/src/main/java/java/lang/annotation/Repeatable.java \
     ojluni/src/main/java/java/lang/annotation/RetentionPolicy.java \
     ojluni/src/main/java/java/lang/annotation/Target.java \
     ojluni/src/main/java/java/lang/Appendable.java \
@@ -131,6 +132,7 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/java/lang/ExceptionInInitializerError.java \
     ojluni/src/main/java/java/lang/Exception.java \
     ojluni/src/main/java/java/lang/Float.java \
+    ojluni/src/main/java/java/lang/FunctionalInterface.java \
     ojluni/src/main/java/java/lang/IllegalAccessError.java \
     ojluni/src/main/java/java/lang/IllegalAccessException.java \
     ojluni/src/main/java/java/lang/IllegalArgumentException.java \

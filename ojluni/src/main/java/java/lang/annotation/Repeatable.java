@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2003, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2013, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -26,54 +26,25 @@
 package java.lang.annotation;
 
 /**
- * A program element type.  The constants of this enumerated type
- * provide a simple classification of the declared elements in a
- * Java program.
+ * The annotation type {@code java.lang.annotation.Repeatable} is
+ * used to indicate that the annotation type whose declaration it
+ * (meta-)annotates is <em>repeatable</em>. The value of
+ * {@code @Repeatable} indicates the <em>containing annotation
+ * type</em> for the repeatable annotation type.
  *
- * <p>These constants are used with the {@link Target} meta-annotation type
- * to specify where it is legal to use an annotation type.
- *
- * @author  Joshua Bloch
- * @since 1.5
+ * @since 1.8
+ * @jls 9.6 Annotation Types
+ * @jls 9.7 Annotations
+ * @hide 1.8
  */
-public enum ElementType {
-    /** Class, interface (including annotation type), or enum declaration */
-    TYPE,
-
-    /** Field declaration (includes enum constants) */
-    FIELD,
-
-    /** Method declaration */
-    METHOD,
-
-    /** Formal parameter declaration */
-    PARAMETER,
-
-    /** Constructor declaration */
-    CONSTRUCTOR,
-
-    /** Local variable declaration */
-    LOCAL_VARIABLE,
-
-    /** Annotation type declaration */
-    ANNOTATION_TYPE,
-
-    /** Package declaration */
-    PACKAGE,
-
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.ANNOTATION_TYPE)
+public @interface Repeatable {
     /**
-     * Type parameter declaration
-     *
-     * @since 1.8
-     * @hide 1.8
+     * Indicates the <em>containing annotation type</em> for the
+     * repeatable annotation type.
+     * @return the containing annotation type
      */
-    TYPE_PARAMETER,
-
-    /**
-     * Use of a type
-     *
-     * @since 1.8
-     * @hide 1.8
-     */
-    TYPE_USE
+    Class<? extends Annotation> value();
 }
