@@ -648,6 +648,19 @@ public class JSR166TestCase extends TestCase {
         waitForThreadToEnterWaitState(thread, LONG_DELAY_MS);
     }
 
+    void waitForThreadToEnterWaitStateNoTimeout(Thread thread) {
+        for (;;) {
+            Thread.State s = thread.getState();
+            if (s == Thread.State.BLOCKED ||
+                s == Thread.State.WAITING ||
+                s == Thread.State.TIMED_WAITING)
+                return;
+            else if (s == Thread.State.TERMINATED)
+                fail("Unexpected thread termination");
+            Thread.yield();
+        }
+    }
+
     /**
      * Returns the number of milliseconds since time given by
      * startNanoTime, which must have been previously returned from a
