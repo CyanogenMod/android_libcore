@@ -419,6 +419,8 @@ public final class InternalLocaleBuilder {
         }
 
         if (variant.length() > 0) {
+            // normalize separators to "_"
+            variant = variant.replaceAll(LanguageTag.SEP, BaseLocale.SEP);
             int errIdx = checkVariants(variant, BaseLocale.SEP);
             if (errIdx != -1) {
                 throw new LocaleSyntaxException("Ill-formed variant: " + variant, errIdx);

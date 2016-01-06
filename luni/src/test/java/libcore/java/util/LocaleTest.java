@@ -250,7 +250,9 @@ public class LocaleTest extends junit.framework.TestCase {
 
         // Too long
         try {
-            b.setLanguage("engl");
+            // note: pre-openJdk Locale assumed that language will be between
+            // 2-3 characters. openJdk accepts 2-8 character languages.
+            b.setLanguage("foobarbar");
             fail();
         } catch (IllformedLocaleException expected) {
         }
@@ -1175,7 +1177,7 @@ public class LocaleTest extends junit.framework.TestCase {
             System.setUnchangeableSystemProperty("user.language", "en");
             System.setUnchangeableSystemProperty("user.region", "US");
 
-            Locale l = Locale.getDefaultLocaleFromSystemProperties();
+            Locale l = Locale.initDefault();
             assertEquals("de", l.getLanguage());
             assertEquals("DE", l.getCountry());
 
@@ -1184,18 +1186,20 @@ public class LocaleTest extends junit.framework.TestCase {
             System.setUnchangeableSystemProperty("user.language", "en");
             System.setUnchangeableSystemProperty("user.region", "US");
 
-            l = Locale.getDefaultLocaleFromSystemProperties();
+            l = Locale.initDefault();
             assertEquals("de", l.getLanguage());
             assertEquals("DE", l.getCountry());
             assertEquals("Latn", l.getScript());
 
-            // Assert that we use "und" if we're faced with a bad language tag, and
-            // that we don't end up with a null default locale or an exception.
-            System.setUnchangeableSystemProperty("user.locale", "dexx-Latn-DE");
+            // Assert that we don't end up with a null default locale or an exception.
+            System.setUnchangeableSystemProperty("user.locale", "toolonglang-Latn-DE");
 
-            l = Locale.getDefaultLocaleFromSystemProperties();
+            // Note: pre-enso Locale#fromLanguageTag parser was more error-tolerant
+            // then the current one. Result of bad language part of tag from line above
+            // will be an empty Locale object.
+            l = Locale.initDefault();
             assertEquals("", l.getLanguage());
-            assertEquals("DE", l.getCountry());
+            assertEquals("", l.getCountry());
         } finally {
             System.setUnchangeableSystemProperty("user.language", userLanguage);
             System.setUnchangeableSystemProperty("user.region", userRegion);
