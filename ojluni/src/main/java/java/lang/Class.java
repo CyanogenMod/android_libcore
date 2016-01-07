@@ -1943,12 +1943,6 @@ public final
     public native Field getDeclaredField(String name) throws NoSuchFieldException;
 
     /**
-     * Returns the field if it is defined by this class; {@code null} otherwise. This
-     * may return a non-public member.
-     */
-    private native Field getDeclaredFieldInternal(String name);
-
-    /**
      * Returns the subset of getDeclaredFields which are public.
      */
     private native Field[] getPublicDeclaredFields();
