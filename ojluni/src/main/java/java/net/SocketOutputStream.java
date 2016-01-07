@@ -31,6 +31,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 
+import dalvik.system.BlockGuard;
 import sun.misc.IoTrace;
 
 /**
@@ -111,6 +112,7 @@ class SocketOutputStream extends FileOutputStream
         int bytesWritten = 0;
         FileDescriptor fd = impl.acquireFD();
         try {
+            BlockGuard.getThreadPolicy().onNetwork();
             socketWrite0(fd, b, off, len);
             bytesWritten = len;
         } catch (SocketException se) {

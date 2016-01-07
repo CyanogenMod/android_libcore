@@ -29,6 +29,8 @@ import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.util.Enumeration;
 import java.security.AccessController;
+
+import dalvik.system.BlockGuard;
 import sun.net.ResourceManager;
 
 /**
@@ -105,6 +107,7 @@ abstract class AbstractPlainDatagramSocketImpl extends DatagramSocketImpl
      * @param port the remote port number
      */
     protected void connect(InetAddress address, int port) throws SocketException {
+        BlockGuard.getThreadPolicy().onNetwork();
         connect0(address, port);
         connectedAddress = address;
         connectedPort = port;
@@ -124,13 +127,13 @@ abstract class AbstractPlainDatagramSocketImpl extends DatagramSocketImpl
 
     /**
      * Peek at the packet to see who it is from.
-     * @param return the address which the packet came from.
+     * @return the address which the packet came from.
      */
     protected abstract int peek(InetAddress i) throws IOException;
     protected abstract int peekData(DatagramPacket p) throws IOException;
     /**
      * Receive the datagram packet.
-     * @param Packet Received.
+     * @param p Packet Received.
      */
     protected synchronized void receive(DatagramPacket p)
         throws IOException {
@@ -142,7 +145,7 @@ abstract class AbstractPlainDatagramSocketImpl extends DatagramSocketImpl
 
     /**
      * Set the TTL (time-to-live) option.
-     * @param TTL to be set.
+     * @param ttl the TTL to be set.
      */
     protected abstract void setTimeToLive(int ttl) throws IOException;
 
@@ -153,7 +156,7 @@ abstract class AbstractPlainDatagramSocketImpl extends DatagramSocketImpl
 
     /**
      * Set the TTL (time-to-live) option.
-     * @param TTL to be set.
+     * @param ttl the TTL to be set.
      */
     protected abstract void setTTL(byte ttl) throws IOException;
 
@@ -164,7 +167,7 @@ abstract class AbstractPlainDatagramSocketImpl extends DatagramSocketImpl
 
     /**
      * Join the multicast group.
-     * @param multicast address to join.
+     * @param inetaddr multicast address to join.
      */
     protected void join(InetAddress inetaddr) throws IOException {
         join(inetaddr, null);
@@ -172,14 +175,14 @@ abstract class AbstractPlainDatagramSocketImpl extends DatagramSocketImpl
 
     /**
      * Leave the multicast group.
-     * @param multicast address to leave.
+     * @param inetaddr multicast address to leave.
      */
     protected void leave(InetAddress inetaddr) throws IOException {
         leave(inetaddr, null);
     }
     /**
      * Join the multicast group.
-     * @param multicast address to join.
+     * @param mcastaddr multicast address to join.
      * @param netIf specifies the local interface to receive multicast
      *        datagram packets
      * @throws  IllegalArgumentException if mcastaddr is null or is a
@@ -199,7 +202,7 @@ abstract class AbstractPlainDatagramSocketImpl extends DatagramSocketImpl
 
     /**
      * Leave the multicast group.
-     * @param multicast address to leave.
+     * @param mcastaddr multicast address to leave.
      * @param netIf specified the local interface to leave the group at
      * @throws  IllegalArgumentException if mcastaddr is null or is a
      *          SocketAddress subclass not supported by this socket
