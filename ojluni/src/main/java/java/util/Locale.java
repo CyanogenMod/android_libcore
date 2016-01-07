@@ -2083,7 +2083,7 @@ public final class Locale implements Cloneable, Serializable {
         String variant = (String)fields.get("variant", "");
         String extStr = (String)fields.get("extensions", "");
         baseLocale = BaseLocale.getInstance(convertOldISOCodes(language), script, country, variant);
-        if (extStr.length() > 0) {
+        if (extStr != null && extStr.length() > 0) {
             try {
                 InternalLocaleBuilder bldr = new InternalLocaleBuilder();
                 bldr.setExtensions(extStr);
