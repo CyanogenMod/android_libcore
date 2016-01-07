@@ -43,6 +43,7 @@ public class ClassPathURLStreamHandlerTest extends TestCase {
     private static final String ENTRY_WITH_SPACES_ENCODED = "file%20with%20spaces.txt";
     private static final String ENTRY_WITH_SPACES_UNENCODED = "file with spaces.txt";
     private static final String ENTRY_THAT_NEEDS_ESCAPING = "file_with_percent20_%20.txt";
+    private static final String ENTRY_THAT_NEEDS_ESCAPING_ENCODED = "file_with_percent20_%2520.txt";
     private static final String ENTRY_WITH_RELATIVE_PATH = "foo/../foo/bar/baz.txt";
     private static final String MISSING_ENTRY = "Wrong.resource";
 
@@ -71,20 +72,18 @@ public class ClassPathURLStreamHandlerTest extends TestCase {
         String fileName = jarFile.getPath();
         ClassPathURLStreamHandler streamHandler = new ClassPathURLStreamHandler(fileName);
 
-        assertNotNull(streamHandler.getEntryUrlOrNull(ENTRY_IN_ROOT));
-        assertNotNull(streamHandler.getEntryUrlOrNull(ENTRY_IN_SUBDIR));
-        assertNotNull(streamHandler.getEntryUrlOrNull(ENTRY_WITH_SPACES_UNENCODED));
-        assertNotNull(streamHandler.getEntryUrlOrNull(ENTRY_THAT_NEEDS_ESCAPING));
+        checkGetEntryUrlOrNull(streamHandler, ENTRY_IN_ROOT, ENTRY_IN_ROOT);
+        checkGetEntryUrlOrNull(streamHandler, ENTRY_IN_SUBDIR, ENTRY_IN_SUBDIR);
+        checkGetEntryUrlOrNull(streamHandler, ENTRY_WITH_SPACES_UNENCODED,
+                ENTRY_WITH_SPACES_ENCODED);
+        checkGetEntryUrlOrNull(streamHandler, ENTRY_THAT_NEEDS_ESCAPING,
+                ENTRY_THAT_NEEDS_ESCAPING_ENCODED);
 
         // getEntryOrNull() performs a lookup with and without trailing slash to handle directories.
         // http://b/22527772
-        URL urlWithoutSlash = streamHandler.getEntryUrlOrNull(DIR_ENTRY_WITHOUT_SLASH);
-        assertNotNull(urlWithoutSlash);
-        assertTrue(urlWithoutSlash.toString().endsWith(DIR_ENTRY_WITHOUT_SLASH));
-
-        URL urlWithSlash = streamHandler.getEntryUrlOrNull(DIR_ENTRY_WITH_SLASH);
-        assertNotNull(urlWithSlash);
-        assertTrue(urlWithSlash.toString().endsWith(DIR_ENTRY_WITH_SLASH));
+        checkGetEntryUrlOrNull(streamHandler, DIR_ENTRY_WITHOUT_SLASH,
+                DIR_ENTRY_WITHOUT_SLASH);
+        checkGetEntryUrlOrNull(streamHandler, DIR_ENTRY_WITH_SLASH, DIR_ENTRY_WITH_SLASH);
 
         assertNull(streamHandler.getEntryUrlOrNull(MISSING_ENTRY));
         assertNull(streamHandler.getEntryUrlOrNull("/" + ENTRY_IN_ROOT));
@@ -94,6 +93,24 @@ public class ClassPathURLStreamHandlerTest extends TestCase {
         assertNull(streamHandler.getEntryUrlOrNull("/" + DIR_ENTRY_WITHOUT_SLASH));
         assertNull(streamHandler.getEntryUrlOrNull("/" + DIR_ENTRY_WITH_SLASH));
         streamHandler.close();
+    }
+
+    /**
+     * Check that the call to {@link ClassPathURLStreamHandler#getEntryUrlOrNull(String)} works as
+     * expected.
+     */
+    private void checkGetEntryUrlOrNull(ClassPathURLStreamHandler streamHandler,
+            String entryName, String expectedJarRelativeURI) throws IOException {
+
+        String fileName = jarFile.getPath();
+        URL urlOrNull = streamHandler.getEntryUrlOrNull(entryName);
+        assertNotNull("URL was unexpectedly null for " + entryName, urlOrNull);
+        assertEquals("jar:file:" + fileName + "!/" + expectedJarRelativeURI,
+                urlOrNull.toExternalForm());
+
+        // Make sure that the resource could be opened and the correct contents returned, i.e. the
+        // same as those read from the jar file directly.
+        assertOpenConnectionOk(jarFile, expectedJarRelativeURI, streamHandler);
     }
 
     public void testIsEntryStored() throws IOException {
