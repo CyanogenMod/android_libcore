@@ -290,16 +290,6 @@ public class RandomAccessFile implements DataOutput, DataInput, Closeable {
         synchronized (this) {
             if (channel == null) {
                 channel = FileChannelImpl.open(fd, path, true, rw, this);
-                /*
-                 * FileDescriptor could be shared by FileInputStream or
-                 * FileOutputStream.
-                 * Ensure that FD is GC'ed only when all the streams/channels
-                 * are done using it.
-                 * Increment fd's use count. Invoking the channel's close()
-                 * method will result in decrementing the use count set for
-                 * the channel.
-                 */
-                // fd.incrementAndGetUseCount();
             }
             return channel;
         }
