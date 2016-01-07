@@ -35,6 +35,8 @@ import java.nio.channels.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.security.AccessController;
+
+import dalvik.system.BlockGuard;
 import sun.misc.Cleaner;
 import sun.misc.IoTrace;
 import sun.security.action.GetPropertyAction;
@@ -264,6 +266,9 @@ public class FileChannelImpl
                 ti = threads.add();
                 if (!isOpen())
                     return 0;
+                if (append) {
+                    BlockGuard.getThreadPolicy().onWriteToDisk();
+                }
                 do {
                     // in append-mode then position is advanced to end before writing
                     p = (append) ? nd.size(fd) : position0(fd, -1);
@@ -289,6 +294,7 @@ public class FileChannelImpl
                 ti = threads.add();
                 if (!isOpen())
                     return null;
+                BlockGuard.getThreadPolicy().onReadFromDisk();
                 do {
                     p  = position0(fd, newPosition);
                 } while ((p == IOStatus.INTERRUPTED) && isOpen());
@@ -445,6 +451,7 @@ public class FileChannelImpl
             ti = threads.add();
             if (!isOpen())
                 return -1;
+            BlockGuard.getThreadPolicy().onWriteToDisk();
             do {
                 n = transferTo0(thisFDVal, position, icount, targetFDVal);
             } while ((n == IOStatus.INTERRUPTED) && isOpen());
@@ -905,6 +912,7 @@ public class FileChannelImpl
             long mapSize = size + pagePosition;
             try {
                 // If no exception was thrown from map0, the address is valid
+                BlockGuard.getThreadPolicy().onReadFromDisk();
                 addr = map0(imode, mapPosition, mapSize);
             } catch (OutOfMemoryError x) {
                 // An OutOfMemoryError may indicate that we've exhausted memory
