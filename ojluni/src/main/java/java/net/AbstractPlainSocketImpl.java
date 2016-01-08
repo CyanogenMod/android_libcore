@@ -31,6 +31,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.FileDescriptor;
 
+import dalvik.system.BlockGuard;
 import sun.net.ConnectionResetException;
 import sun.net.NetHooks;
 import sun.net.ResourceManager;
@@ -322,6 +323,7 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
             }
         }
         try {
+            BlockGuard.getThreadPolicy().onNetwork();
             socketConnect(address, port, timeout);
             /* socket may have been closed during poll/select */
             synchronized (fdLock) {
@@ -346,7 +348,7 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
     /**
      * Binds the socket to the specified address of the specified local port.
      * @param address the address
-     * @param port the port
+     * @param lport the port
      */
     protected synchronized void bind(InetAddress address, int lport)
         throws IOException
@@ -376,6 +378,7 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
      * @param s the connection
      */
     protected void accept(SocketImpl s) throws IOException {
+        BlockGuard.getThreadPolicy().onNetwork();
         socketAccept(s);
     }
 

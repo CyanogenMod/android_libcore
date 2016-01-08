@@ -33,6 +33,8 @@ import java.nio.ByteBuffer;
 import java.nio.channels.*;
 import java.nio.channels.spi.*;
 import java.util.*;
+
+import dalvik.system.BlockGuard;
 import sun.net.ResourceManager;
 
 
@@ -413,6 +415,8 @@ class DatagramChannelImpl
         int newSize = Math.max(rem, 1);
         ByteBuffer bb = Util.getTemporaryDirectBuffer(newSize);
         try {
+            BlockGuard.getThreadPolicy().onNetwork();
+
             int n = receiveIntoNativeBuffer(fd, bb, newSize, 0);
             bb.flip();
             if (n > 0 && rem > 0)
@@ -474,6 +478,8 @@ class DatagramChannelImpl
                 if (!isOpen())
                     return 0;
                 writerThread = NativeThread.current();
+                BlockGuard.getThreadPolicy().onNetwork();
+
                 do {
                     n = send(fd, src, isa);
                 } while ((n == IOStatus.INTERRUPTED) && isOpen());

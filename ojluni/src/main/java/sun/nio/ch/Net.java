@@ -26,6 +26,8 @@
 
 package sun.nio.ch;
 
+import dalvik.system.BlockGuard;
+
 import java.io.*;
 import java.net.*;
 import java.nio.channels.*;
@@ -468,6 +470,8 @@ class Net {                                             // package-private
     static int connect(ProtocolFamily family, FileDescriptor fd, InetAddress remote, int remotePort)
         throws IOException
     {
+        BlockGuard.getThreadPolicy().onNetwork();
+
         boolean preferIPv6 = isIPv6Available() &&
             (family != StandardProtocolFamily.INET);
         return connect0(preferIPv6, fd, remote, remotePort);

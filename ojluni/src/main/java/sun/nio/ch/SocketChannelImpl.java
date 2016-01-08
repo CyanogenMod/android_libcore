@@ -33,6 +33,8 @@ import java.nio.ByteBuffer;
 import java.nio.channels.*;
 import java.nio.channels.spi.*;
 import java.util.*;
+
+import dalvik.system.BlockGuard;
 import sun.net.NetHooks;
 import sun.misc.IoTrace;
 
@@ -733,6 +735,8 @@ class SocketChannelImpl
                                 }
                                 readerThread = NativeThread.current();
                             }
+
+                            BlockGuard.getThreadPolicy().onNetwork();
                             if (!isBlocking()) {
                                 for (;;) {
                                     n = checkConnect(fd, false,
