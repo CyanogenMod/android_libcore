@@ -34,7 +34,9 @@ import java.nio.charset.spi.CharsetProvider;
 import java.security.AccessController;
 import java.security.AccessControlException;
 import java.security.PrivilegedAction;
+import java.util.AbstractMap;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
@@ -330,12 +332,22 @@ public abstract class Charset
     // Cache of the most-recently-returned charsets,
     // along with the names that were used to find them
     //
-    private static volatile Object[] cache1 = null; // "Level 1" cache
-    private static volatile Object[] cache2 = null; // "Level 2" cache
+    // cache1/2 usage is explained in the lookup method
+    //
+    private static volatile Map.Entry<String, Charset> cache1 = null; // "Level 1" cache
+    private static final HashMap<String, Charset> cache2 = new HashMap<>(); // "Level 2" cache
 
     private static void cache(String charsetName, Charset cs) {
-        cache2 = cache1;
-        cache1 = new Object[] { charsetName, cs };
+        synchronized(cache2) {
+            String canonicalName = cs.name();
+            cache2.put(canonicalName, cs);
+
+            for (String alias : cs.aliases()) {
+                cache2.put(alias, cs);
+            }
+        }
+
+        cache1 = new AbstractMap.SimpleImmutableEntry<>(charsetName, cache2.get(charsetName));
     }
 
     // Creates an iterator that walks over the available providers, ignoring
@@ -466,28 +478,29 @@ public abstract class Charset
     //     return (ecp != null) ? ecp.charsetForName(charsetName) : null;
     // }
 
+    // We expect most programs to use one Charset repeatedly, so the most recently used Charset
+    // instance is stored in the level 1 cache. We convey a hint to this effect to the VM by putting
+    // the level 1 cache miss code in a separate method. Since charsetName is not necessarily in
+    // canonical form, we store the mapping from both the canonical name and the aliases to the
+    // instance in a map for level 2 cache.
     private static Charset lookup(String charsetName) {
         if (charsetName == null)
             throw new IllegalArgumentException("Null charset name");
 
-        Object[] a;
-        if ((a = cache1) != null && charsetName.equals(a[0]))
-            return (Charset)a[1];
-        // We expect most programs to use one Charset repeatedly.
-        // We convey a hint to this effect to the VM by putting the
-        // level 1 cache miss code in a separate method.
+        if (cache1 != null && charsetName.equals(cache1.getKey()))
+            return cache1.getValue();
         return lookup2(charsetName);
     }
 
     private static Charset lookup2(String charsetName) {
-        Object[] a;
-        if ((a = cache2) != null && charsetName.equals(a[0])) {
-            cache2 = cache1;
-            cache1 = a;
-            return (Charset)a[1];
+        Charset cs;
+        synchronized (cache2) {
+            if ((cs = cache2.get(charsetName)) != null) {
+                cache1 = new AbstractMap.SimpleImmutableEntry<>(charsetName, cs);
+                return cs;
+            }
         }
 
-        Charset cs;
         // Android-changed: Drop support for "standard" and "extended"
         // providers.
         if ((cs = NativeConverter.charsetForName(charsetName))  != null ||
