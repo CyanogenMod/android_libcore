@@ -31,6 +31,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 
+import dalvik.system.BlockGuard;
 import sun.misc.IoTrace;
 import sun.net.ConnectionResetException;
 
@@ -150,6 +151,7 @@ class SocketInputStream extends FileInputStream
         // acquire file descriptor and do the read
         FileDescriptor fd = impl.acquireFD();
         try {
+            BlockGuard.getThreadPolicy().onNetwork();
             n = socketRead0(fd, b, off, length, timeout);
             if (n > 0) {
                 return n;
@@ -214,7 +216,7 @@ class SocketInputStream extends FileInputStream
 
     /**
      * Skips n bytes of input.
-     * @param n the number of bytes to skip
+     * @param numbytes the number of bytes to skip
      * @return  the actual number of bytes skipped.
      * @exception IOException If an I/O error has occurred.
      */

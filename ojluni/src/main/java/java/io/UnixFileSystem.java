@@ -26,6 +26,8 @@
 package java.io;
 
 import java.security.AccessController;
+
+import dalvik.system.BlockGuard;
 import sun.security.action.GetPropertyAction;
 
 
@@ -169,6 +171,7 @@ class UnixFileSystem extends FileSystem {
                     }
                 }
                 if (res == null) {
+                    BlockGuard.getThreadPolicy().onReadFromDisk();
                     res = canonicalize0(path);
                     cache.put(path, res);
                     if (useCanonPrefixCache &&
@@ -236,29 +239,54 @@ class UnixFileSystem extends FileSystem {
 
     /* -- Attribute accessors -- */
 
-    /* ----- BEGIN android -----
-    public native int getBooleanAttributes0(File f);*/
-    public native int getBooleanAttributes0(String abspath);
+    private native int getBooleanAttributes0(String abspath);
 
     public int getBooleanAttributes(File f) {
-        /* ----- BEGIN android -----
-        int rv = getBooleanAttributes0(f);*/
+        BlockGuard.getThreadPolicy().onReadFromDisk();
+
         int rv = getBooleanAttributes0(f.getPath());
-        // ----- END android -----
         String name = f.getName();
         boolean hidden = (name.length() > 0) && (name.charAt(0) == '.');
         return rv | (hidden ? BA_HIDDEN : 0);
     }
 
-    public native boolean checkAccess(File f, int access);
-    public native long getLastModifiedTime(File f);
-    public native long getLength(File f);
-    public native boolean setPermission(File f, int access, boolean enable, boolean owneronly);
+    public boolean checkAccess(File f, int access) {
+        BlockGuard.getThreadPolicy().onReadFromDisk();
+        return checkAccess0(f, access);
+    }
+
+    private native boolean checkAccess0(File f, int access);
+
+    public long getLastModifiedTime(File f) {
+        BlockGuard.getThreadPolicy().onReadFromDisk();
+        return getLastModifiedTime0(f);
+    }
+
+    private native long getLastModifiedTime0(File f);
+
+    public long getLength(File f) {
+        BlockGuard.getThreadPolicy().onReadFromDisk();
+        return getLength0(f);
+    }
+
+    private native long getLength0(File f);
+
+    public boolean setPermission(File f, int access, boolean enable, boolean owneronly) {
+        BlockGuard.getThreadPolicy().onWriteToDisk();
+        return setPermission0(f, access, enable, owneronly);
+    }
+
+    private native boolean setPermission0(File f, int access, boolean enable, boolean owneronly);
 
     /* -- File operations -- */
 
-    public native boolean createFileExclusively(String path)
-        throws IOException;
+    public boolean createFileExclusively(String path) throws IOException {
+        BlockGuard.getThreadPolicy().onWriteToDisk();
+        return createFileExclusively0(path);
+    }
+
+    private native boolean createFileExclusively0(String path) throws IOException;
+
     public boolean delete(File f) {
         // Keep canonicalization caches in sync after file deletion
         // and renaming operations. Could be more clever than this
@@ -267,11 +295,26 @@ class UnixFileSystem extends FileSystem {
         // anyway.
         cache.clear();
         javaHomePrefixCache.clear();
+        BlockGuard.getThreadPolicy().onWriteToDisk();
         return delete0(f);
     }
+
     private native boolean delete0(File f);
-    public native String[] list(File f);
-    public native boolean createDirectory(File f);
+
+    public String[] list(File f) {
+        BlockGuard.getThreadPolicy().onReadFromDisk();
+        return list0(f);
+    }
+
+    private native String[] list0(File f);
+
+    public boolean createDirectory(File f) {
+        BlockGuard.getThreadPolicy().onWriteToDisk();
+        return createDirectory0(f);
+    }
+
+    private native boolean createDirectory0(File f);
+
     public boolean rename(File f1, File f2) {
         // Keep canonicalization caches in sync after file deletion
         // and renaming operations. Could be more clever than this
@@ -280,11 +323,25 @@ class UnixFileSystem extends FileSystem {
         // anyway.
         cache.clear();
         javaHomePrefixCache.clear();
+        BlockGuard.getThreadPolicy().onWriteToDisk();
         return rename0(f1, f2);
     }
+
     private native boolean rename0(File f1, File f2);
-    public native boolean setLastModifiedTime(File f, long time);
-    public native boolean setReadOnly(File f);
+
+    public boolean setLastModifiedTime(File f, long time) {
+        BlockGuard.getThreadPolicy().onWriteToDisk();
+        return setLastModifiedTime0(f, time);
+    }
+
+    private native boolean setLastModifiedTime0(File f, long time);
+
+    public boolean setReadOnly(File f) {
+        BlockGuard.getThreadPolicy().onWriteToDisk();
+        return setReadOnly0(f);
+    }
+
+    private native boolean setReadOnly0(File f);
 
 
     /* -- Filesystem interface -- */
@@ -302,7 +359,13 @@ class UnixFileSystem extends FileSystem {
     }
 
     /* -- Disk usage -- */
-    public native long getSpace(File f, int t);
+    public long getSpace(File f, int t) {
+        BlockGuard.getThreadPolicy().onReadFromDisk();
+
+        return getSpace0(f, t);
+    }
+
+    private native long getSpace0(File f, int t);
 
     /* -- Basic infrastructure -- */
 
