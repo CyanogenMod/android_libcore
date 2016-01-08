@@ -51,24 +51,15 @@ public final class FileDescriptor {
     private int descriptor;
 
     /**
-     * A counter for tracking the FIS/FOS/RAF instances that
-     * use this FileDescriptor. The FIS/FOS.finalize() will not release
-     * the FileDescriptor if it is still under user by a stream.
-     */
-    private AtomicInteger useCount;
-
-    /**
      * Constructs an (invalid) FileDescriptor
      * object.
      */
-    public /**/ FileDescriptor() {
+    public FileDescriptor() {
         descriptor = -1;
-        useCount = new AtomicInteger();
     }
 
-    private /* */ FileDescriptor(int descriptor) {
+    private FileDescriptor(int descriptor) {
         this.descriptor = descriptor;
-        useCount = new AtomicInteger();
     }
 
     /**
@@ -184,13 +175,4 @@ public final class FileDescriptor {
 
     private static native boolean isSocket(int descriptor);
 
-    // package private methods used by FIS, FOS and RAF
-
-    int incrementAndGetUseCount() {
-        return useCount.incrementAndGet();
-    }
-
-    int decrementAndGetUseCount() {
-        return useCount.decrementAndGet();
-    }
 }
