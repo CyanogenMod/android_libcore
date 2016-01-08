@@ -25,6 +25,8 @@
 
 package java.util.zip;
 
+import dalvik.system.CloseGuard;
+
 /**
  * This class provides support for general purpose compression using the
  * popular ZLIB compression library. The ZLIB compression library was
@@ -81,6 +83,8 @@ class Deflater {
     private boolean finish, finished;
     private long bytesRead;
     private long bytesWritten;
+
+    private final CloseGuard guard = CloseGuard.get();
 
     /**
      * Compression method for the deflate algorithm (the only one currently
@@ -169,6 +173,7 @@ class Deflater {
         this.level = level;
         this.strategy = DEFAULT_STRATEGY;
         this.zsRef = new ZStreamRef(init(level, DEFAULT_STRATEGY, nowrap));
+        guard.open("end");
     }
 
     /**
@@ -523,6 +528,8 @@ class Deflater {
      */
     public void end() {
         synchronized (zsRef) {
+            guard.close();
+
             long addr = zsRef.address();
             zsRef.clear();
             if (addr != 0) {
@@ -536,6 +543,10 @@ class Deflater {
      * Closes the compressor when garbage is collected.
      */
     protected void finalize() {
+        if (guard != null) {
+            guard.warnIfOpen();
+        }
+
         end();
     }
 

@@ -29,6 +29,7 @@ package java.io;
 import java.nio.channels.FileChannel;
 
 import dalvik.system.BlockGuard;
+import dalvik.system.CloseGuard;
 import sun.nio.ch.FileChannelImpl;
 import sun.misc.IoTrace;
 import libcore.io.IoBridge;
@@ -63,6 +64,8 @@ class FileInputStream extends InputStream
 
     private final Object closeLock = new Object();
     private volatile boolean closed = false;
+
+    private final CloseGuard guard = CloseGuard.get();
 
     /**
      * Creates a <code>FileInputStream</code> by
@@ -140,6 +143,7 @@ class FileInputStream extends InputStream
 
         BlockGuard.getThreadPolicy().onReadFromDisk();
         open(name);
+        guard.open("close");
     }
 
     /**
@@ -348,6 +352,9 @@ class FileInputStream extends InputStream
             }
             closed = true;
         }
+
+        guard.close();
+
         if (channel != null) {
             /*
              * Decrement the FD use count associated with the channel
@@ -434,6 +441,10 @@ class FileInputStream extends InputStream
      * @see        java.io.FileInputStream#close()
      */
     protected void finalize() throws IOException {
+        if (guard != null) {
+            guard.warnIfOpen();
+        }
+
         if ((fd != null) &&  (fd != FileDescriptor.in)) {
             close();
         }
