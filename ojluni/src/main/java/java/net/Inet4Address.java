@@ -332,6 +332,7 @@ class Inet4Address extends InetAddress {
         return addr;
     }
 
+    @Override
     public byte[] getAddressInternal() {
         return getAddress();
     }
