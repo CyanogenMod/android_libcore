@@ -27,6 +27,8 @@
 package java.io;
 
 import java.nio.channels.FileChannel;
+
+import dalvik.system.BlockGuard;
 import sun.nio.ch.FileChannelImpl;
 import sun.misc.IoTrace;
 import libcore.io.IoBridge;
@@ -135,6 +137,8 @@ class FileInputStream extends InputStream
         fd = new FileDescriptor();
         fd.incrementAndGetUseCount();
         this.path = name;
+
+        BlockGuard.getThreadPolicy().onReadFromDisk();
         open(name);
     }
 
@@ -284,6 +288,7 @@ class FileInputStream extends InputStream
         }
 
         try {
+            BlockGuard.getThreadPolicy().onReadFromDisk();
             return skip0(n);
         } catch(UseManualSkipException e) {
             return super.skip(n);

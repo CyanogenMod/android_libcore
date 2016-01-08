@@ -25,6 +25,8 @@
 
 package sun.nio.ch;
 
+import dalvik.system.BlockGuard;
+
 import java.io.*;
 
 class FileDispatcherImpl extends FileDispatcher
@@ -42,54 +44,65 @@ class FileDispatcherImpl extends FileDispatcher
     }
 
     int read(FileDescriptor fd, long address, int len) throws IOException {
+        BlockGuard.getThreadPolicy().onReadFromDisk();
         return read0(fd, address, len);
     }
 
     int pread(FileDescriptor fd, long address, int len, long position)
         throws IOException
     {
+        BlockGuard.getThreadPolicy().onReadFromDisk();
         return pread0(fd, address, len, position);
     }
 
     long readv(FileDescriptor fd, long address, int len) throws IOException {
+        BlockGuard.getThreadPolicy().onReadFromDisk();
         return readv0(fd, address, len);
     }
 
     int write(FileDescriptor fd, long address, int len) throws IOException {
+        BlockGuard.getThreadPolicy().onWriteToDisk();
         return write0(fd, address, len);
     }
 
     int pwrite(FileDescriptor fd, long address, int len, long position)
         throws IOException
     {
+        BlockGuard.getThreadPolicy().onWriteToDisk();
         return pwrite0(fd, address, len, position);
     }
 
     long writev(FileDescriptor fd, long address, int len)
         throws IOException
     {
+        BlockGuard.getThreadPolicy().onWriteToDisk();
         return writev0(fd, address, len);
     }
 
     int force(FileDescriptor fd, boolean metaData) throws IOException {
+        BlockGuard.getThreadPolicy().onWriteToDisk();
         return force0(fd, metaData);
     }
 
     int truncate(FileDescriptor fd, long size) throws IOException {
+        BlockGuard.getThreadPolicy().onWriteToDisk();
         return truncate0(fd, size);
     }
 
     long size(FileDescriptor fd) throws IOException {
+        BlockGuard.getThreadPolicy().onReadFromDisk();
         return size0(fd);
     }
 
     int lock(FileDescriptor fd, boolean blocking, long pos, long size,
              boolean shared) throws IOException
     {
+        BlockGuard.getThreadPolicy().onWriteToDisk();
         return lock0(fd, blocking, pos, size, shared);
     }
 
     void release(FileDescriptor fd, long pos, long size) throws IOException {
+        BlockGuard.getThreadPolicy().onWriteToDisk();
         release0(fd, pos, size);
     }
 

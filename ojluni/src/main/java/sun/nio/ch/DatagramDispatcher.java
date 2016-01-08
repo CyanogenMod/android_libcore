@@ -25,6 +25,8 @@
 
 package sun.nio.ch;
 
+import dalvik.system.BlockGuard;
+
 import java.io.*;
 import java.net.*;
 
@@ -40,18 +42,22 @@ class DatagramDispatcher extends NativeDispatcher
     }
 
     int read(FileDescriptor fd, long address, int len) throws IOException {
+        BlockGuard.getThreadPolicy().onNetwork();
         return read0(fd, address, len);
     }
 
     long readv(FileDescriptor fd, long address, int len) throws IOException {
+        BlockGuard.getThreadPolicy().onNetwork();
         return readv0(fd, address, len);
     }
 
     int write(FileDescriptor fd, long address, int len) throws IOException {
+        BlockGuard.getThreadPolicy().onNetwork();
         return write0(fd, address, len);
     }
 
     long writev(FileDescriptor fd, long address, int len) throws IOException {
+        BlockGuard.getThreadPolicy().onNetwork();
         return writev0(fd, address, len);
     }
 

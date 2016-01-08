@@ -27,6 +27,8 @@
 package java.io;
 
 import java.nio.channels.FileChannel;
+
+import dalvik.system.BlockGuard;
 import sun.nio.ch.FileChannelImpl;
 import sun.misc.IoTrace;
 import libcore.io.IoBridge;
@@ -210,6 +212,8 @@ class FileOutputStream extends OutputStream
         this.append = append;
         this.path = name;
         fd.incrementAndGetUseCount();
+
+        BlockGuard.getThreadPolicy().onWriteToDisk();
         open(name, append);
     }
 
