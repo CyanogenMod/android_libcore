@@ -3387,7 +3387,19 @@ public final class URI
 
             do {
                 // domainlabel = alphanum [ *( alphanum | "-" | "_" ) alphanum ]
-                //
+
+                // RFC1034#section-3.5 doesn't permit empty labels in hostnames, but we accepted
+                // this prior to N and the behavior is used by some apps. They're accepted for
+                // compatibility but we produce a warning in the log.
+                // http://b/25991669
+                if (charAt(p) == '.') {
+                  java.lang.System.logE("URI " + substring(start, n) +  " has empty labels in " +
+                                        "the hostname. This is malformed and will not be accepted" +
+                                        "in future Android releases.");
+                  q = ++p;
+                  continue;
+                }
+
                 // The RFCs don't permit underscores in hostnames, but URI has to because a certain
                 // large website doesn't seem to care about standards and specs.
                 // http://code.google.com/p/android/issues/detail?id=37577
