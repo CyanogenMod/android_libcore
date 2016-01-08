@@ -260,7 +260,7 @@ Java_sun_nio_ch_Net_connect0(JNIEnv *env, jclass clazz, jboolean preferIPv6,
         } else if (errno == EINTR) {
             return IOS_INTERRUPTED;
         }
-        return handleSocketError(env, errno);
+        return handleSocketErrorWithDefault(env, errno, JNU_JAVANETPKG "ConnectException");
     }
     return 1;
 }
@@ -655,9 +655,9 @@ Java_sun_nio_ch_Net_shutdown(JNIEnv *env, jclass cl, jobject fdo, jint jhow)
 /* Declared in nio_util.h */
 
 jint
-handleSocketError(JNIEnv *env, jint errorValue)
+handleSocketErrorWithDefault(JNIEnv *env, jint errorValue, const char *defaultException)
 {
-    char *xn;
+    const char *xn;
     switch (errorValue) {
         case EINPROGRESS:       /* Non-blocking connect */
             return 0;
@@ -680,12 +680,20 @@ handleSocketError(JNIEnv *env, jint errorValue)
             xn = JNU_JAVANETPKG "BindException";
             break;
         default:
-            xn = JNU_JAVANETPKG "SocketException";
+            xn = defaultException;
             break;
     }
     errno = errorValue;
     JNU_ThrowByNameWithLastError(env, xn, "NioSocketError");
     return IOS_THROWN;
+}
+
+/* Declared in nio_util.h */
+
+jint
+handleSocketError(JNIEnv *env, jint errorValue) {
+    return handleSocketErrorWithDefault(env, errorValue,
+                                        JNU_JAVANETPKG "SocketException");
 }
 
 
