@@ -477,4 +477,29 @@ public class InflaterInputStreamTest extends TestCase {
         // test for exception
         iin.close();
     }
+
+    // http://b/26462400
+    public void testInflaterInputStreamWithExternalInflater() throws Exception {
+        InputStream base = new ByteArrayInputStream(new byte[] { 'h', 'i'});
+        Inflater inf = new Inflater();
+
+        InflaterInputStream iis = new InflaterInputStream(base, inf, 512);
+        iis.close();
+        try {
+            inf.reset();
+            fail();
+        } catch (IllegalStateException espected) {
+            // Expected because the inflater should've been closed when the stream was.
+        }
+
+        inf = new Inflater();
+        iis = new InflaterInputStream(base, inf);
+        iis.close();
+        try {
+            inf.reset();
+            fail();
+        } catch (IllegalStateException espected) {
+            // Expected because the inflater should've been closed when the stream was.
+        }
+    }
 }
