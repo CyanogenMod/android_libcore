@@ -1111,17 +1111,20 @@ public class TimerTest extends TestCase {
     private static class IncrementCounterTaskAndPossiblyThrowAfter extends TimerTask {
 
         private final AtomicLong counter;
-
+        private final int incrementAmount;
         private final boolean willThrow;
 
-        IncrementCounterTaskAndPossiblyThrowAfter(AtomicLong counter, boolean willThrow) {
+
+        IncrementCounterTaskAndPossiblyThrowAfter(
+                AtomicLong counter, int incrementAmount, boolean willThrow) {
             this.counter = counter;
+            this.incrementAmount = incrementAmount;
             this.willThrow = willThrow;
         }
 
         @Override
         public void run() {
-            counter.incrementAndGet();
+            counter.addAndGet(incrementAmount);
             if (willThrow) {
                 throw new IllegalStateException("TimerTask runtime exception from run()");
             }
@@ -1153,23 +1156,35 @@ public class TimerTest extends TestCase {
         try {
             Timer t = new Timer();
             final AtomicLong counter = new AtomicLong();
-            TimerTask task1 = new IncrementCounterTaskAndPossiblyThrowAfter(
+
+            // Schedule tasks to run:
+            // A) {In 1 millis} Increment a counter by 1 and throw an exception
+            // B) {In 100 millis} Increment a counter by 1000 (but it's not intended to be executed
+            //        because of the previous exception).
+            // We want A and B to be scheduled before A runs.
+            // We add them in reverse order.
+            // We have ~99 millis after scheduling B to schedule A. If A ran before we scheduled B
+            // we would get an exception when we came to schedule B.
+            TimerTask taskThatDoesntThrow = new IncrementCounterTaskAndPossiblyThrowAfter(
                     counter,
-                    true /* willThrow */);
-            TimerTask task2 = new IncrementCounterTaskAndPossiblyThrowAfter(
-                    counter,
+                    1000,  /* incrementAmount */
                     false /* willThrow */);
-            t.scheduleAtFixedRate(task1, 1 /* delay */, 100 /* period */);
-            t.schedule(task2, 100 /* delay */);
+            TimerTask taskThatThrows = new IncrementCounterTaskAndPossiblyThrowAfter(
+                    counter,
+                    1,    /* incrementAmount */
+                    true  /* willThrow */);
+            t.schedule(taskThatDoesntThrow, 100 /* delay */);
+            t.scheduleAtFixedRate(taskThatThrows, 1 /* delay */, 100 /* period */);
+
             swallowUncaughtExceptionHandler.waitForException(1000);
             // Check the counter wasn't increased more than once (ie, the exception killed the
             // execution thread).
             assertEquals("Counter should be 1, and is: " + counter.get(), 1, counter.get());
 
-            assertTrue("The timer should not cancel the tasks", task1.cancel());
-            assertTrue("The timer should not cancel the tasks", task2.cancel());
+            assertTrue("The timer should not cancel the tasks", taskThatDoesntThrow.cancel());
+            assertTrue("The timer should not cancel the tasks", taskThatThrows.cancel());
 
-            TimerTask task3 = new TimerTask() {
+            TimerTask otherTask = new TimerTask() {
                 @Override
                 public void run() {
                     counter.incrementAndGet();
@@ -1177,7 +1192,7 @@ public class TimerTest extends TestCase {
             };
 
             try {
-                t.schedule(task3, 1);
+                t.schedule(otherTask, 1);
                 fail("Timer should be cancelled and no new tasks should be allowed");
             } catch (Exception expected) {
                 // Expected.
@@ -1198,23 +1213,35 @@ public class TimerTest extends TestCase {
         try {
             Timer t = new Timer();
             final AtomicLong counter = new AtomicLong();
-            TimerTask task1 = new IncrementCounterTaskAndPossiblyThrowAfter(
+
+            // Schedule tasks to run:
+            // A) {In 1 millis} Increment a counter by 1 and throw an exception
+            // B) {In 100 millis} Increment a counter by 1000 (but it's not intended to be executed
+            //        because of the previous exception).
+            // We want A and B to be scheduled before A runs.
+            // We add them in reverse order.
+            // We have ~99 millis after scheduling B to schedule A. If A ran before we scheduled B
+            // we would get an exception when we came to schedule B.
+
+            TimerTask taskThatDoesntThrow = new IncrementCounterTaskAndPossiblyThrowAfter(
                     counter,
-                    true /* willThrow */);
-            TimerTask task2 = new IncrementCounterTaskAndPossiblyThrowAfter(
-                    counter,
+                    1000, /* incrementAmount */
                     false /* willThrow */);
-            t.scheduleAtFixedRate(task1, 1 /* delay */, 100 /* period */);
-            t.schedule(task2, 100 /* delay */);
+            TimerTask taskThatThrows = new IncrementCounterTaskAndPossiblyThrowAfter(
+                    counter,
+                    1,    /* incrementAmount */
+                    true  /* willThrow */);
+            t.schedule(taskThatDoesntThrow, 100 /* delay */);
+            t.scheduleAtFixedRate(taskThatThrows, 1 /* delay */, 100 /* period */);
             swallowUncaughtExceptionHandler.waitForException(1000);
             // Check the counter wasn't increased more than once (ie, the exception killed the
             // execution thread).
             assertEquals("Counter should be 1, and is: " + counter.get(), 1, counter.get());
             t.purge();
-            assertTrue("The timer should not cancel the tasks", task1.cancel());
-            assertTrue("The timer should not cancel the tasks", task2.cancel());
+            assertTrue("The timer should not cancel the tasks", taskThatDoesntThrow.cancel());
+            assertTrue("The timer should not cancel the tasks", taskThatThrows.cancel());
 
-            TimerTask task3 = new TimerTask() {
+            TimerTask otherTask = new TimerTask() {
                 @Override
                 public void run() {
                     counter.incrementAndGet();
@@ -1222,7 +1249,7 @@ public class TimerTest extends TestCase {
             };
 
             try {
-                t.schedule(task3, 1);
+                t.schedule(otherTask, 1);
                 fail("Timer should be cancelled and no new tasks should be allowed");
             } catch (Exception expected) {
                 // Expected.
