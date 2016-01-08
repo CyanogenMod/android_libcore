@@ -16,6 +16,7 @@
 
 package libcore.java.util;
 
+import java.io.ObjectInputStream;
 import java.text.BreakIterator;
 import java.text.Collator;
 import java.text.DateFormat;
@@ -1239,5 +1240,14 @@ public class LocaleTest extends junit.framework.TestCase {
         b.setExtension('U', "nu-arab");
         b.setExtension('u', "nu-thai");
         assertEquals("ar-EG-u-nu-thai", b.build().toLanguageTag());
+    }
+
+    // http://b/26387905
+    public void test_SerializationBug_26387905() throws Exception {
+        try (ObjectInputStream oinput = new ObjectInputStream(getClass()
+                .getResource("/serialization/org/apache/harmony/tests/java/util/Locale_Bug_26387905.ser")
+                .openStream())) {
+            Locale l = (Locale) oinput.readObject();
+        }
     }
 }
