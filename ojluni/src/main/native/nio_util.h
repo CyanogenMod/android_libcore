@@ -51,3 +51,6 @@ jlong convertLongReturnVal(JNIEnv *env, jlong n, jboolean reading);
 /* Defined in Net.c */
 
 jint handleSocketError(JNIEnv *env, jint errorValue);
+
+jint handleSocketErrorWithDefault(JNIEnv *env, jint errorValue,
+                                  const char *defaultException);
