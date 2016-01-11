@@ -168,7 +168,7 @@ LOCAL_CFLAGS += $(libart_cflags)
 LOCAL_CPPFLAGS += $(core_cppflags)
 LOCAL_SRC_FILES += $(core_test_files)
 LOCAL_C_INCLUDES += libcore/include
-LOCAL_SHARED_LIBRARIES += libcrypto libnativehelper
+LOCAL_SHARED_LIBRARIES += libnativehelper_compat_libc++
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := libjavacoretests
 LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/NativeCode.mk
@@ -278,7 +278,7 @@ ifeq ($(LIBCORE_SKIP_TESTS),)
     LOCAL_MODULE_TAGS := optional
     LOCAL_MODULE := libjavacoretests
     LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/NativeCode.mk
-    LOCAL_SHARED_LIBRARIES := libcrypto-host libnativehelper
+    LOCAL_SHARED_LIBRARIES := libnativehelper
     LOCAL_MULTILIB := both
     LOCAL_CXX_STL := libc++
     include $(BUILD_HOST_SHARED_LIBRARY)
