@@ -1299,21 +1299,8 @@
   description: "Android's PKIX validation fails on many NIST PKIX tests",
   bug: 8030138,
   names: [
-    "libcore.java.security.cert.X509CertificateNistPkitsTest#testBasicCertificateRevocationTests_InvalidSeparateCertificateandCRLKeysTest20",
-    "libcore.java.security.cert.X509CertificateNistPkitsTest#testBasicCertificateRevocationTests_InvalidSeparateCertificateandCRLKeysTest21",
-    "libcore.java.security.cert.X509CertificateNistPkitsTest#testBasicCertificateRevocationTests_ValidSeparateCertificateandCRLKeysTest19",
     "libcore.java.security.cert.X509CertificateNistPkitsTest#testDeltaCRLs_InvaliddeltaCRLTest4",
-    "libcore.java.security.cert.X509CertificateNistPkitsTest#testDeltaCRLs_ValiddeltaCRLTest5",
-    "libcore.java.security.cert.X509CertificateNistPkitsTest#testDistributionPoints_ValidIDPwithindirectCRLTest24",
-    "libcore.java.security.cert.X509CertificateNistPkitsTest#testDistributionPoints_ValidIDPwithindirectCRLTest25",
-    "libcore.java.security.cert.X509CertificateNistPkitsTest#testDistributionPoints_ValidcRLIssuerTest28",
-    "libcore.java.security.cert.X509CertificateNistPkitsTest#testDistributionPoints_ValidcRLIssuerTest29",
-    "libcore.java.security.cert.X509CertificateNistPkitsTest#testDistributionPoints_ValidcRLIssuerTest30",
-    "libcore.java.security.cert.X509CertificateNistPkitsTest#testDistributionPoints_ValidcRLIssuerTest33",
-    "libcore.java.security.cert.X509CertificateNistPkitsTest#testKeyUsage_ValidSelfIssuedDNnameConstraintsTest19",
-    "libcore.java.security.cert.X509CertificateNistPkitsTest#testVerifyingNameChaining_ValidRFC3280OptionalAttributeTypesTest8",
-    "libcore.java.security.cert.X509CertificateNistPkitsTest#testVerifyingPathswithSelfIssuedCertificates_ValidBasicSelfIssuedCRLSigningKeyTest6",
-    "libcore.java.security.cert.X509CertificateNistPkitsTest#testVerifyingPathswithSelfIssuedCertificates_ValidBasicSelfIssuedNewWithOldTest4"
+    "libcore.java.security.cert.X509CertificateNistPkitsTest#testDeltaCRLs_ValiddeltaCRLTest5"
   ]
 },
 {
