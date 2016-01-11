@@ -88,7 +88,6 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
                 socketCreate(false);
             } catch (IOException ioe) {
                 ResourceManager.afterUdpClose();
-                fd = null;
                 throw ioe;
             }
         } else {
@@ -486,7 +485,7 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
      */
     protected void close() throws IOException {
         synchronized(fdLock) {
-            if (fd != null) {
+            if (fd != null && fd.valid()) {
                 if (!stream) {
                     ResourceManager.afterUdpClose();
                 }
@@ -495,17 +494,15 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
                 }
                 closePending = true;
                 socketClose();
-                fd = null;
                 return;
             }
         }
     }
 
     void reset() throws IOException {
-        if (fd != null) {
+        if (fd != null && fd.valid()) {
             socketClose();
         }
-        fd = null;
         super.reset();
     }
 
@@ -514,7 +511,7 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
      * Shutdown read-half of the socket connection;
      */
     protected void shutdownInput() throws IOException {
-      if (fd != null) {
+      if (fd != null && fd.valid()) {
           socketShutdown(SHUT_RD);
           if (socketInputStream != null) {
               socketInputStream.setEOF(true);
@@ -527,7 +524,7 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
      * Shutdown write-half of the socket connection;
      */
     protected void shutdownOutput() throws IOException {
-      if (fd != null) {
+      if (fd != null && fd.valid()) {
           socketShutdown(SHUT_WR);
           shut_wr = true;
       }
@@ -538,7 +535,7 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
     }
 
     protected void sendUrgentData (int data) throws IOException {
-        if (fd == null) {
+        if (fd == null || !fd.valid()) {
             throw new IOException("Socket Closed");
         }
         socketSendUrgentData (data);
@@ -602,7 +599,7 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
          * close is in progress.
          */
         synchronized (fdLock) {
-            if (closePending || (fd == null)) {
+            if (closePending || (fd == null) || !fd.valid()) {
                 return true;
             } else {
                 return false;
