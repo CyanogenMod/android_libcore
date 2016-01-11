@@ -794,7 +794,14 @@ public class HashMap<K,V>
         } catch (CloneNotSupportedException e) {
             // assert false;
         }
-        result.table = new HashMapEntry[table.length];
+        if (result.table != EMPTY_TABLE) {
+            result.inflateTable(Math.min(
+                (int) Math.min(
+                    size * Math.min(1 / loadFactor, 4.0f),
+                    // we have limits...
+                    HashMap.MAXIMUM_CAPACITY),
+               table.length));
+        }
         result.entrySet = null;
         result.modCount = 0;
         result.size = 0;
