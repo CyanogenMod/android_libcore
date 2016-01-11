@@ -2940,8 +2940,10 @@ public final class Formatter implements Closeable, Flushable {
         private void print(String s) throws IOException {
             if (precision != -1 && precision < s.length())
                 s = s.substring(0, precision);
-            if (f.contains(Flags.UPPERCASE))
-                s = s.toUpperCase();
+            if (f.contains(Flags.UPPERCASE)) {
+                // Always uppercase strings according to the provided locale.
+                s = s.toUpperCase(l != null ? l : Locale.getDefault());
+            }
             a.append(justify(s));
         }
 
