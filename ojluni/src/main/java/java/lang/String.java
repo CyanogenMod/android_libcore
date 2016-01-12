@@ -730,7 +730,7 @@ public final class String
         }
 
         int count = srcEnd - srcBegin;
-        if (count < 0) {
+        if (srcEnd < srcBegin) {
             throw new StringIndexOutOfBoundsException(this, srcBegin, count);
         }
 
