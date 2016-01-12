@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2002, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2012, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -79,7 +79,8 @@ public class X509CertificatePair {
     private X509Certificate reverse;
     private byte[] encoded;
 
-    private static final Cache cache = Cache.newSoftMemoryCache(750);
+    private static final Cache<Object, X509CertificatePair> cache
+        = Cache.newSoftMemoryCache(750);
 
     /**
      * Creates an empty instance of X509CertificatePair.
@@ -114,7 +115,7 @@ public class X509CertificatePair {
      *
      * For internal use only, external code should use generateCertificatePair.
      */
-    private X509CertificatePair(byte[] encoded)throws CertificateException {
+    private X509CertificatePair(byte[] encoded) throws CertificateException {
         try {
             parse(new DerValue(encoded));
             this.encoded = encoded;
@@ -138,7 +139,7 @@ public class X509CertificatePair {
     public static synchronized X509CertificatePair generateCertificatePair
             (byte[] encoded) throws CertificateException {
         Object key = new Cache.EqualByteArray(encoded);
-        X509CertificatePair pair = (X509CertificatePair)cache.get(key);
+        X509CertificatePair pair = cache.get(key);
         if (pair != null) {
             return pair;
         }
@@ -206,13 +207,14 @@ public class X509CertificatePair {
      *
      * @return A String describing the contents of the pair.
      */
+    @Override
     public String toString() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append("X.509 Certificate Pair: [\n");
         if (forward != null)
-            sb.append("  Forward: " + forward + "\n");
+            sb.append("  Forward: ").append(forward).append("\n");
         if (reverse != null)
-            sb.append("  Reverse: " + reverse + "\n");
+            sb.append("  Reverse: ").append(reverse).append("\n");
         sb.append("]");
         return sb.toString();
     }
