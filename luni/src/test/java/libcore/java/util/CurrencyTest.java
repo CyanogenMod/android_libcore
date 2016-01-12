@@ -20,6 +20,8 @@ import java.util.Currency;
 import java.util.Locale;
 import java.util.Set;
 
+import libcore.util.SerializationTester;
+
 public class CurrencyTest extends junit.framework.TestCase {
     // Regression test to ensure that Currency.getSymbol(Locale) returns the
     // currency code if ICU doesn't have a localization of the symbol. The
@@ -86,5 +88,24 @@ public class CurrencyTest extends junit.framework.TestCase {
             currency.getSymbol(null);
             fail();
         } catch (NullPointerException expected) {}
+    }
+
+    public void testSerialization() throws Exception {
+        Currency usd = Currency.getInstance("USD");
+        String actual = SerializationTester.serializeHex(usd);
+        String expected = "aced0005737200126a6176612e7574696c2e43757272656e6379fdcd934a5911a91f02" +
+                "00014c000c63757272656e6379436f64657400124c6a6176612f6c616e672f537472696e673b7870" +
+                "740003555344";
+        assertEquals(expected, actual);
+
+        Currency deserializedUsd = (Currency) SerializationTester.deserializeHex(expected);
+        assertSame("Currency objects should be singletons", usd, deserializedUsd);
+    }
+
+    public void test_getNumericCode() throws Exception {
+        assertEquals(840, Currency.getInstance("USD").getNumericCode());
+        assertEquals(826, Currency.getInstance("GBP").getNumericCode());
+        assertEquals(999, Currency.getInstance("XXX").getNumericCode());
+        assertEquals(0, Currency.getInstance("XFU").getNumericCode());
     }
 }
