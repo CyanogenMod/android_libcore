@@ -390,7 +390,7 @@ public class SocketTest extends junit.framework.TestCase {
     }
 
 
-    // b/25805791
+    // b/25805791 + b/26470377
     public void testFileDescriptorStaysSame() throws Exception {
         // SocketImplementation FileDescriptor object shouldn't change after calling
         // bind (and many other methods).
@@ -408,8 +408,12 @@ public class SocketTest extends junit.framework.TestCase {
         assertSame(fd1, fd2);
         int fd2Val = fd2.getInt$();
         assertTrue(fd1Val != fd2Val); // The actual fd should be different
-    }
 
+        s.close();
+        FileDescriptor fd3 = s.getFileDescriptor$();
+        assertSame(fd1, fd3);
+        assertFalse(fd3.valid());
+    }
 
     static class MockServer {
         private ExecutorService executor;
