@@ -74,7 +74,6 @@ class GZIPInputStream extends InflaterInputStream {
      */
     public GZIPInputStream(InputStream in, int size) throws IOException {
         super(in, new Inflater(true), size);
-        usesDefaultInflater = true;
         readHeader(in);
     }
 

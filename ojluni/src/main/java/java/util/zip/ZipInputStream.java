@@ -96,7 +96,6 @@ class ZipInputStream extends InflaterInputStream implements ZipConstants {
      */
     public ZipInputStream(InputStream in, Charset charset) {
         super(new PushbackInputStream(in, 512), new Inflater(true), 512);
-        usesDefaultInflater = true;
         if(in == null) {
             throw new NullPointerException("in is null");
         }

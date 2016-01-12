@@ -101,15 +101,12 @@ class InflaterInputStream extends FilterInputStream {
         this(in, inf, 512);
     }
 
-    boolean usesDefaultInflater = false;
-
     /**
      * Creates a new input stream with a default decompressor and buffer size.
      * @param in the input stream
      */
     public InflaterInputStream(InputStream in) {
         this(in, new Inflater());
-        usesDefaultInflater = true;
     }
 
     private byte[] singleByteBuf = new byte[1];
@@ -231,8 +228,7 @@ class InflaterInputStream extends FilterInputStream {
      */
     public void close() throws IOException {
         if (!closed) {
-            if (usesDefaultInflater)
-                inf.end();
+            inf.end();
             in.close();
             closed = true;
         }
