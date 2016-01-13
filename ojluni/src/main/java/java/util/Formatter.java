@@ -49,6 +49,7 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 
+import libcore.icu.LocaleData;
 import sun.misc.FpUtils;
 import sun.misc.DoubleConsts;
 import sun.misc.FormattedFloatingDecimal;
@@ -3316,7 +3317,11 @@ public final class Formatter implements Closeable, Flushable {
                     newW = adjustWidth(width - exp.length - 1, f, neg);
                 localizedMagnitude(sb, mant, f, newW, l);
 
-                sb.append(f.contains(Flags.UPPERCASE) ? 'E' : 'e');
+                Locale separatorLocale = (l != null) ? l : Locale.getDefault();
+                LocaleData localeData = LocaleData.get(separatorLocale);
+                sb.append(f.contains(Flags.UPPERCASE) ?
+                        localeData.exponentSeparator.toUpperCase(separatorLocale) :
+                        localeData.exponentSeparator);
 
                 Flags flags = f.dup().remove(Flags.GROUP);
                 char sign = exp[0];

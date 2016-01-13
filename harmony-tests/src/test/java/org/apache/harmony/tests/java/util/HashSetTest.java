@@ -213,6 +213,15 @@ public class HashSetTest extends junit.framework.TestCase {
         SerializationTest.verifyGolden(this, hs, comparator);
     }
 
+    /*
+     * Bug 26294011
+     */
+    public void test_empty_clone() throws Exception {
+        HashSet<Integer> emptyHs = new HashSet<Integer>();
+        HashSet<Integer> cloned = (HashSet) emptyHs.clone();
+        cloned.add(new Integer(8));
+    }
+
     /**
      * Sets up the fixture, for example, open a network connection. This method
      * is called before a test is executed.
