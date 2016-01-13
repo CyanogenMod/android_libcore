@@ -267,7 +267,7 @@ final class UNIXProcess extends Process {
      */
     static class ProcessPipeInputStream extends BufferedInputStream {
         ProcessPipeInputStream(int fd) {
-            super(new FileInputStream(newFileDescriptor(fd)));
+            super(new FileInputStream(newFileDescriptor(fd), true /* isFdOwner */));
         }
 
         private static byte[] drainInputStream(InputStream in)
