@@ -425,4 +425,16 @@ public class StringTest extends TestCase {
         assertEquals(7, hello.codePointCount(5, 12));
         assertEquals(2, hello.codePointCount(10, 12));
     }
+
+    // http://b/26444984
+    public void testGetCharsOverflow() {
+        int srcBegin = Integer.MAX_VALUE; //2147483647
+        int srcEnd = srcBegin + 10;  //-2147483639
+        try {
+            // The output array size must be larger than |srcEnd - srcBegin|.
+            "yes".getChars(srcBegin, srcEnd, new char[256], 0);
+            fail();
+        } catch (IllegalArgumentException expected) {
+        }
+    }
 }
