@@ -434,7 +434,7 @@ public class StringTest extends TestCase {
             // The output array size must be larger than |srcEnd - srcBegin|.
             "yes".getChars(srcBegin, srcEnd, new char[256], 0);
             fail();
-        } catch (IllegalArgumentException expected) {
+        } catch (StringIndexOutOfBoundsException expected) {
         }
     }
 }
