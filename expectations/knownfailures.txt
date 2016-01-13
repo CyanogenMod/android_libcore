@@ -29,11 +29,6 @@
   bug: 2541757
 },
 {
-  description: "NaN character not found when deserializing DecimalFormatSymbols",
-  name: "libcore.java.text.OldDecimalFormatSymbolsTest#test_RIHarmony_compatible",
-  bug: 3056792
-},
-{
   description: "DecimalFormat is limited to 127 digits",
   name: "libcore.java.text.DecimalFormatTest#test_setMaximumIntegerDigits",
   bug: 2400429

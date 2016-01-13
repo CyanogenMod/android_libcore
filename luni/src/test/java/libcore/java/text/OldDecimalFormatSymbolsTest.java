@@ -38,7 +38,7 @@ public class OldDecimalFormatSymbolsTest extends TestCase {
                     getClass()
                             .getClassLoader()
                             .getResourceAsStream(
-                    "serialization/java/text/DecimalFormatSymbols.ser"));
+                    "serialization/org/apache/harmony/tests/java/text/DecimalFormatSymbols.ser"));
             DecimalFormatSymbols riSymbols = (DecimalFormatSymbols) i.readObject();
             // RI's default NaN is U+FFFD, Harmony's is based on ICU
             // This suggests an RI bug, assuming that non-UTF8 bytes are UTF8 and

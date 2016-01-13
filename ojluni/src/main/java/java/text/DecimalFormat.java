@@ -39,16 +39,15 @@
 
 package java.text;
 
-import java.io.InvalidObjectException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.ObjectStreamField;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
-import java.util.ArrayList;
 import java.util.Currency;
 import java.util.Locale;
-import java.util.ResourceBundle;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -380,6 +379,8 @@ import android.icu.math.MathContext;
  */
 public class DecimalFormat extends NumberFormat {
 
+    private transient android.icu.text.DecimalFormat icuDecimalFormat;
+
     /**
      * Creates a DecimalFormat using the default pattern and symbols
      * for the default locale. This is a convenient way to obtain a
@@ -395,9 +396,6 @@ public class DecimalFormat extends NumberFormat {
      * @see java.text.NumberFormat#getCurrencyInstance
      * @see java.text.NumberFormat#getPercentInstance
      */
-
-    private android.icu.text.DecimalFormat icuDecimalFormat;
-
     public DecimalFormat() {
         Locale def = Locale.getDefault(Locale.Category.FORMAT);
         // try to get the pattern from the cache
@@ -409,12 +407,7 @@ public class DecimalFormat extends NumberFormat {
             cachedLocaleData.putIfAbsent(def, pattern);
         }
         this.symbols = new DecimalFormatSymbols(def);
-        this.icuDecimalFormat =  new android.icu.text.DecimalFormat(pattern,
-                                                                    symbols.getIcuDecimalFormatSymbols());
-        maximumIntegerDigits = icuDecimalFormat.getMaximumIntegerDigits();
-        minimumIntegerDigits = icuDecimalFormat.getMinimumIntegerDigits();
-        maximumFractionDigits = icuDecimalFormat.getMaximumFractionDigits();
-        minimumFractionDigits = icuDecimalFormat.getMinimumFractionDigits();
+        init(pattern);
     }
 
 
@@ -438,12 +431,7 @@ public class DecimalFormat extends NumberFormat {
      */
     public DecimalFormat(String pattern) {
         this.symbols = new DecimalFormatSymbols(Locale.getDefault(Locale.Category.FORMAT));
-        this.icuDecimalFormat =  new android.icu.text.DecimalFormat(pattern,
-                                                                    symbols.getIcuDecimalFormatSymbols());
-        maximumIntegerDigits = icuDecimalFormat.getMaximumIntegerDigits();
-        minimumIntegerDigits = icuDecimalFormat.getMinimumIntegerDigits();
-        maximumFractionDigits = icuDecimalFormat.getMaximumFractionDigits();
-        minimumFractionDigits = icuDecimalFormat.getMinimumFractionDigits();
+        init(pattern);
     }
 
 
@@ -471,8 +459,12 @@ public class DecimalFormat extends NumberFormat {
     public DecimalFormat (String pattern, DecimalFormatSymbols symbols) {
         // Always applyPattern after the symbols are set
         this.symbols = (DecimalFormatSymbols)symbols.clone();
+        init(pattern);
+    }
+
+    private void init(String pattern) {
         this.icuDecimalFormat =  new android.icu.text.DecimalFormat(pattern,
-                                                                    symbols.getIcuDecimalFormatSymbols());
+                symbols.getIcuDecimalFormatSymbols());
         maximumIntegerDigits = icuDecimalFormat.getMaximumIntegerDigits();
         minimumIntegerDigits = icuDecimalFormat.getMinimumIntegerDigits();
         maximumFractionDigits = icuDecimalFormat.getMaximumFractionDigits();
@@ -1428,6 +1420,61 @@ public class DecimalFormat extends NumberFormat {
         }
     }
 
+    private static final int currentSerialVersion = 4;
+
+    // the fields list to be serialized
+    private static final ObjectStreamField[] serialPersistentFields = {
+            new ObjectStreamField("positivePrefix", String.class),
+            new ObjectStreamField("positiveSuffix", String.class),
+            new ObjectStreamField("negativePrefix", String.class),
+            new ObjectStreamField("negativeSuffix", String.class),
+            new ObjectStreamField("posPrefixPattern", String.class),
+            new ObjectStreamField("posSuffixPattern", String.class),
+            new ObjectStreamField("negPrefixPattern", String.class),
+            new ObjectStreamField("negSuffixPattern", String.class),
+            new ObjectStreamField("multiplier", int.class),
+            new ObjectStreamField("groupingSize", byte.class),
+            new ObjectStreamField("groupingUsed", boolean.class),
+            new ObjectStreamField("decimalSeparatorAlwaysShown", boolean.class),
+            new ObjectStreamField("parseBigDecimal", boolean.class),
+            new ObjectStreamField("roundingMode", RoundingMode.class),
+            new ObjectStreamField("symbols", DecimalFormatSymbols.class),
+            new ObjectStreamField("useExponentialNotation", boolean.class),
+            new ObjectStreamField("minExponentDigits", byte.class),
+            new ObjectStreamField("maximumIntegerDigits", int.class),
+            new ObjectStreamField("minimumIntegerDigits", int.class),
+            new ObjectStreamField("maximumFractionDigits", int.class),
+            new ObjectStreamField("minimumFractionDigits", int.class),
+            new ObjectStreamField("serialVersionOnStream", int.class),
+    };
+
+    private void writeObject(ObjectOutputStream stream) throws IOException, ClassNotFoundException {
+        ObjectOutputStream.PutField fields = stream.putFields();
+        fields.put("positivePrefix", icuDecimalFormat.getPositivePrefix());
+        fields.put("positiveSuffix", icuDecimalFormat.getPositiveSuffix());
+        fields.put("negativePrefix", icuDecimalFormat.getNegativePrefix());
+        fields.put("negativeSuffix", icuDecimalFormat.getNegativeSuffix());
+        fields.put("posPrefixPattern", (String) null);
+        fields.put("posSuffixPattern", (String) null);
+        fields.put("negPrefixPattern", (String) null);
+        fields.put("negSuffixPattern", (String) null);
+        fields.put("multiplier", icuDecimalFormat.getMultiplier());
+        fields.put("groupingSize", (byte) icuDecimalFormat.getGroupingSize());
+        fields.put("groupingUsed", icuDecimalFormat.isGroupingUsed());
+        fields.put("decimalSeparatorAlwaysShown", icuDecimalFormat.isDecimalSeparatorAlwaysShown());
+        fields.put("parseBigDecimal", icuDecimalFormat.isParseBigDecimal());
+        fields.put("roundingMode", roundingMode);
+        fields.put("symbols", symbols);
+        fields.put("useExponentialNotation", false);
+        fields.put("minExponentDigits", (byte) 0);
+        fields.put("maximumIntegerDigits", icuDecimalFormat.getMaximumIntegerDigits());
+        fields.put("minimumIntegerDigits", icuDecimalFormat.getMinimumIntegerDigits());
+        fields.put("maximumFractionDigits", icuDecimalFormat.getMaximumFractionDigits());
+        fields.put("minimumFractionDigits", icuDecimalFormat.getMinimumFractionDigits());
+        fields.put("serialVersionOnStream", currentSerialVersion);
+        stream.writeFields();
+    }
+
     /**
      * Reads the default serializable fields from the stream and performs
      * validations and adjustments for older serialized versions. The
@@ -1472,49 +1519,47 @@ public class DecimalFormat extends NumberFormat {
      * the pre-version-2 behavior.
      */
     private void readObject(ObjectInputStream stream)
-         throws IOException, ClassNotFoundException
-    {
-        stream.defaultReadObject();
+            throws IOException, ClassNotFoundException {
+        ObjectInputStream.GetField fields = stream.readFields();
+        this.symbols = (DecimalFormatSymbols) fields.get("symbols", null);
 
-        if (serialVersionOnStream < 4) {
-            setRoundingMode(RoundingMode.HALF_EVEN);
-        }
-        // We only need to check the maximum counts because NumberFormat
-        // .readObject has already ensured that the maximum is greater than the
-        // minimum count.
-        if (super.getMaximumIntegerDigits() > DOUBLE_INTEGER_DIGITS ||
-            super.getMaximumFractionDigits() > DOUBLE_FRACTION_DIGITS) {
-            throw new InvalidObjectException("Digit count out of range");
-        }
+        init("");
 
-        // ICU has its own logic about what these values can be set to. We set the desired value
-        // on icuDecimalFormat and then update NumberFormat's idea of the limits to what ICU has
-        // allowed to be set. This isn't RI-compatible, but then very little of our
+        icuDecimalFormat.setPositivePrefix((String) fields.get("positivePrefix", ""));
+        icuDecimalFormat.setPositiveSuffix((String) fields.get("positiveSuffix", ""));
+        icuDecimalFormat.setNegativePrefix((String) fields.get("negativePrefix", "-"));
+        icuDecimalFormat.setNegativeSuffix((String) fields.get("negativeSuffix", ""));
+        icuDecimalFormat.setMultiplier(fields.get("multiplier", 1));
+        icuDecimalFormat.setGroupingSize(fields.get("groupingSize", (byte) 3));
+        icuDecimalFormat.setGroupingUsed(fields.get("groupingUsed", true));
+        icuDecimalFormat.setDecimalSeparatorAlwaysShown(fields.get("decimalSeparatorAlwaysShown",
+                false));
+
+        setRoundingMode((RoundingMode) fields.get("roundingMode", RoundingMode.HALF_EVEN));
+
+        final int maximumIntegerDigits = fields.get("maximumIntegerDigits", 309);
+        final int minimumIntegerDigits = fields.get("minimumIntegerDigits", 309);
+        final int maximumFractionDigits = fields.get("maximumFractionDigits", 340);
+        final int minimumFractionDigits = fields.get("minimumFractionDigits", 340);
+        // Tell ICU what we want, then ask it what we can have, and then
+        // set that in our Java object. This isn't RI-compatible, but then very little of our
         // behavior in this area is, and it's not obvious how we can second-guess ICU (or tell
-        // it to just do exactly what we ask).
+        // it to just do exactly what we ask). We only need to do this with maximumIntegerDigits
+        // because ICU doesn't seem to have its own ideas about the other options.
         icuDecimalFormat.setMaximumIntegerDigits(maximumIntegerDigits);
-        setMaximumIntegerDigits(icuDecimalFormat.getMaximumIntegerDigits());
+        super.setMaximumIntegerDigits(icuDecimalFormat.getMaximumIntegerDigits());
 
-        icuDecimalFormat.setMinimumIntegerDigits(minimumIntegerDigits);
-        setMinimumIntegerDigits(icuDecimalFormat.getMinimumIntegerDigits());
-
-        icuDecimalFormat.setMaximumFractionDigits(maximumFractionDigits);
-        setMaximumFractionDigits(icuDecimalFormat.getMaximumFractionDigits());
-
-        icuDecimalFormat.setMinimumFractionDigits(minimumFractionDigits);
+        setMinimumIntegerDigits(minimumIntegerDigits);
         setMinimumFractionDigits(minimumFractionDigits);
+        setMaximumFractionDigits(maximumFractionDigits);
+        setParseBigDecimal(fields.get("parseBigDecimal", false));
 
-        if (serialVersionOnStream < 3) {
+        if (fields.get("serialVersionOnStream", 0) < 3) {
             setMaximumIntegerDigits(super.getMaximumIntegerDigits());
             setMinimumIntegerDigits(super.getMinimumIntegerDigits());
             setMaximumFractionDigits(super.getMaximumFractionDigits());
             setMinimumFractionDigits(super.getMinimumFractionDigits());
         }
-        if (serialVersionOnStream < 1) {
-            // Didn't have exponential fields
-            useExponentialNotation = false;
-        }
-        serialVersionOnStream = currentSerialVersion;
     }
 
     //----------------------------------------------------------------------
@@ -1530,16 +1575,7 @@ public class DecimalFormat extends NumberFormat {
      * @see #setDecimalFormatSymbols
      * @see java.text.DecimalFormatSymbols
      */
-    private DecimalFormatSymbols symbols = null; // LIU new DecimalFormatSymbols();
-
-    /**
-     * True to force the use of exponential (i.e. scientific) notation when formatting
-     * numbers.
-     *
-     * @serial
-     * @since 1.2
-     */
-    private boolean useExponentialNotation;  // Newly persistent in the Java 2 platform v.1.2
+    private DecimalFormatSymbols symbols;
 
     /**
      * The maximum number of digits allowed in the integer portion of a
@@ -1597,34 +1633,7 @@ public class DecimalFormat extends NumberFormat {
      */
     private RoundingMode roundingMode = RoundingMode.HALF_EVEN;
 
-    //----------------------------------------------------------------------
 
-    static final int currentSerialVersion = 4;
-
-    /**
-     * The internal serial version which says which version was written.
-     * Possible values are:
-     * <ul>
-     * <li><b>0</b> (default): versions before the Java 2 platform v1.2
-     * <li><b>1</b>: version for 1.2, which includes the two new fields
-     *      <code>useExponentialNotation</code> and
-     *      <code>minExponentDigits</code>.
-     * <li><b>2</b>: version for 1.3 and later, which adds four new fields:
-     *      <code>posPrefixPattern</code>, <code>posSuffixPattern</code>,
-     *      <code>negPrefixPattern</code>, and <code>negSuffixPattern</code>.
-     * <li><b>3</b>: version for 1.5 and later, which adds five new fields:
-     *      <code>maximumIntegerDigits</code>,
-     *      <code>minimumIntegerDigits</code>,
-     *      <code>maximumFractionDigits</code>,
-     *      <code>minimumFractionDigits</code>, and
-     *      <code>parseBigDecimal</code>.
-     * <li><b>4</b>: version for 1.6 and later, which adds one new field:
-     *      <code>roundingMode</code>.
-     * </ul>
-     * @since 1.2
-     * @serial
-     */
-    private int serialVersionOnStream = currentSerialVersion;
 
     //----------------------------------------------------------------------
     // CONSTANTS
