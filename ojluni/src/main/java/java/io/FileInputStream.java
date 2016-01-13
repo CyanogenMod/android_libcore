@@ -166,21 +166,18 @@ class FileInputStream extends InputStream
      * I/O on the stream, an <code>IOException</code> is thrown.
      *
      * @param      fdObj   the file descriptor to be opened for reading.
-     * @throws     SecurityException      if a security manager exists and its
-     *                 <code>checkRead</code> method denies read access to the
-     *                 file descriptor.
-     * @see        SecurityManager#checkRead(java.io.FileDescriptor)
      */
     public FileInputStream(FileDescriptor fdObj) {
-        SecurityManager security = System.getSecurityManager();
+        this(fdObj, false /* isFdOwner */);
+    }
+
+    /** @hide */
+    public FileInputStream(FileDescriptor fdObj, boolean isFdOwner) {
         if (fdObj == null) {
-            throw new NullPointerException();
-        }
-        if (security != null) {
-            security.checkRead(fdObj);
+            throw new NullPointerException("fdObj == null");
         }
         fd = fdObj;
-        isFdOwner = false;
+        this.isFdOwner = isFdOwner;
         path = null;
     }
 
