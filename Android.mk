@@ -34,17 +34,6 @@ include $(LOCAL_PATH)/JavaLibrary.mk
 
 include $(LOCAL_PATH)/NativeCode.mk
 
-include $(CLEAR_VARS)
-LOCAL_MODULE := currency.data-host
-LOCAL_MODULE_STEM := currency.data
-LOCAL_SRC_FILES := ojluni/currency.data
-LOCAL_MODULE_CLASS := ETC
-LOCAL_MODULE_TAGS := optional
-LOCAL_NOTICE_FILE := $(LOCAL_PATH)/ojluni/NOTICE
-LOCAL_MODULE_PATH := $(HOST_OUT)/usr/share
-include $(BUILD_PREBUILT)
-
-#
 # Disable test modules if LIBCORE_SKIP_TESTS environment variable is set.
 #
 
