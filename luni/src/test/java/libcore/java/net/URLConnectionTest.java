@@ -123,6 +123,69 @@ public final class URLConnectionTest extends AbstractResourceLeakageDetectorTest
         super.tearDown();
     }
 
+    public void testRequestHeaderValidation() throws Exception {
+        // Android became more strict after M about which characters were allowed in request header
+        // names and values: previously almost anything was allowed if it didn't contain \0.
+
+        assertForbiddenRequestHeaderName(null);
+        assertForbiddenRequestHeaderName("");
+        assertForbiddenRequestHeaderName("\n");
+        assertForbiddenRequestHeaderName("a\nb");
+        assertForbiddenRequestHeaderName("\u0000");
+        assertForbiddenRequestHeaderName("\r");
+        assertForbiddenRequestHeaderName("\t");
+        assertForbiddenRequestHeaderName("\u001f");
+        assertForbiddenRequestHeaderName("\u007f");
+        assertForbiddenRequestHeaderName("\u0080");
+        assertForbiddenRequestHeaderName("\ud83c\udf69");
+
+        assertEquals(null, setAndReturnRequestHeaderValue(null));
+        assertEquals("", setAndReturnRequestHeaderValue(""));
+        assertForbiddenRequestHeaderValue("\u0000");
+
+        assertForbiddenRequestHeaderValue("\r");
+        assertForbiddenRequestHeaderValue("\t");
+        assertForbiddenRequestHeaderValue("\u001f");
+        assertForbiddenRequestHeaderValue("\u007f");
+        assertForbiddenRequestHeaderValue("\u0080");
+        assertForbiddenRequestHeaderValue("\ud83c\udf69");
+
+        // Workaround for http://b/26422335: allow (but strip) trailing \n
+        assertEquals("", setAndReturnRequestHeaderValue("\n"));
+        assertEquals("a", setAndReturnRequestHeaderValue("a\n"));
+        assertForbiddenRequestHeaderValue("a\nb");
+        assertForbiddenRequestHeaderValue("\nb");
+    }
+
+    private static void assertForbiddenRequestHeaderName(String name) throws Exception {
+        URL url = new URL("http://www.google.com/");
+        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+        try {
+            urlConnection.addRequestProperty(name, "value");
+            fail("Expected exception");
+        } catch (IllegalArgumentException expected) {
+        } catch (NullPointerException expectedIfNull) {
+            assertTrue(name == null);
+        }
+    }
+
+    private static void assertForbiddenRequestHeaderValue(String value) throws Exception {
+        URL url = new URL("http://www.google.com/");
+        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+        try {
+            urlConnection.addRequestProperty("key", value);
+            fail("Expected exception");
+        } catch (IllegalArgumentException expected) {
+        }
+    }
+
+    private static String setAndReturnRequestHeaderValue(String value) throws Exception {
+        URL url = new URL("http://www.google.com/");
+        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+        urlConnection.addRequestProperty("key", value);
+        return urlConnection.getRequestProperty("key");
+    }
+
     public void testRequestHeaders() throws IOException, InterruptedException {
         server.enqueue(new MockResponse());
         server.play();
