@@ -16,6 +16,8 @@
 
 package java.math;
 
+import libcore.util.NativeAllocationRegistry;
+
 /*
  * In contrast to BigIntegers this class doesn't fake two's complement representation.
  * Any Bit-Operations, including Shifting, solely regard the unsigned magnitude.
@@ -23,19 +25,11 @@ package java.math;
  */
 final class BigInt {
 
+    private static NativeAllocationRegistry registry = new NativeAllocationRegistry(
+            NativeBN.getNativeFinalizer(), NativeBN.size());
+
     /* Fields used for the internal representation. */
     transient long bignum = 0;
-
-    @Override protected void finalize() throws Throwable {
-        try {
-            if (this.bignum != 0) {
-                NativeBN.BN_free(this.bignum);
-                this.bignum = 0;
-            }
-        } finally {
-            super.finalize();
-        }
-    }
 
     @Override
     public String toString() {
@@ -49,12 +43,14 @@ final class BigInt {
     private void makeValid() {
         if (this.bignum == 0) {
             this.bignum = NativeBN.BN_new();
+            registry.registerNativeAllocation(this, this.bignum);
         }
     }
 
     private static BigInt newBigInt() {
         BigInt bi = new BigInt();
         bi.bignum = NativeBN.BN_new();
+        registry.registerNativeAllocation(bi, bi.bignum);
         return bi;
     }
 

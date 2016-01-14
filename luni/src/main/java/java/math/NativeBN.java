@@ -127,4 +127,13 @@ final class NativeBN {
     public static native boolean BN_is_prime_ex(long p, int nchecks, long cb);
     // int BN_is_prime_ex(const BIGNUM *p, int nchecks, BN_CTX *ctx, BN_GENCB *cb);
 
+    public static native long getNativeFinalizer();
+    // &BN_free
+
+    /** Returns the expected size of the native allocation for a BIGNUM.
+     */
+    public static long size() {
+        // 36 bytes is an empirically determined approximation.
+        return 36;
+    }
 }

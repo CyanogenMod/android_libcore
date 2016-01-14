@@ -104,6 +104,10 @@ static jlong NativeBN_BN_new(JNIEnv* env, jclass) {
   return result;
 }
 
+static jlong NativeBN_getNativeFinalizer(JNIEnv*, jclass) {
+  return static_cast<jlong>(reinterpret_cast<uintptr_t>(&BN_free));
+}
+
 static void NativeBN_BN_free(JNIEnv* env, jclass, jlong a) {
   if (!oneValidHandle(env, a)) return;
   BN_free(toBigNum(a));
@@ -603,6 +607,7 @@ static JNINativeMethod gMethods[] = {
    NATIVE_METHOD(NativeBN, BN_sub, "(JJJ)V"),
    NATIVE_METHOD(NativeBN, bitLength, "(J)I"),
    NATIVE_METHOD(NativeBN, bn2litEndInts, "(J)[I"),
+   NATIVE_METHOD(NativeBN, getNativeFinalizer, "()J"),
    NATIVE_METHOD(NativeBN, litEndInts2bn, "([IIZJ)V"),
    NATIVE_METHOD(NativeBN, longInt, "(J)J"),
    NATIVE_METHOD(NativeBN, putLongInt, "(JJ)V"),
