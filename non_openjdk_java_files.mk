@@ -398,6 +398,7 @@ non_openjdk_java_files := \
   luni/src/main/java/libcore/util/BasicLruCache.java \
   luni/src/main/java/libcore/util/CollectionUtils.java \
   luni/src/main/java/libcore/util/EmptyArray.java \
+  luni/src/main/java/libcore/util/NativeAllocationRegistry.java \
   luni/src/main/java/libcore/util/Objects.java \
   luni/src/main/java/libcore/util/RecoverySystem.java \
   luni/src/main/java/libcore/util/SneakyThrow.java \
