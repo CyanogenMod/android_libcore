@@ -90,18 +90,10 @@ public final class Security {
      * is not found.
      */
     private static void initializeStatic() {
-        /* ----- BEGIN android -----
-        props.put("security.provider.1", "sun.security.provider.Sun");
-        props.put("security.provider.2", "sun.security.rsa.SunRsaSign");
-        props.put("security.provider.3", "com.sun.net.ssl.internal.ssl.Provider");
-        props.put("security.provider.4", "com.sun.crypto.provider.SunJCE");
-        props.put("security.provider.5", "sun.security.jgss.SunProvider");
-        props.put("security.provider.6", "com.sun.security.sasl.Provider"); */
         props.put("security.provider.1", "com.android.org.conscrypt.OpenSSLProvider");
         props.put("security.provider.2", "sun.security.provider.Sun");
         props.put("security.provider.3", "com.android.org.bouncycastle.jce.provider.BouncyCastleProvider");
         props.put("security.provider.4", "com.android.org.conscrypt.JSSEProvider");
-        // ----- END android -----
     }
 
     /**
