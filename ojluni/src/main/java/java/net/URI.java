@@ -2087,13 +2087,25 @@ public final class URI
             ru.userInfo = base.userInfo;
             ru.port = base.port;
 
-            String cp = (child.path == null) ? "" : child.path;
-            if ((cp.length() > 0) && (cp.charAt(0) == '/')) {
+            if (child.path == null || child.path.isEmpty()) {
+                // This is an addtional path from RFC 3986 RI, which fixes following RFC 2396
+                // "normal" examples:
+                // Base: http://a/b/c/d;p?q
+                //   "?y" = "http://a/b/c/d;p?y"
+                //   ""   = "http://a/b/c/d;p?q"
+                // http://b/25897693
+                ru.path = base.path;
+                ru.query = child.query != null ? child.query : base.query;
+            } else if ((child.path.length() > 0) && (child.path.charAt(0) == '/')) {
                 // 5.2 (5): Child path is absolute
-                ru.path = child.path;
+                //
+                // There is an additional step from RFC 3986 RI, requiring to remove dots for
+                // absolute path as well.
+                // http://b/25897693
+                ru.path = normalize(child.path);
             } else {
                 // 5.2 (6): Resolve relative path
-                ru.path = resolvePath(base.path, cp, base.isAbsolute());
+                ru.path = resolvePath(base.path, child.path, base.isAbsolute());
             }
         } else {
             ru.authority = child.authority;
@@ -2377,8 +2389,7 @@ public final class URI
                 segs[i] = -1;
             } else {
                 // If there is a preceding non-".." segment, remove both that
-                // segment and this occurrence of ".."; otherwise, leave this
-                // ".." segment as-is.
+                // segment and this occurrence of ".."
                 int j;
                 for (j = i - 1; j >= 0; j--) {
                     if (segs[j] != -1) break;
@@ -2391,6 +2402,11 @@ public final class URI
                         segs[i] = -1;
                         segs[j] = -1;
                     }
+                } else {
+                    // This is a leading ".." segment. Per RFC 3986 RI, this should be removed as
+                    // well. This fixes RFC 2396 "abnormal" examples.
+                    // http://b/25897693
+                    segs[i] = -1;
                 }
             }
         }
