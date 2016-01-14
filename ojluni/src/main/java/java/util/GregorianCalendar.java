@@ -2723,26 +2723,10 @@ public class GregorianCalendar extends Calendar {
         // We use the TimeZone object, unless the user has explicitly set the ZONE_OFFSET
         // or DST_OFFSET fields; then we use those fields.
         TimeZone zone = getZone();
-        if (zoneOffsets == null) {
-            zoneOffsets = new int[2];
-        }
-        int tzMask = fieldMask & (ZONE_OFFSET_MASK|DST_OFFSET_MASK);
-        if (tzMask != (ZONE_OFFSET_MASK|DST_OFFSET_MASK)) {
-            int gmtOffset = isFieldSet(fieldMask, ZONE_OFFSET) ?
-                                internalGet(ZONE_OFFSET) : zone.getRawOffset();
-            zone.getOffsets(millis - gmtOffset, zoneOffsets);
-        }
-        if (tzMask != 0) {
-            if (isFieldSet(tzMask, ZONE_OFFSET)) {
-                zoneOffsets[0] = internalGet(ZONE_OFFSET);
-            }
-            if (isFieldSet(tzMask, DST_OFFSET)) {
-                zoneOffsets[1] = internalGet(DST_OFFSET);
-            }
-        }
 
-        // Adjust the time zone offset values to get the UTC time.
-        millis -= zoneOffsets[0] + zoneOffsets[1];
+        int tzMask = fieldMask & (ZONE_OFFSET_MASK|DST_OFFSET_MASK);
+
+        millis = adjustForZoneAndDaylightSavingsTime(fieldMask, tzMask, millis, zone);
 
         // Set this calendar's time in milliseconds
         time = millis;
@@ -2763,6 +2747,171 @@ public class GregorianCalendar extends Calendar {
             }
         }
         setFieldsNormalized(mask);
+    }
+
+    /**
+     * Calculates the time in milliseconds that this calendar represents using the UTC time,
+     * timezone information (specifically Daylight Savings Time (DST) rules, if any) and knowledge
+     * of what fields were explicitly set on the calendar.
+     *
+     * <p>A time is represented as the number of milliseconds since
+     * <i>1st January 1970 00:00:00.000 UTC</i>.
+     *
+     * <p>This uses the terms {@link SimpleTimeZone#STANDARD_TIME standard time},
+     * {@link SimpleTimeZone#WALL_TIME} wall time} and {@link SimpleTimeZone#UTC_TIME UTC time} as
+     * used in {@link SimpleTimeZone}. Specifically:
+     *
+     * <dl>
+     * <dt><b>UTC time</b></dt>
+     * <dd>This is the time within the UTC time zone. UTC does not support DST so the UTC time,
+     * standard time and wall time are all identical within the UTC time zone.</dd>
+     * <dt><b>standard time</b></dt>
+     * <dd>This is the local time within the time zone and is not affected by DST.</dd>
+     * <dt><b>wall time</b></dt>
+     * <dd>This is the local time within the time zone as shown on a wall clock. If the time zone
+     * supports DST then it will be the same as <b>standard time</b> when outside DST and it will
+     * differ (usually be an hour later) when inside DST. This is what the fields on the Calendar
+     * represent.</dd>
+     * </dl>
+     *
+     * <p>The {@code utcTimeInMillis} value supplied was calculated as if the fields represented
+     * a standard time in the {@code UTC} time zone. It is the value that would be returned by
+     * {@link #getTimeInMillis()} when called on this calendar if it was in UTC time zone. e.g. If
+     * the calendar was set to say <i>2014 March 19th 13:27.53 -08:00</i> then the value of
+     * {@code utcTimeInMillis} would be the value of {@link #getTimeInMillis()} when called on a
+     * calendar set to <i>2014 March 19th 13:27.53 -00:00</i>, note the time zone offset is set to
+     * 0.
+     *
+     * <p>To adjust from a UTC time in millis to the standard time in millis we must
+     * <em>subtract</em> the offset from UTC. e.g. given an offset of UTC-08:00, to convert
+     * "14:00 UTC" to "14:00 UTC-08:00" we must subtract -08:00 (i.e. add 8 hours). Another way to
+     * think about it is that 8 hours has to elapse after 14:00 UTC before it is 14:00 UTC-08:00.
+     *
+     * <p>As the zone offset can depend on the time and we cannot calculate the time properly until
+     * we know the time there is a bit of a catch-22. So, what this does is use the
+     * {@link TimeZone#getRawOffset() raw offset} to calculate a ballpark standard time and then
+     * uses that value to retrieve the appropriate zone and DST offsets from the time zone. They
+     * are then used to make the final wall time calculation.
+     *
+     * <p>The DST offset will need clearing if the standard time is not a valid wall clock. See
+     * {@link #adjustDstOffsetForInvalidWallClock(long, TimeZone, int)} for more information.
+     *
+     * @param fieldMask the set of fields that should be used to calculate the time.
+     * @param tzMask the set of time zone related fields, i.e. {@link #ZONE_OFFSET_MASK} and
+     * {@link #DST_OFFSET_MASK}
+     * @param utcTimeInMillis the time in millis, calculated assuming the time zone was GMT.
+     * @param zone the actual time zone.
+     * @return the UTC time in millis after adjusting for zone and DST offset.
+     */
+    private long adjustForZoneAndDaylightSavingsTime(
+            int fieldMask, int tzMask, long utcTimeInMillis, TimeZone zone) {
+
+        // The following don't actually need to be initialized because they are always set before
+        // they are used but the compiler cannot detect that.
+        int zoneOffset = 0;
+        int dstOffset = 0;
+
+        // If either of the ZONE_OFFSET or DST_OFFSET fields are not set then get the information
+        // from the TimeZone.
+        if (tzMask != (ZONE_OFFSET_MASK|DST_OFFSET_MASK)) {
+            if (zoneOffsets == null) {
+                zoneOffsets = new int[2];
+            }
+            int gmtOffset = isFieldSet(fieldMask, ZONE_OFFSET) ?
+                                internalGet(ZONE_OFFSET) : zone.getRawOffset();
+
+            // Calculate the standard time (no DST) in the supplied zone. This is a ballpark figure
+            // and not used in the final calculation as the offset used here may not be the same as
+            // the actual offset the time zone requires be used for this time. This is to handle
+            // situations like Honolulu, where its raw offset changed from GMT-10:30 to GMT-10:00
+            // in 1947. The TimeZone always uses a raw offset of -10:00 but will return -10:30
+            // for dates before the change over.
+            long standardTimeInZone = utcTimeInMillis - gmtOffset;
+
+            // Retrieve the correct zone and DST offsets from the time zone.
+            zone.getOffsets(standardTimeInZone, zoneOffsets);
+            zoneOffset = zoneOffsets[0];
+            dstOffset = zoneOffsets[1];
+
+            // If necessary adjust the DST offset to handle an invalid wall clock sensibly.
+            dstOffset = adjustDstOffsetForInvalidWallClock(standardTimeInZone, zone, dstOffset);
+        }
+
+        // If either ZONE_OFFSET of DST_OFFSET fields are set then get the information from the
+        // fields, potentially overriding information from the TimeZone.
+        if (tzMask != 0) {
+            if (isFieldSet(tzMask, ZONE_OFFSET)) {
+                zoneOffset = internalGet(ZONE_OFFSET);
+            }
+            if (isFieldSet(tzMask, DST_OFFSET)) {
+                dstOffset = internalGet(DST_OFFSET);
+            }
+        }
+
+        // Adjust the time zone offset values to get the UTC time.
+        long standardTimeInZone = utcTimeInMillis - zoneOffset;
+        return standardTimeInZone - dstOffset;
+    }
+
+    /**
+     * If the supplied millis is in daylight savings time (DST) and is the result of an invalid
+     * wall clock then adjust the DST offset to ensure sensible behavior.
+     *
+     * <p>When transitioning into DST, i.e. when the clocks spring forward (usually by one hour)
+     * there is a wall clock period that is invalid, it literally doesn't exist. e.g. If clocks
+     * go forward one hour at 02:00 on 9th March 2014 (standard time) then the wall time of
+     * 02:00-02:59:59.999 is not a valid. The wall clock jumps straight from 01:59:59.999 to
+     * 03:00. The following table shows the relationship between the time in millis, the standard
+     * time and the wall time at the point of transitioning into DST. As can be seen there is no
+     * 02:00 in the wall time.
+     *
+     * <pre>
+     * Time In Millis - ......  x+1h .....  x+2h .....  x+3h
+     * Standard Time  - ...... 01:00 ..... 02:00 ..... 03:00 .....
+     * Wall Time      - ...... 01:00 ..... 03:00 ..... 04:00 .....
+     *                                       ^
+     *                                 02:00 missing
+     * </pre>
+     *
+     * <p>The calendar fields represent wall time. If the user sets the fields on the calendar so
+     * that it is in that invalid period then this code attempts to do something sensible. It
+     * treats 02:MM:SS.SSS as if it is {@code 01:MM:SS.SSS + 1 hour}. That makes sense from both
+     * the input calendar fields perspective and from the time in millis perspective. Of course the
+     * result of that is that when the time is formatted in that time zone that the time is
+     * actually 03:MM:SS.SSS.
+     *
+     * <pre>
+     * Wall Time      - ...... 01:00 ..... <b>02:00 .....</b> 03:00 ..... 04:00 .....
+     * Time In Millis - ......  x+1h ..... <b> x+2h .....</b>  x+2h .....  x+3h .....
+     * </pre>
+     *
+     * <p>The way that works is as follows. First the standard time is calculated and the DST
+     * offset is determined. Then if the time is in DST (the DST offset is not 0) but it was not in
+     * DST an hour earlier (or however long the DST offset is) then it must be in that invalid
+     * period, in which case set the DST offset to 0. That is then subtracted from the time in
+     * millis to produce the correct result. The following diagram illustrates the process.
+     *
+     * <pre>
+     * Standard Time  - ...... 01:00 ..... 02:00 ..... 03:00 ..... 04:00 .....
+     * Time In Millis - ......  x+1h .....  x+2h .....  x+3h .....  x+4h .....
+     * DST Offset     - ......    0h .....    1h .....    1h .....    1h .....
+     * Adjusted DST   - ......    0h .....    <b>0h</b> .....    1h .....    1h .....
+     * Adjusted Time  - ......  x+1h .....  x+2h .....  <b>x+2h</b> .....  <b>x+3h</b> .....
+     * </pre>
+     *
+     * @return the adjusted DST offset.
+     */
+    private int adjustDstOffsetForInvalidWallClock(
+            long standardTimeInZone, TimeZone zone, int dstOffset) {
+
+        if (dstOffset != 0) {
+            // If applying the DST offset produces a time that is outside DST then it must be
+            // an invalid wall clock so clear the DST offset to avoid that happening.
+            if (!zone.inDaylightTime(new Date(standardTimeInZone - dstOffset))) {
+                dstOffset = 0;
+            }
+        }
+        return dstOffset;
     }
 
     /**
