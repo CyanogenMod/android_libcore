@@ -151,6 +151,9 @@ public class XMLFormatter extends Formatter {
             escape(sb, message);
             sb.append("</message>");
             sb.append("\n");
+        } else {
+            sb.append("<message/>");
+            sb.append("\n");
         }
 
         // If the message is being localized, output the key, resource
