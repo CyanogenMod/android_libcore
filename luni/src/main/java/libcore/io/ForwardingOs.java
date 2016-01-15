@@ -144,7 +144,7 @@ public class ForwardingOs implements Os {
     public void setgid(int gid) throws ErrnoException { os.setgid(gid); }
     public void setpgid(int pid, int pgid) throws ErrnoException { os.setpgid(pid, pgid); }
     public void setregid(int rgid, int egid) throws ErrnoException { os.setregid(rgid, egid); }
-    public void setreuid(int ruid, int euid) throws ErrnoException { os.setregid(ruid, euid); }
+    public void setreuid(int ruid, int euid) throws ErrnoException { os.setreuid(ruid, euid); }
     public int setsid() throws ErrnoException { return os.setsid(); }
     public void setsockoptByte(FileDescriptor fd, int level, int option, int value) throws ErrnoException { os.setsockoptByte(fd, level, option, value); }
     public void setsockoptIfreq(FileDescriptor fd, int level, int option, String value) throws ErrnoException { os.setsockoptIfreq(fd, level, option, value); }
