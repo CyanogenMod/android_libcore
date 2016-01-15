@@ -53,6 +53,8 @@ import sun.net.www.ParseUtil;
 import sun.reflect.CallerSensitive;
 import dalvik.system.VMStack;
 
+import libcore.reflect.AnnotatedElements;
+
 /**
  * {@code Package} objects contain version information
  * about the implementation and specification of a Java package.
@@ -412,6 +414,35 @@ public class Package implements java.lang.reflect.AnnotatedElement {
         return getPackageInfo().getDeclaredAnnotations();
     }
 
+    /**
+     * {@inheritDoc}
+     * @since 1.8
+     * @hide 1.8
+     */
+    @Override
+    public <T extends Annotation> T[] getDeclaredAnnotationsByType(Class<T> annotationClass) {
+      return AnnotatedElements.getDeclaredAnnotationsByType(this, annotationClass);
+    }
+
+    /**
+     * {@inheritDoc}
+     * @since 1.8
+     * @hide 1.8
+     */
+    @Override
+    public <T extends Annotation> T[] getAnnotationsByType(Class<T> annotationClass) {
+      return AnnotatedElements.getAnnotationsByType(this, annotationClass);
+    }
+
+    /**
+     * {@inheritDoc}
+     * @since 1.8
+     * @hide 1.8
+     */
+    @Override
+    public <T extends Annotation> Annotation getDeclaredAnnotation(Class<T> annotationClass) {
+      return AnnotatedElements.getDeclaredAnnotation(this, annotationClass);
+    }
     /**
      * Construct a package instance with the specified version
      * information.
