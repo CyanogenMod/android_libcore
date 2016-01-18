@@ -511,9 +511,14 @@ public class LogRecord implements java.io.Serializable {
             try {
                 resourceBundle = ResourceBundle.getBundle(resourceBundleName);
             } catch (MissingResourceException ex) {
-                // This is not a good place to throw an exception,
-                // so we simply leave the resourceBundle null.
-                resourceBundle = null;
+                try {
+                    resourceBundle = ResourceBundle.getBundle(resourceBundleName, Locale.getDefault(),
+                            Thread.currentThread().getContextClassLoader());
+                } catch (MissingResourceException innerE){
+                    // This is not a good place to throw an exception,
+                    // so we simply leave the resourceBundle null.
+                    resourceBundle = null;
+                }
             }
         }
 
