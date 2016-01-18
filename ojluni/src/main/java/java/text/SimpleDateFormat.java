@@ -1715,12 +1715,12 @@ public class SimpleDateFormat extends DateFormat {
      * @param start the character position to start parsing
      * @param sign  1: positive; -1: negative
      * @param count 0: 'Z' or "GMT+hh:mm" parsing; 1 - 3: the number of 'X's
-     * @param colon true - colon required between hh and mm; false - no colon required
+     * @param colonRequired true - colon required between hh and mm; false - no colon required
      * @param calb  a CalendarBuilder in which the parsed value is stored
      * @return updated parsed position, or its negative value to indicate a parsing error
      */
     private int subParseNumericZone(String text, int start, int sign, int count,
-                                    boolean colon, CalendarBuilder calb) {
+                                    boolean colonRequired, CalendarBuilder calb) {
         int index = start;
 
       parse:
@@ -1736,11 +1736,6 @@ public class SimpleDateFormat extends DateFormat {
             if (isDigit(c)) {
                 hours = hours * 10 + (c - '0');
             } else {
-                // If no colon in RFC 822 or 'X' (ISO), two digits are
-                // required.
-                if (count > 0 || !colon) {
-                    break parse;
-                }
                 --index;
             }
             if (hours > 23) {
@@ -1750,11 +1745,10 @@ public class SimpleDateFormat extends DateFormat {
             if (count != 1) {
                 // Proceed with parsing mm
                 c = text.charAt(index++);
-                if (colon) {
-                    if (c != ':') {
-                        break parse;
-                    }
+                if (c == ':') {
                     c = text.charAt(index++);
+                } else if (colonRequired) {
+                    break parse;
                 }
                 if (!isDigit(c)) {
                     break parse;
@@ -2041,9 +2035,9 @@ public class SimpleDateFormat extends DateFormat {
                                     return pos.index;
                                 }
 
-                                // Parse the rest as "hh:mm"
-                                int i = subParseNumericZone(text, ++pos.index,
-                                                            sign, 0, true, calb);
+                                // Parse the rest as "hh[:]?mm"
+                                int i = subParseNumericZone(text, ++pos.index, sign, 0,
+                                        false, calb);
                                 if (i > 0) {
                                     return i;
                                 }
@@ -2058,9 +2052,9 @@ public class SimpleDateFormat extends DateFormat {
                                 pos.index = -i;
                             }
                         } else {
-                            // Parse the rest as "hhmm" (RFC 822)
-                            int i = subParseNumericZone(text, ++pos.index,
-                                                        sign, 0, (count == 5), calb);
+                            // Parse the rest as "hh[:]?mm" (RFC 822)
+                            int i = subParseNumericZone(text, ++pos.index, sign, 0,
+                                    false, calb);
                             if (i > 0) {
                                 return i;
                             }
@@ -2093,8 +2087,7 @@ public class SimpleDateFormat extends DateFormat {
                         ++pos.index;
                         break parsing;
                     }
-                    int i = subParseNumericZone(text, ++pos.index, sign, count,
-                                                count == 3, calb);
+                    int i = subParseNumericZone(text, ++pos.index, sign, count, (count == 3), calb);
                     if (i > 0) {
                         return i;
                     }
