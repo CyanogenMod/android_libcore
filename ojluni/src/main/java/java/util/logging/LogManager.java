@@ -176,13 +176,7 @@ public class LogManager {
                     try {
                         cname = System.getProperty("java.util.logging.manager");
                         if (cname != null) {
-                            try {
-                                Class clz = ClassLoader.getSystemClassLoader().loadClass(cname);
-                                manager = (LogManager) clz.newInstance();
-                            } catch (ClassNotFoundException ex) {
-                                Class clz = Thread.currentThread().getContextClassLoader().loadClass(cname);
-                                manager = (LogManager) clz.newInstance();
-                            }
+                                manager = (LogManager) getClassInstance(cname).newInstance();
                         }
                     } catch (Exception ex) {
                         System.err.println("Could not load Logmanager \"" + cname + "\"");
@@ -435,6 +429,22 @@ public class LogManager {
             });
         }
         return sysLogger;
+    }
+
+    private static Class getClassInstance(String cname) {
+        Class clz = null;
+        if (cname != null) {
+            try {
+                clz = ClassLoader.getSystemClassLoader().loadClass(cname);
+            } catch (ClassNotFoundException ex) {
+                try {
+                    clz = Thread.currentThread().getContextClassLoader().loadClass(cname);
+                } catch (ClassNotFoundException innerEx) {
+                    clz = null;
+                }
+            }
+        }
+        return clz;
     }
 
     // LoggerContext maintains the logger namespace per context.
@@ -750,7 +760,7 @@ public class LogManager {
                 for (int i = 0; i < names.length; i++) {
                     String word = names[i];
                     try {
-                        Class clz = ClassLoader.getSystemClassLoader().loadClass(word);
+                        Class clz = getClassInstance(word);
                         Handler hdl = (Handler) clz.newInstance();
                         // Check if there is a property defining the
                         // this handler's level.
@@ -1026,15 +1036,8 @@ public class LogManager {
                 // Instantiate the named class.  It is its constructor's
                 // responsibility to initialize the logging configuration, by
                 // calling readConfiguration(InputStream) with a suitable stream.
-                try {
-                    Class clz = ClassLoader.getSystemClassLoader().loadClass(cname);
-                    clz.newInstance();
-                    return;
-                } catch (ClassNotFoundException ex) {
-                    Class clz = Thread.currentThread().getContextClassLoader().loadClass(cname);
-                    clz.newInstance();
-                    return;
-                }
+                getClassInstance(cname).newInstance();
+                return;
             } catch (Exception ex) {
                 System.err.println("Logging configuration class \"" + cname + "\" failed");
                 System.err.println("" + ex);
@@ -1184,8 +1187,7 @@ public class LogManager {
         for (int i = 0; i < names.length; i++) {
             String word = names[i];
             try {
-                Class clz = ClassLoader.getSystemClassLoader().loadClass(word);
-                clz.newInstance();
+                getClassInstance(word).newInstance();
             } catch (Exception ex) {
                 System.err.println("Can't load config class \"" + word + "\"");
                 System.err.println("" + ex);
@@ -1279,19 +1281,12 @@ public class LogManager {
         String val = getProperty(name);
         try {
             if (val != null) {
-                Class clz = ClassLoader.getSystemClassLoader().loadClass(val);
-                return (Filter) clz.newInstance();
+                return (Filter) getClassInstance(val).newInstance();
             }
         } catch (Exception ex) {
-            try {
-              Class<?> clz =
-                  Thread.currentThread().getContextClassLoader().loadClass(val);
-              return (Filter) clz.newInstance();
-            } catch (Exception innerE) {
-                // We got one of a variety of exceptions in creating the
-                // class or creating an instance.
-                // Drop through.
-            }
+            // We got one of a variety of exceptions in creating the
+            // class or creating an instance.
+            // Drop through.
         }
         // We got an exception.  Return the defaultValue.
         return defaultValue;
@@ -1306,19 +1301,12 @@ public class LogManager {
         String val = getProperty(name);
         try {
             if (val != null) {
-                Class clz = ClassLoader.getSystemClassLoader().loadClass(val);
-                return (Formatter) clz.newInstance();
+                return (Formatter) getClassInstance(val).newInstance();
             }
         } catch (Exception ex) {
-            try {
-              Class<?> clz =
-                  Thread.currentThread().getContextClassLoader().loadClass(val);
-              return (Formatter) clz.newInstance();
-            } catch (Exception innerE) {
-                // We got one of a variety of exceptions in creating the
-                // class or creating an instance.
-                // Drop through.
-            }
+            // We got one of a variety of exceptions in creating the
+            // class or creating an instance.
+            // Drop through.
         }
         // We got an exception.  Return the defaultValue.
         return defaultValue;
