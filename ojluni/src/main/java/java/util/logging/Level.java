@@ -27,8 +27,12 @@ package java.util.logging;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+
+import dalvik.system.VMStack;
 
 /**
  * The Level class defines a set of standard logging levels that
@@ -82,6 +86,8 @@ public class Level implements java.io.Serializable {
 
     // localized level name
     private String localizedLevelName;
+
+    private transient  ResourceBundle rb;
 
     /**
      * OFF is a special level that can be used to turn off logging.
@@ -208,6 +214,18 @@ public class Level implements java.io.Serializable {
         this.name = name;
         this.value = value;
         this.resourceBundleName = resourceBundleName;
+        if (resourceBundleName != null) {
+            try {
+                ClassLoader cl = VMStack.getCallingClassLoader();
+                if (cl != null) {
+                    rb = ResourceBundle.getBundle(resourceBundleName, Locale.getDefault(), cl);
+                } else {
+                    rb = ResourceBundle.getBundle(resourceBundleName);
+                }
+            } catch (MissingResourceException ex) {
+                rb = null;
+            }
+        }
         this.localizedLevelName = resourceBundleName == null ? name : null;
         KnownLevel.add(this);
     }
@@ -256,7 +274,6 @@ public class Level implements java.io.Serializable {
         }
 
         try {
-            ResourceBundle rb = ResourceBundle.getBundle(resourceBundleName);
             localizedLevelName = rb.getString(name);
         } catch (Exception ex) {
             localizedLevelName = name;
