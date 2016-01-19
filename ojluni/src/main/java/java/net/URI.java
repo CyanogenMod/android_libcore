@@ -3408,7 +3408,7 @@ public final class URI
                 // this prior to N and the behavior is used by some apps. They're accepted for
                 // compatibility but we produce a warning in the log.
                 // http://b/25991669
-                if (charAt(p) == '.') {
+                if (p < n && charAt(p) == '.') {
                   java.lang.System.logE("URI " + substring(start, n) +  " has empty labels in " +
                                         "the hostname. This is malformed and will not be accepted" +
                                         "in future Android releases.");
