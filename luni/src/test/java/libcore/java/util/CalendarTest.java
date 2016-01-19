@@ -243,15 +243,28 @@ public class CalendarTest extends junit.framework.TestCase {
     // http://b/16938922.
     //
     // TODO: This is for backwards compatibility only. Seems like a better idea to throw
-    // here. We should add a targetSdkVersion based check and throw for each of these
-    // cases.
-    public void test_nullLocale() {
+    // here. We should add a targetSdkVersion based check and throw for this case.
+    public void test_nullLocale_getInstance_Locale() {
         assertCalendarConfigEquals(
                 Calendar.getInstance(Locale.getDefault()),
                 Calendar.getInstance((Locale) null));
+    }
+
+    // http://b/16938922.
+    //
+    // TODO: This is for backwards compatibility only. Seems like a better idea to throw
+    // here. We should add a targetSdkVersion based check and throw for this case.
+    public void test_nullLocale_getInstance_TimeZone_Locale() {
         assertCalendarConfigEquals(
                 Calendar.getInstance(TimeZone.getDefault(), Locale.getDefault()),
                 Calendar.getInstance(TimeZone.getDefault(), null));
+    }
+
+    // http://b/16938922.
+    //
+    // TODO: This is for backwards compatibility only. Seems like a better idea to throw
+    // here. We should add a targetSdkVersion based check and throw for this case.
+    public void test_nullLocale_GregorianCalendar_Locale() {
         assertCalendarConfigEquals(
                 new GregorianCalendar(Locale.getDefault()),
                 new GregorianCalendar((Locale) null));
