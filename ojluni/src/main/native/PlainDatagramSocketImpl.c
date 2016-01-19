@@ -77,10 +77,6 @@ static jfieldID pdsi_connected;
 static jfieldID pdsi_connectedAddress;
 static jfieldID pdsi_connectedPort;
 
-#ifdef __linux__
-static jboolean isOldKernel;
-#endif
-
 #if defined(__linux__) && defined(AF_INET6)
 static jfieldID pdsi_multicastInterfaceID;
 static jfieldID pdsi_loopbackID;
@@ -179,29 +175,6 @@ PlainDatagramSocketImpl_init(JNIEnv *env, jclass cls) {
     NetworkInterface_init(env, 0);
 
 #ifdef __linux__
-    /*
-     * We need to determine if this is a 2.2 kernel.
-     */
-    if (uname(&sysinfo) == 0) {
-        sysinfo.release[3] = '\0';
-        isOldKernel = (strcmp(sysinfo.release, "2.2") == 0);
-    } else {
-        /*
-         * uname failed - move to plan B and examine /proc/version
-         * If this fails assume that /proc has changed and that
-         * this must be new /proc format and hence new kernel.
-         */
-        FILE *fP;
-        isOldKernel = JNI_FALSE;
-        if ((fP = fopen("/proc/version", "r")) != NULL) {
-            char ver[25];
-            if (fgets(ver, sizeof(ver), fP) != NULL) {
-                isOldKernel = (strstr(ver, "2.2.") != NULL);
-            }
-            fclose(fP);
-        }
-    }
-
 #ifdef AF_INET6
     pdsi_multicastInterfaceID = (*env)->GetFieldID(env, cls, "multicastInterface", "I");
     CHECK_NULL(pdsi_multicastInterfaceID);
@@ -312,12 +285,6 @@ PlainDatagramSocketImpl_connect0(JNIEnv *env, jobject this,
       return;
     }
 
-#ifdef __linux__
-    if (isOldKernel) {
-        int t = 0;
-        setsockopt(fd, SOL_SOCKET, SO_BSDCOMPAT, (char*) &t, sizeof(int));
-    } else
-#endif
     setDefaultScopeID(env, (struct sockaddr *)&rmtaddr);
     {
         if (JVM_Connect(fd, (struct sockaddr *)&rmtaddr, len) == -1) {
@@ -351,12 +318,6 @@ PlainDatagramSocketImpl_disconnect0(JNIEnv *env, jobject this, jint family) {
     fd = (*env)->GetIntField(env, fdObj, IO_fd_fdID);
 
 #if defined(__linux__) || defined(_ALLBSD_SOURCE)
-#ifdef __linux__
-    if (isOldKernel) {
-        int t = 1;
-        setsockopt(fd, SOL_SOCKET, SO_BSDCOMPAT, (char*) &t, sizeof(int));
-    } else {
-#endif /* __linux__ */
         memset(&addr, 0, sizeof(addr));
 #ifdef AF_INET6
         if (ipv6_available()) {
@@ -394,7 +355,6 @@ PlainDatagramSocketImpl_disconnect0(JNIEnv *env, jobject this, jint family) {
             }
             NET_Bind(fd, (struct sockaddr *)&addr, len);
         }
-    }
 #endif
 #else
     JVM_Connect(fd, 0, 0);
@@ -452,11 +412,7 @@ PlainDatagramSocketImpl_send(JNIEnv *env, jobject this,
     packetBufferOffset = (*env)->GetIntField(env, packet, dp_offsetID);
     packetBufferLen = (*env)->GetIntField(env, packet, dp_lengthID);
 
-#ifdef __linux__
-    if (connected && !isOldKernel) {
-#else
     if (connected) {
-#endif
         /* arg to NET_Sendto () null in this case */
         len = 0;
         rmtaddrP = 0;
@@ -886,23 +842,6 @@ PlainDatagramSocketImpl_receive0(JNIEnv *env, jobject this,
         fullPacket = &(BUF[0]);
     }
 
-#ifdef __linux__
-    /*
-     * On Linux with the 2.2 kernel we simulate connected datagrams by
-     * discarding packets
-     */
-    if (isOldKernel) {
-        connected = (*env)->GetBooleanField(env, this, pdsi_connected);
-        if (connected) {
-            connectedAddress = (*env)->GetObjectField(env, this, pdsi_connectedAddress);
-            connectedPort = (*env)->GetIntField(env, this, pdsi_connectedPort);
-
-            if (timeout) {
-                prevTime = JVM_CurrentTimeMillis(env, 0);
-            }
-        }
-    }
-#endif
 
     do {
         retry = JNI_FALSE;
@@ -979,40 +918,6 @@ PlainDatagramSocketImpl_receive0(JNIEnv *env, jobject this,
              * on Linux with 2.2 kernel we have to simulate this behaviour by
              * discarding any datagrams that aren't from the connected address.
              */
-#ifdef __linux__
-            if (isOldKernel && connected) {
-
-                if (NET_GetPortFromSockaddr((struct sockaddr *)&remote_addr) != connectedPort ||
-                    !NET_SockaddrEqualsInetAddress(env, (struct sockaddr *)&remote_addr, connectedAddress)) {
-
-                    /*
-                     * Discard the datagram as it's not from the connected
-                     * address
-                     */
-                    retry = JNI_TRUE;
-
-                    /*
-                     * Adjust timeout if necessary to ensure that we adhere to
-                     * timeout semantics.
-                     */
-                    if (timeout) {
-                        jlong newTime = JVM_CurrentTimeMillis(env, 0);
-                        timeout -= (newTime - prevTime);
-                        if (timeout <= 0) {
-                            JNU_ThrowByName(env, JNU_JAVANETPKG "SocketTimeoutException",
-                                    "Receive timed out");
-                            if (mallocedPacket) {
-                                free(fullPacket);
-                            }
-                            return;
-                        }
-                        prevTime = newTime;
-                    }
-
-                    continue;
-                }
-            }
-#endif
 
             /*
              * success - fill in received address...
@@ -1116,10 +1021,6 @@ PlainDatagramSocketImpl_datagramSocketCreate(JNIEnv *env,
      setsockopt(fd, SOL_SOCKET, SO_BROADCAST, (char*) &t, sizeof(int));
 
 #ifdef __linux__
-    if (isOldKernel) {
-        setsockopt(fd, SOL_SOCKET, SO_BSDCOMPAT, (char*) &t, sizeof(int));
-    }
-
 #ifdef AF_INET6
     /*
      * On Linux for IPv6 sockets we must set the hop limit
@@ -1129,10 +1030,6 @@ PlainDatagramSocketImpl_datagramSocketCreate(JNIEnv *env,
         int ttl = 1;
         setsockopt(fd, IPPROTO_IPV6, IPV6_MULTICAST_HOPS, (char *)&ttl,
                    sizeof(ttl));
-
-        if (isOldKernel) {
-            (*env)->SetIntField(env, this, pdsi_ttlID, ttl);
-        }
     }
 #endif
 
@@ -1255,16 +1152,6 @@ static void mcast_set_if_by_if_v6(JNIEnv *env, jobject this, int fd, jobject val
         return;
     }
 
-#ifdef __linux__
-    /*
-     * Linux 2.2 kernel doesn't support IPV6_MULTICAST_IF socket
-     * option so record index for later retrival.
-     */
-    if (isOldKernel) {
-        (*env)->SetIntField(env, this, pdsi_multicastInterfaceID,
-                            (jint)index);
-    }
-#endif
 }
 #endif /* AF_INET6 */
 
@@ -1446,15 +1333,6 @@ static void mcast_set_loop_v6(JNIEnv *env, jobject this, int fd, jobject value) 
         return;
     }
 
-#ifdef __linux__
-    /*
-     * Can't query IPV6_MULTICAST_LOOP on Linux 2.2 kernel so
-     * store it in impl so that we can simulate getsockopt.
-     */
-    if (isOldKernel) {
-        (*env)->SetBooleanField(env, this, pdsi_loopbackID, on);
-    }
-#endif
 }
 #endif  /* AF_INET6 */
 
@@ -1652,10 +1530,6 @@ jobject getMulticastInterface(JNIEnv *env, jobject this, int fd, jint opt) {
 
 #ifdef __linux__
         struct ip_mreqn mreqn;
-        if (isOldKernel) {
-            inP = (struct in_addr *)&mreqn;
-            len = sizeof(struct ip_mreqn);
-        }
 #endif
 
         if (JVM_GetSockOpt(fd, IPPROTO_IP, IP_MULTICAST_IF,
@@ -1679,12 +1553,7 @@ jobject getMulticastInterface(JNIEnv *env, jobject this, int fd, jint opt) {
         addr = (*env)->NewObject(env, inet4_class, inet4_ctrID, 0);
         CHECK_NULL_RETURN(addr, NULL);
 
-#ifdef __linux__
-        setInetAddress_addr(env, addr, (isOldKernel ?
-                ntohl(mreqn.imr_address.s_addr) : ntohl(in.s_addr)));
-#else
         setInetAddress_addr(env, addr, ntohl(in.s_addr));
-#endif
 
         /*
          * For IP_MULTICAST_IF return InetAddress
@@ -1753,15 +1622,6 @@ jobject getMulticastInterface(JNIEnv *env, jobject this, int fd, jint opt) {
         jobject addr;
         jobject ni;
 
-#ifdef __linux__
-        /*
-         * Linux 2.2 kernel doesn't support IPV6_MULTICAST_IF socke option
-         * so use cached index.
-         */
-        if (isOldKernel) {
-            index = (*env)->GetIntField(env, this, pdsi_multicastInterfaceID);
-        } else
-#endif
         {
             if (JVM_GetSockOpt(fd, IPPROTO_IPV6, IPV6_MULTICAST_IF,
                                (char*)&index, &len) < 0) {
@@ -1923,18 +1783,6 @@ PlainDatagramSocketImpl_socketGetOption(JNIEnv *env, jobject this,
         return NULL;
     }
 
-    /*
-     * IP_MULTICAST_LOOP socket option isn't available on Linux 2.2
-     * kernel with IPv6 so return value stored in impl.
-     */
-#if defined(AF_INET6) && defined(__linux__)
-    if (isOldKernel && opt == java_net_SocketOptions_IP_MULTICAST_LOOP &&
-        level == IPPROTO_IPV6) {
-        int mode = (int)(*env)->GetBooleanField(env, this, pdsi_loopbackID);
-        return createBoolean(env, mode);
-    }
-#endif
-
     if (opt == java_net_SocketOptions_IP_MULTICAST_LOOP &&
         level == IPPROTO_IP) {
         optlen = sizeof(optval.c);
@@ -2038,9 +1886,6 @@ PlainDatagramSocketImpl_setTimeToLive(JNIEnv *env, jobject this,
     setTTL(env, fd, ttl);
     if (ipv6_available()) {
         setHopLimit(env, fd, ttl);
-        if (isOldKernel) {
-            (*env)->SetIntField(env, this, pdsi_ttlID, ttl);
-        }
     }
 #else  /*  __linux__ not defined */
     if (ipv6_available()) {
@@ -2088,15 +1933,6 @@ PlainDatagramSocketImpl_getTimeToLive(JNIEnv *env, jobject this) {
     if (ipv6_available()) {
         int ttl = 0;
         int len = sizeof(ttl);
-
-#ifdef __linux__
-        /*
-         * Linux 2.2 kernel doesn't support IPV6_MULTICAST_HOPS socket option
-         */
-        if (isOldKernel) {
-            return (*env)->GetIntField(env, this, pdsi_ttlID);
-        }
-#endif
 
         if (JVM_GetSockOpt(fd, IPPROTO_IPV6, IPV6_MULTICAST_HOPS,
                                (char*)&ttl, &len) < 0) {
@@ -2192,6 +2028,7 @@ static void mcast_join_leave(JNIEnv *env, jobject this,
 #endif
         int mname_len;
 
+
         /*
          * joinGroup(InetAddress, NetworkInterface) implementation :-
          *
@@ -2265,14 +2102,10 @@ static void mcast_join_leave(JNIEnv *env, jobject this,
                 int index;
                 int len = sizeof(index);
 
-                if (isOldKernel) {
-                    index = (*env)->GetIntField(env, this, pdsi_multicastInterfaceID);
-                } else {
-                    if (JVM_GetSockOpt(fd, IPPROTO_IPV6, IPV6_MULTICAST_IF,
-                                       (char*)&index, &len) < 0) {
-                        NET_ThrowCurrent(env, "getsockopt IPV6_MULTICAST_IF failed");
-                        return;
-                    }
+                if (JVM_GetSockOpt(fd, IPPROTO_IPV6, IPV6_MULTICAST_IF,
+                                   (char*)&index, &len) < 0) {
+                  NET_ThrowCurrent(env, "getsockopt IPV6_MULTICAST_IF failed");
+                  return;
                 }
 
                 mname.imr_multiaddr.s_addr = htonl(getInetAddress_addr(env, iaObj));
@@ -2288,10 +2121,6 @@ static void mcast_join_leave(JNIEnv *env, jobject this,
 
 #ifdef __linux__
                 struct ip_mreqn mreqn;
-                if (isOldKernel) {
-                    inP = (struct in_addr *)&mreqn;
-                    len = sizeof(struct ip_mreqn);
-                }
 #endif
                 if (getsockopt(fd, IPPROTO_IP, IP_MULTICAST_IF, (char *)inP, &len) < 0) {
                     NET_ThrowCurrent(env, "getsockopt IP_MULTICAST_IF failed");
@@ -2299,9 +2128,7 @@ static void mcast_join_leave(JNIEnv *env, jobject this,
                 }
 
 #ifdef __linux__
-                mname.imr_address.s_addr =
-                    (isOldKernel ? mreqn.imr_address.s_addr : in.s_addr);
-
+                mname.imr_address.s_addr = in.s_addr;
 #else
                 mname.imr_interface.s_addr = in.s_addr;
 #endif
@@ -2366,6 +2193,7 @@ static void mcast_join_leave(JNIEnv *env, jobject this,
 #ifdef AF_INET6
     {
         struct ipv6_mreq mname6;
+
         jbyteArray ipaddress;
         jbyte caddr[16];
         jint family;
@@ -2392,14 +2220,6 @@ static void mcast_join_leave(JNIEnv *env, jobject this,
             int index;
             int len = sizeof(index);
 
-#ifdef __linux__
-            /*
-             * 2.2 kernel doens't support IPV6_MULTICAST_IF socket option
-             */
-            if (isOldKernel) {
-                index = (*env)->GetIntField(env, this, pdsi_multicastInterfaceID);
-            } else
-#endif
             {
                 if (JVM_GetSockOpt(fd, IPPROTO_IPV6, IPV6_MULTICAST_IF,
                                  (char*)&index, &len) < 0) {
@@ -2415,16 +2235,11 @@ static void mcast_join_leave(JNIEnv *env, jobject this,
              * subsequent leave groups to fail as there is no match. Thus we
              * pick the interface if there is a matching route.
              */
-            if (index == 0 && !isOldKernel) {
+            if (index == 0) {
                 int rt_index = getDefaultIPv6Interface(&(mname6.ipv6mr_multiaddr));
                 if (rt_index > 0) {
                     index = rt_index;
                 }
-            }
-#endif
-#ifdef MACOSX
-            if (family == AF_INET6 && index == 0) {
-                index = getDefaultScopeID(env);
             }
 #endif
             mname6.ipv6mr_interface = index;
