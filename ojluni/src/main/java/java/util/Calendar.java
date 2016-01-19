@@ -947,6 +947,13 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
      */
     protected Calendar(TimeZone zone, Locale aLocale)
     {
+        // http://b/16938922.
+        //
+        // TODO: This is for backwards compatibility only. Seems like a better idea to throw
+        // here. We should add a targetSdkVersion based check and throw for this case.
+        if (aLocale == null) {
+            aLocale = Locale.getDefault();
+        }
         fields = new int[FIELD_COUNT];
         isSet = new boolean[FIELD_COUNT];
         stamp = new int[FIELD_COUNT];
