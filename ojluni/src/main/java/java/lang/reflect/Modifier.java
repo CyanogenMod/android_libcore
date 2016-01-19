@@ -344,19 +344,20 @@ class Modifier {
     }
 
     /**
-     * Miranda methods are fabrications to reserve virtual method
-     * table slots in abstract classes that implement interfaces
-     * without declaring the abstract methods that the interface would
-     * require they implement.
-     * @hide
-     */
-    public static final int MIRANDA = 0x8000;
-    /**
      * Dex addition to mark instance constructors and static class
      * initializer methods.
      * @hide
      */
     public static final int CONSTRUCTOR = 0x10000;
+
+    /**
+     * Default methods are marked with a synthetic access flag
+     * to speed up class loading and invocation target lookup.
+     * Implies INTERFACE, not-ABSTRACT, and not-STATIC.
+     *
+     * @hide
+     */
+    public static final int DEFAULT = 0x00400000;
 
     /**
      * See JLSv3 section 8.1.1.
