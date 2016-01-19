@@ -66,9 +66,9 @@ public class IdentityScopeTest extends TestCase {
      * check that void IdentityScope(String) creates instance with given name
      */
     public final void testIdentityScopeString() {
-        is = new IdentityScopeStub("Aleksei Semenov");
+        is = new IdentityScopeStub("Sergio Giro");
         assertNotNull(is);
-        assertEquals("Aleksei Semenov", is.getName());
+        assertEquals("Sergio Giro", is.getName());
     }
 
     /**
@@ -86,11 +86,11 @@ public class IdentityScopeTest extends TestCase {
      * just call IdentityScope.getSystemScope()
      */
     public final void testGetSystemScope() {
+        // There is no default system scope installed.
         String name = Security.getProperty("system.scope");
-        assertNotNull(name);
+        assertNull(name);
         IdentityScope scope = IdentityScope.getSystemScope();
-        assertNotNull(scope);
-        assertEquals(name, scope.getClass().getName());
+        assertNull(scope);
     }
 
     /**
