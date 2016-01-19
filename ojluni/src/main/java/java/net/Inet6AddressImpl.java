@@ -76,7 +76,7 @@ class Inet6AddressImpl implements InetAddressImpl {
             return new InetAddress[] { result };
         }
 
-        return lookupHostByName(host, netId).clone();
+        return lookupHostByName(host, netId);
     }
 
     /**
