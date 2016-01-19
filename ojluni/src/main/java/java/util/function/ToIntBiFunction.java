@@ -37,7 +37,6 @@ package java.util.function;
  *
  * @see BiFunction
  * @since 1.8
- * @hide 1.8
  */
 @FunctionalInterface
 public interface ToIntBiFunction<T, U> {

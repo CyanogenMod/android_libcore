@@ -110,6 +110,5 @@
  *
  * @see java.lang.FunctionalInterface
  * @since 1.8
- * @hide 1.8
  */
 package java.util.function;
