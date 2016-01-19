@@ -722,7 +722,7 @@ class InetAddress implements java.io.Serializable {
      */
     public static InetAddress getByName(String host)
         throws UnknownHostException {
-        return InetAddress.getAllByName(host)[0];
+        return impl.lookupAllHostAddr(host, NETID_UNSET)[0];
     }
 
     /**
@@ -766,7 +766,7 @@ class InetAddress implements java.io.Serializable {
      */
     public static InetAddress[] getAllByName(String host)
         throws UnknownHostException {
-        return impl.lookupAllHostAddr(host, NETID_UNSET);
+        return impl.lookupAllHostAddr(host, NETID_UNSET).clone();
     }
 
     /**
