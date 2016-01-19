@@ -191,18 +191,14 @@ public class SSLSocketFactoryTest extends TestCase {
         String origProvider = Security.getProperty(SSL_PROPERTY);
 
         try {
-            Field field_secprops = Security.class.getDeclaredField("secprops");
+            Field field_secprops = Security.class.getDeclaredField("props");
             field_secprops.setAccessible(true);
             Properties secprops = (Properties) field_secprops.get(null);
             secprops.remove(SSL_PROPERTY);
-
-            Class<?> class_services =
-                    Class.forName("org.apache.harmony.security.fortress.Services");
-            Method m_setNeedRefresh = class_services.getMethod("setNeedRefresh");
-            m_setNeedRefresh.invoke(null);
+            Security.increaseVersion();
         } catch (Exception e) {
             e.printStackTrace();
-            fail("Cannot find a way to clear out the SocketFactory provider");
+            throw new RuntimeException("Could not clear security provider", e);
         }
 
         assertNull(Security.getProperty(SSL_PROPERTY));
