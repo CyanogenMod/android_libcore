@@ -2036,7 +2036,7 @@ public final class URI
         }
 
         // 5.2 (6c-f)
-        String np = normalize(path);
+        String np = normalize(path, true);
 
         // 5.2 (6g): If the result is absolute but the path begins with "../",
         // then we simply leave the path as-is
@@ -2102,7 +2102,7 @@ public final class URI
                 // There is an additional step from RFC 3986 RI, requiring to remove dots for
                 // absolute path as well.
                 // http://b/25897693
-                ru.path = normalize(child.path);
+                ru.path = normalize(child.path, true);
             } else {
                 // 5.2 (6): Resolve relative path
                 ru.path = resolvePath(base.path, child.path, base.isAbsolute());
@@ -2355,7 +2355,7 @@ public final class URI
     // Remove "." segments from the given path, and remove segment pairs
     // consisting of a non-".." segment followed by a ".." segment.
     //
-    private static void removeDots(char[] path, int[] segs) {
+    private static void removeDots(char[] path, int[] segs, boolean removeLeading) {
         int ns = segs.length;
         int end = path.length - 1;
 
@@ -2402,7 +2402,7 @@ public final class URI
                         segs[i] = -1;
                         segs[j] = -1;
                     }
-                } else {
+                } else if (removeLeading) {
                     // This is a leading ".." segment. Per RFC 3986 RI, this should be removed as
                     // well. This fixes RFC 2396 "abnormal" examples.
                     // http://b/25897693
@@ -2455,6 +2455,10 @@ public final class URI
     // always retain trailing slashes.
     //
     private static String normalize(String ps) {
+        return normalize(ps, false);
+    }
+
+    private static String normalize(String ps, boolean removeLeading) {
 
         // Does this path need normalization?
         int ns = needsNormalization(ps);        // Number of segments
@@ -2469,7 +2473,7 @@ public final class URI
         split(path, segs);
 
         // Remove dots
-        removeDots(path, segs);
+        removeDots(path, segs, removeLeading);
 
         // Prevent scheme-name confusion
         maybeAddLeadingDot(path, segs);
