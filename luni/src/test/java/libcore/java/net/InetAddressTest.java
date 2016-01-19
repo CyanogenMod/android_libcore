@@ -371,12 +371,27 @@ public class InetAddressTest extends junit.framework.TestCase {
         assertTrue(inetAddress.isLoopbackAddress());
     }
 
-    public void test_getByName_null() throws Exception {
+    public void test_getByName_v6loopback() throws Exception {
         InetAddress inetAddress = InetAddress.getByName("::1");
 
         Set<InetAddress> expectedLoopbackAddresses =
                 createSet(Inet4Address.LOOPBACK, Inet6Address.LOOPBACK);
         assertTrue(expectedLoopbackAddresses.contains(inetAddress));
+    }
+
+    public void test_getByName_cloning() throws Exception {
+        InetAddress[] addresses = InetAddress.getAllByName(null);
+        InetAddress[] addresses2 = InetAddress.getAllByName(null);
+        assertNotNull(addresses[0]);
+        assertNotNull(addresses[1]);
+        assertNotSame(addresses, addresses2);
+
+        // Also assert that changes to the return value do not affect the cache
+        // etc. i.e, that we return a copy.
+        addresses[0] = null;
+        addresses2 = InetAddress.getAllByName(null);
+        assertNotNull(addresses2[0]);
+        assertNotNull(addresses2[1]);
     }
 
     public void test_getAllByName_null() throws Exception {
