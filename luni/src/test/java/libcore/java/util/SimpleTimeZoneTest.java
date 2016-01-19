@@ -242,7 +242,7 @@ public class SimpleTimeZoneTest extends TestCase {
         return transitions;
     }
 
-    private static String formatCalendar(Calendar cal) {
+    public static String formatCalendar(Calendar cal) {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ",
                 Locale.ENGLISH);
         format.setTimeZone(cal.getTimeZone());
