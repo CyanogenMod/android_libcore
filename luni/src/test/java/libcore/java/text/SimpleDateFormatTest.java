@@ -17,6 +17,7 @@
 package libcore.java.text;
 
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -393,5 +394,33 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
         DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT, new Locale("sl"));
         df.setTimeZone(TimeZone.getTimeZone("UTC"));
         assertEquals("1. 1. 70", df.format(0L));
+    }
+
+    public void testLenientParsingForZ() throws Exception {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        Date date = sdf.parse("2016-01-06T23:05:49.480+00:00");
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("+00:00"));
+        calendar.setTime(date);
+        assertEquals(11, calendar.get(Calendar.HOUR));
+        assertEquals(5, calendar.get(Calendar.MINUTE));
+        assertEquals(49, calendar.get(Calendar.SECOND));
+
+        Date date2 = sdf.parse("2016-01-06T23:05:49.480+00:00");
+        assertEquals(date, date2);
+
+        try {
+            date = sdf.parse("2016-01-06T23:05:49.480+00pissoff");
+            fail();
+        } catch (ParseException expected) {
+        }
+
+        SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+        Date date3 = sdf2.parse("2016-01-06T23:05:49.480+00:00");
+        assertEquals(date, date3);
+        try {
+            sdf2.parse("2016-01-06T23:05:49.480+0000");
+            fail();
+        } catch (ParseException expected) {
+        }
     }
 }
