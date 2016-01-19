@@ -61,7 +61,6 @@ import java.lang.annotation.*;
  * @jls 9.8 Functional Interfaces
  * @jls 9.4.3 Interface Method Body
  * @since 1.8
- * @hide 1.8
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
