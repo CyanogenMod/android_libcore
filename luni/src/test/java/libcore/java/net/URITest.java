@@ -114,6 +114,13 @@ public final class URITest extends TestCase {
         }
     }
 
+    // http://b/26632332
+    public void testSingleLetterHost() throws Exception {
+        URI uri = new URI("http://a");
+        assertEquals("a", uri.getHost());
+        assertEquals("", uri.getPath());
+    }
+
     public void testNoHostAndNoPath() throws Exception {
         try {
             new URI("http:");
@@ -134,6 +141,15 @@ public final class URITest extends TestCase {
         assertEquals("user@host", uri.getAuthority());
         assertEquals("user", uri.getUserInfo());
         assertEquals("host", uri.getHost());
+    }
+
+    // http://b/26632332
+    public void testUserNoHost() throws Exception {
+        URI uri = new URI("http://user@");
+        assertEquals("user@", uri.getAuthority());
+        // from RI. this is curious
+        assertEquals(null, uri.getUserInfo());
+        assertEquals(null, uri.getHost());
     }
 
     public void testUserNoPasswordExplicitPort() throws Exception {
