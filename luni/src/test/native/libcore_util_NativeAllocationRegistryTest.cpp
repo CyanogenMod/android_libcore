@@ -21,11 +21,11 @@
 #include "JNIHelp.h"
 #include "ScopedUtfChars.h"
 
-uint64_t gNumAllocatedAllocations = 0;
-uint64_t gNumTotalAllocations = 0;
+uint64_t gNumNativeBytesAllocated = 0;
 
-static void finalize(void*) {
-  gNumAllocatedAllocations--;
+static void finalize(uint64_t* ptr) {
+  gNumNativeBytesAllocated -= *ptr;
+  delete ptr;
 }
 
 extern "C"
@@ -34,13 +34,18 @@ jlong Java_libcore_util_NativeAllocationRegistryTest_getNativeFinalizer(JNIEnv*,
 }
 
 extern "C"
-jlong Java_libcore_util_NativeAllocationRegistryTest_doNativeAllocation(JNIEnv*, jclass, jlong) {
-  gNumAllocatedAllocations++;
-  gNumTotalAllocations++;
-  return static_cast<jlong>(gNumTotalAllocations);
+jlong Java_libcore_util_NativeAllocationRegistryTest_doNativeAllocation(JNIEnv*,
+                                                                        jclass,
+                                                                        jlong size) {
+  gNumNativeBytesAllocated += size;
+
+  // The actual allocation is a pointer to the pretend size of the allocation.
+  uint64_t* ptr = new uint64_t;
+  *ptr = static_cast<uint64_t>(size);
+  return static_cast<jlong>(reinterpret_cast<uintptr_t>(ptr));
 }
 
 extern "C"
-jlong Java_libcore_util_NativeAllocationRegistryTest_getNumAllocations(JNIEnv*, jclass) {
-  return static_cast<jlong>(gNumAllocatedAllocations);
+jlong Java_libcore_util_NativeAllocationRegistryTest_getNumNativeBytesAllocated(JNIEnv*, jclass) {
+  return static_cast<jlong>(gNumNativeBytesAllocated);
 }
