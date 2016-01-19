@@ -704,6 +704,49 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/java/util/InputMismatchException.java \
     ojluni/src/main/java/java/util/InvalidPropertiesFormatException.java \
     ojluni/src/main/java/java/util/Iterator.java \
+    ojluni/src/main/java/java/util/function/BiConsumer.java \
+    ojluni/src/main/java/java/util/function/BiFunction.java \
+    ojluni/src/main/java/java/util/function/BinaryOperator.java \
+    ojluni/src/main/java/java/util/function/BiPredicate.java \
+    ojluni/src/main/java/java/util/function/BooleanSupplier.java \
+    ojluni/src/main/java/java/util/function/Consumer.java \
+    ojluni/src/main/java/java/util/function/DoubleBinaryOperator.java \
+    ojluni/src/main/java/java/util/function/DoubleConsumer.java \
+    ojluni/src/main/java/java/util/function/DoubleFunction.java \
+    ojluni/src/main/java/java/util/function/DoublePredicate.java \
+    ojluni/src/main/java/java/util/function/DoubleSupplier.java \
+    ojluni/src/main/java/java/util/function/DoubleToIntFunction.java \
+    ojluni/src/main/java/java/util/function/DoubleToLongFunction.java \
+    ojluni/src/main/java/java/util/function/DoubleUnaryOperator.java \
+    ojluni/src/main/java/java/util/function/Function.java \
+    ojluni/src/main/java/java/util/function/IntBinaryOperator.java \
+    ojluni/src/main/java/java/util/function/IntConsumer.java \
+    ojluni/src/main/java/java/util/function/IntFunction.java \
+    ojluni/src/main/java/java/util/function/IntPredicate.java \
+    ojluni/src/main/java/java/util/function/IntSupplier.java \
+    ojluni/src/main/java/java/util/function/IntToDoubleFunction.java \
+    ojluni/src/main/java/java/util/function/IntToLongFunction.java \
+    ojluni/src/main/java/java/util/function/IntUnaryOperator.java \
+    ojluni/src/main/java/java/util/function/LongBinaryOperator.java \
+    ojluni/src/main/java/java/util/function/LongConsumer.java \
+    ojluni/src/main/java/java/util/function/LongFunction.java \
+    ojluni/src/main/java/java/util/function/LongPredicate.java \
+    ojluni/src/main/java/java/util/function/LongSupplier.java \
+    ojluni/src/main/java/java/util/function/LongToDoubleFunction.java \
+    ojluni/src/main/java/java/util/function/LongToIntFunction.java \
+    ojluni/src/main/java/java/util/function/LongUnaryOperator.java \
+    ojluni/src/main/java/java/util/function/ObjDoubleConsumer.java \
+    ojluni/src/main/java/java/util/function/ObjIntConsumer.java \
+    ojluni/src/main/java/java/util/function/ObjLongConsumer.java \
+    ojluni/src/main/java/java/util/function/Predicate.java \
+    ojluni/src/main/java/java/util/function/Supplier.java \
+    ojluni/src/main/java/java/util/function/ToDoubleBiFunction.java \
+    ojluni/src/main/java/java/util/function/ToDoubleFunction.java \
+    ojluni/src/main/java/java/util/function/ToIntBiFunction.java \
+    ojluni/src/main/java/java/util/function/ToIntFunction.java \
+    ojluni/src/main/java/java/util/function/ToLongBiFunction.java \
+    ojluni/src/main/java/java/util/function/ToLongFunction.java \
+    ojluni/src/main/java/java/util/function/UnaryOperator.java \
     ojluni/src/main/java/java/util/jar/Attributes.java \
     ojluni/src/main/java/java/util/jar/JarEntry.java \
     ojluni/src/main/java/java/util/jar/JarException.java \

@@ -96,7 +96,7 @@ public class ObjectsTest extends junit.framework.TestCase {
       assertEquals("message", expected.getMessage());
     }
     try {
-      Objects.requireNonNull(null, null);
+      Objects.requireNonNull(null, (String) null);
       fail();
     } catch (NullPointerException expected) {
       assertEquals(null, expected.getMessage());
