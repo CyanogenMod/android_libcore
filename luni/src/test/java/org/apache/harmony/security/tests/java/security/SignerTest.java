@@ -34,6 +34,7 @@ import java.security.Signer;
 import org.apache.harmony.security.tests.support.PrivateKeyStub;
 import org.apache.harmony.security.tests.support.PublicKeyStub;
 import org.apache.harmony.security.tests.support.SignerStub;
+import org.apache.harmony.security.tests.support.SystemScope;
 
 
 import junit.framework.TestCase;
@@ -59,7 +60,7 @@ public class SignerTest extends TestCase {
         Signer s1 = new SignerStub("testToString1");
         assertEquals("[Signer]testToString1", s1.toString());
 
-        Signer s2 = new SignerStub("testToString2", IdentityScope.getSystemScope());
+        Signer s2 = new SignerStub("testToString2", new SystemScope());
         s2.toString();
 
         KeyPair kp = new KeyPair(new PublicKeyStub("public", "SignerTest.testToString", null),
@@ -99,14 +100,18 @@ public class SignerTest extends TestCase {
      * verify  Signer(String, IdentityScope) creates instance
      */
     public void testSignerStringIdentityScope() throws Exception {
-        Signer s = new SignerStub("sss4", IdentityScope.getSystemScope());
+        IdentityScope identityScope = new SystemScope();
+        Signer s = new SignerStub("sss4", identityScope);
         assertNotNull(s);
         assertEquals("sss4", s.getName());
-        assertSame(IdentityScope.getSystemScope(), s.getScope());
+        assertSame(identityScope, s.getScope());
         assertNull(s.getPrivateKey());
 
         try {
-            Signer s2 = new SignerStub("sss4", IdentityScope.getSystemScope());
+            // Check that the creation of a signer with a clashing name throws the required
+            // exception, provided that the underlying IdentityScope does (that is, check that
+            // the Signer is effectively being added to the scope).
+            Signer s2 = new SignerStub("sss4", identityScope);
             fail("expected KeyManagementException not thrown");
         } catch (KeyManagementException e)
         {
