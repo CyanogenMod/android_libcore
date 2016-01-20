@@ -370,12 +370,6 @@ public class DatagramSocketAdaptor
         return dc;
     }
 
-    /* @hide */
-    @Override
-    public final FileDescriptor getFileDescriptor$() {
-        return dc.fd;
-    }
-
    /*
     * A dummy implementation of DatagramSocketImpl that can be passed to the
     * DatagramSocket constructor so that no native resources are allocated in
