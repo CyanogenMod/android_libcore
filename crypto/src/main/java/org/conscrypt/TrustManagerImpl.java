@@ -72,10 +72,15 @@ public final class TrustManagerImpl implements X509TrustManager {
     private final CertPathValidator validator;
 
     /**
-     * An index of TrustAnchor instances that we've seen. Unlike the
-     * TrustedCertificateStore, this may contain intermediate CAs.
+     * An index of TrustAnchor instances that we've seen.
      */
     private final TrustedCertificateIndex trustedCertificateIndex;
+
+    /**
+     * An index of intermediate certificates that we've seen. These certificates are NOT implicitly
+     * trusted and must still form a valid chain to an anchor.
+     */
+    private final TrustedCertificateIndex intermediateIndex;
 
     /**
      * This is lazily initialized in the AndroidCAStore case since it
@@ -145,6 +150,7 @@ public final class TrustManagerImpl implements X509TrustManager {
         this.validator = validatorLocal;
         this.factory = factoryLocal;
         this.trustedCertificateIndex = trustedCertificateIndexLocal;
+        this.intermediateIndex = new TrustedCertificateIndex();
         this.acceptedIssuers = acceptedIssuersLocal;
         this.err = errLocal;
     }
@@ -300,7 +306,7 @@ public final class TrustManagerImpl implements X509TrustManager {
             // will have been removed in
             // cleanupCertChainAndFindTrustAnchors.  http://b/3404902
             for (int i = 1; i < newChain.length; i++) {
-                trustedCertificateIndex.index(newChain[i]);
+                intermediateIndex.index(newChain[i]);
             }
         } catch (InvalidAlgorithmParameterException e) {
             throw new CertificateException(e);
@@ -361,7 +367,28 @@ public final class TrustManagerImpl implements X509TrustManager {
             }
         }
 
-        // 2. Find the trust anchor in the chain, if any
+        // 2. Add any missing intermediates to the chain
+        while (true) {
+            TrustAnchor nextIntermediate =
+                    intermediateIndex.findByIssuerAndSignature(chain[currIndex]);
+            if (nextIntermediate == null) {
+                break;
+            }
+            // Append intermediate
+            X509Certificate cert = nextIntermediate.getTrustedCert();
+            // don't mutate original chain, which may be directly from an SSLSession
+            if (chain == original) {
+                chain = original.clone();
+            }
+            // Grow the chain if needed
+            if (currIndex == chain.length - 1) {
+                chain = Arrays.copyOf(chain, chain.length * 2);
+            }
+            chain[currIndex + 1] = cert;
+            currIndex++;
+        }
+
+        // 3. Find the trust anchor in the chain, if any
         int anchorIndex;
         for (anchorIndex = 0; anchorIndex <= currIndex; anchorIndex++) {
             // If the current cert is a TrustAnchor, we can ignore the rest of the chain.
@@ -373,13 +400,13 @@ public final class TrustManagerImpl implements X509TrustManager {
             }
         }
 
-        // 3. If the chain is now shorter, copy to an appropriately sized array.
+        // 4. If the chain is now shorter, copy to an appropriately sized array.
         int chainLength = anchorIndex;
         X509Certificate[] newChain = ((chainLength == chain.length)
                                       ? chain
                                       : Arrays.copyOf(chain, chainLength));
 
-        // 4. If we didn't find a trust anchor earlier, look for one now
+        // 5. If we didn't find a trust anchor earlier, look for one now
         if (trustAnchors.isEmpty()) {
             TrustAnchor trustAnchor = findTrustAnchorByIssuerAndSignature(newChain[anchorIndex-1]);
             if (trustAnchor != null) {
