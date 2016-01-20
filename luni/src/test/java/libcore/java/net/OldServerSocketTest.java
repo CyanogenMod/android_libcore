@@ -238,11 +238,11 @@ public class OldServerSocketTest extends OldSocketTestCase {
     public void test_getSoTimeout_setSoTimeout() throws Exception {
         // TODO: a useful test would check that setSoTimeout actually causes timeouts!
         ServerSocket s = new ServerSocket();
-        s.setSoTimeout(1500);
-        int ms = s.getSoTimeout();
-        if (ms < 1500-10 || ms > 1500+10) {
-            fail("suspicious timeout: " + ms);
-        }
+        final int timeoutSet = 1500;
+        s.setSoTimeout(timeoutSet);
+        int actualTimeout = s.getSoTimeout();
+        // The kernel can round the requested value based on the HZ setting. We allow up to 10ms.
+        assertTrue("suspicious timeout: " + actualTimeout, Math.abs(actualTimeout - timeoutSet) <= 10);
         s.close();
         try {
             s.getSoTimeout();

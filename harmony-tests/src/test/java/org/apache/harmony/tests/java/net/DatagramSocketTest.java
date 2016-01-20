@@ -390,8 +390,11 @@ public class DatagramSocketTest extends junit.framework.TestCase {
 
     public void test_getSoTimeout() throws Exception {
         DatagramSocket ds = new DatagramSocket();
-        ds.setSoTimeout(100);
-        assertEquals("Returned incorrect timeout", 100, ds.getSoTimeout());
+        final int timeoutSet = 100;
+        ds.setSoTimeout(timeoutSet);
+        int actualTimeout = ds.getSoTimeout();
+        // The kernel can round the requested value based on the HZ setting. We allow up to 10ms.
+        assertTrue("Returned incorrect timeout", Math.abs(actualTimeout - timeoutSet) <= 10);
     }
 
     static final class TestDatagramSocketImpl extends DatagramSocketImpl {

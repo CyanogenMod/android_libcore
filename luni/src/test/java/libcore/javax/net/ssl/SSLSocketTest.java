@@ -1206,8 +1206,9 @@ public class SSLSocketTest extends TestCase {
         // setting wrapper sets underlying and ...
         int expectedTimeoutMillis = 1000;  // 10 was too small because it was affected by rounding
         wrapping.setSoTimeout(expectedTimeoutMillis);
-        assertEquals(expectedTimeoutMillis, wrapping.getSoTimeout());
-        assertEquals(expectedTimeoutMillis, underlying.getSoTimeout());
+        // The kernel can round the requested value based on the HZ setting. We allow up to 10ms.
+        assertTrue(Math.abs(expectedTimeoutMillis - wrapping.getSoTimeout()) <= 10);
+        assertTrue(Math.abs(expectedTimeoutMillis - underlying.getSoTimeout()) <= 10);
 
         // ... getting wrapper inspects underlying
         underlying.setSoTimeout(0);
