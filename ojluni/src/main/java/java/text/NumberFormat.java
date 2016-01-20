@@ -727,26 +727,47 @@ public abstract class NumberFormat extends Format  {
     // =======================privates===============================
 
     private static NumberFormat getInstance(Locale desiredLocale,
-                                            int choice) {
-        DecimalFormatSymbols symbols = new DecimalFormatSymbols(desiredLocale);
-        String pattern = "";
-        switch (choice) {
-            case CURRENCYSTYLE:
-                pattern = LocaleData.get(desiredLocale).currencyPattern;
-                break;
-            case INTEGERSTYLE:
-                pattern = LocaleData.get(desiredLocale).integerPattern;
-                break;
-            case PERCENTSTYLE:
-                pattern = LocaleData.get(desiredLocale).percentPattern;
-                break;
-            case NUMBERSTYLE:
-                pattern = LocaleData.get(desiredLocale).numberPattern;
-                break;
-            default:
-                throw new AssertionError("Unknown choice: " + choice);
+                                           int choice) {
+        // Check whether a provider can provide an implementation that's closer
+        // to the requested locale than what the Java runtime itself can provide.
+        LocaleServiceProviderPool pool =
+            LocaleServiceProviderPool.getPool(NumberFormatProvider.class);
+        if (pool.hasProviders()) {
+            NumberFormat providersInstance = pool.getLocalizedObject(
+                                    NumberFormatGetter.INSTANCE,
+                                    desiredLocale,
+                                    choice);
+            if (providersInstance != null) {
+                return providersInstance;
+            }
         }
-        return new DecimalFormat(pattern, symbols);
+
+        /* try the cache first */
+        String[] numberPatterns = (String[])cachedLocaleData.get(desiredLocale);
+        if (numberPatterns == null) { /* cache miss */
+            LocaleData data = LocaleData.get(desiredLocale);
+            numberPatterns = new String[4];
+            numberPatterns[NUMBERSTYLE] = data.numberPattern;
+            numberPatterns[CURRENCYSTYLE] = data.currencyPattern;
+            numberPatterns[PERCENTSTYLE] = data.percentPattern;
+            numberPatterns[INTEGERSTYLE] = data.integerPattern;
+            /* update cache */
+            cachedLocaleData.put(desiredLocale, numberPatterns);
+        }
+
+        DecimalFormatSymbols symbols = DecimalFormatSymbols.getInstance(desiredLocale);
+        int entry = (choice == INTEGERSTYLE) ? NUMBERSTYLE : choice;
+        DecimalFormat format = new DecimalFormat(numberPatterns[entry], symbols);
+
+        if (choice == INTEGERSTYLE) {
+            format.setMaximumFractionDigits(0);
+            format.setDecimalSeparatorAlwaysShown(false);
+            format.setParseIntegerOnly(true);
+        } else if (choice == CURRENCYSTYLE) {
+            format.adjustForCurrencyDefaultFractionDigits();
+        }
+
+        return format;
     }
 
     /**
