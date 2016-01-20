@@ -33,6 +33,7 @@ import java.security.SecurityPermission;
 import org.apache.harmony.security.tests.support.CertificateStub;
 import org.apache.harmony.security.tests.support.IdentityStub;
 import org.apache.harmony.security.tests.support.PublicKeyStub;
+import org.apache.harmony.security.tests.support.SystemScope;
 
 import junit.framework.TestCase;
 
@@ -105,7 +106,7 @@ public class IdentityTest extends TestCase {
      * verify Identity(String, IdentityScope) creates instance with given name and in give scope
      */
     public void testIdentityStringIdentityScope() throws Exception {
-        IdentityScope s = IdentityScope.getSystemScope();
+        IdentityScope s = new SystemScope();
         Identity i = new IdentityStub("iii2", s);
         assertNotNull(i);
         assertEquals("iii2", i.getName());
@@ -212,6 +213,7 @@ public class IdentityTest extends TestCase {
      * verify Identity.identityEquals(Identity) return true, only if names and public keys are equal
      */
     public void testIdentityEquals() throws Exception {
+        IdentityScope identityScope = new SystemScope();
         String name = "nnn";
         PublicKey pk = new PublicKeyStub("aaa", "fff", new byte[]{1,2,3,4,5});
         IdentityStub i = new IdentityStub(name);
@@ -221,7 +223,7 @@ public class IdentityTest extends TestCase {
                 //new Object(), Boolean.FALSE,
                 new IdentityStub("111"), Boolean.FALSE,
                 new IdentityStub(name), Boolean.FALSE,
-                new IdentityStub(name, IdentityScope.getSystemScope()), Boolean.FALSE,
+                new IdentityStub(name, identityScope), Boolean.FALSE,
                 i, Boolean.TRUE,
                 new IdentityStub(name, pk), Boolean.TRUE
         };
@@ -229,7 +231,7 @@ public class IdentityTest extends TestCase {
             assertEquals(value[k+1], new Boolean(i.identityEquals((Identity)value[k])));
             if (Boolean.TRUE.equals(value[k+1])) assertEquals(i.hashCode(), value[k].hashCode());
         }
-        Identity i2 = IdentityScope.getSystemScope().getIdentity(name);
+        Identity i2 = identityScope.getIdentity(name);
         i2.setPublicKey(pk);
         assertTrue(i.identityEquals(i2));
     }
@@ -238,10 +240,11 @@ public class IdentityTest extends TestCase {
      * verify Identity.toString(boolean) return string representation of identity
      */
     public void testToStringboolean() throws Exception {
+        IdentityScope identityScope = new SystemScope();
         new IdentityStub("aaa").toString(false);
-        new IdentityStub("aaa2", IdentityScope.getSystemScope()).toString(false);
+        new IdentityStub("aaa2", identityScope).toString(false);
         new IdentityStub("bbb").toString(true);
-        new IdentityStub("bbb2", IdentityScope.getSystemScope()).toString(true);
+        new IdentityStub("bbb2", identityScope).toString(true);
     }
 
     /**
