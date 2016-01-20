@@ -185,9 +185,9 @@ public class ConcurrentCloseTest extends junit.framework.TestCase {
         sendBufferSize = s.getSendBufferSize(); // How big is the buffer really, Linux?
 
         // Linux still seems to accept more than it should.
-        // How much seems to differ from device to device, but I've yet to see anything accept
-        // twice as much again.
-        sendBufferSize *= 2;
+        // How much seems to differ from device to device. This used to be (sendBufferSize * 2)
+        // but that still failed on a bullhead (Nexus 5X).
+        sendBufferSize *= 4;
 
         s.connect(ss.getLocalSocketAddress());
         new Killer(s).start();
