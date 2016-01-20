@@ -53,7 +53,7 @@ public class OldNumberFormatTest extends TestCase {
         assertEquals(variant, format.toPattern());
         assertEquals("\u0666\u0667", format.format(67));
 
-        assertEquals("\u200f-\u0666", format.format(-6));
+        assertEquals("-\u0666", format.format(-6));
         assertEquals(-36L, format.parse("-36"));
 
         // New Arabic formats do not support '-' to right of digits.
