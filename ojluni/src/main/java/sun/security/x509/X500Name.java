@@ -878,6 +878,8 @@ public class X500Name implements GeneralNameInterface, Principal {
             return;
         }
 
+        checkNoNewLinesNorTabsAtBeginningOfDN(input);
+
         List<RDN> dnVector = new ArrayList<RDN>();
         int dnOffset = 0;
         int rdnEnd;
@@ -942,6 +944,23 @@ public class X500Name implements GeneralNameInterface, Principal {
          */
         Collections.reverse(dnVector);
         names = dnVector.toArray(new RDN[dnVector.size()]);
+    }
+
+    /**
+     * Disallow new lines and tabs at the beginning of DN.
+     *
+     * @throws java.lang.IllegalArgumentException if the DN starts with new line or tab.
+     */
+    private void checkNoNewLinesNorTabsAtBeginningOfDN(String input) {
+        for (int i = 0; i < input.length(); i++) {
+            char c = input.charAt(i);
+            if (c != ' ') {
+                if (c == '\t' || c == '\n') {
+                    throw new IllegalArgumentException("DN cannot start with newline nor tab");
+                }
+                break;
+            }
+        }
     }
 
     private void parseRFC2253DN(String dnString) throws IOException {
