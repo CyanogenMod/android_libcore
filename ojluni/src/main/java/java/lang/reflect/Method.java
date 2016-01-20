@@ -644,4 +644,13 @@ public final
     boolean equalNameAndParameters(Method m) {
         return getName().equals(m.getName()) && equalMethodParameters(m.getParameterTypes());
     }
+
+    /**
+     * Returns {@code true} if this method is a default method; returns {@code false} otherwise.
+     *
+     * @hide 1.8
+     */
+    public boolean isDefault() {
+      return super.isDefault();
+    }
 }
