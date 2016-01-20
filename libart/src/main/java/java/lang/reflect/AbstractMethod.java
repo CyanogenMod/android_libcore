@@ -116,6 +116,10 @@ public abstract class AbstractMethod extends AccessibleObject {
         return (accessFlags & Modifier.SYNTHETIC) != 0;
     }
 
+    boolean isDefault() {
+      return (accessFlags & Modifier.DEFAULT) != 0;
+    }
+
     /**
      * @hide
      */
