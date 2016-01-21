@@ -389,9 +389,7 @@ public class OldSocketTest extends OldSocketTestCase {
         Socket s = new Socket();
         s.setSoTimeout(1500);
         int ms = s.getSoTimeout();
-        if (ms < 1500-10 || ms > 1500+10) {
-            fail("suspicious timeout: " + ms);
-        }
+        assertTrue("suspicious timeout: " + ms, Math.abs(ms - 1500) <= 10);
         s.close();
         try {
             s.getSoTimeout();
@@ -1384,10 +1382,10 @@ public class OldSocketTest extends OldSocketTestCase {
         connector.start();
         theSocket.setSoTimeout(1000);
         Thread.sleep(10);
-        assertEquals("Socket option not set during connect: 10 ", 1000, theSocket.getSoTimeout());
+        assertTrue("Socket option not set during connect: 10 ", Math.abs(1000 - theSocket.getSoTimeout()) <= 10);
         Thread.sleep(50);
         theSocket.setSoTimeout(2000);
-        assertEquals("Socket option not set during connect: 50 ", 2000, theSocket.getSoTimeout());
+        assertTrue("Socket option not set during connect: 50 ", Math.abs(2000 - theSocket.getSoTimeout()) <= 10);
         Thread.sleep(5000);
         theSocket.close();
 
