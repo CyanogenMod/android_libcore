@@ -233,11 +233,16 @@ canonicalize(char *original, char *resolved, int len)
                 /* The subpath has a canonical path */
                 break;
             }
-            else if (errno == ENOENT || errno == ENOTDIR || errno == EACCES) {
+            else if (errno == ENOENT || errno == ENOTDIR || errno == EACCES || errno == ENOTCONN) {
                 /* If the lookup of a particular subpath fails because the file
                    does not exist, because it is of the wrong type, or because
                    access is denied, then remove its last name and try again.
                    Other I/O problems cause an error return. */
+
+                /* NOTE: ENOTCONN seems like an odd errno to expect, but this is
+                   the behaviour on linux for fuse filesystems when the fuse device
+                   associated with the FS is closed but the filesystem is not
+                   unmounted. */
                 continue;
             }
             else {
