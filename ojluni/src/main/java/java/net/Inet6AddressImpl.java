@@ -46,15 +46,10 @@ import static android.system.OsConstants.SOCK_STREAM;
 
 class Inet6AddressImpl implements InetAddressImpl {
 
-    private static final InetAddress ANY_LOCAL_ADDRESS;
-    private static final InetAddress[] LOOPBACK_ADDRESSES;
-
-    static {
-        ANY_LOCAL_ADDRESS = new Inet6Address();
-        ANY_LOCAL_ADDRESS.holder().hostName = "::";
-
-        LOOPBACK_ADDRESSES = new InetAddress[] { Inet6Address.LOOPBACK, Inet4Address.LOOPBACK };
-    }
+    // @GuardedBy(Inet6AddressImpl.class)
+    private static InetAddress anyLocalAddress;
+    // @GuardedBy(Inet6AddressImpl.class)
+    private static InetAddress[] loopbackAddresses;
 
     private static final AddressCache addressCache = new AddressCache();
 
@@ -182,12 +177,34 @@ class Inet6AddressImpl implements InetAddressImpl {
 
     @Override
     public InetAddress anyLocalAddress() {
-        return ANY_LOCAL_ADDRESS;
+        synchronized (Inet6AddressImpl.class) {
+            // We avoid initializing anyLocalAddress during <clinit> to avoid issues
+            // caused by the dependency chains of these classes. InetAddress depends on
+            // InetAddressImpl, but Inet6Address & Inet4Address are its subclasses.
+            // Also see {@code loopbackAddresses).
+            if (anyLocalAddress == null) {
+                Inet6Address anyAddress = new Inet6Address();
+                anyAddress.holder().hostName = "::";
+                anyLocalAddress = anyAddress;
+            }
+
+            return anyLocalAddress;
+        }
     }
 
     @Override
     public InetAddress[] loopbackAddresses() {
-        return LOOPBACK_ADDRESSES;
+        synchronized (Inet6AddressImpl.class) {
+            // We avoid initializing anyLocalAddress during <clinit> to avoid issues
+            // caused by the dependency chains of these classes. InetAddress depends on
+            // InetAddressImpl, but Inet6Address & Inet4Address are its subclasses.
+            // Also see {@code anyLocalAddress).
+            if (loopbackAddresses == null) {
+                loopbackAddresses = new InetAddress[]{Inet6Address.LOOPBACK, Inet4Address.LOOPBACK};
+            }
+
+            return loopbackAddresses;
+        }
     }
 
     private native String getHostByAddr0(byte[] addr) throws UnknownHostException;
