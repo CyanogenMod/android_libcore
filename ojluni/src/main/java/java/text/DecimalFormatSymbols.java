@@ -387,7 +387,7 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
         if (currencyCode != null) {
             try {
                 currency = Currency.getInstance(currencyCode);
-                currencySymbol = currency.getSymbol();
+                currencySymbol = currency.getSymbol(locale);
             } catch (IllegalArgumentException e) {
             }
         }
