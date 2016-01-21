@@ -16,8 +16,6 @@
 
 package libcore.java.security.cert;
 
-import org.apache.harmony.security.utils.AlgNameMapper;
-
 import tests.support.resource.Support_Resources;
 
 import java.io.BufferedInputStream;
@@ -297,7 +295,6 @@ public class X509CertificateTest extends TestCase {
                 generateCertificates_PKCS7_DER_TrailingData(f);
                 test_Serialization(f);
                 test_UnknownUnmappedKeyOID(f);
-                test_UnknownMappedKeyOID(f);
             } catch (Throwable e) {
                 out.append("Error encountered checking " + p.getName() + "\n");
                 e.printStackTrace(out);
@@ -1298,33 +1295,6 @@ public class X509CertificateTest extends TestCase {
                     .generateCertificate(new ByteArrayInputStream(certBytes));
             assertEquals(FakeOidProvider.SIGALG_OID, cert.getSigAlgOID());
             assertEquals(FakeOidProvider.SIGALG_OID, cert.getSigAlgName());
-        }
-    }
-
-    private void test_UnknownMappedKeyOID(CertificateFactory f) throws Exception {
-        AlgNameMapper.addMapping(FakeOidProvider.SIGALG_OID, FakeOidProvider.SIGALG_OID_NAME);
-
-        Security.addProvider(new FakeOidProvider());
-        try {
-            byte[] certBytes = generateFakeOidCertificate();
-
-            // Make sure the certificate is outputting something.
-            X509Certificate cert = (X509Certificate) f
-                    .generateCertificate(new ByteArrayInputStream(certBytes));
-            assertEquals(FakeOidProvider.SIGALG_OID, cert.getSigAlgOID());
-            if ("AndroidOpenSSL".equals(f.getProvider().getName())) {
-                // AndroidOpenSSL provider has a connection to AlgNameMapper, so
-                // we expect it to get our special name.
-                assertEquals(FakeOidProvider.SIGALG_OID_NAME, cert.getSigAlgName());
-            } else {
-                assertNotNull(cert.getSigAlgName());
-            }
-
-            cert.verify(cert.getPublicKey());
-        } finally {
-            AlgNameMapper
-                    .removeMapping(FakeOidProvider.SIGALG_OID, FakeOidProvider.SIGALG_OID_NAME);
-            Security.removeProvider(FakeOidProvider.PROVIDER_NAME);
         }
     }
 
