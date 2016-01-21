@@ -296,9 +296,12 @@ public class ServerSocketTest extends junit.framework.TestCase {
      */
     public void test_getSoTimeout() throws IOException {
         s = new ServerSocket(0);
+        final int timeoutSet = 100;
         try {
-            s.setSoTimeout(100);
-            assertEquals("Returned incorrect sotimeout", 100, s.getSoTimeout());
+            s.setSoTimeout(timeoutSet);
+            int actualTimeout = s.getSoTimeout();
+            // The kernel can round the requested value based on the HZ setting. We allow up to 10ms.
+            assertTrue("Returned incorrect sotimeout", Math.abs(timeoutSet - actualTimeout) <= 10);
         } finally {
             s.close();
         }
@@ -348,12 +351,15 @@ public class ServerSocketTest extends junit.framework.TestCase {
      */
     public void test_setSoTimeoutI() throws IOException {
         // Timeout should trigger and throw InterruptedIOException
+        final int timeoutSet = 100;
         try {
             s = new ServerSocket(0);
-            s.setSoTimeout(100);
+            s.setSoTimeout(timeoutSet);
             s.accept();
         } catch (InterruptedIOException e) {
-            assertEquals("Set incorrect sotimeout", 100, s.getSoTimeout());
+            int actualSoTimeout = s.getSoTimeout();
+            // The kernel can round the requested value based on the HZ setting. We allow up to 10ms.
+            assertTrue("Set incorrect sotimeout", Math.abs(timeoutSet - actualSoTimeout) <= 10);
             return;
         }
 
