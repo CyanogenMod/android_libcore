@@ -202,6 +202,7 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "ESPIPE", ESPIPE);
     initConstant(env, c, "ESRCH", ESRCH);
     initConstant(env, c, "ESTALE", ESTALE);
+    initConstant(env, c, "ETH_P_ALL", ETH_P_ALL);
     initConstant(env, c, "ETH_P_ARP", ETH_P_ARP);
     initConstant(env, c, "ETH_P_IP", ETH_P_IP);
     initConstant(env, c, "ETH_P_IPV6", ETH_P_IPV6);
