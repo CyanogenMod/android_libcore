@@ -55,7 +55,7 @@ class ProtocolException extends IOException {
     public ProtocolException() {
     }
 
-    /* @hide */
+    /** @hide */
     public ProtocolException(String msg, Throwable cause) {
         super(msg, cause);
     }
