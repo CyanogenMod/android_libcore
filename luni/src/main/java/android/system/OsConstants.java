@@ -232,6 +232,7 @@ public final class OsConstants {
     public static final int ESPIPE = placeholder();
     public static final int ESRCH = placeholder();
     public static final int ESTALE = placeholder();
+    /** @hide */ public static final int ETH_P_ALL = placeholder();
     /** @hide */ public static final int ETH_P_ARP = placeholder();
     /** @hide */ public static final int ETH_P_IP = placeholder();
     /** @hide */ public static final int ETH_P_IPV6 = placeholder();
