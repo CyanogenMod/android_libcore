@@ -227,7 +227,7 @@ public final class HttpCookie implements Cloneable {
     // create the cookie, in the cookie itself. This can be useful for filtering
     // Set-Cookie[2] headers, using the internal parsing logic defined in this
     // class.
-    /*
+   /**
      * @hide
      */
     public static List<HttpCookie> parse(String header, boolean retainHeader) {

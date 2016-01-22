@@ -54,12 +54,12 @@ class SocketException extends IOException {
     public SocketException() {
     }
 
-    /* @hide */
+    /** @hide */
     public SocketException(Throwable cause) {
         super(cause);
     }
 
-    /* @hide */
+    /** @hide */
     public SocketException(String msg, Throwable cause) {
         super(msg, cause);
     }

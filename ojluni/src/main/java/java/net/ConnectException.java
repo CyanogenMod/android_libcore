@@ -53,7 +53,7 @@ public class ConnectException extends SocketException {
      */
     public ConnectException() {}
 
-    /* @hide */
+    /** @hide */
     public ConnectException(String msg, Throwable cause) {
         super(msg, cause);
     }

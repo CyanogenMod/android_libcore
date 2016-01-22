@@ -169,11 +169,11 @@ public final
 class Inet6Address extends InetAddress {
     final static int INADDRSZ = 16;
 
-    /* @hide */
+    /** @hide */
     public static final InetAddress ANY =
             new Inet6Address(null, new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, 0);
 
-    /* @hide */
+    /** @hide */
     public static final InetAddress LOOPBACK = new Inet6Address("localhost",
             new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, 0);
 
