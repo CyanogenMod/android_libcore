@@ -563,9 +563,19 @@ public class LogManager {
             return addLocalLogger(logger, requiresDefaultLoggers);
         }
 
+        boolean addLocalLogger(Logger logger, LogManager manager) {
+            // no need to add default loggers if it's not required
+            return addLocalLogger(logger, requiresDefaultLoggers, manager);
+        }
+
+        boolean addLocalLogger(Logger logger, boolean addDefaultLoggersIfNeeded) {
+            return addLocalLogger(logger, addDefaultLoggersIfNeeded, manager);
+        }
+
         // Add a logger to this context.  This method will only set its level
         // and process parent loggers.  It doesn't set its handlers.
-        synchronized boolean addLocalLogger(Logger logger, boolean addDefaultLoggersIfNeeded) {
+        synchronized boolean addLocalLogger(Logger logger, boolean addDefaultLoggersIfNeeded,
+                                            LogManager manager) {
             // addDefaultLoggersIfNeeded serves to break recursion when adding
             // default loggers. If we're adding one of the default loggers
             // (we're being called from ensureDefaultLogger()) then
@@ -925,7 +935,7 @@ public class LogManager {
         }
         drainLoggerRefQueueBounded();
         LoggerContext cx = getUserContext();
-        if (cx.addLocalLogger(logger)) {
+        if (cx.addLocalLogger(logger, this)) {
             // Do we have a per logger handler too?
             // Note: this will add a 200ms penalty
             loadLoggerHandlers(logger, name, name + ".handlers");
