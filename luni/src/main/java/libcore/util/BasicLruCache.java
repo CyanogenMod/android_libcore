@@ -41,22 +41,34 @@ public class BasicLruCache<K, V> {
      * head of the queue. This returns null if a value is not cached and cannot
      * be created.
      */
-    public synchronized final V get(K key) {
+    public final V get(K key) {
         if (key == null) {
             throw new NullPointerException("key == null");
         }
 
-        V result = map.get(key);
-        if (result != null) {
-            return result;
+        V result;
+        synchronized (this) {
+            result = map.get(key);
+            if (result != null) {
+                return result;
+            }
         }
 
+        // Don't hold any locks while calling create.
         result = create(key);
 
-        if (result != null) {
-            map.put(key, result);
-            trimToSize(maxSize);
+        synchronized (this) {
+            // NOTE: Another thread might have already inserted a value for |key| into the map.
+            // This shouldn't be an observable change as long as create creates equal values for
+            // equal keys. We will however attempt to trim the map twice, but that shouldn't be
+            // a big deal since uses of this class aren't heavily contended (and this class
+            // isn't design for such usage anyway).
+            if (result != null) {
+                map.put(key, result);
+                trimToSize(maxSize);
+            }
         }
+
         return result;
     }
 
