@@ -371,14 +371,8 @@ public final class ZoneInfo extends TimeZone {
         private int gmtOffsetSeconds;
 
         public WallTime() {
-            this.calendar = createGregorianCalendar();
+            this.calendar = new GregorianCalendar(0, 0, 0, 0, 0, 0);
             calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
-        }
-
-        // LayoutLib replaces this method via bytecode manipulation, since the
-        // minimum-cost constructor is not available on host machines.
-        private static GregorianCalendar createGregorianCalendar() {
-            return new GregorianCalendar();
         }
 
         /**
@@ -825,6 +819,7 @@ public final class ZoneInfo extends TimeZone {
             calendar.set(Calendar.HOUR_OF_DAY, hour);
             calendar.set(Calendar.MINUTE, minute);
             calendar.set(Calendar.SECOND, second);
+            calendar.set(Calendar.MILLISECOND, 0);
         }
 
         private void copyFieldsFromCalendar() {
