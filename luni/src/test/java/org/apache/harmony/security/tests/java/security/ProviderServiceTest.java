@@ -22,6 +22,7 @@
 
 package org.apache.harmony.security.tests.java.security;
 
+import java.lang.Override;
 import java.security.InvalidParameterException;
 import java.security.Provider;
 import java.security.Provider.Service;
@@ -116,15 +117,43 @@ public class ProviderServiceTest extends TestCase {
     }
 
     public void testNewInstance() throws Exception {
-        Provider p = new MyProvider();
-        Provider.Service s = new Provider.Service(p, "SecureRandom",
-                "algorithm",
+        String type = "SecureRandom";
+        String algorithm = "algorithm";
+        MyProvider p = new MyProvider();
+        Provider.Service s = new Provider.Service(p, type,
+                algorithm,
                 "org.apache.harmony.security.tests.support.RandomImpl",
                 null, null);
 
+        p.putService(s);
+
+        // Check success and correct type.
         Object o = s.newInstance(null);
-        assertTrue("incorrect instance", o instanceof RandomImpl);
+        assertTrue("new service instance is of incorrect class " + o.getClass().getName(),
+                o instanceof RandomImpl);
     }
+
+    public void testNewlyCreatedServiceDoesntGetsRegistered() throws Exception {
+        String type = "SecureRandom";
+        String algorithm = "algorithm";
+        MyProvider p = new MyProvider();
+        Provider.Service s = new Provider.Service(p, type,
+                algorithm,
+                "org.apache.harmony.security.tests.support.RandomImpl",
+                null, null);
+        assertSame(p, s.getProvider());
+
+        assertNull(p.getService(type, algorithm));
+
+        try {
+            Object o = s.newInstance(null);
+            fail("Expected " + NoSuchAlgorithmException.class.getName() + " as the service is not "
+                    + "registered with the provider");
+        } catch (NoSuchAlgorithmException e) {
+            // Expected.
+        }
+    }
+
 
     public void testGetAlgorithm() {
         Provider p = new MyProvider();
@@ -200,6 +229,10 @@ public class ProviderServiceTest extends TestCase {
             put("MessageDigest.SHA-1", "SomeClassName");
         }
 
+        @Override
+        public void putService(Service s) {
+            super.putService(s);
+        }
     }
 
     class MyService extends Provider.Service {
