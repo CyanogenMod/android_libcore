@@ -71,16 +71,12 @@ public final class ZoneInfoDB {
         new BasicLruCache<String, ZoneInfo>(CACHE_SIZE) {
       @Override
       protected ZoneInfo create(String id) {
-          // Work out where in the big data file this time zone is.
-          int index = Arrays.binarySearch(ids, id);
-          if (index < 0) {
-              return null;
-          }
+        BufferIterator it = getBufferIterator(id);
+        if (it == null) {
+          return null;
+        }
 
-          BufferIterator it = mappedFile.bigEndianIterator();
-          it.skip(byteOffsets[index]);
-
-          return ZoneInfo.makeTimeZone(id, it);
+        return ZoneInfo.makeTimeZone(id, it);
       }
     };
 
@@ -99,6 +95,21 @@ public final class ZoneInfoDB {
       zoneTab = "# Emergency fallback data.\n";
       ids = new String[] { "GMT" };
       byteOffsets = rawUtcOffsetsCache = new int[1];
+    }
+
+    /**
+     * Visible for testing.
+     */
+    public BufferIterator getBufferIterator(String id) {
+      // Work out where in the big data file this time zone is.
+      int index = Arrays.binarySearch(ids, id);
+      if (index < 0) {
+        return null;
+      }
+
+      BufferIterator it = mappedFile.bigEndianIterator();
+      it.skip(byteOffsets[index]);
+      return it;
     }
 
     private boolean loadData(String path) {
