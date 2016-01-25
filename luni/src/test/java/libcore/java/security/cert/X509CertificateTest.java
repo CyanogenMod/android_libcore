@@ -619,11 +619,7 @@ public class X509CertificateTest extends TestCase {
         {
             /* The test certificate is sha1WithRSAEncryption */
             X509Certificate c = getCertificate(f, CERT_EC);
-            if (StandardNames.IS_RI) {
-                assertEquals("SHA1WITHECDSA", c.getSigAlgName().toUpperCase(Locale.US));
-            } else {
-                assertEquals("ECDSA", c.getSigAlgName().toUpperCase(Locale.US));
-            }
+            assertEquals("SHA1WITHECDSA", c.getSigAlgName().toUpperCase(Locale.US));
         }
     }
 
