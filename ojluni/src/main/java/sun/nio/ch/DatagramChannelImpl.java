@@ -51,7 +51,8 @@ class DatagramChannelImpl
     private static NativeDispatcher nd = new DatagramDispatcher();
 
     // Our file descriptor
-    private final FileDescriptor fd;
+    // Android-changed: Make the fd package visible so that we can expose it through DatagramSocketAdaptor.
+    final FileDescriptor fd;
 
     // fd value needed for dev/poll. This value will remain valid
     // even after the value in the file descriptor object has been set to -1
