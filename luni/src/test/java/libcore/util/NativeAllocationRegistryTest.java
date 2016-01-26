@@ -43,15 +43,15 @@ public class NativeAllocationRegistryTest extends TestCase {
     // out of space for new allocations.
     private void testNativeAllocation(TestConfig config) {
         Runtime.getRuntime().gc();
-        final long max = Runtime.getRuntime().maxMemory();
-        final long total = Runtime.getRuntime().totalMemory();
-        final int size = 1024*1024;
-        final int expectedMaxNumAllocations = (int)(max-total)/size;
-        final int numSavedAllocations = expectedMaxNumAllocations/2;
+        long max = Runtime.getRuntime().maxMemory();
+        long total = Runtime.getRuntime().totalMemory();
+        int size = 1024*1024;
+        int expectedMaxNumAllocations = (int)(max-total)/size;
+        int numSavedAllocations = expectedMaxNumAllocations/2;
         Allocation[] saved = new Allocation[numSavedAllocations];
 
         final int nativeSize = size/2;
-        final int javaSize = size/2;
+        int javaSize = size/2;
         NativeAllocationRegistry registry = new NativeAllocationRegistry(
                 getNativeFinalizer(), nativeSize);
 
@@ -83,7 +83,10 @@ public class NativeAllocationRegistryTest extends TestCase {
         }
 
         // Verify most of the allocations have been freed.
-        assertTrue(getNumAllocations() < expectedMaxNumAllocations * 2);
+        long nativeBytes = getNumNativeBytesAllocated();
+        assertTrue("Native bytes allocated (" + nativeBytes + ")"
+                + " exceeds max memory (" + max + ")",
+                getNumNativeBytesAllocated() < max);
     }
 
     public void testNativeAllocationAllocatorAndSharedRegistry() {
@@ -111,22 +114,41 @@ public class NativeAllocationRegistryTest extends TestCase {
         });
     }
 
-    public void testNullArguments() {
-        final long size = 1024*1024;
-        final NativeAllocationRegistry registry = new NativeAllocationRegistry(
-                getNativeFinalizer(), size);
-        final long nativePtr = doNativeAllocation(size);
-        final Object referent = new Object();
+    public void testEarlyFree() {
+        long size = 1234;
+        NativeAllocationRegistry registry
+            = new NativeAllocationRegistry(getNativeFinalizer(), size);
+        long nativePtr = doNativeAllocation(size);
+        Object referent = new Object();
+        Runnable cleaner = registry.registerNativeAllocation(referent, nativePtr);
+        long numBytesAllocatedBeforeClean = getNumNativeBytesAllocated();
 
-        long initialNumAllocations = getNumAllocations();
+        // Running the cleaner should cause the native finalizer to run.
+        cleaner.run();
+        long numBytesAllocatedAfterClean = getNumNativeBytesAllocated();
+        assertEquals(numBytesAllocatedBeforeClean - size, numBytesAllocatedAfterClean);
+
+        // Running the cleaner again should have no effect.
+        cleaner.run();
+        assertEquals(numBytesAllocatedAfterClean, getNumNativeBytesAllocated());
+
+        // There shouldn't be any problems when the referent object is GC'd.
+        referent = null;
+        Runtime.getRuntime().gc();
+    }
+
+    public void testNullArguments() {
+        final NativeAllocationRegistry registry
+            = new NativeAllocationRegistry(getNativeFinalizer(), 1024);
+        final long dummyNativePtr = 0x1;
+        final Object referent = new Object();
 
         // referent should not be null
         assertThrowsIllegalArgumentException(new Runnable() {
             public void run() {
-                registry.registerNativeAllocation(null, nativePtr);
+                registry.registerNativeAllocation(null, dummyNativePtr);
             }
         });
-        assertEquals(initialNumAllocations, getNumAllocations());
 
         // nativePtr should not be null
         assertThrowsIllegalArgumentException(new Runnable() {
@@ -134,7 +156,6 @@ public class NativeAllocationRegistryTest extends TestCase {
                 registry.registerNativeAllocation(referent, 0);
             }
         });
-        assertEquals(initialNumAllocations, getNumAllocations());
 
         // referent should not be null
         assertThrowsIllegalArgumentException(new Runnable() {
@@ -142,12 +163,13 @@ public class NativeAllocationRegistryTest extends TestCase {
                 registry.registerNativeAllocation(null,
                         new NativeAllocationRegistry.Allocator() {
                             public long allocate() {
-                                return doNativeAllocation(size);
+                                // The allocate function ought not to be called.
+                                fail("allocate function called");
+                                return dummyNativePtr;
                             }
                         });
             }
         });
-        assertEquals(initialNumAllocations, getNumAllocations());
 
         // Allocation that returns null should have no effect.
         assertNull(registry.registerNativeAllocation(referent,
@@ -156,10 +178,6 @@ public class NativeAllocationRegistryTest extends TestCase {
                             return 0;
                         }
                     }));
-        assertEquals(initialNumAllocations, getNumAllocations());
-
-        registry.applyFreeFunction(getNativeFinalizer(), nativePtr);
-        assertEquals(initialNumAllocations-1, getNumAllocations());
     }
 
     private static void assertThrowsIllegalArgumentException(Runnable runnable) {
@@ -173,5 +191,5 @@ public class NativeAllocationRegistryTest extends TestCase {
 
     private static native long getNativeFinalizer();
     private static native long doNativeAllocation(long size);
-    private static native long getNumAllocations();
+    private static native long getNumNativeBytesAllocated();
 }
