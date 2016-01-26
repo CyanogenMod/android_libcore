@@ -1292,7 +1292,7 @@ class DatagramSocket implements java.io.Closeable {
     }
 
     /** @hide */
-    public final FileDescriptor getFileDescriptor$() {
+    public FileDescriptor getFileDescriptor$() {
         return impl.fd;
     }
 
