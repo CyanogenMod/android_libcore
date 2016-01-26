@@ -1997,6 +1997,18 @@ static void mcast_join_leave(JNIEnv *env, jobject this,
     }
 
     /*
+     * Get java/net/NetworkInterface#index field.
+     */
+    static jfieldID ni_indexID;
+
+    if (ni_indexID == NULL) {
+      jclass c = (*env)->FindClass(env, "java/net/NetworkInterface");
+      CHECK_NULL(c);
+      ni_indexID = (*env)->GetFieldID(env, c, "index", "I");
+      CHECK_NULL(ni_indexID);
+    }
+
+    /*
      * Determine if this is an IPv4 or IPv6 join/leave.
      */
 #ifdef AF_INET6
@@ -2042,15 +2054,6 @@ static void mcast_join_leave(JNIEnv *env, jobject this,
         if (niObj != NULL) {
 #if defined(__linux__) && defined(AF_INET6)
             if (ipv6_available()) {
-                static jfieldID ni_indexID;
-
-                if (ni_indexID == NULL) {
-                    jclass c = (*env)->FindClass(env, "java/net/NetworkInterface");
-                    CHECK_NULL(c);
-                    ni_indexID = (*env)->GetFieldID(env, c, "index", "I");
-                    CHECK_NULL(ni_indexID);
-                }
-
                 mname.imr_multiaddr.s_addr = htonl(getInetAddress_addr(env, iaObj));
                 mname.imr_address.s_addr = 0;
                 mname.imr_ifindex =  (*env)->GetIntField(env, niObj, ni_indexID);
@@ -2098,7 +2101,6 @@ static void mcast_join_leave(JNIEnv *env, jobject this,
 
 #if defined(__linux__) && defined(AF_INET6)
             if (ipv6_available()) {
-
                 int index;
                 int len = sizeof(index);
 
@@ -2228,20 +2230,6 @@ static void mcast_join_leave(JNIEnv *env, jobject this,
                 }
             }
 
-#ifdef __linux__
-            /*
-             * On 2.4.8+ if we join a group with the interface set to 0
-             * then the kernel records the interface it decides. This causes
-             * subsequent leave groups to fail as there is no match. Thus we
-             * pick the interface if there is a matching route.
-             */
-            if (index == 0) {
-                int rt_index = getDefaultIPv6Interface(&(mname6.ipv6mr_multiaddr));
-                if (rt_index > 0) {
-                    index = rt_index;
-                }
-            }
-#endif
             mname6.ipv6mr_interface = index;
         } else {
             jint idx = (*env)->GetIntField(env, niObj, ni_indexID);
