@@ -601,8 +601,14 @@ static jobject NativeConverter_charsetForName(JNIEnv* env, jclass, jstring chars
     if (env->ExceptionCheck()) {
         return NULL;
     }
+
+    jstring icuCanonicalNameStr = env->NewStringUTF(icuCanonicalName);
+    if (env->ExceptionCheck()) {
+        return NULL;
+    }
+
     return env->NewObject(JniConstants::charsetICUClass, charsetConstructor,
-            javaCanonicalName, env->NewStringUTF(icuCanonicalName), javaAliases);
+            javaCanonicalName, icuCanonicalNameStr, javaAliases);
 }
 
 static JNINativeMethod gMethods[] = {
