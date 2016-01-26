@@ -49,12 +49,12 @@ public class SocketTimeoutException extends java.io.InterruptedIOException {
      */
     public SocketTimeoutException() {}
 
-    /* @hide */
+    /** @hide */
     public SocketTimeoutException(Throwable cause) {
         super(cause);
     }
 
-    /* @hide */
+    /** @hide */
     public SocketTimeoutException(String msg, Throwable cause) {
         super(msg, cause);
     }
