@@ -53,7 +53,7 @@ public class BindException extends SocketException {
      */
     public BindException() {}
 
-    /* @hide */
+    /** @hide */
     public BindException(String msg, Throwable cause) {
         super(msg, cause);
     }

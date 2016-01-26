@@ -95,14 +95,14 @@ class Inet4Address extends InetAddress {
      *  serialized */
     private static final long serialVersionUID = 3286316764910316507L;
 
-    /* @hide */
+    /** @hide */
     public static final InetAddress ANY = new Inet4Address(null, new byte[] { 0, 0, 0, 0 });
 
-    /* @hide */
+    /** @hide */
     public static final InetAddress ALL =
             new Inet4Address(null, new byte[] { (byte) 255, (byte) 255,
                   (byte) 255, (byte) 255 });
-    /* @hide */
+    /** @hide */
     public static final InetAddress LOOPBACK =
             new Inet4Address("localhost", new byte[] { 127, 0, 0, 1 });
 

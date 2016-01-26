@@ -51,7 +51,7 @@ public class PortUnreachableException extends SocketException {
      */
     public PortUnreachableException() {}
 
-    /* @hide */
+    /** @hide */
     public PortUnreachableException(String msg, Throwable cause) {
         super(msg, cause);
     }

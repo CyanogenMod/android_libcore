@@ -517,7 +517,7 @@ public final class Console implements Flushable
 
     private static Console cons;
 
-    /* @hide */
+    /** @hide */
     public static Console console() {
         if (istty()) {
             if (cons == null)
@@ -558,7 +558,7 @@ public final class Console implements Flushable
         rcb = new char[1024];
     }
 
-    /*
+    /**
      * Android-changed: Added method for internal use only, and also in use
      * by tests.
      *
