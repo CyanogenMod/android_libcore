@@ -33,10 +33,7 @@ import java.io.IOException;
  * <p> A file-lock object is created each time a lock is acquired on a file via
  * one of the {@link FileChannel#lock(long,long,boolean) lock} or {@link
  * FileChannel#tryLock(long,long,boolean) tryLock} methods of the
- * {@link FileChannel} class, or the {@link
- * AsynchronousFileChannel#lock(long,long,boolean,Object,CompletionHandler) lock}
- * or {@link AsynchronousFileChannel#tryLock(long,long,boolean) tryLock}
- * methods of the {@link AsynchronousFileChannel} class.
+ * {@link FileChannel} class
  *
  * <p> A file-lock object is initially valid.  It remains valid until the lock
  * is released by invoking the {@link #release release} method, by closing the
@@ -145,44 +142,6 @@ public abstract class FileLock implements AutoCloseable {
      *         If the preconditions on the parameters do not hold
      */
     protected FileLock(FileChannel channel,
-                       long position, long size, boolean shared)
-    {
-        if (position < 0)
-            throw new IllegalArgumentException("Negative position");
-        if (size < 0)
-            throw new IllegalArgumentException("Negative size");
-        if (position + size < 0)
-            throw new IllegalArgumentException("Negative position + size");
-        this.channel = channel;
-        this.position = position;
-        this.size = size;
-        this.shared = shared;
-    }
-
-    /**
-     * Initializes a new instance of this class.
-     *
-     * @param  channel
-     *         The channel upon whose file this lock is held
-     *
-     * @param  position
-     *         The position within the file at which the locked region starts;
-     *         must be non-negative
-     *
-     * @param  size
-     *         The size of the locked region; must be non-negative, and the sum
-     *         <tt>position</tt>&nbsp;+&nbsp;<tt>size</tt> must be non-negative
-     *
-     * @param  shared
-     *         <tt>true</tt> if this lock is shared,
-     *         <tt>false</tt> if it is exclusive
-     *
-     * @throws IllegalArgumentException
-     *         If the preconditions on the parameters do not hold
-     *
-     * @since 1.7
-     */
-    protected FileLock(AsynchronousFileChannel channel,
                        long position, long size, boolean shared)
     {
         if (position < 0)

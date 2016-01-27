@@ -27,9 +27,6 @@ package sun.net.www.protocol.jar;
 
 import java.io.*;
 import java.net.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.jar.*;
 import java.util.zip.ZipFile;
@@ -70,23 +67,6 @@ public class URLJarFile extends JarFile {
         else {
             return retrieve(url, closeController);
         }
-    }
-
-    /*
-     * Changed modifier from private to public in order to be able
-     * to instantiate URLJarFile from sun.plugin package.
-     */
-    public URLJarFile(File file) throws IOException {
-        this(file, null);
-    }
-
-    /*
-     * Changed modifier from private to public in order to be able
-     * to instantiate URLJarFile from sun.plugin package.
-     */
-    public URLJarFile(File file, URLJarFileCloseController closeController) throws IOException {
-        super(file, true, ZipFile.OPEN_READ | ZipFile.OPEN_DELETE);
-        this.closeController = closeController;
     }
 
     private URLJarFile(URL url, URLJarFileCloseController closeController) throws IOException {
@@ -207,35 +187,32 @@ public class URLJarFile extends JarFile {
 
         else
         {
-
-            JarFile result = null;
-
             /* get the stream before asserting privileges */
             try (final InputStream in = url.openConnection().getInputStream()) {
-                result = AccessController.doPrivileged(
-                    new PrivilegedExceptionAction<JarFile>() {
-                        public JarFile run() throws IOException {
-                            Path tmpFile = Files.createTempFile("jar_cache", null);
-                            try {
-                                Files.copy(in, tmpFile, StandardCopyOption.REPLACE_EXISTING);
-                                JarFile jarFile = new URLJarFile(tmpFile.toFile(), closeController);
-                                tmpFile.toFile().deleteOnExit();
-                                return jarFile;
-                            } catch (Throwable thr) {
-                                try {
-                                    Files.delete(tmpFile);
-                                } catch (IOException ioe) {
-                                    thr.addSuppressed(ioe);
-                                }
-                                throw thr;
-                            }
-                        }
-                    });
-            } catch (PrivilegedActionException pae) {
-                throw (IOException) pae.getException();
+                File tmpFile = File.createTempFile("jar_cache", null);
+                try {
+                    copyToFile(in, tmpFile);
+                    tmpFile.deleteOnExit();
+                    JarFile jarFile = new URLJarFile(tmpFile.toURL(), closeController);
+                    return jarFile;
+                } catch (Throwable thr) {
+                    tmpFile.delete();
+                    throw thr;
+                }
             }
+        }
+    }
 
-            return result;
+    static void copyToFile(InputStream in, File dst) throws IOException {
+        final OutputStream out = new FileOutputStream(dst);
+        try {
+            final byte[] buf = new byte[4096];
+            int len;
+            while ((len = in.read(buf)) > 0) {
+                out.write(buf, 0, len);
+            }
+        } finally {
+            out.close();
         }
     }
 
