@@ -14,6 +14,7 @@
  * limitations under the License
  */
 
+
 package libcore.java.net;
 
 import java.net.CookieManager;
@@ -25,10 +26,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CookiesTest extends AbstractCookiesTest {
+public class CookiesMCompatibilityTest extends AbstractCookiesTest {
     @Override
     public CookieStore createCookieStore() {
-        return new InMemoryCookieStore(24 /* VERSION_CODES.N : android N */);
+        return new InMemoryCookieStore(23 /* VERSION_CODES.M : android marshmallow */);
     }
 
     public void testCookiesWithLeadingPeriod() throws Exception {
@@ -45,8 +46,6 @@ public class CookiesTest extends AbstractCookiesTest {
                 new URI("https://webservices.chargepoint.com/backend.php/mobileapi/"),
                 responseHeaders);
 
-        assertEquals(1, cookies.size());
-        List<String> cookieList = cookies.values().iterator().next();
-        assertEquals("coulomb_sess=81c112d7dabac869ffa821aa8f672df2", cookieList.get(0));
+        assertEquals(0, cookies.size());
     }
 }
