@@ -324,7 +324,6 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/java/nio/channels/AsynchronousChannelGroup.java \
     ojluni/src/main/java/java/nio/channels/AsynchronousChannel.java \
     ojluni/src/main/java/java/nio/channels/AsynchronousCloseException.java \
-    ojluni/src/main/java/java/nio/channels/AsynchronousFileChannel.java \
     ojluni/src/main/java/java/nio/channels/AsynchronousServerSocketChannel.java \
     ojluni/src/main/java/java/nio/channels/AsynchronousSocketChannel.java \
     ojluni/src/main/java/java/nio/channels/ByteChannel.java \
@@ -392,77 +391,6 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/java/nio/charset/UnsupportedCharsetException.java \
     ojluni/src/main/java/java/nio/DirectByteBuffer.java \
     ojluni/src/main/java/java/nio/DoubleBuffer.java \
-    ojluni/src/main/java/java/nio/file/AccessDeniedException.java \
-    ojluni/src/main/java/java/nio/file/AccessMode.java \
-    ojluni/src/main/java/java/nio/file/AtomicMoveNotSupportedException.java \
-    ojluni/src/main/java/java/nio/file/attribute/AclEntryFlag.java \
-    ojluni/src/main/java/java/nio/file/attribute/AclEntry.java \
-    ojluni/src/main/java/java/nio/file/attribute/AclEntryPermission.java \
-    ojluni/src/main/java/java/nio/file/attribute/AclEntryType.java \
-    ojluni/src/main/java/java/nio/file/attribute/AclFileAttributeView.java \
-    ojluni/src/main/java/java/nio/file/attribute/AttributeView.java \
-    ojluni/src/main/java/java/nio/file/attribute/BasicFileAttributes.java \
-    ojluni/src/main/java/java/nio/file/attribute/BasicFileAttributeView.java \
-    ojluni/src/main/java/java/nio/file/attribute/DosFileAttributes.java \
-    ojluni/src/main/java/java/nio/file/attribute/DosFileAttributeView.java \
-    ojluni/src/main/java/java/nio/file/attribute/FileAttribute.java \
-    ojluni/src/main/java/java/nio/file/attribute/FileAttributeView.java \
-    ojluni/src/main/java/java/nio/file/attribute/FileOwnerAttributeView.java \
-    ojluni/src/main/java/java/nio/file/attribute/FileStoreAttributeView.java \
-    ojluni/src/main/java/java/nio/file/attribute/FileTime.java \
-    ojluni/src/main/java/java/nio/file/attribute/GroupPrincipal.java \
-    ojluni/src/main/java/java/nio/file/attribute/PosixFileAttributes.java \
-    ojluni/src/main/java/java/nio/file/attribute/PosixFileAttributeView.java \
-    ojluni/src/main/java/java/nio/file/attribute/PosixFilePermission.java \
-    ojluni/src/main/java/java/nio/file/attribute/PosixFilePermissions.java \
-    ojluni/src/main/java/java/nio/file/attribute/UserPrincipal.java \
-    ojluni/src/main/java/java/nio/file/attribute/UserPrincipalLookupService.java \
-    ojluni/src/main/java/java/nio/file/attribute/UserPrincipalNotFoundException.java \
-    ojluni/src/main/java/java/nio/file/ClosedDirectoryStreamException.java \
-    ojluni/src/main/java/java/nio/file/ClosedFileSystemException.java \
-    ojluni/src/main/java/java/nio/file/ClosedWatchServiceException.java \
-    ojluni/src/main/java/java/nio/file/CopyMoveHelper.java \
-    ojluni/src/main/java/java/nio/file/CopyOption.java \
-    ojluni/src/main/java/java/nio/file/DirectoryIteratorException.java \
-    ojluni/src/main/java/java/nio/file/DirectoryNotEmptyException.java \
-    ojluni/src/main/java/java/nio/file/DirectoryStream.java \
-    ojluni/src/main/java/java/nio/file/FileAlreadyExistsException.java \
-    ojluni/src/main/java/java/nio/file/Files.java \
-    ojluni/src/main/java/java/nio/file/FileStore.java \
-    ojluni/src/main/java/java/nio/file/FileSystemAlreadyExistsException.java \
-    ojluni/src/main/java/java/nio/file/FileSystemException.java \
-    ojluni/src/main/java/java/nio/file/FileSystem.java \
-    ojluni/src/main/java/java/nio/file/FileSystemLoopException.java \
-    ojluni/src/main/java/java/nio/file/FileSystemNotFoundException.java \
-    ojluni/src/main/java/java/nio/file/FileSystems.java \
-    ojluni/src/main/java/java/nio/file/FileTreeWalker.java \
-    ojluni/src/main/java/java/nio/file/FileVisitOption.java \
-    ojluni/src/main/java/java/nio/file/FileVisitor.java \
-    ojluni/src/main/java/java/nio/file/FileVisitResult.java \
-    ojluni/src/main/java/java/nio/file/InvalidPathException.java \
-    ojluni/src/main/java/java/nio/file/LinkOption.java \
-    ojluni/src/main/java/java/nio/file/LinkPermission.java \
-    ojluni/src/main/java/java/nio/file/NoSuchFileException.java \
-    ojluni/src/main/java/java/nio/file/NotDirectoryException.java \
-    ojluni/src/main/java/java/nio/file/NotLinkException.java \
-    ojluni/src/main/java/java/nio/file/OpenOption.java \
-    ojluni/src/main/java/java/nio/file/Path.java \
-    ojluni/src/main/java/java/nio/file/PathMatcher.java \
-    ojluni/src/main/java/java/nio/file/Paths.java \
-    ojluni/src/main/java/java/nio/file/ProviderMismatchException.java \
-    ojluni/src/main/java/java/nio/file/ProviderNotFoundException.java \
-    ojluni/src/main/java/java/nio/file/ReadOnlyFileSystemException.java \
-    ojluni/src/main/java/java/nio/file/SecureDirectoryStream.java \
-    ojluni/src/main/java/java/nio/file/spi/FileSystemProvider.java \
-    ojluni/src/main/java/java/nio/file/spi/FileTypeDetector.java \
-    ojluni/src/main/java/java/nio/file/StandardCopyOption.java \
-    ojluni/src/main/java/java/nio/file/StandardOpenOption.java \
-    ojluni/src/main/java/java/nio/file/StandardWatchEventKinds.java \
-    ojluni/src/main/java/java/nio/file/TempFileHelper.java \
-    ojluni/src/main/java/java/nio/file/Watchable.java \
-    ojluni/src/main/java/java/nio/file/WatchEvent.java \
-    ojluni/src/main/java/java/nio/file/WatchKey.java \
-    ojluni/src/main/java/java/nio/file/WatchService.java \
     ojluni/src/main/java/java/nio/FloatBuffer.java \
     ojluni/src/main/java/java/nio/HeapByteBuffer.java \
     ojluni/src/main/java/java/nio/HeapCharBuffer.java \
@@ -1027,7 +955,6 @@ openjdk_javadoc_files := \
 openjdk_java_files := \
     ojluni/src/main/java/com/sun/net/ssl/internal/ssl/Provider.java \
     ojluni/src/main/java/com/sun/net/ssl/internal/ssl/X509ExtendedTrustManager.java \
-    ojluni/src/main/java/com/sun/nio/file/ExtendedCopyOption.java \
     ojluni/src/main/java/com/sun/security/cert/internal/x509/X509V1CertImpl.java \
     ojluni/src/main/java/java/beans/ChangeListenerMap.java \
     ojluni/src/main/java/java/lang/Shutdown.java \
@@ -1170,7 +1097,6 @@ openjdk_java_files := \
     ojluni/src/main/java/sun/nio/ch/AbstractPollSelectorImpl.java \
     ojluni/src/main/java/sun/nio/ch/AllocatedNativeObject.java \
     ojluni/src/main/java/sun/nio/ch/AsynchronousChannelGroupImpl.java \
-    ojluni/src/main/java/sun/nio/ch/AsynchronousFileChannelImpl.java \
     ojluni/src/main/java/sun/nio/ch/AsynchronousServerSocketChannelImpl.java \
     ojluni/src/main/java/sun/nio/ch/AsynchronousSocketChannelImpl.java \
     ojluni/src/main/java/sun/nio/ch/BsdAsynchronousChannelProvider.java \
@@ -1229,7 +1155,6 @@ openjdk_java_files := \
     ojluni/src/main/java/sun/nio/ch/SelectorProviderImpl.java \
     ojluni/src/main/java/sun/nio/ch/ServerSocketAdaptor.java \
     ojluni/src/main/java/sun/nio/ch/ServerSocketChannelImpl.java \
-    ojluni/src/main/java/sun/nio/ch/SimpleAsynchronousFileChannelImpl.java \
     ojluni/src/main/java/sun/nio/ch/SinkChannelImpl.java \
     ojluni/src/main/java/sun/nio/ch/SocketAdaptor.java \
     ojluni/src/main/java/sun/nio/ch/SocketChannelImpl.java \
@@ -1246,40 +1171,6 @@ openjdk_java_files := \
     ojluni/src/main/java/sun/nio/cs/StreamEncoder.java \
     ojluni/src/main/java/sun/nio/cs/HistoricallyNamedCharset.java \
     ojluni/src/main/java/sun/nio/cs/ThreadLocalCoders.java \
-    ojluni/src/main/java/sun/nio/fs/AbstractBasicFileAttributeView.java \
-    ojluni/src/main/java/sun/nio/fs/AbstractFileSystemProvider.java \
-    ojluni/src/main/java/sun/nio/fs/AbstractFileTypeDetector.java \
-    ojluni/src/main/java/sun/nio/fs/AbstractPath.java \
-    ojluni/src/main/java/sun/nio/fs/AbstractWatchKey.java \
-    ojluni/src/main/java/sun/nio/fs/AbstractWatchService.java \
-    ojluni/src/main/java/sun/nio/fs/BasicFileAttributesHolder.java \
-    ojluni/src/main/java/sun/nio/fs/Cancellable.java \
-    ojluni/src/main/java/sun/nio/fs/DefaultFileSystemProvider.java \
-    ojluni/src/main/java/sun/nio/fs/DefaultFileTypeDetector.java \
-    ojluni/src/main/java/sun/nio/fs/DynamicFileAttributeView.java \
-    ojluni/src/main/java/sun/nio/fs/FileOwnerAttributeViewImpl.java \
-    ojluni/src/main/java/sun/nio/fs/Globs.java \
-    ojluni/src/main/java/sun/nio/fs/NativeBuffer.java \
-    ojluni/src/main/java/sun/nio/fs/NativeBuffers.java \
-    ojluni/src/main/java/sun/nio/fs/UnixChannelFactory.java \
-    ojluni/src/main/java/sun/nio/fs/UnixConstants.java \
-    ojluni/src/main/java/sun/nio/fs/UnixCopyFile.java \
-    ojluni/src/main/java/sun/nio/fs/UnixDirectoryStream.java \
-    ojluni/src/main/java/sun/nio/fs/UnixException.java \
-    ojluni/src/main/java/sun/nio/fs/UnixFileAttributes.java \
-    ojluni/src/main/java/sun/nio/fs/UnixFileAttributeViews.java \
-    ojluni/src/main/java/sun/nio/fs/UnixFileKey.java \
-    ojluni/src/main/java/sun/nio/fs/UnixFileModeAttribute.java \
-    ojluni/src/main/java/sun/nio/fs/UnixFileStoreAttributes.java \
-    ojluni/src/main/java/sun/nio/fs/UnixFileSystem.java \
-    ojluni/src/main/java/sun/nio/fs/UnixFileSystemProvider.java \
-    ojluni/src/main/java/sun/nio/fs/UnixMountEntry.java \
-    ojluni/src/main/java/sun/nio/fs/UnixNativeDispatcher.java \
-    ojluni/src/main/java/sun/nio/fs/UnixPath.java \
-    ojluni/src/main/java/sun/nio/fs/UnixSecureDirectoryStream.java \
-    ojluni/src/main/java/sun/nio/fs/UnixUriUtils.java \
-    ojluni/src/main/java/sun/nio/fs/UnixUserPrincipals.java \
-    ojluni/src/main/java/sun/nio/fs/Util.java \
     ojluni/src/main/java/sun/reflect/annotation/AnnotationType.java \
     ojluni/src/main/java/sun/reflect/ConstructorAccessor.java \
     ojluni/src/main/java/sun/reflect/misc/ReflectUtil.java \
