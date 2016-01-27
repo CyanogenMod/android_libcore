@@ -70,10 +70,7 @@ import sun.security.util.SecurityConstants;
  *    <DD> delete permission. Allows <code>File.delete</code> to
  *         be called. Corresponds to <code>SecurityManager.checkDelete</code>.
  *    <DT> readlink
- *    <DD> read link permission. Allows the target of a
- *         <a href="../nio/file/package-summary.html#links">symbolic link</a>
- *         to be read by invoking the {@link java.nio.file.Files#readSymbolicLink
- *         readSymbolicLink } method.
+ *    <DD> read link permission.
  * </DL>
  * <P>
  * The actions string is converted to lowercase before processing.
