@@ -59,7 +59,7 @@ import static android.system.OsConstants.S_ISDIR;
      * Should be called pathElements, but the Facebook app uses reflection
      * to modify 'dexElements' (http://b/7726934).
      */
-    private final Element[] dexElements;
+    private Element[] dexElements;
 
     /** List of native library path elements. */
     private final Element[] nativeLibraryPathElements;
@@ -76,7 +76,7 @@ import static android.system.OsConstants.S_ISDIR;
     /**
      * Exceptions thrown during creation of the dexElements list.
      */
-    private final IOException[] dexElementsSuppressedExceptions;
+    private IOException[] dexElementsSuppressedExceptions;
 
     /**
      * Constructs an instance.
@@ -183,6 +183,46 @@ import static android.system.OsConstants.S_ISDIR;
      */
     public String getLibraryPermittedPath() {
         return libraryPermittedPath;
+    }
+
+    /**
+     * Adds a new path to this instance
+     * @param dexPath list of dex/resource path element, separated by
+     * {@code File.pathSeparator}
+     * @param optimizedDirectory directory where optimized {@code .dex} files
+     * should be found and written to, or {@code null} to use the default
+     * system directory for same
+     */
+    public void addDexPath(String dexPath, File optimizedDirectory) {
+        final List<IOException> suppressedExceptionList = new ArrayList<IOException>();
+        final Element[] newElements = makeDexElements(splitDexPath(dexPath), optimizedDirectory,
+                suppressedExceptionList, definingContext);
+
+        if (newElements != null && newElements.length > 0) {
+            final Element[] oldElements = dexElements;
+            dexElements = new Element[oldElements.length + newElements.length];
+            System.arraycopy(
+                    oldElements, 0, dexElements, 0, oldElements.length);
+            System.arraycopy(
+                    newElements, 0, dexElements, oldElements.length, newElements.length);
+        }
+
+        if (suppressedExceptionList.size() > 0) {
+            final IOException[] newSuppressedExceptions = suppressedExceptionList.toArray(
+                    new IOException[suppressedExceptionList.size()]);
+            if (dexElementsSuppressedExceptions != null) {
+                final IOException[] oldSuppressedExceptions = dexElementsSuppressedExceptions;
+                final int suppressedExceptionsLength = oldSuppressedExceptions.length +
+                        newSuppressedExceptions.length;
+                dexElementsSuppressedExceptions = new IOException[suppressedExceptionsLength];
+                System.arraycopy(oldSuppressedExceptions, 0, dexElementsSuppressedExceptions,
+                        0, oldSuppressedExceptions.length);
+                System.arraycopy(newSuppressedExceptions, 0, dexElementsSuppressedExceptions,
+                        oldSuppressedExceptions.length, newSuppressedExceptions.length);
+            } else {
+                dexElementsSuppressedExceptions = newSuppressedExceptions;
+            }
+        }
     }
 
     /**

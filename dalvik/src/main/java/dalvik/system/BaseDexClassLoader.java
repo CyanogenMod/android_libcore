@@ -100,6 +100,13 @@ public class BaseDexClassLoader extends ClassLoader {
         return c;
     }
 
+    /**
+     * @hide
+     */
+    public void addDexPath(String dexPath) {
+        pathList.addDexPath(dexPath, null /*optimizedDirectory*/);
+    }
+
     @Override
     protected URL findResource(String name) {
         return pathList.findResource(name);
