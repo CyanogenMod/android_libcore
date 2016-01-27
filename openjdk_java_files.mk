@@ -1439,3 +1439,14 @@ openjdk_java_files := \
     ojluni/src/main/java/sun/util/ResourceBundleEnumeration.java \
     ojluni/src/main/java/sun/util/resources/OpenListResourceBundle.java \
     $(openjdk_javadoc_files)
+
+# Stubs needed to satisfy javac's dependencies when compiling lambda code. These are
+# not used on Android devices or required by the Jack compiler.
+openjdk_lambda_stub_files := \
+    ojluni/src/lambda/java/java/lang/invoke/CallSite.java \
+    ojluni/src/lambda/java/java/lang/invoke/LambdaConversionException.java \
+    ojluni/src/lambda/java/java/lang/invoke/LambdaMetafactory.java \
+    ojluni/src/lambda/java/java/lang/invoke/MethodHandle.java \
+    ojluni/src/lambda/java/java/lang/invoke/MethodHandleInfo.java \
+    ojluni/src/lambda/java/java/lang/invoke/MethodHandles.java \
+    ojluni/src/lambda/java/java/lang/invoke/MethodType.java \
