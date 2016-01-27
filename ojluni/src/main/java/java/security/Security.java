@@ -91,8 +91,9 @@ public final class Security {
      */
     private static void initializeStatic() {
         props.put("security.provider.1", "com.android.org.conscrypt.OpenSSLProvider");
-        props.put("security.provider.2", "com.android.org.bouncycastle.jce.provider.BouncyCastleProvider");
-        props.put("security.provider.3", "com.android.org.conscrypt.JSSEProvider");
+        props.put("security.provider.2", "sun.security.provider.CertPathProvider");
+        props.put("security.provider.3", "com.android.org.bouncycastle.jce.provider.BouncyCastleProvider");
+        props.put("security.provider.4", "com.android.org.conscrypt.JSSEProvider");
     }
 
     /**
