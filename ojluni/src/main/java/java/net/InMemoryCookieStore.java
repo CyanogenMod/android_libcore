@@ -26,14 +26,16 @@
 
 package java.net;
 
-import dalvik.system.VMRuntime;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.net.URI;
+import java.net.CookieStore;
+import java.net.HttpCookie;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -41,28 +43,20 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  * @author Edward Wang
  * @since 1.6
- * @hide Visible for testing only.
  */
-public class InMemoryCookieStore implements CookieStore {
+class InMemoryCookieStore implements CookieStore {
     // the in-memory representation of cookies
     private Map<URI, List<HttpCookie>> uriIndex = null;
 
     // use ReentrantLock instead of syncronized for scalability
     private ReentrantLock lock = null;
 
-    private final boolean applyMCompatibility;
-
     /**
      * The default ctor
      */
     public InMemoryCookieStore() {
-        this(VMRuntime.getRuntime().getTargetSdkVersion());
-    }
-
-    public InMemoryCookieStore(int targetSdkVersion) {
-        uriIndex = new HashMap<>();
+        uriIndex = new HashMap<URI, List<HttpCookie>>();
         lock = new ReentrantLock(false);
-        applyMCompatibility = (targetSdkVersion <= 23);
     }
 
     /**
@@ -247,18 +241,10 @@ public class InMemoryCookieStore implements CookieStore {
             return host.equalsIgnoreCase(domain);
         } else if (lengthDiff > 0) {
             // need to check H & D component
+            String H = host.substring(0, lengthDiff);
             String D = host.substring(lengthDiff);
 
-            if (applyMCompatibility) {
-                // Android M and earlier: Cookies with domain "foo.com" would not match "bar.foo.com".
-                // The RFC dictates that the user agent must treat those domains as if they had a
-                // leading period and must therefore match "bar.foo.com".
-                if (!domain.startsWith(".")) {
-                    return false;
-                }
-            } else {
-                return (D.equalsIgnoreCase(domain));
-            }
+            return (D.equalsIgnoreCase(domain));
         } else if (lengthDiff == -1) {
             // if domain is actually .host
             return (domain.charAt(0) == '.' &&
