@@ -245,12 +245,12 @@ import static android.system.OsConstants.S_ISDIR;
     }
 
     /*
-     * TODO (dimitry): Revert after GMS core stops relying on the existence of this
-     * method (see b/21957414 for details)
+     * TODO (dimitry): Revert after apps stops relying on the existence of this
+     * method (see http://b/21957414 and http://b/26317852 for details)
      */
     private static Element[] makePathElements(List<File> files, File optimizedDirectory,
                                               List<IOException> suppressedExceptions) {
-        return makeElements(files, null, suppressedExceptions, true, null);
+        return makeElements(files, optimizedDirectory, suppressedExceptions, false, null);
     }
 
     private static Element[] makeElements(List<File> files, File optimizedDirectory,
