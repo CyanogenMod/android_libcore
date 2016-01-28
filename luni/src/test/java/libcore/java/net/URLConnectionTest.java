@@ -2171,8 +2171,8 @@ public final class URLConnectionTest extends AbstractResourceLeakageDetectorTest
         testUrlToRequestMapping(")", ")", ")");
         testUrlToUriMapping("*", "*", "*", "*", "*");
         testUrlToRequestMapping("*", "*", "*");
-        testUrlToUriMapping("+", "+", "+", "%20", "+");
-        testUrlToRequestMapping("+", "+", "%20");
+        testUrlToUriMapping("+", "+", "+", "+", "+");
+        testUrlToRequestMapping("+", "+", "+");
         testUrlToUriMapping(",", ",", ",", ",", ",");
         testUrlToRequestMapping(",", ",", ",");
         testUrlToUriMapping("-", "-", "-", "-", "-");
