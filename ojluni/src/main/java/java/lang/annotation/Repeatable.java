@@ -35,7 +35,6 @@ package java.lang.annotation;
  * @since 1.8
  * @jls 9.6 Annotation Types
  * @jls 9.7 Annotations
- * @hide 1.8
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
