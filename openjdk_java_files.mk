@@ -1205,6 +1205,7 @@ openjdk_java_files := \
     ojluni/src/main/java/sun/security/pkcs/PKCS9Attributes.java \
     ojluni/src/main/java/sun/security/pkcs/SignerInfo.java \
     ojluni/src/main/java/sun/security/pkcs/SigningCertificateInfo.java \
+    ojluni/src/main/java/sun/security/provider/CertPathProvider.java \
     ojluni/src/main/java/sun/security/provider/certpath/AdaptableX509CertSelector.java \
     ojluni/src/main/java/sun/security/provider/certpath/AdjacencyList.java \
     ojluni/src/main/java/sun/security/provider/certpath/AlgorithmChecker.java \
