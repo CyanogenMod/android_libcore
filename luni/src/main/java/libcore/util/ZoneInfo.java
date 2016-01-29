@@ -383,6 +383,25 @@ public final class ZoneInfo extends TimeZone {
     }
 
     /**
+     * Find the transition in the {@code timezone} in effect at {@code seconds}.
+     *
+     * <p>Returns an index in the range -1..timeZone.mTransitions.length - 1. -1 is used to
+     * indicate the time is before the first transition. Other values are an index into
+     * timeZone.mTransitions.
+     */
+    public int findTransitionIndex(long seconds) {
+        int transition = Arrays.binarySearch(mTransitions, seconds);
+        if (transition < 0) {
+            transition = ~transition - 1;
+            if (transition < 0) {
+                return -1;
+            }
+        }
+
+        return transition;
+    }
+
+    /**
      * Finds the index within the {@link #mOffsets}/{@link #mIsDsts} arrays for the specified time
      * in seconds, since 1st Jan 1970 00:00:00.
      * @param seconds the time in seconds.
@@ -390,12 +409,9 @@ public final class ZoneInfo extends TimeZone {
      * active offset.
      */
     int findOffsetIndexForTimeInSeconds(long seconds) {
-        int transition = Arrays.binarySearch(mTransitions, seconds);
+        int transition = findTransitionIndex(seconds);
         if (transition < 0) {
-            transition = ~transition - 1;
-            if (transition < 0) {
-                return -1;
-            }
+            return -1;
         }
 
         return mTypes[transition] & 0xff;
@@ -476,6 +492,65 @@ public final class ZoneInfo extends TimeZone {
         } else {
             return millis / 1000;
         }
+    }
+
+    /**
+     * Get the raw and DST offsets for the specified time in milliseconds since
+     * 1st Jan 1970 00:00:00.000 UTC.
+     *
+     * <p>The raw offset, i.e. that part of the total offset which is not due to DST, is stored at
+     * index 0 of the {@code offsets} array and the DST offset, i.e. that part of the offset which
+     * is due to DST is stored at index 1.
+     *
+     * @param utcTimeInMillis the UTC time in milliseconds.
+     * @param offsets the array whose length must be greater than or equal to 2.
+     * @return the total offset which is the sum of the raw and DST offsets.
+     */
+    public int getOffsetsByUtcTime(long utcTimeInMillis, int[] offsets) {
+        int transitionIndex = findTransitionIndex(roundDownMillisToSeconds(utcTimeInMillis));
+        int totalOffset;
+        int rawOffset;
+        int dstOffset;
+        if (transitionIndex == -1) {
+            // See getOffset(long) and inDaylightTime(Date) for an explanation as to why these
+            // values are used for times before the first transition.
+            rawOffset = mEarliestRawOffset;
+            dstOffset = 0;
+            totalOffset = rawOffset;
+        } else {
+            int type = mTypes[transitionIndex] & 0xff;
+
+            // Get the total offset used for the transition.
+            totalOffset = mRawOffset + mOffsets[type] * 1000;
+            if (mIsDsts[type] == 0) {
+                // Offset does not include DST so DST is 0 and the raw offset is the total offset.
+                rawOffset = totalOffset;
+                dstOffset = 0;
+            } else {
+                // Offset does include DST, we need to find the preceding transition that did not
+                // include the DST offset so that we can calculate the DST offset.
+                rawOffset = -1;
+                for (transitionIndex -= 1; transitionIndex >= 0; --transitionIndex) {
+                    type = mTypes[transitionIndex] & 0xff;
+                    if (mIsDsts[type] == 0) {
+                        rawOffset = mRawOffset + mOffsets[type] * 1000;
+                        break;
+                    }
+                }
+                // If no previous transition was found then use the earliest raw offset.
+                if (rawOffset == -1) {
+                    rawOffset = mEarliestRawOffset;
+                }
+
+                // The DST offset is the difference between the total and the raw offset.
+                dstOffset = totalOffset - rawOffset;
+            }
+        }
+
+        offsets[0] = rawOffset;
+        offsets[1] = dstOffset;
+
+        return totalOffset;
     }
 
     @Override
@@ -730,7 +805,7 @@ public final class ZoneInfo extends TimeZone {
                 // The initialTransition can be between -1 and (zoneInfo.mTransitions - 1). -1
                 // indicates the rawTime is before the first transition and is handled gracefully by
                 // createOffsetInterval().
-                final int initialTransitionIndex = findTransitionIndex(zoneInfo, rawTimeSeconds);
+                final int initialTransitionIndex = zoneInfo.findTransitionIndex(rawTimeSeconds);
 
                 if (isDst < 0) {
                     // This is treated as a special case to get it out of the way:
@@ -1084,21 +1159,6 @@ public final class ZoneInfo extends TimeZone {
             weekDay = calendar.get(Calendar.DAY_OF_WEEK) - 1;
             // Calendar enumerates from 1, Android Time enumerates from 0.
             yearDay = calendar.get(Calendar.DAY_OF_YEAR) - 1;
-        }
-
-        /**
-         * Find the transition in the {@code timezone} in effect at {@code timeSeconds}.
-         *
-         * <p>Returns an index in the range -1..timeZone.mTransitions.length - 1. -1 is used to
-         * indicate the time is before the first transition. Other values are an index into
-         * timeZone.mTransitions.
-         */
-        private static int findTransitionIndex(ZoneInfo timeZone, int timeSeconds) {
-            int matchingRawTransition = Arrays.binarySearch(timeZone.mTransitions, timeSeconds);
-            if (matchingRawTransition < 0) {
-                matchingRawTransition = ~matchingRawTransition - 1;
-            }
-            return matchingRawTransition;
         }
     }
 
