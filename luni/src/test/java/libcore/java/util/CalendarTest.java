@@ -291,6 +291,15 @@ public class CalendarTest extends junit.framework.TestCase {
         assertSame(c.getSubclassFields(), c2.getSubclassFields());
     }
 
+    // http://b/26581303
+    public void testSetHourOfDayInEuropeLondon() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.clear();
+        calendar.setTimeZone(TimeZone.getTimeZone("Europe/London"));
+        calendar.set(Calendar.HOUR_OF_DAY, 1);
+        assertEquals(1,calendar.get(Calendar.HOUR_OF_DAY));
+    }
+
     public static class FakeCalendar extends Calendar {
 
         private int[] subclassFields;
