@@ -1,5 +1,4 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
  * Copyright (c) 2003, 2005, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
@@ -27,7 +26,6 @@
 package java.lang.reflect;
 
 import java.lang.annotation.Annotation;
-// import libcore.reflect.AnnotatedElements;
 
 /**
  * Represents an annotated element of the program currently running in this
@@ -73,8 +71,7 @@ public interface AnnotatedElement {
      * @throws NullPointerException if the given annotation class is null
      * @since 1.5
      */
-     /*default*/ boolean isAnnotationPresent(Class<? extends Annotation> annotationClass);
-     // { return getAnnotation(annotationClass) != null; }
+     boolean isAnnotationPresent(Class<? extends Annotation> annotationClass);
 
    /**
      * Returns this element's annotation for the specified type if
@@ -112,34 +109,4 @@ public interface AnnotatedElement {
      * @since 1.5
      */
     Annotation[] getDeclaredAnnotations();
-
-    /**
-     * Returns a directly-present annotation on {@code this} element, whose class is
-     * {@code annotationClass}, or {@code null} if nothing was found.
-     *
-     * @since 1.8
-     * @hide 1.8
-     */
-    /*default*/ <T extends Annotation> Annotation getDeclaredAnnotation(Class<T> annotationClass);
-    // { return AnnotatedElements.getDeclaredAnnotation(this, annotationClass); }
-
-    /**
-     * Returns a directly or indirectly present list of annotations on {@code this} element,
-     * whose class is {@code annotationClass}, or an empty array if nothing was found.
-     *
-     * @since 1.8
-     * @hide 1.8
-     */
-    /*default*/ <T extends Annotation> T[] getDeclaredAnnotationsByType(Class<T> annotationClass);
-    // { return AnnotatedElements.getDeclaredAnnotationsByType(this, annotationClass); }
-
-    /**
-     * Returns an associated list of annotations on {@code this} element,
-     * whose class is {@code annotationClass}, or an empty array if nothing was found.
-     *
-     * @since 1.8
-     * @hide 1.8
-     */
-    /*default*/ <T extends Annotation> T[] getAnnotationsByType(Class<T> annotationClass);
-    // { return AnnotatedElements.getAnnotationsByType(this, annotationClass); }
 }

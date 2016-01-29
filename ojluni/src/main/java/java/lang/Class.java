@@ -65,7 +65,6 @@ import java.io.Serializable;
 import java.lang.reflect.AccessibleObject;
 import com.android.dex.Dex;
 import dalvik.system.VMStack;
-import libcore.reflect.AnnotatedElements;
 import libcore.reflect.AnnotationAccess;
 import libcore.reflect.InternalNames;
 import libcore.reflect.GenericSignatureParser;
@@ -2466,56 +2465,9 @@ public final
     @Override public native Annotation[] getDeclaredAnnotations();
 
     /**
-     * {@inheritDoc}
-     * @since 1.8
-     * @hide 1.8
+     * Returns the annotation if it exists.
      */
-    @Override
-    public <T extends Annotation> T[] getDeclaredAnnotationsByType(Class<T> annotationClass) {
-      return AnnotatedElements.getDeclaredAnnotationsByType(this, annotationClass);
-    }
-
-    /**
-     * {@inheritDoc}
-     * @since 1.8
-     * @hide 1.8
-     */
-    @Override
-    public <T extends Annotation> T[] getAnnotationsByType(Class<T> annotationClass) {
-      // Find any associated annotations [directly or repeatably (indirectly) present on this].
-      T[] annotations = AnnotatedElements.getAnnotationsByType(this, annotationClass);
-
-      if (annotations.length != 0) {
-        return annotations;
-      }
-
-      // Nothing was found, attempt looking for associated annotations recursively up to the root
-      // class if and only if:
-      // * The annotation class was marked with @Inherited.
-      //
-      // Inherited annotations are not coalesced into a single set: the first declaration found is
-      // returned.
-
-      if (annotationClass.isDeclaredAnnotationPresent(Inherited.class)) {
-        Class<?> superClass = getSuperclass();  // Returns null if klass's base is Object.
-
-        if (superClass != null) {
-          return superClass.getAnnotationsByType(annotationClass);
-        }
-      }
-
-      // Annotated was not marked with @Inherited, or no superclass.
-      return (T[]) Array.newInstance(annotationClass, 0);  // Safe by construction.
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @since 1.8
-     * @hide 1.8
-     */
-    @Override
-    public native <T extends Annotation> T getDeclaredAnnotation(Class<T> annotationClass);
+    private native <A extends Annotation> A getDeclaredAnnotation(Class<A> annotationClass);
 
     /**
      * Returns true if the annotation exists.

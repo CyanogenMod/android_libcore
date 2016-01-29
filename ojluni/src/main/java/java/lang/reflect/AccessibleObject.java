@@ -30,8 +30,6 @@ import java.security.AccessController;
 import sun.reflect.Reflection;
 import java.lang.annotation.Annotation;
 
-import libcore.reflect.AnnotatedElements;
-
 /**
  * The AccessibleObject class is the base class for Field, Method and
  * Constructor objects.  It provides the ability to flag a reflected
@@ -194,35 +192,5 @@ public class AccessibleObject implements AnnotatedElement {
      */
     public Annotation[] getDeclaredAnnotations()  {
         throw new AssertionError("All subclasses should override this method");
-    }
-
-    /**
-     * {@inheritDoc}
-     * @since 1.8
-     * @hide 1.8
-     */
-    @Override
-    public <T extends Annotation> T[] getDeclaredAnnotationsByType(Class<T> annotationClass) {
-      return AnnotatedElements.getDeclaredAnnotationsByType(this, annotationClass);
-    }
-
-    /**
-     * {@inheritDoc}
-     * @since 1.8
-     * @hide 1.8
-     */
-    @Override
-    public <T extends Annotation> T[] getAnnotationsByType(Class<T> annotationClass) {
-      return AnnotatedElements.getAnnotationsByType(this, annotationClass);
-    }
-
-    /**
-     * {@inheritDoc}
-     * @since 1.8
-     * @hide 1.8
-     */
-    @Override
-    public <T extends Annotation> Annotation getDeclaredAnnotation(Class<T> annotationClass) {
-      return AnnotatedElements.getDeclaredAnnotation(this, annotationClass);
     }
 }
