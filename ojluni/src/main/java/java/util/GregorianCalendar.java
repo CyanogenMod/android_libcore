@@ -41,6 +41,7 @@ package java.util;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import libcore.util.ZoneInfo;
 import sun.util.calendar.BaseCalendar;
 import sun.util.calendar.CalendarDate;
 import sun.util.calendar.CalendarSystem;
@@ -2277,9 +2278,14 @@ public class GregorianCalendar extends Calendar {
             zoneOffsets = new int[2];
         }
         if (tzMask != (ZONE_OFFSET_MASK|DST_OFFSET_MASK)) {
-            zoneOffset = tz.getOffset(time);
-            zoneOffsets[0] = tz.getRawOffset();
-            zoneOffsets[1] = zoneOffset - zoneOffsets[0];
+            if (tz instanceof ZoneInfo) {
+                ZoneInfo zoneInfo = (ZoneInfo) tz;
+                zoneOffset = zoneInfo.getOffsetsByUtcTime(time, zoneOffsets);
+            } else {
+                zoneOffset = tz.getOffset(time);
+                zoneOffsets[0] = tz.getRawOffset();
+                zoneOffsets[1] = zoneOffset - zoneOffsets[0];
+            }
         }
         if (tzMask != 0) {
             if (isFieldSet(tzMask, ZONE_OFFSET)) {
@@ -2829,7 +2835,12 @@ public class GregorianCalendar extends Calendar {
             long standardTimeInZone = utcTimeInMillis - gmtOffset;
 
             // Retrieve the correct zone and DST offsets from the time zone.
-            zone.getOffsets(standardTimeInZone, zoneOffsets);
+            if (zone instanceof ZoneInfo) {
+                ZoneInfo zoneInfo = (ZoneInfo) zone;
+                zoneInfo.getOffsetsByUtcTime(standardTimeInZone, zoneOffsets);
+            } else {
+                zone.getOffsets(standardTimeInZone, zoneOffsets);
+            }
             zoneOffset = zoneOffsets[0];
             dstOffset = zoneOffsets[1];
 
