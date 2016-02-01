@@ -28,6 +28,7 @@
 #include "jni.h"
 #include "jni_util.h"
 #include "jvm.h"
+#include "io_util.h"
 
 
 #include "openssl/opensslv.h"
@@ -227,11 +228,6 @@ static jobjectArray System_specialProperties(JNIEnv* env, jclass ignored) {
 }
 
 static void System_log(JNIEnv* env, jclass ignored, jchar type, jstring javaMessage, jthrowable exception) {
-    const char* message = (*env)->GetStringUTFChars(env, javaMessage, NULL);
-    if (message == NULL) {
-        // Since this function is used for last-gasp debugging output, be noisy on failure.
-        return;
-    }
     int priority;
     switch (type) {
     case 'D': case 'd': priority = ANDROID_LOG_DEBUG;   break;
@@ -243,7 +239,15 @@ static void System_log(JNIEnv* env, jclass ignored, jchar type, jstring javaMess
     case 'W': case 'w': priority = ANDROID_LOG_WARN;    break;
     default:            priority = ANDROID_LOG_DEFAULT; break;
     }
-    LOG_PRI(priority, "System", "%s", message);
+
+    WITH_PLATFORM_STRING(env, javaMessage, message) {
+      if (message == NULL) {
+          // Since this function is used for last-gasp debugging output, be noisy on failure.
+          return;
+      }
+      LOG_PRI(priority, "System", "%s", message);
+    } END_PLATFORM_STRING(env, message);
+
     if (exception != NULL) {
         jniLogException(env, priority, "System", exception);
     }
