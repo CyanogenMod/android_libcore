@@ -39,6 +39,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -50,9 +51,13 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import javax.net.ServerSocketFactory;
 import javax.net.SocketFactory;
+import javax.net.ssl.ExtendedSSLSession;
 import javax.net.ssl.HandshakeCompletedEvent;
 import javax.net.ssl.HandshakeCompletedListener;
 import javax.net.ssl.KeyManager;
+import javax.net.ssl.SNIHostName;
+import javax.net.ssl.SNIMatcher;
+import javax.net.ssl.SNIServerName;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLHandshakeException;
@@ -1771,6 +1776,45 @@ public class SSLSocketTest extends TestCase {
             client.close();
             context.close();
         }
+    }
+
+    public void test_SSLSocket_SNIHostName() throws Exception {
+        TestSSLContext c = TestSSLContext.create();
+
+        final SSLSocket client = (SSLSocket) c.clientContext.getSocketFactory().createSocket();
+        SSLParameters clientParams = client.getSSLParameters();
+        clientParams.setServerNames(Collections.singletonList(
+                (SNIServerName) new SNIHostName("www.example.com")));
+        client.setSSLParameters(clientParams);
+
+        SSLParameters serverParams = c.serverSocket.getSSLParameters();
+        serverParams.setSNIMatchers(Collections.singletonList(
+                SNIHostName.createSNIMatcher("www\\.example\\.com")));
+        c.serverSocket.setSSLParameters(serverParams);
+
+        client.connect(new InetSocketAddress(c.host, c.port));
+        final SSLSocket server = (SSLSocket) c.serverSocket.accept();
+
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Future<Void> future = executor.submit(new Callable<Void>() {
+            @Override public Void call() throws Exception {
+                client.startHandshake();
+                return null;
+            }
+        });
+        executor.shutdown();
+        server.startHandshake();
+
+        SSLSession serverSession = server.getSession();
+        assert(serverSession instanceof ExtendedSSLSession);
+        ExtendedSSLSession extendedServerSession = (ExtendedSSLSession) serverSession;
+        List<SNIServerName> requestedNames = extendedServerSession.getRequestedServerNames();
+        assertNotNull(requestedNames);
+        assertEquals(1, requestedNames.size());
+        SNIServerName serverName = requestedNames.get(0);
+        assertTrue(serverName instanceof SNIHostName);
+        SNIHostName serverHostName = (SNIHostName) serverName;
+        assertEquals("www.example.com", serverHostName.getAsciiName());
     }
 
     public void test_SSLSocket_sendsTlsFallbackScsv_Fallback_Success() throws Exception {
