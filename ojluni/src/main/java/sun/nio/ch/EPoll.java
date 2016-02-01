@@ -87,14 +87,14 @@ class EPoll {
      * Returns event->data.fd
      */
     static int getDescriptor(long eventAddress) {
-        return unsafe.getInt$(eventAddress + OFFSETOF_FD);
+        return unsafe.getInt(eventAddress + OFFSETOF_FD);
     }
 
     /**
      * Returns event->events
      */
     static int getEvents(long eventAddress) {
-        return unsafe.getInt$(eventAddress + OFFSETOF_EVENTS);
+        return unsafe.getInt(eventAddress + OFFSETOF_EVENTS);
     }
 
     // -- Native methods --

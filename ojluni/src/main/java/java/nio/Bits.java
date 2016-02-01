@@ -594,11 +594,11 @@ class Bits {                            // package-private
     private static final Unsafe unsafe = Unsafe.getUnsafe();
 
     private static byte _get(long a) {
-        return unsafe.getByte$(a);
+        return unsafe.getByte(a);
     }
 
     private static void _put(long a, byte b) {
-        unsafe.putByte$(a, b);
+        unsafe.putByte(a, b);
     }
 
     static Unsafe unsafe() {
@@ -623,8 +623,8 @@ class Bits {                            // package-private
         if (byteOrder == null) {
             long a = unsafe.allocateMemory(8);
             try {
-                unsafe.putLong$(a, 0x0102030405060708L);
-                byte b = unsafe.getByte$(a);
+                unsafe.putLong(a, 0x0102030405060708L);
+                byte b = unsafe.getByte(a);
                 switch (b) {
                     case 0x01: byteOrder = ByteOrder.BIG_ENDIAN;     break;
                     case 0x08: byteOrder = ByteOrder.LITTLE_ENDIAN;  break;
@@ -642,8 +642,8 @@ class Bits {                            // package-private
     static {
         long a = unsafe.allocateMemory(8);
         try {
-            unsafe.putLong$(a, 0x0102030405060708L);
-            byte b = unsafe.getByte$(a);
+            unsafe.putLong(a, 0x0102030405060708L);
+            byte b = unsafe.getByte(a);
             switch (b) {
             case 0x01: byteOrder = ByteOrder.BIG_ENDIAN;     break;
             case 0x08: byteOrder = ByteOrder.LITTLE_ENDIAN;  break;
