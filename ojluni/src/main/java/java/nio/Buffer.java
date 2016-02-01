@@ -552,4 +552,13 @@ public abstract class Buffer {
                     "off=" + off + ", len=" + len + " out of bounds (size=" + size + ")");
     }
 
+    /**
+     * For testing only. This field is accessed directly via JNI from frameworks code.
+     *
+     * @hide
+     */
+    public int getElementSizeShift() {
+        return _elementSizeShift;
+    }
+
 }
