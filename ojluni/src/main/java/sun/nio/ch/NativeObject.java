@@ -124,10 +124,10 @@ class NativeObject {                                    // package-private
         long newAddress = 0L;
         switch (addressSize()) {
             case 8:
-                newAddress = unsafe.getLong$(offset + address);
+                newAddress = unsafe.getLong(offset + address);
                 break;
             case 4:
-                newAddress = unsafe.getInt$(offset + address) & 0x00000000FFFFFFFF;
+                newAddress = unsafe.getInt(offset + address) & 0x00000000FFFFFFFF;
                 break;
             default:
                 throw new InternalError("Address size not supported");
@@ -173,7 +173,7 @@ class NativeObject {                                    // package-private
      * @return The byte value read
      */
     final byte getByte(int offset) {
-        return unsafe.getByte$(offset + address);
+        return unsafe.getByte(offset + address);
     }
 
     /**
@@ -187,7 +187,7 @@ class NativeObject {                                    // package-private
      *         The byte value to be written
      */
     final void putByte(int offset, byte value) {
-        unsafe.putByte$(offset + address,  value);
+        unsafe.putByte(offset + address,  value);
     }
 
     /**
@@ -200,7 +200,7 @@ class NativeObject {                                    // package-private
      * @return The short value read
      */
     final short getShort(int offset) {
-        return unsafe.getShort$(offset + address);
+        return unsafe.getShort(offset + address);
     }
 
     /**
@@ -214,7 +214,7 @@ class NativeObject {                                    // package-private
      *         The short value to be written
      */
     final void putShort(int offset, short value) {
-        unsafe.putShort$(offset + address,  value);
+        unsafe.putShort(offset + address,  value);
     }
 
     /**
@@ -227,7 +227,7 @@ class NativeObject {                                    // package-private
      * @return The char value read
      */
     final char getChar(int offset) {
-        return unsafe.getChar$(offset + address);
+        return unsafe.getChar(offset + address);
     }
 
     /**
@@ -241,7 +241,7 @@ class NativeObject {                                    // package-private
      *         The char value to be written
      */
     final void putChar(int offset, char value) {
-        unsafe.putChar$(offset + address,  value);
+        unsafe.putChar(offset + address,  value);
     }
 
     /**
@@ -254,7 +254,7 @@ class NativeObject {                                    // package-private
      * @return The int value read
      */
     final int getInt(int offset) {
-        return unsafe.getInt$(offset + address);
+        return unsafe.getInt(offset + address);
     }
 
     /**
@@ -268,7 +268,7 @@ class NativeObject {                                    // package-private
      *         The int value to be written
      */
     final void putInt(int offset, int value) {
-        unsafe.putInt$(offset + address, value);
+        unsafe.putInt(offset + address, value);
     }
 
     /**
@@ -281,7 +281,7 @@ class NativeObject {                                    // package-private
      * @return The long value read
      */
     final long getLong(int offset) {
-        return unsafe.getLong$(offset + address);
+        return unsafe.getLong(offset + address);
     }
 
     /**
@@ -295,7 +295,7 @@ class NativeObject {                                    // package-private
      *         The long value to be written
      */
     final void putLong(int offset, long value) {
-        unsafe.putLong$(offset + address, value);
+        unsafe.putLong(offset + address, value);
     }
 
     /**
@@ -308,7 +308,7 @@ class NativeObject {                                    // package-private
      * @return The float value read
      */
     final float getFloat(int offset) {
-        return unsafe.getFloat$(offset + address);
+        return unsafe.getFloat(offset + address);
     }
 
     /**
@@ -322,7 +322,7 @@ class NativeObject {                                    // package-private
      *         The float value to be written
      */
     final void putFloat(int offset, float value) {
-        unsafe.putFloat$(offset + address, value);
+        unsafe.putFloat(offset + address, value);
     }
 
     /**
@@ -335,7 +335,7 @@ class NativeObject {                                    // package-private
      * @return The double value read
      */
     final double getDouble(int offset) {
-        return unsafe.getDouble$(offset + address);
+        return unsafe.getDouble(offset + address);
     }
 
     /**
@@ -349,7 +349,7 @@ class NativeObject {                                    // package-private
      *         The double value to be written
      */
     final void putDouble(int offset, double value) {
-        unsafe.putDouble$(offset + address, value);
+        unsafe.putDouble(offset + address, value);
     }
 
     /**
@@ -374,8 +374,8 @@ class NativeObject {                                    // package-private
             return byteOrder;
         long a = unsafe.allocateMemory(8);
         try {
-            unsafe.putLong$(a, 0x0102030405060708L);
-            byte b = unsafe.getByte$(a);
+            unsafe.putLong(a, 0x0102030405060708L);
+            byte b = unsafe.getByte(a);
             switch (b) {
             case 0x01: byteOrder = ByteOrder.BIG_ENDIAN;     break;
             case 0x08: byteOrder = ByteOrder.LITTLE_ENDIAN;  break;
