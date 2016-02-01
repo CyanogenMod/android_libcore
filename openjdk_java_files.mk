@@ -1006,7 +1006,6 @@ openjdk_java_files := \
     ojluni/src/main/java/sun/misc/Service.java \
     ojluni/src/main/java/sun/misc/SoftCache.java \
     ojluni/src/main/java/sun/misc/URLClassPath.java \
-    ojluni/src/main/java/sun/misc/Unsafe.java \
     ojluni/src/main/java/sun/misc/Version.java \
     ojluni/src/main/java/sun/misc/VM.java \
     ojluni/src/main/java/sun/net/ApplicationProxy.java \
