@@ -439,6 +439,7 @@ non_openjdk_java_files := \
   luni/src/main/java/org/apache/harmony/xml/parsers/DocumentBuilderImpl.java \
   luni/src/main/java/org/apache/harmony/xml/parsers/SAXParserFactoryImpl.java \
   luni/src/main/java/org/apache/harmony/xml/parsers/SAXParserImpl.java \
+  libart/src/main/java/sun/misc/Unsafe.java \
   libart/src/main/java/java/lang/CaseMapper.java \
   libart/src/main/java/java/lang/StringFactory.java \
   xml/src/main/java/org/kxml2/io/KXmlParser.java \
