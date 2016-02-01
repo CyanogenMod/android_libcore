@@ -935,6 +935,21 @@ public class BufferTest extends TestCase {
         mapped.get();
     }
 
+    public void testElementSizeShifts() {
+        // Element size shifts are the log base 2 of the element size
+        // of this buffer.
+        assertEquals(1, 1 << ByteBuffer.allocate(0).getElementSizeShift());
+
+        assertEquals(SizeOf.CHAR, 1 << CharBuffer.allocate(0).getElementSizeShift());
+        assertEquals(SizeOf.SHORT, 1 << ShortBuffer.allocate(0).getElementSizeShift());
+
+        assertEquals(SizeOf.INT, 1 << IntBuffer.allocate(0).getElementSizeShift());
+        assertEquals(SizeOf.FLOAT, 1 << FloatBuffer.allocate(0).getElementSizeShift());
+
+        assertEquals(SizeOf.LONG, 1 << LongBuffer.allocate(0).getElementSizeShift());
+        assertEquals(SizeOf.DOUBLE, 1 << DoubleBuffer.allocate(0).getElementSizeShift());
+    }
+
     public void testFreed() {
         ByteBuffer b1 = ByteBuffer.allocateDirect(1);
         ByteBuffer b2 = b1.duplicate();
