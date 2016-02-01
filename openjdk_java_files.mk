@@ -886,6 +886,9 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/javax/net/ssl/KeyManager.java \
     ojluni/src/main/java/javax/net/ssl/KeyStoreBuilderParameters.java \
     ojluni/src/main/java/javax/net/ssl/ManagerFactoryParameters.java \
+    ojluni/src/main/java/javax/net/ssl/SNIHostName.java \
+    ojluni/src/main/java/javax/net/ssl/SNIMatcher.java \
+    ojluni/src/main/java/javax/net/ssl/SNIServerName.java \
     ojluni/src/main/java/javax/net/ssl/SSLContext.java \
     ojluni/src/main/java/javax/net/ssl/SSLContextSpi.java \
     ojluni/src/main/java/javax/net/ssl/SSLEngine.java \
@@ -905,6 +908,7 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/javax/net/ssl/SSLSession.java \
     ojluni/src/main/java/javax/net/ssl/SSLSocketFactory.java \
     ojluni/src/main/java/javax/net/ssl/SSLSocket.java \
+    ojluni/src/main/java/javax/net/ssl/StandardConstants.java \
     ojluni/src/main/java/javax/net/ssl/TrustManagerFactory.java \
     ojluni/src/main/java/javax/net/ssl/TrustManagerFactorySpi.java \
     ojluni/src/main/java/javax/net/ssl/TrustManager.java \

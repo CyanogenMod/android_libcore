@@ -16,7 +16,13 @@
 
 package libcore.javax.net.ssl;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import javax.net.ssl.SNIHostName;
+import javax.net.ssl.SNIMatcher;
+import javax.net.ssl.SNIServerName;
 import javax.net.ssl.SSLParameters;
 import junit.framework.TestCase;
 
@@ -104,5 +110,90 @@ public class SSLParametersTest extends TestCase {
         p.setWantClientAuth(true);
         assertTrue(p.getWantClientAuth());
         assertFalse(p.getNeedClientAuth());
+    }
+
+    public void test_SSLParameters_setServerNames_duplicatedNameThrows() throws Exception {
+        SSLParameters p = new SSLParameters();
+        ArrayList<SNIServerName> dupeNames = new ArrayList<SNIServerName>();
+        dupeNames.add((SNIServerName) new SNIHostName("www.example.com"));
+        dupeNames.add((SNIServerName) new SNIHostName("www.example.com"));
+        try {
+            p.setServerNames(dupeNames);
+            fail("Should throw IllegalArgumentException when names are duplicated");
+        } catch (IllegalArgumentException expected) {
+        }
+    }
+
+    public void test_SSLParameters_setServerNames_setNull_getNull() throws Exception {
+        SSLParameters p = new SSLParameters();
+        p.setServerNames(Collections.singletonList(
+                (SNIServerName) new SNIHostName("www.example.com")));
+        assertNotNull(p.getServerNames());
+        p.setServerNames(null);
+        assertNull(p.getServerNames());
+    }
+
+    public void test_SSLParameters_setServerNames_setEmpty_getEmpty() throws Exception {
+        SSLParameters p = new SSLParameters();
+        p.setServerNames(new ArrayList<SNIServerName>());
+        Collection<SNIServerName> actual = p.getServerNames();
+        assertNotNull(actual);
+        assertEquals(0, actual.size());
+    }
+
+    public void test_SSLParameters_getServerNames_unmodifiable() throws Exception {
+        SSLParameters p = new SSLParameters();
+        p.setServerNames(Collections.singletonList(
+                (SNIServerName) new SNIHostName("www.example.com")));
+        Collection<SNIServerName> actual = p.getServerNames();
+        try {
+            actual.add((SNIServerName) new SNIHostName("www.foo.com"));
+            fail("Should not allow modifications to the list");
+        } catch (UnsupportedOperationException expected) {
+        }
+    }
+
+    public void test_SSLParameters_setSNIMatchers_duplicatedNameThrows() throws Exception {
+        SSLParameters p = new SSLParameters();
+        ArrayList<SNIMatcher> dupeMatchers = new ArrayList<SNIMatcher>();
+        dupeMatchers.add(SNIHostName.createSNIMatcher("www\\.example\\.com"));
+        dupeMatchers.add(SNIHostName.createSNIMatcher("www\\.example\\.com"));
+        try {
+            p.setSNIMatchers(dupeMatchers);
+            fail("Should throw IllegalArgumentException when matchers are duplicated");
+        } catch (IllegalArgumentException expected) {
+        }
+    }
+
+    public void test_SSLParameters_setSNIMatchers_setNull_getNull() throws Exception {
+        SSLParameters p = new SSLParameters();
+        p.setSNIMatchers(Collections.singletonList(
+                    SNIHostName.createSNIMatcher("www\\.example\\.com")));
+        assertNotNull(p.getSNIMatchers());
+        p.setSNIMatchers(null);
+        assertNull(p.getSNIMatchers());
+    }
+
+    public void test_SSLParameters_setSNIMatchers_setEmpty_getEmpty() throws Exception {
+        SSLParameters p = new SSLParameters();
+        p.setSNIMatchers(Collections.singletonList(
+                    SNIHostName.createSNIMatcher("www\\.example\\.com")));
+        assertEquals(1, p.getSNIMatchers().size());
+        p.setSNIMatchers(Collections.<SNIMatcher>emptyList());
+        Collection<SNIMatcher> actual = p.getSNIMatchers();
+        assertNotNull(actual);
+        assertEquals(0, actual.size());
+    }
+
+    public void test_SSLParameters_getSNIMatchers_unmodifiable() throws Exception {
+        SSLParameters p = new SSLParameters();
+        p.setSNIMatchers(Collections.singletonList(
+                    SNIHostName.createSNIMatcher("www\\.example\\.com")));
+        Collection<SNIMatcher> actual = p.getSNIMatchers();
+        try {
+            actual.add(SNIHostName.createSNIMatcher("www\\.google\\.com"));
+            fail("Should not allow modification of list");
+        } catch (UnsupportedOperationException expected) {
+        }
     }
 }
