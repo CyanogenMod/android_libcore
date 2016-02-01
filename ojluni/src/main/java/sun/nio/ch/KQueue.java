@@ -86,15 +86,15 @@ class KQueue {
      * Returns the file descriptor from a kevent (assuming to be in ident field)
      */
     static int getDescriptor(long address) {
-        return unsafe.getInt(address + OFFSET_IDENT);
+        return unsafe.getInt$(address + OFFSET_IDENT);
     }
 
     static int getFilter(long address) {
-        return unsafe.getShort(address + OFFSET_FILTER);
+        return unsafe.getShort$(address + OFFSET_FILTER);
     }
 
     static int getFlags(long address) {
-        return unsafe.getShort(address + OFFSET_FLAGS);
+        return unsafe.getShort$(address + OFFSET_FLAGS);
     }
 
     // -- Native methods --
