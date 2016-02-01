@@ -336,11 +336,11 @@ class Util {
     private static Unsafe unsafe = Unsafe.getUnsafe();
 
     private static byte _get(long a) {
-        return unsafe.getByte$(a);
+        return unsafe.getByte(a);
     }
 
     private static void _put(long a, byte b) {
-        unsafe.putByte$(a, b);
+        unsafe.putByte(a, b);
     }
 
     static void erase(ByteBuffer bb) {
