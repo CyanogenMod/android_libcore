@@ -25,29 +25,44 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CookiesTest extends AbstractCookiesTest {
+public class CookiesMCompatibilityTest extends AbstractCookiesTest {
     @Override
     public CookieStore createCookieStore() {
-        return new InMemoryCookieStore(24 /* VERSION_CODES.N : android N */);
+        return new InMemoryCookieStore(23 /* VERSION_CODES.M : android marshmallow */);
     }
 
     // http://b/26456024
-    public void testCookiesWithLeadingPeriod() throws Exception {
+    public void testCookiesWithoutLeadingPeriod() throws Exception {
         CookieManager cm = new CookieManager(createCookieStore(), null);
         Map<String, List<String>> responseHeaders = new HashMap<>();
         List<String> list = new ArrayList<String>();
-        list.add("coulomb_sess=81c112d7dabac869ffa821aa8f672df2");
+        list.add("a=b; domain=chargepoint.com");
         responseHeaders.put("Set-Cookie", list);
 
-        URI uri = new URI("http://chargepoint.com");
+        URI uri = new URI("http://services.chargepoint.com");
         cm.put(uri, responseHeaders);
 
         Map<String, List<String>> cookies = cm.get(
-                new URI("https://webservices.chargepoint.com/backend.php/mobileapi/"),
+                new URI("https://webservices.chargepoint.com/foo"),
+                responseHeaders);
+
+        assertEquals(0, cookies.size());
+    }
+
+    public void testCookiesWithLeadingPeriod() throws Exception {
+        CookieManager cm = new CookieManager(createCookieStore(), null);
+        URI uri = new URI("http://services.chargepoint.com");
+        List<String> list = new ArrayList<>();
+        Map<String, List<String>> responseHeaders = new HashMap<>();
+        list.add("b=c; domain=.chargepoint.com;");
+        responseHeaders.put("Set-Cookie", list);
+        cm.put(uri, responseHeaders);
+        Map<String, List<String>> cookies = cm.get(
+                new URI("https://webservices.chargepoint.com/foo"),
                 responseHeaders);
 
         assertEquals(1, cookies.size());
         List<String> cookieList = cookies.values().iterator().next();
-        assertEquals("coulomb_sess=81c112d7dabac869ffa821aa8f672df2", cookieList.get(0));
+        assertEquals("b=c", cookieList.get(0));
     }
 }
