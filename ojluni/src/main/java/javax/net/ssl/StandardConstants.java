@@ -47,7 +47,7 @@ public final class StandardConstants {
      * handshaking.  See section 3, "Server Name Indication", of <A
      * HREF="http://www.ietf.org/rfc/rfc6066.txt">TLS Extensions (RFC 6066)</A>.
      * <P>
-     * The value of this constant is {@value}.
+     * The value of this constant is {@code 0x00}.
      *
      * @see SNIServerName
      * @see SNIHostName
