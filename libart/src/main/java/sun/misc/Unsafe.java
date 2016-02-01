@@ -347,33 +347,33 @@ public final class Unsafe {
 
     public native void setMemory(long address, long bytes, byte value);
 
-    public native byte getByte(long address);
+    public native byte getByte$(long address);
 
-    public native void putByte(long address, byte x);
+    public native void putByte$(long address, byte x);
 
-    public native short getShort(long address);
+    public native short getShort$(long address);
 
-    public native void putShort(long address, short x);
+    public native void putShort$(long address, short x);
 
-    public native char getChar(long address);
+    public native char getChar$(long address);
 
-    public native void putChar(long address, char x);
+    public native void putChar$(long address, char x);
 
-    public native int getInt(long address);
+    public native int getInt$(long address);
 
-    public native void putInt(long address, int x);
+    public native void putInt$(long address, int x);
 
-    public native long getLong(long address);
+    public native long getLong$(long address);
 
-    public native void putLong(long address, long x);
+    public native void putLong$(long address, long x);
 
-    public native float getFloat(long address);
+    public native float getFloat$(long address);
 
-    public native void putFloat(long address, float x);
+    public native void putFloat$(long address, float x);
 
-    public native double getDouble(long address);
+    public native double getDouble$(long address);
 
-    public native void putDouble(long address, double x);
+    public native void putDouble$(long address, double x);
 
     public native void copyMemoryToPrimitiveArray(long srcAddr,
             Object dst, long dstOffset, long bytes);
