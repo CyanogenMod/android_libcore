@@ -157,19 +157,8 @@ public final class Daemons {
                 } catch (OutOfMemoryError e) {
                     continue;
                 }
-                enqueue(list);
+                ReferenceQueue.enqueuePending(list);
             }
-        }
-
-        private void enqueue(Reference<?> list) {
-            Reference<?> start = list;
-            do {
-                // pendingNext is owned by the GC so no synchronization is required.
-                Reference<?> next = list.pendingNext;
-                list.pendingNext = null;
-                list.enqueueInternal();
-                list = next;
-            } while (list != start);
         }
     }
 
