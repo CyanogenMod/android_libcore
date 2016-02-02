@@ -31,6 +31,8 @@ import java.io.InputStream;
 import java.io.File;
 import java.io.OutputStream;
 import java.util.Hashtable;
+import java.util.Objects;
+
 import sun.net.util.IPAddressUtil;
 import sun.net.www.ParseUtil;
 
@@ -368,9 +370,10 @@ public abstract class URLStreamHandler {
      * @since 1.3
      */
     protected boolean equals(URL u1, URL u2) {
-        String ref1 = u1.getRef();
-        String ref2 = u2.getRef();
-        return (ref1 == ref2 || (ref1 != null && ref1.equals(ref2))) &&
+        return Objects.equals(u1.getRef(), u2.getRef()) &&
+               Objects.equals(u1.getQuery(), u2.getQuery()) &&
+               // sameFile compares the protocol, file, port & host components of
+               // the URLs.
                sameFile(u1, u2);
     }
 
@@ -383,40 +386,14 @@ public abstract class URLStreamHandler {
      * @since 1.3
      */
     protected int hashCode(URL u) {
-        int h = 0;
-
-        // Generate the protocol part.
-        String protocol = u.getProtocol();
-        if (protocol != null)
-            h += protocol.hashCode();
-
-        // Generate the host part.
-        InetAddress addr = getHostAddress(u);
-        if (addr != null) {
-            h += addr.hashCode();
-        } else {
-            String host = u.getHost();
-            if (host != null)
-                h += host.toLowerCase().hashCode();
-        }
-
-        // Generate the file part.
-        String file = u.getFile();
-        if (file != null)
-            h += file.hashCode();
-
-        // Generate the port part.
-        if (u.getPort() == -1)
-            h += getDefaultPort();
-        else
-            h += u.getPort();
-
-        // Generate the ref part.
-        String ref = u.getRef();
-        if (ref != null)
-            h += ref.hashCode();
-
-        return h;
+        // Hash on the same set of fields that we compare in equals().
+        return Objects.hash(
+                u.getRef(),
+                u.getQuery(),
+                u.getProtocol(),
+                u.getFile(),
+                u.getHost(),
+                u.getPort());
     }
 
     /**
@@ -493,18 +470,8 @@ public abstract class URLStreamHandler {
      * @since 1.3
      */
     protected boolean hostsEqual(URL u1, URL u2) {
-        // ----- BEGIN android -----
-        // Stop doing host lookups in URL#equals, it's silly.
-        //
-        // InetAddress a1 = getHostAddress(u1);
-        // InetAddress a2 = getHostAddress(u2);
-        // // if we have internet address for both, compare them
-        // if (a1 != null && a2 != null) {
-        //     return a1.equals(a2);
-        // // else, if both have host names, compare them
-        // } else if (u1.getHost() != null && u2.getHost() != null)
+        // Android changed: Don't compare the InetAddresses of the hosts.
         if (u1.getHost() != null && u2.getHost() != null)
-        // ----- END android -----
             return u1.getHost().equalsIgnoreCase(u2.getHost());
          else
             return u1.getHost() == null && u2.getHost() == null;
