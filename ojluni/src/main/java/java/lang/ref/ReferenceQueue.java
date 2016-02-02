@@ -26,6 +26,8 @@
 
 package java.lang.ref;
 
+import sun.misc.Cleaner;
+
 /**
  * Reference queues, to which registered reference objects are appended by the
  * garbage collector after the appropriate reachability changes are detected.
@@ -34,6 +36,10 @@ package java.lang.ref;
  * @since    1.2
  */
 public class ReferenceQueue<T> {
+
+    // Reference.queueNext will be set to sQueueNextUnenqueued to indicate
+    // when a reference has been enqueued and removed from its queue.
+    private static final Reference sQueueNextUnenqueued = new PhantomReference(null, null);
 
     // NOTE: This implementation of ReferenceQueue is FIFO (queue-like) whereas
     // the OpenJdk implementation is LIFO (stack-like).
@@ -47,17 +53,67 @@ public class ReferenceQueue<T> {
      */
     public ReferenceQueue() { }
 
-    boolean enqueue(Reference<? extends T> r) { /* Called only by Reference class */
-        synchronized (lock) {
-            if (tail == null) {
-                head = r;
-            } else {
-                tail.queueNext = r;
-            }
-            tail = r;
-            tail.queueNext = r;
-            lock.notifyAll();
+    /**
+     * Enqueue the given reference onto this queue.
+     * The caller is responsible for ensuring the lock is held on this queue,
+     * and for calling notifyAll on this queue after the reference has been
+     * enqueued. Returns true if the reference was enqueued successfully,
+     * false if the reference had already been enqueued.
+     * @GuardedBy("lock")
+     */
+    private boolean enqueueLocked(Reference<? extends T> r) {
+        // Verify the reference has not already been enqueued.
+        if (r.queueNext != null) {
+            return false;
+        }
+
+        if (r instanceof Cleaner) {
+            // If this reference is a Cleaner, then simply invoke the clean method instead
+            // of enqueueing it in the queue. Cleaners are associated with dummy queues that
+            // are never polled and objects are never enqueued on them.
+            Cleaner cl = (sun.misc.Cleaner) r;
+            cl.clean();
+
+            // Update queueNext to indicate that the reference has been
+            // enqueued, but is now removed from the queue.
+            r.queueNext = sQueueNextUnenqueued;
             return true;
+        }
+
+        if (tail == null) {
+            head = r;
+        } else {
+            tail.queueNext = r;
+        }
+        tail = r;
+        tail.queueNext = r;
+        return true;
+    }
+
+    /**
+     * Test if the given reference object has been enqueued but not yet
+     * removed from the queue, assuming this is the reference object's queue.
+     */
+    boolean isEnqueued(Reference<? extends T> reference) {
+        synchronized (lock) {
+            return reference.queueNext != null && reference.queueNext != sQueueNextUnenqueued;
+        }
+    }
+
+    /**
+     * Enqueue the reference object on the receiver.
+     *
+     * @param reference
+     *            reference object to be enqueued.
+     * @return true if the reference was enqueued.
+     */
+    boolean enqueue(Reference<? extends T> reference) {
+        synchronized (lock) {
+            if (enqueueLocked(reference)) {
+                lock.notifyAll();
+                return true;
+            }
+            return false;
         }
     }
 
@@ -71,7 +127,10 @@ public class ReferenceQueue<T> {
             } else {
                 head = head.queueNext;
             }
-            r.queueNext = null;
+
+            // Update queueNext to indicate that the reference has been
+            // enqueued, but is now removed from the queue.
+            r.queueNext = sQueueNextUnenqueued;
             return r;
         }
 
@@ -150,7 +209,51 @@ public class ReferenceQueue<T> {
         return remove(0);
     }
 
-    /** @hide */
+    /**
+     * Enqueue the given list of currently pending (unenqueued) references.
+     *
+     * @hide
+     */
+    public static void enqueuePending(Reference<?> list) {
+        Reference<?> start = list;
+        do {
+            ReferenceQueue queue = list.queue;
+            if (queue == null) {
+                Reference<?> next = list.pendingNext;
+
+                // Make pendingNext a self-loop to preserve the invariant that
+                // once enqueued, pendingNext is non-null -- without leaking
+                // the object pendingNext was previously pointing to.
+                list.pendingNext = list;
+                list = next;
+            } else {
+                // To improve performance, we try to avoid repeated
+                // synchronization on the same queue by batching enqueue of
+                // consecutive references in the list that have the same
+                // queue.
+                synchronized (queue.lock) {
+                    do {
+                        Reference<?> next = list.pendingNext;
+
+                        // Make pendingNext a self-loop to preserve the
+                        // invariant that once enqueued, pendingNext is
+                        // non-null -- without leaking the object pendingNext
+                        // was previously pointing to.
+                        list.pendingNext = list;
+                        queue.enqueueLocked(list);
+                        list = next;
+                    } while (list != start && list.queue == queue);
+                    queue.lock.notifyAll();
+                }
+            }
+        } while (list != start);
+    }
+
+    /**
+     * List of references that the GC says need to be enqueued.
+     * Protected by ReferenceQueue.class lock.
+     * @hide
+     */
     public static Reference<?> unenqueued = null;
 
     static void add(Reference<?> list) {

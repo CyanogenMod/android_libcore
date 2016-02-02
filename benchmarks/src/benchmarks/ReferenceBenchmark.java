@@ -18,6 +18,9 @@ package benchmarks;
 
 import java.lang.ref.PhantomReference;
 import java.lang.ref.ReferenceQueue;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Benchmark to evaluate the performance of References.
@@ -65,6 +68,60 @@ public class ReferenceBenchmark {
             } catch (InterruptedException ie) {
                 i--;
             }
+        }
+    }
+
+    // How fast can references can be implicitly allocated, enqueued, and
+    // removed?
+    public void timeAllocImplicitEnqueueAndRemove(int reps) {
+        ReferenceQueue<Object> queue = new ReferenceQueue<Object>();
+        List<Object> refs = new ArrayList<Object>();
+        for (int i = 0; i < reps; i++) {
+            refs.add(new PhantomReference<Object>(new Object(), queue));
+        }
+        Runtime.getRuntime().gc();
+        for (int i = 0; i < reps; i++) {
+            try {
+                queue.remove();
+            } catch (InterruptedException ie) {
+                i--;
+            }
+        }
+    }
+
+    static private class FinalizableObject {
+        AtomicInteger count;
+
+        public FinalizableObject(AtomicInteger count) {
+            this.count = count;
+        }
+
+        @Override
+        protected void finalize() {
+            count.incrementAndGet();
+        }
+    }
+
+    // How fast does finalization run?
+    public void timeFinalization(int reps) {
+        // Allocate a bunch of finalizable objects.
+        int n = reps;
+        AtomicInteger count = new AtomicInteger(0);
+        for (int i = 0; i < n; i++) {
+            new FinalizableObject(count);
+        }
+
+        // Run GC so the objects will be collected for finalization.
+        Runtime.getRuntime().gc();
+
+        // Wait for finalization.
+        Runtime.getRuntime().runFinalization();
+
+        // Double check all the objects were finalized.
+        int got = count.get();
+        if (n != got) {
+            throw new IllegalStateException(
+                    String.format("Only %i of %i objects finalized?", got, n));
         }
     }
 }
