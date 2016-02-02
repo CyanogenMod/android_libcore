@@ -34,7 +34,6 @@ import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharsetDecoder;
-import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
 import java.nio.charset.CharacterCodingException;
@@ -43,7 +42,6 @@ import sun.nio.cs.ThreadLocalCoders;
 
 import java.lang.Character;             // for javadoc
 import java.lang.NullPointerException;  // for javadoc
-import libcore.net.UriCodec;
 
 
 /**
@@ -468,40 +466,6 @@ import libcore.net.UriCodec;
 public final class URI
     implements Comparable<URI>, Serializable
 {
-    static final String UNRESERVED = "_-!.~\'()*";
-    static final String PUNCTUATION = ",;:$&+=";
-    static final UriCodec AUTHORITY_ENCODER = new PartEncoder("@[]");
-
-    /** for java.net.URL, which foolishly combines these two parts */
-    static final UriCodec FILE_AND_QUERY_ENCODER = new PartEncoder("/@?");
-
-    /** for query, fragment, and scheme-specific part */
-    static final UriCodec ALL_LEGAL_ENCODER = new PartEncoder("?/[]@");
-
-    /**
-     * Encodes the unescaped characters of {@code s} that are not permitted.
-     * Permitted characters are:
-     * <ul>
-     *   <li>Unreserved characters in <a href="http://www.ietf.org/rfc/rfc2396.txt">RFC 2396</a>.
-     *   <li>{@code extraOkayChars},
-     *   <li>non-ASCII, non-control, non-whitespace characters
-     * </ul>
-     */
-    private static class PartEncoder extends UriCodec {
-        private final String extraLegalCharacters;
-
-        PartEncoder(String extraLegalCharacters) {
-            this.extraLegalCharacters = extraLegalCharacters;
-        }
-
-        @Override protected boolean isRetained(char c) {
-            return UNRESERVED.indexOf(c) != -1
-                    || PUNCTUATION.indexOf(c) != -1
-                    || extraLegalCharacters.indexOf(c) != -1
-                    || (c > 127 && !Character.isSpaceChar(c) && !Character.isISOControl(c));
-        }
-    }
-
     // Note: Comments containing the word "ASSERT" indicate places where a
     // throw of an InternalError should be replaced by an appropriate assertion
     // statement once asserts are enabled in the build.
