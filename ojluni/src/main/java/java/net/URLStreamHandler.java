@@ -27,14 +27,9 @@
 package java.net;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.File;
-import java.io.OutputStream;
-import java.util.Hashtable;
 import java.util.Objects;
 
 import sun.net.util.IPAddressUtil;
-import sun.net.www.ParseUtil;
 
 /**
  * The abstract class <code>URLStreamHandler</code> is the common
@@ -485,10 +480,6 @@ public abstract class URLStreamHandler {
      * @return  a string representation of the <code>URL</code> argument.
      */
     protected String toExternalForm(URL u) {
-      return toExternalForm(u, false);
-    }
-
-    String toExternalForm(URL u, boolean escapeIllegalCharacters) {
         // pre-compute length of StringBuffer
         int len = u.getProtocol().length() + 1;
         if (u.getAuthority() != null && u.getAuthority().length() > 0)
@@ -507,27 +498,15 @@ public abstract class URLStreamHandler {
         result.append(":");
         if (u.getAuthority() != null) {// ANDROID: && u.getAuthority().length() > 0) {
             result.append("//");
-            if (escapeIllegalCharacters) {
-                URI.AUTHORITY_ENCODER.appendPartiallyEncoded(result, u.getAuthority());
-            } else {
-                result.append(u.getAuthority());
-            }
+            result.append(u.getAuthority());
         }
         String fileAndQuery = u.getFile();
         if (fileAndQuery != null) {
-            if (escapeIllegalCharacters) {
-                URI.FILE_AND_QUERY_ENCODER.appendPartiallyEncoded(result, fileAndQuery);
-            } else {
-                result.append(fileAndQuery);
-            }
+            result.append(fileAndQuery);
         }
         if (u.getRef() != null) {
             result.append("#");
-            if (escapeIllegalCharacters) {
-              URI.ALL_LEGAL_ENCODER.appendPartiallyEncoded(result, u.getRef());
-            } else {
-              result.append(u.getRef());
-            }
+            result.append(u.getRef());
         }
         return result.toString();
     }

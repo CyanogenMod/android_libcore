@@ -1310,14 +1310,6 @@ public final class URL implements java.io.Serializable {
         }
         hashCode = -1;
     }
-
-    public URI toURILenient() throws URISyntaxException {
-        URLStreamHandler handler = getURLStreamHandler(protocol);
-        if (handler == null) {
-          throw new IllegalStateException(protocol);
-        }
-        return new URI(handler.toExternalForm(this, true));
-    }
 }
 
 class Parts {
