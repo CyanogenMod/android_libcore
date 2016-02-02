@@ -22,6 +22,8 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URI;
 import java.net.URL;
+
+import dalvik.system.BlockGuard;
 import junit.framework.TestCase;
 import libcore.util.SerializationTester;
 
@@ -742,5 +744,40 @@ public final class URLTest extends TestCase {
         }
     }
 
-    // Adding a new test? Consider adding an equivalent test to URITest.java
+    // http://b/26895969
+    // http://b/26798800
+    public void testHashCodeAndEqualsDoesNotPerformNetworkIo() throws Exception {
+        final BlockGuard.Policy oldPolicy = BlockGuard.getThreadPolicy();
+        BlockGuard.setThreadPolicy(new BlockGuard.Policy() {
+            @Override
+            public void onWriteToDisk() {
+                fail("Blockguard.Policy.onWriteToDisk");
+            }
+
+            @Override
+            public void onReadFromDisk() {
+                fail("Blockguard.Policy.onReadFromDisk");
+            }
+
+            @Override
+            public void onNetwork() {
+                fail("Blockguard.Policy.onNetwork");
+            }
+
+            @Override
+            public int getPolicyMask() {
+                return 0;
+            }
+        });
+
+        try {
+            URL url = new URL("http://www.google.com/");
+            URL url2 = new URL("http://www.nest.com/");
+
+            url.equals(url2);
+            url2.hashCode();
+        } finally {
+            BlockGuard.setThreadPolicy(oldPolicy);
+        }
+    }
 }
