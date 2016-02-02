@@ -1906,6 +1906,7 @@ public class SSLSocketTest extends TestCase {
         assertNotNull(requestedNames);
         assertEquals(1, requestedNames.size());
         SNIServerName serverName = requestedNames.get(0);
+        assertEquals(StandardConstants.SNI_HOST_NAME, serverName.getType());
         assertTrue(serverName instanceof SNIHostName);
         SNIHostName serverHostName = (SNIHostName) serverName;
         assertEquals("www.example.com", serverHostName.getAsciiName());
