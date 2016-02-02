@@ -43,7 +43,7 @@ public final class CertPathProvider extends Provider {
         put("CertPathBuilder.PKIX ValidationAlgorithm", "RFC3280");
 
         // CertPathValidator
-        put("CertPathValidator.PKIX", "sun.security.provider.certPath.PKIXCertPathValidator");
+        put("CertPathValidator.PKIX", "sun.security.provider.certpath.PKIXCertPathValidator");
         put("CertPathValidator.PKIX ImplementedIn", "Software");
         put("CertPathValidator.PKIX ValidationAlgorithm", "RFC3280");
     }
