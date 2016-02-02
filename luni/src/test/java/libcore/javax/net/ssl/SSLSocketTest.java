@@ -402,8 +402,8 @@ public class SSLSocketTest extends TestCase {
         final TestSSLContext c = TestSSLContext.create();
         final ExecutorService executor = Executors.newSingleThreadExecutor();
 
-        final SSLSocket client1 = (SSLSocket) c.clientContext.getSocketFactory().createSocket(c.host,
-                                                                                       c.port);
+        final SSLSocket client1 = (SSLSocket) c.clientContext.getSocketFactory()
+                .createSocket(c.host.getHostName(), c.port);
         final SSLSocket server1 = (SSLSocket) c.serverSocket.accept();
         final Future<byte[]> future1 = executor.submit(new SSLServerSessionIdCallable(server1));
         client1.startHandshake();
@@ -415,8 +415,8 @@ public class SSLSocketTest extends TestCase {
         client1.close();
         server1.close();
 
-        final SSLSocket client2 = (SSLSocket) c.clientContext.getSocketFactory().createSocket(c.host,
-                                                                                       c.port);
+        final SSLSocket client2 = (SSLSocket) c.clientContext.getSocketFactory()
+                .createSocket(c.host.getHostName(), c.port);
         final SSLSocket server2 = (SSLSocket) c.serverSocket.accept();
         final Future<byte[]> future2 = executor.submit(new SSLServerSessionIdCallable(server2));
         client2.startHandshake();
