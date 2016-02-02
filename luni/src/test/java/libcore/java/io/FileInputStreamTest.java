@@ -22,6 +22,11 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import android.system.ErrnoException;
+import android.system.OsConstants;
 import junit.framework.TestCase;
 
 import libcore.io.IoUtils;
@@ -203,5 +208,37 @@ public final class FileInputStreamTest extends TestCase {
         File file = new File("/proc/version");
         FileInputStream input = new FileInputStream(file);
         assertTrue(input.available() == 0);
+    }
+
+    // http://b/25695227
+    public void testFdLeakWhenOpeningDirectory() throws Exception {
+        File phile = IoUtils.createTemporaryDirectory("test_bug_25695227");
+
+        try {
+            new FileInputStream(phile);
+            fail();
+        } catch (FileNotFoundException expected) {
+        }
+
+        assertTrue(getOpenFdsForPrefix("test_bug_25695227").isEmpty());
+    }
+
+    private static List<Integer> getOpenFdsForPrefix(String path) throws Exception {
+        File[] fds = new File("/proc/self/fd").listFiles();
+        List<Integer> list = new ArrayList<>();
+        for (File fd : fds) {
+            try {
+                File fdPath = new File(android.system.Os.readlink(fd.getAbsolutePath()));
+                if (fdPath.getName().startsWith(path)) {
+                    list.add(Integer.valueOf(fd.getName()));
+                }
+            } catch (ErrnoException e) {
+                if (e.errno != OsConstants.ENOENT) {
+                    throw e.rethrowAsIOException();
+                }
+            }
+        }
+
+        return list;
     }
 }
