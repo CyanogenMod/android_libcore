@@ -714,36 +714,6 @@ public final class URLTest extends TestCase {
         assertEquals("a_b.c.d.net", url.getHost());
     }
 
-    // http://b/7369778
-    public void testToURILeniantThrowsURISyntaxExceptionWithPartialTrailingEscape()
-            throws Exception {
-        // make sure if there a partial trailing escape that we don't throw the wrong exception
-        URL[] badUrls = new URL[] {
-            new URL("http://example.com/?foo=%%bar"),
-            new URL("http://example.com/?foo=%%bar%"),
-            new URL("http://example.com/?foo=%%bar%2"),
-            new URL("http://example.com/?foo=%%bar%%"),
-            new URL("http://example.com/?foo=%%bar%%%"),
-            new URL("http://example.com/?foo=%%bar%%%%"),
-        };
-        for (URL badUrl : badUrls) {
-            try {
-                badUrl.toURILenient();
-                fail();
-            } catch (URISyntaxException expected) {
-            }
-        }
-
-        // make sure we properly handle an normal escape at the end of a string
-        String[] goodUrls = new String[] {
-            "http://example.com/?foo=bar",
-            "http://example.com/?foo=bar%20",
-        };
-        for (String goodUrl : goodUrls) {
-            assertEquals(new URI(goodUrl), new URL(goodUrl).toURILenient());
-        }
-    }
-
     // http://b/26895969
     // http://b/26798800
     public void testHashCodeAndEqualsDoesNotPerformNetworkIo() throws Exception {
