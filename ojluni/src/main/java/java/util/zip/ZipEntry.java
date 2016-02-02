@@ -59,7 +59,7 @@ class ZipEntry implements ZipConstants, Cloneable {
     public static final int DEFLATED = 8;
 
 
-    /** @hide - for testing only */
+    /** @hide - Called from StrictJarFile native code. */
     public ZipEntry(String name, String comment, long crc, long compressedSize,
             long size, int compressionMethod, int time, byte[] extra,
             long dataOffset) {
