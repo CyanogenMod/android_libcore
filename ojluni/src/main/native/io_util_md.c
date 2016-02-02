@@ -83,6 +83,7 @@ fileOpen(JNIEnv *env, jobject this, jstring path, jfieldID fid, int flags)
             fstat(fd, &stat);
 
             if (S_ISDIR(stat.st_mode)) {
+              close(fd);
               errno = EISDIR; // For Exception message
               throwFileNotFoundException(env, path);
               return;
