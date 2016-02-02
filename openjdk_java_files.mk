@@ -1441,7 +1441,6 @@ openjdk_java_files := \
     ojluni/src/main/java/sun/util/logging/LoggingProxy.java \
     ojluni/src/main/java/sun/util/logging/LoggingSupport.java \
     ojluni/src/main/java/sun/util/logging/PlatformLogger.java \
-    ojluni/src/main/java/sun/util/PreHashedMap.java \
     ojluni/src/main/java/sun/util/ResourceBundleEnumeration.java \
     ojluni/src/main/java/sun/util/resources/OpenListResourceBundle.java \
     $(openjdk_javadoc_files)
