@@ -1465,7 +1465,7 @@
   description: "OkHttp tests that fail on Wear devices due to a lack of memory",
   bug: 20055487,
   names: [
-    "com.squareup.okhttp.internal.spdy.Http20Draft09Test#tooLargeDataFrame",
+    "com.squareup.okhttp.internal.spdy.Http2Test#tooLargeDataFrame",
     "com.squareup.okhttp.internal.spdy.Spdy3Test#tooLargeDataFrame"
   ]
 },
