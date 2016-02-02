@@ -243,9 +243,10 @@ public class WeakHashMap<K,V>
     /**
      * A randomizing value associated with this instance that is applied to
      * hash code of keys to make hash collisions harder to find.
+     *
+     * This hash seed is only used if {@code useAltHashing} is true.
      */
     transient int hashSeed;
-    volatile boolean seedSet = false;
 
     @SuppressWarnings("unchecked")
     private Entry<K,V>[] newTable(int n) {
@@ -279,6 +280,11 @@ public class WeakHashMap<K,V>
         threshold = (int)(capacity * loadFactor);
         useAltHashing = sun.misc.VM.isBooted() &&
                 (capacity >= Holder.ALTERNATIVE_HASHING_THRESHOLD);
+        if (useAltHashing) {
+            hashSeed = sun.misc.Hashing.randomHashSeed(this);
+        } else {
+            hashSeed = 0;
+        }
     }
 
     /**
@@ -357,14 +363,6 @@ public class WeakHashMap<K,V>
 
         int h;
         if (useAltHashing) {
-            if (!seedSet) {
-                synchronized(this) {
-                    if (!seedSet) {
-                        hashSeed = sun.misc.Hashing.randomHashSeed(this);
-                        seedSet = true;
-                    }
-                }
-            }
             h = hashSeed;
             if (k instanceof String) {
                 return sun.misc.Hashing.stringHash32((String) k);
@@ -572,6 +570,9 @@ public class WeakHashMap<K,V>
         useAltHashing |= sun.misc.VM.isBooted() &&
                 (newCapacity >= Holder.ALTERNATIVE_HASHING_THRESHOLD);
         boolean rehash = oldAltHashing ^ useAltHashing;
+        if (rehash) {
+            hashSeed = sun.misc.Hashing.randomHashSeed(this);
+        }
         transfer(oldTable, newTable, rehash);
         table = newTable;
 
