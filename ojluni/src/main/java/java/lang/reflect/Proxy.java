@@ -302,63 +302,6 @@ public class Proxy implements java.io.Serializable {
         this.h = h;
     }
 
-    private static class ProxyAccessHelper {
-        // The permission is implementation specific.
-        static final Permission PROXY_PERMISSION =
-            new ReflectPermission("proxyConstructorNewInstance");
-        // These system properties are defined to provide a short-term
-        // workaround if customers need to disable the new security checks.
-        static final boolean allowNewInstance;
-        static final boolean allowNullLoader;
-        static {
-            allowNewInstance = getBooleanProperty("sun.reflect.proxy.allowsNewInstance");
-            allowNullLoader = getBooleanProperty("sun.reflect.proxy.allowsNullLoader");
-        }
-
-        private static boolean getBooleanProperty(final String key) {
-            String s = AccessController.doPrivileged(new PrivilegedAction<String>() {
-                public String run() {
-                    return System.getProperty(key);
-                }
-            });
-            return Boolean.valueOf(s);
-        }
-
-        static boolean needsNewInstanceCheck(Class<?> proxyClass) {
-            if (!Proxy.isProxyClass(proxyClass) || allowNewInstance) {
-                return false;
-            }
-
-            if (ReflectUtil.isNonPublicProxyClass(proxyClass)) {
-                for (Class<?> intf : proxyClass.getInterfaces()) {
-                    if (!Modifier.isPublic(intf.getModifiers())) {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-    }
-
-    /*
-     * Access check on a proxy class that implements any non-public interface.
-     *
-     * @throws  SecurityException if a security manager exists, and
-     *          the caller does not have the permission.
-     */
-    private void doNewInstanceCheck() {
-        SecurityManager sm = System.getSecurityManager();
-        Class<?> proxyClass = this.getClass();
-        if (sm != null && ProxyAccessHelper.needsNewInstanceCheck(proxyClass)) {
-            try {
-                sm.checkPermission(ProxyAccessHelper.PROXY_PERMISSION);
-            } catch (SecurityException e) {
-                throw new SecurityException("Not allowed to construct a Proxy "
-                        + "instance that implements a non-public interface", e);
-            }
-        }
-    }
-
     /**
      * Returns the {@code java.lang.Class} object for a proxy class
      * given a class loader and an array of interfaces.  The proxy class
