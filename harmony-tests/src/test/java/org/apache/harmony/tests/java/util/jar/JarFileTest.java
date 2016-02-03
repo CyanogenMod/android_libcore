@@ -602,7 +602,7 @@ public class JarFileTest extends TestCase {
 
         try {
             JarFile jar = new JarFile(signedFile);
-            JarEntry entry = new JarEntry(entryName3);
+            JarEntry entry = jar.getJarEntry(entryName3);
             entry.setSize(1076);
             InputStream in = jar.getInputStream(entry);
             // BEGIN android-added
