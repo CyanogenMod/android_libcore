@@ -19,8 +19,10 @@ package libcore.java.nio.channels;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Field;
 import java.net.ConnectException;
 import java.net.Socket;
+import java.net.SocketImpl;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
@@ -263,5 +265,15 @@ public class SocketChannelTest extends junit.framework.TestCase {
 
     ss.close();
     sc.close();
+  }
+
+  public void test_Socket_impl_notNull() throws Exception {
+    SocketChannel sc = SocketChannel.open();
+    Socket socket = sc.socket();
+    Field f_impl = Socket.class.getDeclaredField("impl");
+    f_impl.setAccessible(true);
+    Object implFieldValue = f_impl.get(socket);
+    assertNotNull(implFieldValue);
+    assertTrue(implFieldValue instanceof SocketImpl);
   }
 }
