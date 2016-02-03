@@ -47,7 +47,7 @@ public abstract class SSLServerSocketFactory extends ServerSocketFactory
 {
     private static SSLServerSocketFactory defaultServerSocketFactory;
 
-    private static boolean propertyChecked;
+    private static int lastVersion;
 
     private static void log(String msg) {
         if (SSLSocketFactory.DEBUG) {
@@ -77,48 +77,64 @@ public abstract class SSLServerSocketFactory extends ServerSocketFactory
      * @see SSLContext#getDefault
      */
     public static synchronized ServerSocketFactory getDefault() {
-        if (defaultServerSocketFactory != null) {
+        // Android-changed: Use security version instead of propertyChecked.
+        //
+        // We use the same lookup logic in SSLSocketFactory.getDefault(). Any changes
+        // made here must be mirrored in that class.
+        if (defaultServerSocketFactory != null && lastVersion == Security.getVersion()) {
             return defaultServerSocketFactory;
         }
 
-        if (propertyChecked == false) {
-            propertyChecked = true;
-            String clsName = SSLSocketFactory.getSecurityProperty
-                                        ("ssl.ServerSocketFactory.provider");
-            if (clsName != null) {
-                log("setting up default SSLServerSocketFactory");
-                try {
-                    Class cls = null;
-                    try {
-                        cls = Class.forName(clsName);
-                    } catch (ClassNotFoundException e) {
-                        ClassLoader cl = ClassLoader.getSystemClassLoader();
-                        if (cl != null) {
-                            cls = cl.loadClass(clsName);
-                        }
-                    }
-                    log("class " + clsName + " is loaded");
-                    SSLServerSocketFactory fac = (SSLServerSocketFactory)cls.newInstance();
-                    log("instantiated an instance of class " + clsName);
-                    defaultServerSocketFactory = fac;
-                    return fac;
-                } catch (Exception e) {
-                    log("SSLServerSocketFactory instantiation failed: " + e);
+        lastVersion = Security.getVersion();
+        defaultServerSocketFactory = null;
 
-                    // Android-changed: Fallback to the default SSLContext if an exception
-                    // is thrown during the initialization of ss.ServerSocketFactory.provider.
-                    //
-                    // theFactory = new DefaultSSLServerSocketFactory(e);
-                    // return defaultServerSocketFactory;
+        String clsName = SSLSocketFactory.getSecurityProperty
+                ("ssl.ServerSocketFactory.provider");
+        if (clsName != null) {
+            log("setting up default SSLServerSocketFactory");
+            try {
+                Class cls = null;
+                try {
+                    cls = Class.forName(clsName);
+                } catch (ClassNotFoundException e) {
+                    // Android-changed; Try the contextClassLoader first.
+                    ClassLoader cl = Thread.currentThread().getContextClassLoader();
+                    if (cl == null) {
+                        cl = ClassLoader.getSystemClassLoader();
+                    }
+
+                    if (cl != null) {
+                        cls = Class.forName(clsName, true, cl);
+                    }
                 }
+                log("class " + clsName + " is loaded");
+                SSLServerSocketFactory fac = (SSLServerSocketFactory)cls.newInstance();
+                log("instantiated an instance of class " + clsName);
+                defaultServerSocketFactory = fac;
+                if (defaultServerSocketFactory != null) {
+                    return defaultServerSocketFactory;
+                }
+            } catch (Exception e) {
+                log("SSLServerSocketFactory instantiation failed: " + e);
+                // Android-changed: Fallback to the default SSLContext if an exception
+                // is thrown during the initialization of ssl.ServerSocketFactory.provider.
             }
         }
 
         try {
-            return SSLContext.getDefault().getServerSocketFactory();
+            SSLContext context = SSLContext.getDefault();
+            if (context != null) {
+                defaultServerSocketFactory = context.getServerSocketFactory();
+            }
         } catch (NoSuchAlgorithmException e) {
-            return new DefaultSSLServerSocketFactory(e);
         }
+
+        if (defaultServerSocketFactory == null) {
+            defaultServerSocketFactory = new DefaultSSLServerSocketFactory(
+                    new IllegalStateException("No ServerSocketFactory implementation found"));
+        }
+
+        return defaultServerSocketFactory;
     }
 
     /**
