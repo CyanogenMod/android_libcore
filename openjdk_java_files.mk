@@ -1124,6 +1124,7 @@ openjdk_java_files := \
     ojluni/src/main/java/sun/nio/ch/EPollSelectorProvider.java \
     ojluni/src/main/java/sun/nio/ch/ExtendedSocketOption.java \
     ojluni/src/main/java/sun/nio/ch/FileChannelImpl.java \
+    ojluni/src/main/java/sun/nio/ch/FileDescriptorHolderSocketImpl.java \
     ojluni/src/main/java/sun/nio/ch/FileDispatcherImpl.java \
     ojluni/src/main/java/sun/nio/ch/FileDispatcher.java \
     ojluni/src/main/java/sun/nio/ch/FileKey.java \
