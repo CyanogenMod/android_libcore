@@ -61,7 +61,7 @@ public class SocketAdaptor
     private volatile int timeout = 0;
 
     private SocketAdaptor(SocketChannelImpl sc) throws SocketException {
-        super((SocketImpl) null);
+        super(new FileDescriptorHolderSocketImpl(sc.getFD()));
         this.sc = sc;
     }
 
