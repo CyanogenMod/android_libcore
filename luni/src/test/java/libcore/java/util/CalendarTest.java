@@ -210,8 +210,22 @@ public class CalendarTest extends junit.framework.TestCase {
     }
 
     // https://code.google.com/p/android/issues/detail?id=45877
-    public void test_clear_45877() {
+    public void test_clear_45877_morning() {
       GregorianCalendar cal = new GregorianCalendar(TimeZone.getTimeZone("America/Los_Angeles"));
+      // 3rd February 2016 05:32:40.000 America/Los_Angeles time.
+      cal.setTimeInMillis(1454506360000L);
+      checkClear(cal, 0, 28800000);
+    }
+
+    // https://code.google.com/p/android/issues/detail?id=45877
+    public void test_clear_45877_afternoon() {
+      GregorianCalendar cal = new GregorianCalendar(TimeZone.getTimeZone("America/Los_Angeles"));
+      // 3rd February 2016 12:32:40.000 America/Los_Angeles time.
+      cal.setTimeInMillis(1454531560000L);
+      checkClear(cal, 12, 72000000);
+    }
+
+    private void checkClear(GregorianCalendar cal, int expectedHourOfDay, long expectedMillis) {
       cal.set(Calendar.YEAR, 1970);
       cal.set(Calendar.MONTH, Calendar.JANUARY);
       cal.set(Calendar.DAY_OF_MONTH, 1);
@@ -226,7 +240,7 @@ public class CalendarTest extends junit.framework.TestCase {
       assertFalse(cal.isSet(Calendar.HOUR_OF_DAY));
 
       // When we call get, unset fields are computed.
-      assertEquals(0, cal.get(Calendar.HOUR_OF_DAY));
+      assertEquals(expectedHourOfDay, cal.get(Calendar.HOUR_OF_DAY));
       // And set fields stay the same.
       assertEquals(1, cal.get(Calendar.DAY_OF_MONTH));
 
@@ -234,7 +248,7 @@ public class CalendarTest extends junit.framework.TestCase {
       assertTrue(cal.isSet(Calendar.DAY_OF_MONTH));
       assertTrue(cal.isSet(Calendar.HOUR_OF_DAY));
 
-      assertEquals(28800000, cal.getTimeInMillis());
+      assertEquals(expectedMillis, cal.getTimeInMillis());
 
       cal.set(Calendar.HOUR_OF_DAY, 1);
       assertEquals(32400000, cal.getTimeInMillis());
