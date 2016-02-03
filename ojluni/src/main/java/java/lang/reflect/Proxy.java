@@ -299,7 +299,6 @@ public class Proxy implements java.io.Serializable {
      * @param   h the invocation handler for this proxy instance
      */
     protected Proxy(InvocationHandler h) {
-        doNewInstanceCheck();
         this.h = h;
     }
 
