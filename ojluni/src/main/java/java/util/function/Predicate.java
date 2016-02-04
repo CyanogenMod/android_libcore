@@ -35,6 +35,7 @@ import java.util.Objects;
  * @param <T> the type of the input to the predicate
  *
  * @since 1.8
+ * @hide 1.8
  */
 @FunctionalInterface
 public interface Predicate<T> {
