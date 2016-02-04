@@ -163,7 +163,11 @@ class BasicChecker extends PKIXCertPathChecker {
             debug.println("---checking " + msg + "...");
 
         try {
-            cert.verify(prevPubKey, sigProvider);
+            if (sigProvider != null) {
+                cert.verify(prevPubKey, sigProvider);
+            } else {
+                cert.verify(prevPubKey);
+            }
         } catch (SignatureException e) {
             throw new CertPathValidatorException
                 (msg + " check failed", e, null, -1,

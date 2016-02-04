@@ -772,8 +772,12 @@ class ForwardBuilder extends Builder {
          * encountered.
          */
         if (!currState.keyParamsNeeded()) {
-            (currState.cert).verify(cert.getPublicKey(),
-                                    buildParams.sigProvider());
+            if (buildParams.sigProvider() != null) {
+                (currState.cert).verify(cert.getPublicKey(),
+                                        buildParams.sigProvider());
+            } else {
+                (currState.cert).verify(cert.getPublicKey());
+            }
         }
     }
 
@@ -828,7 +832,11 @@ class ForwardBuilder extends Builder {
              * Check signature
              */
             try {
-                cert.verify(publicKey, buildParams.sigProvider());
+                if (buildParams.sigProvider() != null) {
+                    cert.verify(publicKey, buildParams.sigProvider());
+                } else {
+                    cert.verify(publicKey);
+                }
             } catch (InvalidKeyException ike) {
                 if (debug != null) {
                     debug.println("ForwardBuilder.isPathCompleted() invalid "
