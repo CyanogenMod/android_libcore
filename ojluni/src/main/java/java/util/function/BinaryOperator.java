@@ -41,6 +41,7 @@ import java.util.Comparator;
  * @see BiFunction
  * @see UnaryOperator
  * @since 1.8
+ * @hide 1.8
  */
 @FunctionalInterface
 public interface BinaryOperator<T> extends BiFunction<T,T,T> {

@@ -37,6 +37,7 @@ import java.util.Objects;
  *
  * @see Consumer
  * @since 1.8
+ * @hide 1.8
  */
 @FunctionalInterface
 public interface DoubleConsumer {

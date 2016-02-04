@@ -36,6 +36,7 @@ package java.util.function;
  * @param <T> the type of results supplied by this supplier
  *
  * @since 1.8
+ * @hide 1.8
  */
 @FunctionalInterface
 public interface Supplier<T> {

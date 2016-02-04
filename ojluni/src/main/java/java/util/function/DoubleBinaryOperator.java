@@ -35,6 +35,7 @@ package java.util.function;
  * @see BinaryOperator
  * @see DoubleUnaryOperator
  * @since 1.8
+ * @hide 1.8
  */
 @FunctionalInterface
 public interface DoubleBinaryOperator {
