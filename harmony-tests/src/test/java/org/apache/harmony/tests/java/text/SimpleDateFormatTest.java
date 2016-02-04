@@ -569,42 +569,28 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
         cal = new GregorianCalendar(1970, Calendar.JANUARY, 1);
         cal.set(Calendar.ERA, GregorianCalendar.BC);
         assertParse("G", "Bc ", cal.getTime(), 0, 2);
-    }
 
-    public void test_parse_y() throws Exception {
         assertParse("y", "00", new GregorianCalendar(2000, Calendar.JANUARY, 1).getTime(), 0, 2);
         assertParse("y", "99", new GregorianCalendar(1999, Calendar.JANUARY, 1).getTime(), 0, 2);
         assertParse("y", "1", new GregorianCalendar(1, Calendar.JANUARY, 1).getTime(), 0, 1);
         assertParse("y", "-1", new GregorianCalendar(-1, Calendar.JANUARY, 1).getTime(), 0, 2);
         assertParse("y", "001", new GregorianCalendar(1, Calendar.JANUARY, 1).getTime(), 0, 3);
         assertParse("y", "2005", new GregorianCalendar(2005, Calendar.JANUARY, 1).getTime(), 0, 4);
-    }
-
-    public void test_parse_yy() throws Exception {
         assertParse("yy", "00", new GregorianCalendar(2000, Calendar.JANUARY, 1).getTime(), 0, 2);
         assertParse("yy", "99", new GregorianCalendar(1999, Calendar.JANUARY, 1).getTime(), 0, 2);
         assertParse("yy", "1", new GregorianCalendar(1, Calendar.JANUARY, 1).getTime(), 0, 1);
         assertParse("yy", "-1", new GregorianCalendar(-1, Calendar.JANUARY, 1).getTime(), 0, 2);
         assertParse("yy", "001", new GregorianCalendar(1, Calendar.JANUARY, 1).getTime(), 0, 3);
         assertParse("yy", "2005", new GregorianCalendar(2005, Calendar.JANUARY, 1).getTime(), 0, 4);
-    }
-
-    public void test_parse_yyy() throws Exception {
         assertParse("yyy", "99", new GregorianCalendar(99, Calendar.JANUARY, 1).getTime(), 0, 2);
         assertParse("yyy", "1", new GregorianCalendar(1, Calendar.JANUARY, 1).getTime(), 0, 1);
         assertParse("yyy", "-1", new GregorianCalendar(-1, Calendar.JANUARY, 1).getTime(), 0, 2);
         assertParse("yyy", "001", new GregorianCalendar(1, Calendar.JANUARY, 1).getTime(), 0, 3);
         assertParse("yyy", "2005", new GregorianCalendar(2005, Calendar.JANUARY, 1).getTime(),
                 0, 4);
-    }
-
-    public void test_parse_yyyy() throws Exception {
         assertParse("yyyy", "99", new GregorianCalendar(99, Calendar.JANUARY, 1).getTime(), 0, 2);
         assertParse("yyyy", "  1999", new GregorianCalendar(1999, Calendar.JANUARY, 1).getTime(),
                 2, 6);
-    }
-
-    public void test_parse_monthPatterns() throws Exception {
         assertParse("MM'M'", "4M", new GregorianCalendar(1970, Calendar.APRIL, 1).getTime(), 0, 2);
         assertParse("MMM", "Feb", new GregorianCalendar(1970, Calendar.FEBRUARY, 1).getTime(),
                 0, 3);
@@ -623,140 +609,100 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
                 new GregorianCalendar(1970, Calendar.JULY, 19).getTime(), 1, 13);
         assertParse("MMMEEEF", " JULSunday3",
                 new GregorianCalendar(1970, Calendar.JULY, 19).getTime(), 1, 11);
-    }
 
-    public void test_parse_dayOfYearPatterns() throws Exception {
-        GregorianCalendar cal = new GregorianCalendar(1970, Calendar.JANUARY, 1);
+        cal = new GregorianCalendar(1970, Calendar.JANUARY, 1);
         cal.setTimeZone(TimeZone.getTimeZone("GMT+0:1"));
         cal.set(Calendar.DAY_OF_YEAR, 243);
         assertParse("D z", "243 GMT+0:0", cal.getTime(), 0, 11);
-    }
-
-    public void test_parse_h_m_z() throws Exception {
-        GregorianCalendar cal = new GregorianCalendar(1970, Calendar.JANUARY, 1);
         cal.setTimeZone(TimeZone.getTimeZone("EST"));
         cal.set(1970, Calendar.JANUARY, 1, 4, 30);
         assertParse("h:m z", "4:30 GMT-5 ", cal.getTime(), 0, 10);
-    }
-
-    public void test_parse_h_z_2DigitOffsetFromGMT() throws Exception {
-        GregorianCalendar cal = new GregorianCalendar(1970, Calendar.JANUARY, 1);
-        cal.setTimeZone(TimeZone.getTimeZone("EST"));
-        cal.set(1970, Calendar.JANUARY, 1, 4, 30);
         assertParse("h z", "14 GMT-24 ", new Date(51840000), 0, 9);
         assertParse("h z", "14 GMT-23 ", new Date(133200000), 0, 9);
+        assertParse("h z", "14 GMT-0001 ", new Date(54000000), 0, 11);
         assertParse("h z", "14 GMT+24 ", new Date(48960000), 0, 9);
         assertParse("h z", "14 GMT+23 ", new Date(-32400000), 0, 9);
-    }
-
-    public void test_parse_h_z_4DigitOffsetFromGMT() throws Exception {
-        GregorianCalendar cal = new GregorianCalendar(1970, Calendar.JANUARY, 1);
-        cal.setTimeZone(TimeZone.getTimeZone("EST"));
-        cal.set(1970, Calendar.JANUARY, 1, 4, 30);
-        assertParse("h z", "14 GMT-0001 ", new Date(54000000), 0, 11);
         assertParse("h z", "14 GMT+0001 ", new Date(46800000), 0, 11);
-    }
-
-    public void test_parse_h_z_4DigitOffsetNoGMT() throws Exception {
-        GregorianCalendar cal = new GregorianCalendar(1970, Calendar.JANUARY, 1);
-        cal.setTimeZone(TimeZone.getTimeZone("EST"));
-        cal.set(1970, Calendar.JANUARY, 1, 4, 30);
         assertParse("h z", "14 +0001 ", new Date(46800000), 0, 8);
         assertParse("h z", "14 -0001 ", new Date(54000000), 0, 8);
-    }
 
-    public void test_parse_yyyyMMddHHmmss() throws Exception {
         assertParse("yyyyMMddHHmmss", "19990913171901",
                 new GregorianCalendar(1999, Calendar.SEPTEMBER, 13, 17, 19, 1).getTime(), 0, 14);
-    }
 
-    public void test_parse_dd_MMMM_yyyy_EEEE() throws Exception {
-        checkPatternOnFixedDate("dd MMMM yyyy EEEE", "11 March 2002 Monday");
-    }
-
-    public void test_parse_dd_MMMM_yyyy_F() throws Exception {
-        checkPatternOnFixedDate("dd MMMM yyyy F", "11 March 2002 2");
-    }
-
-    public void test_parse_dd_MMMM_yyyy_w() throws Exception {
-        checkPatternOnFixedDate("dd MMMM yyyy w", "11 March 2002 11");
-    }
-
-    public void test_parse_dd_MMMM_yyyy_W() throws Exception {
-        checkPatternOnFixedDate("dd MMMM yyyy W", "11 March 2002 3");
-    }
-
-    public void test_parse_dd_MMMM_yyyy_D() throws Exception {
-        // The day of the year overrides the day of the month.
-        checkPatternOnFixedDate("dd MMMM yyyy D", "11 March 2002 70", "5 January 2002 70");
-    }
-
-    public void test_parse_W_w_dd_MMMM_yyyy_EEEE() throws Exception {
-        checkPatternOnFixedDate("W w dd MMMM yyyy EEEE", "3 11 11 March 2002 Monday",
-                "3 12 5 March 2002 Monday");
-    }
-
-    public void test_parse_w_W_dd_MMMM_yyyy_EEEE() throws Exception {
-        checkPatternOnFixedDate("w W dd MMMM yyyy EEEE", "11 3 11 March 2002 Monday",
-                "12 3 5 March 2002 Monday");
-    }
-
-    public void test_parse_F_dd_MMMM_yyyy_EEEE() throws Exception {
-        checkPatternOnFixedDate("F dd MMMM yyyy EEEE", "2 11 March 2002 Monday",
-                "2 5 March 2002 Monday");
-    }
-
-    public void test_parse_w_dd_MMMM_yyyy_EEEE() throws Exception {
-        checkPatternOnFixedDate("w dd MMMM yyyy EEEE", "11 11 March 2002 Monday",
-                "11 5 January 2002 Monday");
-    }
-
-    public void test_parse_w_dd_yyyy_EEEE_MMMM() throws Exception {
-        checkPatternOnFixedDate("w dd yyyy EEEE MMMM", "11 11 2002 Monday March",
-                "11 5 2002 Monday January");
-    }
-
-    public void test_parse_w_yyyy_EEEE_MMMM_dd() throws Exception {
-        checkPatternOnFixedDate("w yyyy EEEE MMMM dd", "11 2002 Monday March 11",
-                "17 2002 Monday March 11");
-    }
-
-    public void test_parse_dd_D_yyyy_MMMM() throws Exception {
-        checkPatternOnFixedDate("dd D yyyy MMMM", "11 70 2002 March", "5 70 2002 January");
-    }
-
-    public void test_parse_D_dd_yyyy_MMMM() throws Exception {
-        checkPatternOnFixedDate("D dd yyyy MMMM", "70 11 2002 March", "240 11 2002 March");
-    }
-
-    private static void checkPatternOnFixedDate(String pattern, String expectedOutput)
-            throws ParseException {
-        checkPatternOnFixedDate(pattern, expectedOutput, expectedOutput);
-    }
-
-    private static void checkPatternOnFixedDate(String pattern, String expectedOutput, String input)
-            throws ParseException {
         Date d = new Date(1015822800000L);
         SimpleDateFormat df = new SimpleDateFormat("", new Locale("en", "US"));
         df.setTimeZone(TimeZone.getTimeZone("EST"));
 
-        df.applyPattern(pattern);
-
+        df.applyPattern("dd MMMM yyyy EEEE");
         String output = df.format(d);
-        assertEquals("Invalid output '" + pattern + "'", expectedOutput, output);
-        Date date = df.parse(input);
-        assertEquals("Invalid result '" + pattern + "'", d, date);
-    }
+        Date date = df.parse(output);
+        assertTrue("Invalid result 1: " + date, d.equals(date));
 
-    public void test_parse_nullParsePosition() {
+        df.applyPattern("dd MMMM yyyy F");
+        output = df.format(d);
+        date = df.parse(output);
+        assertTrue("Invalid result 2: " + date, d.equals(date));
+
+        df.applyPattern("dd MMMM yyyy w");
+        output = df.format(d);
+        date = df.parse(output);
+        assertTrue("Invalid result 3: " + date, d.equals(date));
+
+        df.applyPattern("dd MMMM yyyy W");
+        output = df.format(d);
+        date = df.parse(output);
+        assertTrue("Invalid result 4: " + date, d.equals(date));
+
+        df.applyPattern("dd MMMM yyyy D");
+        date = df.parse("5 January 2002 70");
+        assertTrue("Invalid result 5: " + date, d.equals(date));
+
+        df.applyPattern("W w dd MMMM yyyy EEEE");
+        output = df.format(d);
+        date = df.parse("3 12 5 March 2002 Monday");
+        assertTrue("Invalid result 6: " + date, d.equals(date));
+
+        df.applyPattern("w W dd MMMM yyyy EEEE");
+        output = df.format(d);
+        date = df.parse("12 3 5 March 2002 Monday");
+        assertTrue("Invalid result 6a: " + date, d.equals(date));
+
+        df.applyPattern("F dd MMMM yyyy EEEE");
+        output = df.format(d);
+        date = df.parse("2 5 March 2002 Monday");
+        assertTrue("Invalid result 7: " + date, d.equals(date));
+
+        df.applyPattern("w dd MMMM yyyy EEEE");
+        output = df.format(d);
+        date = df.parse("11 5 January 2002 Monday");
+        assertTrue("Invalid result 8: " + date, d.equals(date));
+
+        df.applyPattern("w dd yyyy EEEE MMMM");
+        output = df.format(d);
+        date = df.parse("11 5 2002 Monday January");
+        assertTrue("Invalid result 9: " + date, d.equals(date));
+
+        df.applyPattern("w yyyy EEEE MMMM dd");
+        output = df.format(d);
+        date = df.parse("17 2002 Monday March 11");
+        assertTrue("Invalid result 10: " + date, d.equals(date));
+
+        df.applyPattern("dd D yyyy MMMM");
+        output = df.format(d);
+        date = df.parse("5 70 2002 January");
+        assertTrue("Invalid result 11: " + date, d.equals(date));
+
+        df.applyPattern("D dd yyyy MMMM");
+        output = df.format(d);
+        date = df.parse("240 11 2002 March");
+        assertTrue("Invalid result 12: " + date, d.equals(date));
+
         try {
             format.parse("240 11 2002 March", null);
             fail();
         } catch (NullPointerException expected) {
         }
-    }
 
-    public void test_parse_nullInput() {
         try {
             format.parse(null, new ParsePosition(0));
             fail();
