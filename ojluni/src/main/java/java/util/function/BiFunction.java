@@ -39,7 +39,6 @@ import java.util.Objects;
  *
  * @see Function
  * @since 1.8
- * @hide 1.8
  */
 @FunctionalInterface
 public interface BiFunction<T, U, R> {
