@@ -118,7 +118,6 @@ public interface AnnotatedElement {
      * {@code annotationClass}, or {@code null} if nothing was found.
      *
      * @since 1.8
-     * @hide 1.8
      */
     /*default*/ <T extends Annotation> Annotation getDeclaredAnnotation(Class<T> annotationClass);
     // { return AnnotatedElements.getDeclaredAnnotation(this, annotationClass); }
@@ -128,7 +127,6 @@ public interface AnnotatedElement {
      * whose class is {@code annotationClass}, or an empty array if nothing was found.
      *
      * @since 1.8
-     * @hide 1.8
      */
     /*default*/ <T extends Annotation> T[] getDeclaredAnnotationsByType(Class<T> annotationClass);
     // { return AnnotatedElements.getDeclaredAnnotationsByType(this, annotationClass); }
@@ -138,7 +136,6 @@ public interface AnnotatedElement {
      * whose class is {@code annotationClass}, or an empty array if nothing was found.
      *
      * @since 1.8
-     * @hide 1.8
      */
     /*default*/ <T extends Annotation> T[] getAnnotationsByType(Class<T> annotationClass);
     // { return AnnotatedElements.getAnnotationsByType(this, annotationClass); }

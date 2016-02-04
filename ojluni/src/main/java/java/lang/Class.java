@@ -2468,7 +2468,6 @@ public final
     /**
      * {@inheritDoc}
      * @since 1.8
-     * @hide 1.8
      */
     @Override
     public <T extends Annotation> T[] getDeclaredAnnotationsByType(Class<T> annotationClass) {
@@ -2478,7 +2477,6 @@ public final
     /**
      * {@inheritDoc}
      * @since 1.8
-     * @hide 1.8
      */
     @Override
     public <T extends Annotation> T[] getAnnotationsByType(Class<T> annotationClass) {
@@ -2512,7 +2510,6 @@ public final
      * {@inheritDoc}
      *
      * @since 1.8
-     * @hide 1.8
      */
     @Override
     public native <T extends Annotation> T getDeclaredAnnotation(Class<T> annotationClass);

@@ -417,7 +417,6 @@ public class Package implements java.lang.reflect.AnnotatedElement {
     /**
      * {@inheritDoc}
      * @since 1.8
-     * @hide 1.8
      */
     @Override
     public <T extends Annotation> T[] getDeclaredAnnotationsByType(Class<T> annotationClass) {
@@ -427,7 +426,6 @@ public class Package implements java.lang.reflect.AnnotatedElement {
     /**
      * {@inheritDoc}
      * @since 1.8
-     * @hide 1.8
      */
     @Override
     public <T extends Annotation> T[] getAnnotationsByType(Class<T> annotationClass) {
@@ -437,7 +435,6 @@ public class Package implements java.lang.reflect.AnnotatedElement {
     /**
      * {@inheritDoc}
      * @since 1.8
-     * @hide 1.8
      */
     @Override
     public <T extends Annotation> Annotation getDeclaredAnnotation(Class<T> annotationClass) {

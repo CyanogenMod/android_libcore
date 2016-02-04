@@ -199,7 +199,6 @@ public class AccessibleObject implements AnnotatedElement {
     /**
      * {@inheritDoc}
      * @since 1.8
-     * @hide 1.8
      */
     @Override
     public <T extends Annotation> T[] getDeclaredAnnotationsByType(Class<T> annotationClass) {
@@ -209,7 +208,6 @@ public class AccessibleObject implements AnnotatedElement {
     /**
      * {@inheritDoc}
      * @since 1.8
-     * @hide 1.8
      */
     @Override
     public <T extends Annotation> T[] getAnnotationsByType(Class<T> annotationClass) {
@@ -219,7 +217,6 @@ public class AccessibleObject implements AnnotatedElement {
     /**
      * {@inheritDoc}
      * @since 1.8
-     * @hide 1.8
      */
     @Override
     public <T extends Annotation> Annotation getDeclaredAnnotation(Class<T> annotationClass) {
