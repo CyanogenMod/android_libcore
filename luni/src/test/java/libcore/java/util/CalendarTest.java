@@ -197,11 +197,11 @@ public class CalendarTest extends junit.framework.TestCase {
 
     private void assertCalendarEquals(Calendar calendar,
             int year, int month, int day, int hour, int minute) {
-        assertEquals(year, calendar.get(Calendar.YEAR));
-        assertEquals(month, calendar.get(Calendar.MONTH));
-        assertEquals(day, calendar.get(Calendar.DATE));
-        assertEquals(hour, calendar.get(Calendar.HOUR_OF_DAY));
-        assertEquals(minute, calendar.get(Calendar.MINUTE));
+        assertEquals("year", year, calendar.get(Calendar.YEAR));
+        assertEquals("month", month, calendar.get(Calendar.MONTH));
+        assertEquals("day", day, calendar.get(Calendar.DATE));
+        assertEquals("hour", hour, calendar.get(Calendar.HOUR_OF_DAY));
+        assertEquals("minute", minute, calendar.get(Calendar.MINUTE));
     }
 
     private static double hoursSinceEpoch(Calendar c) {
