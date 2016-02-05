@@ -360,9 +360,16 @@ public class CipherSuite {
         new CipherSuite(0xc0ad, "TLS_ECDHE_ECDSA_WITH_AES_256_CCM"),
         new CipherSuite(0xc0ae, "TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8"),
         new CipherSuite(0xc0af, "TLS_ECDHE_ECDSA_WITH_AES_256_CCM_8"),
-        new CipherSuite(0xcc13, "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305"),
-        new CipherSuite(0xcc14, "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305"),
-        new CipherSuite(0xcc15, "TLS_DHE_RSA_WITH_CHACHA20_POLY1305"),
+        new CipherSuite(0xcc13, "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_OLD"),
+        new CipherSuite(0xcc14, "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_OLD"),
+        new CipherSuite(0xcc15, "TLS_DHE_RSA_WITH_CHACHA20_POLY1305_OLD"),
+        new CipherSuite(0xcca8, "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256"),
+        new CipherSuite(0xcca9, "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256"),
+        new CipherSuite(0xccaa, "TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256"),
+        new CipherSuite(0xccab, "TLS_PSK_WITH_CHACHA20_POLY1305_SHA256"),
+        new CipherSuite(0xccac, "TLS_ECDHE_PSK_WITH_CHACHA20_POLY1305_SHA256"),
+        new CipherSuite(0xccad, "TLS_DHE_PSK_WITH_CHACHA20_POLY1305_SHA256"),
+        new CipherSuite(0xccae, "TLS_RSA_PSK_WITH_CHACHA20_POLY1305_SHA256"),
     };
 
     private static final Map<Integer, CipherSuite> CODE_TO_CIPHER_SUITE;
