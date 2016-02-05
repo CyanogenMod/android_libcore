@@ -28,7 +28,7 @@ public class CipherSymmetricCryptHelper extends CipherHelper<SecretKey/*, U*/> {
                 Cipher.DECRYPT_MODE);
     }
 
-    public void test(SecretKey key) {
+    public void test(SecretKey key) throws Exception {
         test(key, key);
     }
 }

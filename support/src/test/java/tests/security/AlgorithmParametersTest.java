@@ -34,21 +34,9 @@ public abstract class AlgorithmParametersTest extends TestCase {
         this.parameterData = parameterData;
     }
 
-    public void testAlgorithmParameters() {
-        AlgorithmParameters algorithmParameters = null;
-        try {
-            algorithmParameters = AlgorithmParameters
-                    .getInstance(algorithmName);
-        } catch (NoSuchAlgorithmException e) {
-            fail(e.getMessage());
-        }
-
-        try {
-            algorithmParameters.init(parameterData);
-        } catch (InvalidParameterSpecException e) {
-            fail(e.getMessage());
-        }
-
+    public void testAlgorithmParameters() throws Exception {
+        AlgorithmParameters algorithmParameters = AlgorithmParameters.getInstance(algorithmName);
+        algorithmParameters.init(parameterData);
         helper.test(algorithmParameters);
     }
 }

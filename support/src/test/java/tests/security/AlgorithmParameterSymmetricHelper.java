@@ -47,67 +47,23 @@ public class AlgorithmParameterSymmetricHelper extends TestHelper<AlgorithmParam
     }
 
     @Override
-    public void test(AlgorithmParameters parameters) {
-
-        KeyGenerator generator = null;
-        try {
-            generator = KeyGenerator.getInstance(algorithmName);
-        } catch (NoSuchAlgorithmException e) {
-            Assert.fail(e.getMessage());
-        }
-
+    public void test(AlgorithmParameters parameters) throws Exception {
+        KeyGenerator generator = KeyGenerator.getInstance(algorithmName);
         generator.init(keySize);
 
         Key key = generator.generateKey();
-
-
-        Cipher cipher = null;
-        try {
-            String transformation = algorithmName;
-            if (blockmode != null)
-            {
-                transformation += "/" + blockmode;
-            }
-            cipher = Cipher.getInstance(transformation);
-        } catch (NoSuchAlgorithmException e) {
-            Assert.fail(e.getMessage());
-        } catch (NoSuchPaddingException e) {
-            Assert.fail(e.getMessage());
+        String transformation = algorithmName;
+        if (blockmode != null)
+        {
+            transformation += "/" + blockmode;
         }
 
-        try {
-            cipher.init(Cipher.ENCRYPT_MODE, key, parameters);
-        } catch (InvalidKeyException e) {
-            Assert.fail(e.getMessage());
-        } catch (InvalidAlgorithmParameterException e) {
-            Assert.fail(e.getMessage());
-        }
+        Cipher cipher = Cipher.getInstance(transformation);
+        cipher.init(Cipher.ENCRYPT_MODE, key, parameters);
+        byte[] bs = cipher.doFinal(plainData.getBytes());
 
-        byte[] bs = null;
-        try {
-            bs = cipher.doFinal(plainData.getBytes());
-        } catch (IllegalBlockSizeException e) {
-            Assert.fail(e.getMessage());
-        } catch (BadPaddingException e) {
-            Assert.fail(e.getMessage());
-        }
-
-        try {
-            cipher.init(Cipher.DECRYPT_MODE, key, parameters);
-        } catch (InvalidKeyException e) {
-            Assert.fail(e.getMessage());
-        } catch (InvalidAlgorithmParameterException e) {
-            Assert.fail(e.getMessage());
-        }
-
-        byte[] decrypted = null;
-        try {
-            decrypted = cipher.doFinal(bs);
-        } catch (IllegalBlockSizeException e) {
-            Assert.fail(e.getMessage());
-        } catch (BadPaddingException e) {
-            Assert.fail(e.getMessage());
-        }
+        cipher.init(Cipher.DECRYPT_MODE, key, parameters);
+        byte[] decrypted = cipher.doFinal(bs);
 
         Assert.assertTrue(Arrays.equals(plainData.getBytes(), decrypted));
     }

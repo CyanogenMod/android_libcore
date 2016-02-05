@@ -60,5 +60,5 @@ public abstract class KeyFactoryTest<PublicKeySpec extends KeySpec, PrivateKeySp
         check(new KeyPair(publicKey, privateKey));
     }
 
-    protected void check(KeyPair keyPair) {}
+    protected void check(KeyPair keyPair) throws Exception {}
 }

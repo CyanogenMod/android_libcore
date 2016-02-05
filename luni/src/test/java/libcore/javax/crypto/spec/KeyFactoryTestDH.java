@@ -27,7 +27,8 @@ public class KeyFactoryTestDH extends KeyFactoryTest<DHPublicKeySpec, DHPrivateK
         super("DH", DHPublicKeySpec.class, DHPrivateKeySpec.class);
     }
 
-    @Override protected void check(KeyPair keyPair) {
+    @Override
+    protected void check(KeyPair keyPair) throws Exception {
         new KeyAgreementHelper("DH").test(keyPair);
     }
 }

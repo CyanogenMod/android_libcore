@@ -35,55 +35,18 @@ public class SignatureHelper extends TestHelper<KeyPair> {
     }
 
     @Override
-    public void test(KeyPair keyPair) {
+    public void test(KeyPair keyPair) throws Exception {
         test(keyPair.getPrivate(), keyPair.getPublic());
     }
 
-    public void test(PrivateKey encryptKey, PublicKey decryptKey) {
+    public void test(PrivateKey encryptKey, PublicKey decryptKey) throws Exception {
+        Signature signature = Signature.getInstance(algorithmName);
+        signature.initSign(encryptKey);
+        signature.update(plainData.getBytes());
+        byte[] signed = signature.sign();
 
-        Signature signature = null;
-        try {
-            signature = Signature.getInstance(algorithmName);
-        } catch (NoSuchAlgorithmException e) {
-            Assert.fail(e.getMessage());
-        }
-
-        try {
-            signature.initSign(encryptKey);
-        } catch (InvalidKeyException e) {
-            Assert.fail(e.getMessage());
-        }
-
-        try {
-            signature.update(plainData.getBytes());
-        } catch (SignatureException e) {
-            Assert.fail(e.getMessage());
-        }
-
-        byte[] signed = null;
-        try {
-            signed = signature.sign();
-        } catch (SignatureException e) {
-            Assert.fail(e.getMessage());
-        }
-
-        try {
-            signature.initVerify(decryptKey);
-        } catch (InvalidKeyException e) {
-            Assert.fail(e.getMessage());
-        }
-
-        try {
-            signature.update(plainData.getBytes());
-        } catch (SignatureException e) {
-            Assert.fail(e.getMessage());
-        }
-
-        try {
-            Assert.assertTrue("signature could not be verified", signature
-                    .verify(signed));
-        } catch (SignatureException e) {
-            Assert.fail(e.getMessage());
-        }
+        signature.initVerify(decryptKey);
+        signature.update(plainData.getBytes());
+        Assert.assertTrue("signature could not be verified", signature.verify(signed));
     }
 }
