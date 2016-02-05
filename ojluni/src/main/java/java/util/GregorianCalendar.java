@@ -1046,19 +1046,19 @@ public class GregorianCalendar extends Calendar {
             }
 
             fd += delta; // fd is the expected fixed date after the calculation
-            int zoneOffset = internalGet(ZONE_OFFSET) + internalGet(DST_OFFSET);
-            setTimeInMillis((fd - EPOCH_OFFSET) * ONE_DAY + timeOfDay - zoneOffset);
-            zoneOffset -= internalGet(ZONE_OFFSET) + internalGet(DST_OFFSET);
-            // If the time zone offset has changed, then adjust the difference.
-            if (zoneOffset != 0) {
-                setTimeInMillis(time + zoneOffset);
-                long fd2 = getCurrentFixedDate();
-                // If the adjustment has changed the date, then take
-                // the previous one.
-                if (fd2 != fd) {
-                    setTimeInMillis(time - zoneOffset);
-                }
-            }
+
+            // Calculate the time in the UTC time zone.
+            long utcTime = (fd - EPOCH_OFFSET) * ONE_DAY + timeOfDay;
+
+            // Neither of the time zone related fields are relevant because they have not been
+            // set since the call to complete() above.
+            int tzMask = 0;
+
+            // Adjust the time to account for zone and daylight savings time offset.
+            long millis = adjustForZoneAndDaylightSavingsTime(tzMask, utcTime, getZone());
+
+            // Update the time and recompute the fields.
+            setTimeInMillis(millis);
         }
     }
 
@@ -2732,7 +2732,7 @@ public class GregorianCalendar extends Calendar {
 
         int tzMask = fieldMask & (ZONE_OFFSET_MASK|DST_OFFSET_MASK);
 
-        millis = adjustForZoneAndDaylightSavingsTime(fieldMask, tzMask, millis, zone);
+        millis = adjustForZoneAndDaylightSavingsTime(tzMask, millis, zone);
 
         // Set this calendar's time in milliseconds
         time = millis;
@@ -2802,7 +2802,6 @@ public class GregorianCalendar extends Calendar {
      * <p>The DST offset will need clearing if the standard time is not a valid wall clock. See
      * {@link #adjustDstOffsetForInvalidWallClock(long, TimeZone, int)} for more information.
      *
-     * @param fieldMask the set of fields that should be used to calculate the time.
      * @param tzMask the set of time zone related fields, i.e. {@link #ZONE_OFFSET_MASK} and
      * {@link #DST_OFFSET_MASK}
      * @param utcTimeInMillis the time in millis, calculated assuming the time zone was GMT.
@@ -2810,7 +2809,7 @@ public class GregorianCalendar extends Calendar {
      * @return the UTC time in millis after adjusting for zone and DST offset.
      */
     private long adjustForZoneAndDaylightSavingsTime(
-            int fieldMask, int tzMask, long utcTimeInMillis, TimeZone zone) {
+            int tzMask, long utcTimeInMillis, TimeZone zone) {
 
         // The following don't actually need to be initialized because they are always set before
         // they are used but the compiler cannot detect that.
@@ -2823,7 +2822,7 @@ public class GregorianCalendar extends Calendar {
             if (zoneOffsets == null) {
                 zoneOffsets = new int[2];
             }
-            int gmtOffset = isFieldSet(fieldMask, ZONE_OFFSET) ?
+            int gmtOffset = isFieldSet(tzMask, ZONE_OFFSET) ?
                                 internalGet(ZONE_OFFSET) : zone.getRawOffset();
 
             // Calculate the standard time (no DST) in the supplied zone. This is a ballpark figure
