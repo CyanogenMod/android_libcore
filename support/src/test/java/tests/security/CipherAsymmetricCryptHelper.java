@@ -28,7 +28,7 @@ public class CipherAsymmetricCryptHelper extends CipherHelper<KeyPair> {
                 Cipher.DECRYPT_MODE);
     }
 
-    public void test(KeyPair keyPair) {
+    public void test(KeyPair keyPair) throws Exception {
         test(keyPair.getPrivate(), keyPair.getPublic());
     }
 }

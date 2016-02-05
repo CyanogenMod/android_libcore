@@ -35,19 +35,10 @@ public abstract class KeyPairGeneratorTest extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        generator = getKeyPairGenerator();
+        generator = KeyPairGenerator.getInstance(algorithmName);
     }
 
-    private KeyPairGenerator getKeyPairGenerator() {
-        try {
-            return KeyPairGenerator.getInstance(algorithmName);
-        } catch (NoSuchAlgorithmException e) {
-            fail("cannot get KeyPairGenerator: " + e);
-            return null;
-        }
-    }
-
-    public void testKeyPairGenerator() throws NoSuchAlgorithmException {
+    public void testKeyPairGenerator() throws Exception {
         generator.initialize(1024);
 
         KeyPair keyPair = generator.generateKeyPair();

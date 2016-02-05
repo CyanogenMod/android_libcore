@@ -39,63 +39,17 @@ public class AlgorithmParameterAsymmetricHelper extends TestHelper<AlgorithmPara
     }
 
     @Override
-    public void test(AlgorithmParameters parameters) {
-
-        KeyPairGenerator generator = null;
-        try {
-            generator = KeyPairGenerator.getInstance(algorithmName);
-        } catch (NoSuchAlgorithmException e) {
-            Assert.fail(e.getMessage());
-        }
-
+    public void test(AlgorithmParameters parameters) throws Exception {
+        KeyPairGenerator generator = KeyPairGenerator.getInstance(algorithmName);
         generator.initialize(1024);
-
         KeyPair keyPair = generator.generateKeyPair();
 
+        Cipher cipher = Cipher.getInstance(algorithmName);
+        cipher.init(Cipher.ENCRYPT_MODE, keyPair.getPublic(), parameters);
+        byte[] bs = cipher.doFinal(plainData.getBytes());
 
-        Cipher cipher = null;
-        try {
-            cipher = Cipher.getInstance(algorithmName);
-        } catch (NoSuchAlgorithmException e) {
-            Assert.fail(e.getMessage());
-        } catch (NoSuchPaddingException e) {
-            Assert.fail(e.getMessage());
-        }
-
-        try {
-            cipher.init(Cipher.ENCRYPT_MODE, keyPair.getPublic(), parameters);
-        } catch (InvalidKeyException e) {
-            Assert.fail(e.getMessage());
-        } catch (InvalidAlgorithmParameterException e) {
-            Assert.fail(e.getMessage());
-        }
-
-        byte[] bs = null;
-        try {
-            bs = cipher.doFinal(plainData.getBytes());
-        } catch (IllegalBlockSizeException e) {
-            Assert.fail(e.getMessage());
-        } catch (BadPaddingException e) {
-            Assert.fail(e.getMessage());
-        }
-
-        try {
-            cipher.init(Cipher.DECRYPT_MODE, keyPair.getPrivate(), parameters);
-        } catch (InvalidKeyException e) {
-            Assert.fail(e.getMessage());
-        } catch (InvalidAlgorithmParameterException e) {
-            Assert.fail(e.getMessage());
-        }
-
-        byte[] decrypted = null;
-        try {
-            decrypted = cipher.doFinal(bs);
-        } catch (IllegalBlockSizeException e) {
-            Assert.fail(e.getMessage());
-        } catch (BadPaddingException e) {
-            Assert.fail(e.getMessage());
-        }
-
+        cipher.init(Cipher.DECRYPT_MODE, keyPair.getPrivate(), parameters);
+        byte[] decrypted = cipher.doFinal(bs);
         Assert.assertTrue(Arrays.equals(plainData.getBytes(), decrypted));
     }
 }

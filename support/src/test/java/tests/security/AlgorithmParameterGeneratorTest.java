@@ -30,20 +30,12 @@ public abstract class AlgorithmParameterGeneratorTest extends TestCase {
         this.helper = helper;
     }
 
-    public void testAlgorithmParameterGenerator() {
-        AlgorithmParameterGenerator generator = null;
-        try {
-            generator = AlgorithmParameterGenerator.getInstance(algorithmName);
-        } catch (NoSuchAlgorithmException e) {
-            fail(e.getMessage());
-        }
-
+    public void testAlgorithmParameterGenerator() throws Exception {
+        AlgorithmParameterGenerator generator = AlgorithmParameterGenerator.getInstance(algorithmName);
         generator.init(1024);
 
         AlgorithmParameters parameters = generator.generateParameters();
-
         assertNotNull("generated parameters are null", parameters);
-
         helper.test(parameters);
     }
 }
