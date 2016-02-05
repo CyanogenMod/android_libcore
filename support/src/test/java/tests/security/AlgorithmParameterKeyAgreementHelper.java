@@ -33,39 +33,14 @@ public class AlgorithmParameterKeyAgreementHelper extends TestHelper<AlgorithmPa
     }
 
     @Override
-    public void test(AlgorithmParameters parameters) {
-
-        KeyPairGenerator generator = null;
-        try {
-            generator = KeyPairGenerator.getInstance(algorithmName);
-        } catch (NoSuchAlgorithmException e) {
-            Assert.fail(e.getMessage());
-        }
-
+    public void test(AlgorithmParameters parameters) throws Exception {
+        KeyPairGenerator generator = KeyPairGenerator.getInstance(algorithmName);
         generator.initialize(1024);
 
         KeyPair keyPair = generator.generateKeyPair();
-
-        KeyAgreement keyAgreement = null;
-        try {
-            keyAgreement = KeyAgreement.getInstance(algorithmName);
-        } catch (NoSuchAlgorithmException e) {
-            Assert.fail(e.getMessage());
-        }
-
-        try {
-            keyAgreement.init(keyPair.getPrivate());
-        } catch (InvalidKeyException e) {
-            Assert.fail(e.getMessage());
-        }
-        try {
-            keyAgreement.doPhase(keyPair.getPublic(), true);
-        } catch (InvalidKeyException e) {
-            Assert.fail(e.getMessage());
-        } catch (IllegalStateException e) {
-            Assert.fail(e.getMessage());
-        }
-        Assert.assertNotNull("generated secret is null", keyAgreement
-                .generateSecret());
+        KeyAgreement keyAgreement = KeyAgreement.getInstance(algorithmName);
+        keyAgreement.init(keyPair.getPrivate());
+        keyAgreement.doPhase(keyPair.getPublic(), true);
+        Assert.assertNotNull("generated secret is null", keyAgreement.generateSecret());
     }
 }

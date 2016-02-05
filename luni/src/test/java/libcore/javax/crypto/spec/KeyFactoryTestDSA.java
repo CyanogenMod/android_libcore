@@ -28,7 +28,8 @@ public class KeyFactoryTestDSA extends
         super("DSA", DSAPublicKeySpec.class, DSAPrivateKeySpec.class);
     }
 
-    @Override protected void check(KeyPair keyPair) {
+    @Override
+    protected void check(KeyPair keyPair) throws Exception {
         new SignatureHelper("DSA").test(keyPair);
     }
 }

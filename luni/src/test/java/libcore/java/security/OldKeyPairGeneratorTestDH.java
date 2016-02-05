@@ -24,7 +24,7 @@ import tests.security.KeyAgreementHelper;
 public class OldKeyPairGeneratorTestDH extends TestCase {
 
     // Broken Test: Takes ages due to DH computations. Disabling for now.
-    public void testKeyPairGenerator() throws NoSuchAlgorithmException {
+    public void testKeyPairGenerator() throws Exception {
         KeyPairGenerator generator = KeyPairGenerator.getInstance("DH");
 
         generator.initialize(1024);

@@ -17,5 +17,5 @@
 package tests.security;
 
 public abstract class TestHelper<T> {
-    public abstract void test(T testObject);
+    public abstract void test(T testObject) throws Exception;
 }
