@@ -39,45 +39,15 @@ public abstract class CipherHelper<T> extends TestHelper<T> {
         this.mode2 = mode2;
     }
 
-    public void test(Key encryptKey, Key decryptKey) {
-        Cipher cipher = null;
-        try {
-            cipher = Cipher.getInstance(algorithmName);
-        } catch (NoSuchAlgorithmException e) {
-            Assert.fail(e.getMessage());
-        } catch (NoSuchPaddingException e) {
-            Assert.fail(e.getMessage());
-        }
-        try {
-            cipher.init(mode1, encryptKey);
-        } catch (InvalidKeyException e) {
-            Assert.fail(e.getMessage());
-        }
+    public void test(Key encryptKey, Key decryptKey) throws Exception {
+        Cipher cipher = Cipher.getInstance(algorithmName);
+        cipher.init(mode1, encryptKey);
+        byte[] encrypted = cipher.doFinal(plainData.getBytes());
 
-        byte[] encrypted = crypt(cipher, plainData.getBytes());
-
-        try {
-            cipher.init(mode2, decryptKey);
-        } catch (InvalidKeyException e) {
-            Assert.fail(e.getMessage());
-        }
-
-        byte[] decrypted = crypt(cipher, encrypted);
-
+        cipher.init(mode2, decryptKey);
+        byte[] decrypted = cipher.doFinal(encrypted);
         String decryptedString = new String(decrypted);
 
-        Assert.assertEquals("transformed data does not match", plainData,
-                decryptedString);
-    }
-
-    public byte[] crypt(Cipher cipher, byte[] input) {
-        try {
-            return cipher.doFinal(input);
-        } catch (IllegalBlockSizeException e) {
-            Assert.fail(e.getMessage());
-        } catch (BadPaddingException e) {
-            Assert.fail(e.getMessage());
-        }
-        return null;
+        Assert.assertEquals("transformed data does not match", plainData, decryptedString);
     }
 }

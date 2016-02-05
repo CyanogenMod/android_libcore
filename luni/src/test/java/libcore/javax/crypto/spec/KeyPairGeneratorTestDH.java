@@ -26,7 +26,7 @@ public class KeyPairGeneratorTestDH extends KeyPairGeneratorTest {
     }
 
     // Broken Test: Takes ages due to DH computations. Disabling for now.
-    public void testKeyPairGenerator() throws NoSuchAlgorithmException {
+    public void testKeyPairGenerator() throws Exception {
         super.testKeyPairGenerator();
     }
 }

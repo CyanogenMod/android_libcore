@@ -61,7 +61,7 @@ public class AlgorithmParametersTestDH extends AlgorithmParametersTest {
     }
 
     // Broken Test: Suffers from DH slowness, disabling for now
-    public void testAlgorithmParameters() {
+    public void testAlgorithmParameters() throws Exception {
         super.testAlgorithmParameters();
     }
 

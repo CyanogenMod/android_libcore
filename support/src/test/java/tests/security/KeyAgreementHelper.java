@@ -32,33 +32,14 @@ public class KeyAgreementHelper extends TestHelper<KeyPair> {
         this.algorithmName = algorithmName;
     }
 
-    @Override public void test(KeyPair keyPair) {
+    @Override public void test(KeyPair keyPair) throws Exception {
         test(keyPair.getPrivate(), keyPair.getPublic());
     }
 
-    void test(PrivateKey encryptKey, PublicKey decryptKey) {
-
-        KeyAgreement keyAgreement = null;
-        try {
-            keyAgreement = KeyAgreement.getInstance(algorithmName);
-        } catch (NoSuchAlgorithmException e) {
-            Assert.fail(e.getMessage());
-        }
-
-        try {
-            keyAgreement.init(encryptKey);
-        } catch (InvalidKeyException e) {
-            Assert.fail(e.getMessage());
-        }
-        try {
-            keyAgreement.doPhase(decryptKey, true);
-        } catch (InvalidKeyException e) {
-            Assert.fail(e.getMessage());
-        } catch (IllegalStateException e) {
-            Assert.fail(e.getMessage());
-        }
-        Assert.assertNotNull("generated secret is null", keyAgreement
-                .generateSecret());
-
+    void test(PrivateKey encryptKey, PublicKey decryptKey) throws Exception {
+        KeyAgreement keyAgreement = KeyAgreement.getInstance(algorithmName);
+        keyAgreement.init(encryptKey);
+        keyAgreement.doPhase(decryptKey, true);
+        Assert.assertNotNull("generated secret is null", keyAgreement.generateSecret());
     }
 }

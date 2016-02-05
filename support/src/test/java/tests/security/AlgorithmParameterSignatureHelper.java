@@ -41,74 +41,20 @@ public class AlgorithmParameterSignatureHelper<T extends AlgorithmParameterSpec>
     }
 
     @Override
-    public void test(AlgorithmParameters parameters) {
+    public void test(AlgorithmParameters parameters) throws Exception {
+        Signature signature = Signature.getInstance(algorithmName);
+        T parameterSpec = parameters.getParameterSpec(parameterSpecClass);
+        KeyPairGenerator generator = KeyPairGenerator.getInstance(algorithmName);
 
-        Signature signature = null;
-        try {
-            signature = Signature.getInstance(algorithmName);
-        } catch (NoSuchAlgorithmException e) {
-            Assert.fail(e.getMessage());
-        }
-
-
-        T parameterSpec = null;
-        try {
-            parameterSpec = parameters.getParameterSpec(parameterSpecClass);
-        } catch (InvalidParameterSpecException e) {
-            Assert.fail(e.getMessage());
-        }
-
-        KeyPairGenerator generator = null;
-        try {
-            generator = KeyPairGenerator.getInstance(algorithmName);
-        } catch (NoSuchAlgorithmException e) {
-            Assert.fail(e.getMessage());
-        }
-
-        try {
-            generator.initialize(parameterSpec);
-        } catch (InvalidAlgorithmParameterException e) {
-            Assert.fail(e.getMessage());
-        }
-
+        generator.initialize(parameterSpec);
         KeyPair keyPair = generator.genKeyPair();
 
-        try {
-            signature.initSign(keyPair.getPrivate());
-        } catch (InvalidKeyException e) {
-            Assert.fail(e.getMessage());
-        }
+        signature.initSign(keyPair.getPrivate());
+        signature.update(plainData.getBytes());
+        byte[] signed = signature.sign();
 
-        try {
-            signature.update(plainData.getBytes());
-        } catch (SignatureException e) {
-            Assert.fail(e.getMessage());
-        }
-
-        byte[] signed = null;
-        try {
-            signed = signature.sign();
-        } catch (SignatureException e) {
-            Assert.fail(e.getMessage());
-        }
-
-        try {
-            signature.initVerify(keyPair.getPublic());
-        } catch (InvalidKeyException e) {
-            Assert.fail(e.getMessage());
-        }
-
-        try {
-            signature.update(plainData.getBytes());
-        } catch (SignatureException e) {
-            Assert.fail(e.getMessage());
-        }
-
-        try {
-            Assert.assertTrue("signature could not be verified", signature
-                    .verify(signed));
-        } catch (SignatureException e) {
-            Assert.fail(e.getMessage());
-        }
+        signature.initVerify(keyPair.getPublic());
+        signature.update(plainData.getBytes());
+        Assert.assertTrue("signature should verify", signature.verify(signed));
     }
 }

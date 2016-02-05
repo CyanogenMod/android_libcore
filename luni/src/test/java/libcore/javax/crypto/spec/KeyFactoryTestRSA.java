@@ -29,7 +29,8 @@ public class KeyFactoryTestRSA extends
         super("RSA", RSAPublicKeySpec.class, RSAPrivateKeySpec.class);
     }
 
-    @Override protected void check(KeyPair keyPair) {
+    @Override
+    protected void check(KeyPair keyPair) throws Exception {
         new CipherAsymmetricCryptHelper("RSA").test(keyPair);
     }
 }

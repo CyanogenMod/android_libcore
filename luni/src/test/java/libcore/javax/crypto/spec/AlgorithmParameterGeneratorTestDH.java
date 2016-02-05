@@ -25,7 +25,7 @@ public class AlgorithmParameterGeneratorTestDH extends
         super("DH", new AlgorithmParameterKeyAgreementHelper("DH"));
     }
 
-    public void testAlgorithmParameterGenerator() {
+    public void testAlgorithmParameterGenerator() throws Exception {
         super.testAlgorithmParameterGenerator();
     }
 }
