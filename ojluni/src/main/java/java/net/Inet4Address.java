@@ -332,11 +332,6 @@ class Inet4Address extends InetAddress {
         return addr;
     }
 
-    @Override
-    public byte[] getAddressInternal() {
-        return getAddress();
-    }
-
     /**
      * Returns the IP address string in textual presentation form.
      *

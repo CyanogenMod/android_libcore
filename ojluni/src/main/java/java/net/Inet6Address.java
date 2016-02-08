@@ -622,11 +622,6 @@ class Inet6Address extends InetAddress {
         return ipaddress.clone();
     }
 
-    @Override
-    public byte[] getAddressInternal() {
-        return ipaddress;
-    }
-
     /**
      * Returns the numeric scopeId, if this instance is associated with
      * an interface. If no scoped_id is set, the returned value is zero.
