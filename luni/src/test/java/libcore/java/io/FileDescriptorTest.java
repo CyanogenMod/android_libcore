@@ -37,7 +37,7 @@ public class FileDescriptorTest extends TestCase {
     fis.close();
 
     ServerSocket s = new ServerSocket();
-    assertTrue(s.getImpl().getFileDescriptor().isSocket$());
+    assertTrue(s.getImpl().getFD$().isSocket$());
     s.close();
   }
 }
