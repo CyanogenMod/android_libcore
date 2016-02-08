@@ -116,8 +116,11 @@ static bool inetAddressToSockaddr(JNIEnv* env, jobject inetAddress, int port, so
     }
 
     // Get the byte array that stores the IP address bytes in the InetAddress.
-    static jmethodID bytesMid = env->GetMethodID(JniConstants::inetAddressClass, "getAddressInternal", "()[B");
+    static jmethodID bytesMid = env->GetMethodID(JniConstants::inetAddressClass, "getAddress", "()[B");
     ScopedLocalRef<jbyteArray> addressBytes(env, reinterpret_cast<jbyteArray>(env->CallObjectMethod(inetAddress, bytesMid)));
+    if (env->ExceptionCheck()) {
+        return false;
+    }
     if (addressBytes.get() == NULL) {
         jniThrowNullPointerException(env, NULL);
         return false;
