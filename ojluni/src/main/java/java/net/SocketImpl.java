@@ -222,7 +222,14 @@ public abstract class SocketImpl implements SocketOptions {
      * @return  the value of this socket's <code>fd</code> field.
      * @see     java.net.SocketImpl#fd
      */
-    public FileDescriptor getFileDescriptor() {
+    protected FileDescriptor getFileDescriptor() {
+        return fd;
+    }
+
+    /**
+     * @hide used by java.nio tests
+     */
+    public FileDescriptor getFD$() {
         return fd;
     }
 
