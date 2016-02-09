@@ -577,16 +577,6 @@ class InetAddress implements java.io.Serializable {
     }
 
     /**
-     * Called from native code. Same as {@code getAddress}, but for internal users.
-     *
-     * @return
-     */
-    public byte[] getAddressInternal() {
-        return null;
-    }
-
-
-    /**
      * Returns the IP address string in textual presentation.
      *
      * @return  the raw IP address in a string format.
