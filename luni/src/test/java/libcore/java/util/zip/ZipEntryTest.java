@@ -145,23 +145,28 @@ public class ZipEntryTest extends junit.framework.TestCase {
     zipFile.close();
   }
 
-  public void testMaxLengthExtra_zip64() throws Exception {
-    // Not quite the max length (65535), but large enough that there's no space
-    // for the zip64 extended info header.
-    byte[] maxLengthExtra = new byte[65530];
 
-    File f = createTemporaryZipFile();
-    ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(f)),
-            true /* forceZip64 */);
-    ZipEntry ze = new ZipEntry("x");
-
-    ze.setExtra(maxLengthExtra);
-    try {
-      out.putNextEntry(ze);
-      fail();
-    } catch (ZipException expected) {
-    }
-  }
+  // TODO: This test does not compile because we need to add a ZipOutputStream constructor
+  // that forces zip64. This also needs followup changes in ZipInputStream et al. to assume zip64
+  // if the header says so, and to not depend purely on the entry length.
+  //
+  // public void testMaxLengthExtra_zip64() throws Exception {
+  //   // Not quite the max length (65535), but large enough that there's no space
+  //   // for the zip64 extended info header.
+  //   byte[] maxLengthExtra = new byte[65530];
+  //
+  //   File f = createTemporaryZipFile();
+  //   ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(f)),
+  //           true /* forceZip64 */);
+  //   ZipEntry ze = new ZipEntry("x");
+  //
+  //   ze.setExtra(maxLengthExtra);
+  //   try {
+  //     out.putNextEntry(ze);
+  //     fail();
+  //   } catch (ZipException expected) {
+  //   }
+  // }
 
 
   public void testTooLongComment() throws Exception {
