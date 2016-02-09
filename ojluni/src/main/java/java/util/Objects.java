@@ -242,7 +242,6 @@ public final class Objects {
      *
      * @see java.util.function.Predicate
      * @since 1.8
-     * @hide 1.8
      */
     public static boolean isNull(Object obj) {
         return obj == null;
@@ -261,7 +260,6 @@ public final class Objects {
      *
      * @see java.util.function.Predicate
      * @since 1.8
-     * @hide 1.8
      */
     public static boolean nonNull(Object obj) {
         return obj != null;
@@ -286,7 +284,6 @@ public final class Objects {
      * @return {@code obj} if not {@code null}
      * @throws NullPointerException if {@code obj} is {@code null}
      * @since 1.8
-     * @hide 1.8
      */
     public static <T> T requireNonNull(T obj, Supplier<String> messageSupplier) {
         if (obj == null)

@@ -36,7 +36,6 @@ package java.util.function;
  *
  * @see Function
  * @since 1.8
- * @hide 1.8
  */
 @FunctionalInterface
 public interface LongFunction<R> {
