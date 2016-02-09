@@ -272,8 +272,7 @@ public final class OldPreparedStatementTest extends OldSQLTest {
         String[] queries2 = {
                 "update zoo set name='Masha', family='cat' where id=;",
                 "insert into hutch (id, animal_id, address) values (1, ?,'Birds-house, 1');",
-                "insert into hutch (id, animal_id, address) values (?, 1, 'Horse-house, 5');",
-                "create view address as select address from hutch where animal_id=?"};
+                "insert into hutch (id, animal_id, address) values (?, 1, 'Horse-house, 5');"};
 
         for (int i = 0; i < queries2.length; i++) {
             PreparedStatement ps = null;
@@ -324,41 +323,40 @@ public final class OldPreparedStatementTest extends OldSQLTest {
 
     // TODO Crashes VM. Fix later.
     public void testExecuteUpdate() throws SQLException {
-          String[] queries1 = { "insert into hutch (id, animal_id, address) values (1, ?, 'Birds-house, 1');",
-                              "insert into hutch (id, animal_id, address) values (?, 1, 'Horse-house, 5');",
-                              "create view address as select address from hutch where animal_id=2" };
+        String[] queries1 = { "insert into hutch (id, animal_id, address) values (1, ?, 'Birds-house, 1');",
+                "insert into hutch (id, animal_id, address) values (?, 1, 'Horse-house, 5');"};
 
-          for (int i = 0; i < queries1.length; i++) {
-              PreparedStatement ps = null;
-              try {
-                  ps = conn.prepareStatement(queries1[i]);
-                  ps.executeUpdate();
-                  fail("SQLException is not thrown for query: " + queries1[i]);
-          } catch(SQLException sqle) {
-              // expected
-          } finally {
-              try {
-                  ps.close();
-              } catch(Exception ee) {}
-          }
-      }
+        for (int i = 0; i < queries1.length; i++) {
+            PreparedStatement ps = null;
+            try {
+                ps = conn.prepareStatement(queries1[i]);
+                ps.executeUpdate();
+                fail("SQLException is not thrown for query: " + queries1[i]);
+            } catch(SQLException sqle) {
+                // expected
+            } finally {
+                try {
+                    ps.close();
+                } catch(Exception ee) {}
+            }
+        }
 
-          String query = "update zoo set name='Masha', family='cat' where id=?;";
-          PreparedStatement ps = null;
-          try {
-              ps = conn.prepareStatement(query);
-              ps.setInt(1, 2);
-              int updateCount = ps.executeUpdate();
-              assertEquals(1, updateCount);
-              ps.setInt(1, 1);
-              int updateCount1 = ps.executeUpdate();
-              assertEquals(1, updateCount1);
-          } finally {
-              try {
-                  ps.close();
-              } catch(Exception ee) {}
-          }
-      }
+        String query = "update zoo set name='Masha', family='cat' where id=?;";
+        PreparedStatement ps = null;
+        try {
+            ps = conn.prepareStatement(query);
+            ps.setInt(1, 2);
+            int updateCount = ps.executeUpdate();
+            assertEquals(1, updateCount);
+            ps.setInt(1, 1);
+            int updateCount1 = ps.executeUpdate();
+            assertEquals(1, updateCount1);
+        } finally {
+            try {
+                ps.close();
+            } catch(Exception ee) {}
+        }
+    }
 
     /**
      * TODO Doesn't pass. according to spec, it is possible to invoke the
