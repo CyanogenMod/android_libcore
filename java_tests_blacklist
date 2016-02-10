@@ -1,5 +1,3 @@
-luni/src/test/java/tests/security/cert/X509CRLSelector2Test.java
 luni/src/test/java/tests/security/cert/X509CertSelectorTest.java
 luni/src/test/java/libcore/java/util/zip/Zip64Test.java
 luni/src/test/java/libcore/java/util/zip/Zip64FileTest.java
-luni/src/test/java/libcore/java/security/cert/X509CertificateTest.java
