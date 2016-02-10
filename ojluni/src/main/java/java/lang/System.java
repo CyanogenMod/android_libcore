@@ -106,6 +106,22 @@ public final class System {
     public final static PrintStream err;
 
     /**
+     * Dedicated lock for GC / Finalization logic.
+     */
+    private static final Object LOCK = new Object();
+
+    /**
+     * Whether or not we need to do a GC before running the finalizers.
+     */
+    private static boolean runGC;
+
+    /**
+     * If we just ran finalization, we might want to do a GC to free the finalized objects.
+     * This lets us do gc/runFinlization/gc sequences but prevents back to back System.gc().
+     */
+    private static boolean justRanFinalization;
+
+    /**
      * Reassigns the "standard" input stream.
      *
      * <p>First, if there is a security manager, its <code>checkPermission</code>
@@ -1497,7 +1513,18 @@ public final class System {
      * @see     java.lang.Runtime#gc()
      */
     public static void gc() {
-        Runtime.getRuntime().gc();
+        boolean shouldRunGC;
+        synchronized (LOCK) {
+            shouldRunGC = justRanFinalization;
+            if (shouldRunGC) {
+                justRanFinalization = false;
+            } else {
+                runGC = true;
+            }
+        }
+        if (shouldRunGC) {
+            Runtime.getRuntime().gc();
+        }
     }
 
     /**
@@ -1519,7 +1546,18 @@ public final class System {
      * @see     java.lang.Runtime#runFinalization()
      */
     public static void runFinalization() {
+        boolean shouldRunGC;
+        synchronized (LOCK) {
+            shouldRunGC = runGC;
+            runGC = false;
+        }
+        if (shouldRunGC) {
+            Runtime.getRuntime().gc();
+        }
         Runtime.getRuntime().runFinalization();
+        synchronized (LOCK) {
+            justRanFinalization = true;
+        }
     }
 
     /**
