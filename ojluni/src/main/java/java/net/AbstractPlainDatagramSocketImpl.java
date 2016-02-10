@@ -304,8 +304,11 @@ abstract class AbstractPlainDatagramSocketImpl extends DatagramSocketImpl
                  throw new SocketException("bad argument for IP_MULTICAST_IF");
              break;
          case IP_MULTICAST_IF2:
-             if (o == null || !(o instanceof NetworkInterface))
+             if (o == null || !(o instanceof Integer || o instanceof NetworkInterface))
                  throw new SocketException("bad argument for IP_MULTICAST_IF2");
+             if (o instanceof NetworkInterface) {
+                 o = new Integer(((NetworkInterface)o).getIndex());
+             }
              break;
          case IP_MULTICAST_LOOP:
              if (o == null || !(o instanceof Boolean))
@@ -349,6 +352,10 @@ abstract class AbstractPlainDatagramSocketImpl extends DatagramSocketImpl
             case SO_REUSEADDR:
             case SO_BROADCAST:
                 result = socketGetOption(optID);
+
+                if (optID == IP_MULTICAST_IF) {
+                    return getNIFirstAddress((Integer)result);
+                }
                 break;
 
             default:
@@ -356,6 +363,20 @@ abstract class AbstractPlainDatagramSocketImpl extends DatagramSocketImpl
         }
 
         return result;
+    }
+
+    /** Return the first address bound to NetworkInterface with given ID.
+     * In case of niIndex == 0 or no address return anyLocalAddress
+     */
+    static InetAddress getNIFirstAddress(int niIndex) throws SocketException {
+        if (niIndex > 0) {
+            NetworkInterface networkInterface = NetworkInterface.getByIndex(niIndex);
+            Enumeration<InetAddress> addressesEnum = networkInterface.getInetAddresses();
+            if (addressesEnum.hasMoreElements()) {
+                return addressesEnum.nextElement();
+            }
+        }
+        return InetAddress.anyLocalAddress();
     }
 
     protected abstract void datagramSocketCreate() throws SocketException;
