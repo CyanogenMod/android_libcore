@@ -96,9 +96,6 @@ class DatagramChannelImpl
     // Our socket adaptor, if any
     private DatagramSocket socket;
 
-    // Multicast support
-    private MembershipRegistry registry;
-
     // set true when socket is bound and SO_REUSEADDRESS is emulated
     private boolean reuseAddressEmulated;
 
@@ -168,7 +165,6 @@ class DatagramChannelImpl
         }
     }
 
-    @Override
     public SocketAddress getLocalAddress() throws IOException {
         synchronized (stateLock) {
             if (!isOpen())
@@ -246,7 +242,6 @@ class DatagramChannelImpl
         }
     }
 
-    @Override
     @SuppressWarnings("unchecked")
     public <T> T getOption(SocketOption<T> name)
         throws IOException
@@ -325,7 +320,6 @@ class DatagramChannelImpl
         }
     }
 
-    @Override
     public final Set<SocketOption<?>> supportedOptions() {
         return DefaultOptionsHolder.defaultOptions;
     }
@@ -793,227 +787,11 @@ class DatagramChannelImpl
         return this;
     }
 
-    /**
-     * Joins channel's socket to the given group/interface and
-     * optional source address.
-     */
-    private MembershipKey innerJoin(InetAddress group,
-                                    NetworkInterface interf,
-                                    InetAddress source)
-        throws IOException
-    {
-        if (!group.isMulticastAddress())
-            throw new IllegalArgumentException("Group not a multicast address");
-
-        // check multicast address is compatible with this socket
-        if (group instanceof Inet4Address) {
-            if (family == StandardProtocolFamily.INET6 && !Net.canIPv6SocketJoinIPv4Group())
-                throw new IllegalArgumentException("IPv6 socket cannot join IPv4 multicast group");
-        } else if (group instanceof Inet6Address) {
-            if (family != StandardProtocolFamily.INET6)
-                throw new IllegalArgumentException("Only IPv6 sockets can join IPv6 multicast group");
-        } else {
-            throw new IllegalArgumentException("Address type not supported");
-        }
-
-        // check source address
-        if (source != null) {
-            if (source.isAnyLocalAddress())
-                throw new IllegalArgumentException("Source address is a wildcard address");
-            if (source.isMulticastAddress())
-                throw new IllegalArgumentException("Source address is multicast address");
-            if (source.getClass() != group.getClass())
-                throw new IllegalArgumentException("Source address is different type to group");
-        }
-
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null)
-            sm.checkMulticast(group);
-
-        synchronized (stateLock) {
-            if (!isOpen())
-                throw new ClosedChannelException();
-
-            // check the registry to see if we are already a member of the group
-            if (registry == null) {
-                registry = new MembershipRegistry();
-            } else {
-                // return existing membership key
-                MembershipKey key = registry.checkMembership(group, interf, source);
-                if (key != null)
-                    return key;
-            }
-
-            MembershipKeyImpl key;
-            if ((family == StandardProtocolFamily.INET6) &&
-                ((group instanceof Inet6Address) || Net.canJoin6WithIPv4Group()))
-            {
-                int index = interf.getIndex();
-                if (index == -1)
-                    throw new IOException("Network interface cannot be identified");
-
-                // need multicast and source address as byte arrays
-                byte[] groupAddress = Net.inet6AsByteArray(group);
-                byte[] sourceAddress = (source == null) ? null :
-                    Net.inet6AsByteArray(source);
-
-                // join the group
-                int n = Net.join6(fd, groupAddress, index, sourceAddress);
-                if (n == IOStatus.UNAVAILABLE)
-                    throw new UnsupportedOperationException();
-
-                key = new MembershipKeyImpl.Type6(this, group, interf, source,
-                                                  groupAddress, index, sourceAddress);
-
-            } else {
-                // need IPv4 address to identify interface
-                Inet4Address target = Net.anyInet4Address(interf);
-                if (target == null)
-                    throw new IOException("Network interface not configured for IPv4");
-
-                int groupAddress = Net.inet4AsInt(group);
-                int targetAddress = Net.inet4AsInt(target);
-                int sourceAddress = (source == null) ? 0 : Net.inet4AsInt(source);
-
-                // join the group
-                int n = Net.join4(fd, groupAddress, targetAddress, sourceAddress);
-                if (n == IOStatus.UNAVAILABLE)
-                    throw new UnsupportedOperationException();
-
-                key = new MembershipKeyImpl.Type4(this, group, interf, source,
-                                                  groupAddress, targetAddress, sourceAddress);
-            }
-
-            registry.add(key);
-            return key;
-        }
-    }
-
-    @Override
-    public MembershipKey join(InetAddress group,
-                              NetworkInterface interf)
-        throws IOException
-    {
-        return innerJoin(group, interf, null);
-    }
-
-    @Override
-    public MembershipKey join(InetAddress group,
-                              NetworkInterface interf,
-                              InetAddress source)
-        throws IOException
-    {
-        if (source == null)
-            throw new NullPointerException("source address is null");
-        return innerJoin(group, interf, source);
-    }
-
-    // package-private
-    void drop(MembershipKeyImpl key) {
-        assert key.channel() == this;
-
-        synchronized (stateLock) {
-            if (!key.isValid())
-                return;
-
-            try {
-                if (key instanceof MembershipKeyImpl.Type6) {
-                    MembershipKeyImpl.Type6 key6 =
-                        (MembershipKeyImpl.Type6)key;
-                    Net.drop6(fd, key6.groupAddress(), key6.index(), key6.source());
-                } else {
-                    MembershipKeyImpl.Type4 key4 = (MembershipKeyImpl.Type4)key;
-                    Net.drop4(fd, key4.groupAddress(), key4.interfaceAddress(),
-                        key4.source());
-                }
-            } catch (IOException ioe) {
-                // should not happen
-                throw new AssertionError(ioe);
-            }
-
-            key.invalidate();
-            registry.remove(key);
-        }
-    }
-
-    /**
-     * Block datagrams from given source if a memory to receive all
-     * datagrams.
-     */
-    void block(MembershipKeyImpl key, InetAddress source)
-        throws IOException
-    {
-        assert key.channel() == this;
-        assert key.sourceAddress() == null;
-
-        synchronized (stateLock) {
-            if (!key.isValid())
-                throw new IllegalStateException("key is no longer valid");
-            if (source.isAnyLocalAddress())
-                throw new IllegalArgumentException("Source address is a wildcard address");
-            if (source.isMulticastAddress())
-                throw new IllegalArgumentException("Source address is multicast address");
-            if (source.getClass() != key.group().getClass())
-                throw new IllegalArgumentException("Source address is different type to group");
-
-            int n;
-            if (key instanceof MembershipKeyImpl.Type6) {
-                 MembershipKeyImpl.Type6 key6 =
-                    (MembershipKeyImpl.Type6)key;
-                n = Net.block6(fd, key6.groupAddress(), key6.index(),
-                               Net.inet6AsByteArray(source));
-            } else {
-                MembershipKeyImpl.Type4 key4 =
-                    (MembershipKeyImpl.Type4)key;
-                n = Net.block4(fd, key4.groupAddress(), key4.interfaceAddress(),
-                               Net.inet4AsInt(source));
-            }
-            if (n == IOStatus.UNAVAILABLE) {
-                // ancient kernel
-                throw new UnsupportedOperationException();
-            }
-        }
-    }
-
-    /**
-     * Unblock given source.
-     */
-    void unblock(MembershipKeyImpl key, InetAddress source) {
-        assert key.channel() == this;
-        assert key.sourceAddress() == null;
-
-        synchronized (stateLock) {
-            if (!key.isValid())
-                throw new IllegalStateException("key is no longer valid");
-
-            try {
-                if (key instanceof MembershipKeyImpl.Type6) {
-                    MembershipKeyImpl.Type6 key6 =
-                        (MembershipKeyImpl.Type6)key;
-                    Net.unblock6(fd, key6.groupAddress(), key6.index(),
-                                 Net.inet6AsByteArray(source));
-                } else {
-                    MembershipKeyImpl.Type4 key4 =
-                        (MembershipKeyImpl.Type4)key;
-                    Net.unblock4(fd, key4.groupAddress(), key4.interfaceAddress(),
-                                 Net.inet4AsInt(source));
-                }
-            } catch (IOException ioe) {
-                // should not happen
-                throw new AssertionError(ioe);
-            }
-        }
-    }
-
     protected void implCloseSelectableChannel() throws IOException {
         synchronized (stateLock) {
             if (state != ST_KILLED)
                 nd.preClose(fd);
             ResourceManager.afterUdpClose();
-
-            // if member of mulitcast group then invalidate all keys
-            if (registry != null)
-                registry.invalidateAll();
 
             long th;
             if ((th = readerThread) != 0)
