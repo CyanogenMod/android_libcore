@@ -309,86 +309,15 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/java/nio/Buffer.java \
     ojluni/src/main/java/java/nio/BufferOverflowException.java \
     ojluni/src/main/java/java/nio/BufferUnderflowException.java \
+    ojluni/src/main/java/java/nio/ByteBuffer.java \
     ojluni/src/main/java/java/nio/ByteBufferAsCharBuffer.java \
     ojluni/src/main/java/java/nio/ByteBufferAsDoubleBuffer.java \
     ojluni/src/main/java/java/nio/ByteBufferAsFloatBuffer.java \
     ojluni/src/main/java/java/nio/ByteBufferAsIntBuffer.java \
     ojluni/src/main/java/java/nio/ByteBufferAsLongBuffer.java \
     ojluni/src/main/java/java/nio/ByteBufferAsShortBuffer.java \
-    ojluni/src/main/java/java/nio/ByteBuffer.java \
     ojluni/src/main/java/java/nio/ByteOrder.java \
-    ojluni/src/main/java/java/nio/channels/AcceptPendingException.java \
-    ojluni/src/main/java/java/nio/channels/AlreadyBoundException.java \
-    ojluni/src/main/java/java/nio/channels/AlreadyConnectedException.java \
-    ojluni/src/main/java/java/nio/channels/AsynchronousByteChannel.java \
-    ojluni/src/main/java/java/nio/channels/AsynchronousChannelGroup.java \
-    ojluni/src/main/java/java/nio/channels/AsynchronousChannel.java \
-    ojluni/src/main/java/java/nio/channels/AsynchronousCloseException.java \
-    ojluni/src/main/java/java/nio/channels/AsynchronousServerSocketChannel.java \
-    ojluni/src/main/java/java/nio/channels/AsynchronousSocketChannel.java \
-    ojluni/src/main/java/java/nio/channels/ByteChannel.java \
-    ojluni/src/main/java/java/nio/channels/CancelledKeyException.java \
-    ojluni/src/main/java/java/nio/channels/Channel.java \
-    ojluni/src/main/java/java/nio/channels/Channels.java \
-    ojluni/src/main/java/java/nio/channels/ClosedByInterruptException.java \
-    ojluni/src/main/java/java/nio/channels/ClosedChannelException.java \
-    ojluni/src/main/java/java/nio/channels/ClosedSelectorException.java \
-    ojluni/src/main/java/java/nio/channels/CompletionHandler.java \
-    ojluni/src/main/java/java/nio/channels/ConnectionPendingException.java \
-    ojluni/src/main/java/java/nio/channels/DatagramChannel.java \
-    ojluni/src/main/java/java/nio/channels/FileChannel.java \
-    ojluni/src/main/java/java/nio/channels/FileLockInterruptionException.java \
-    ojluni/src/main/java/java/nio/channels/FileLock.java \
-    ojluni/src/main/java/java/nio/channels/GatheringByteChannel.java \
-    ojluni/src/main/java/java/nio/channels/IllegalBlockingModeException.java \
-    ojluni/src/main/java/java/nio/channels/IllegalChannelGroupException.java \
-    ojluni/src/main/java/java/nio/channels/IllegalSelectorException.java \
-    ojluni/src/main/java/java/nio/channels/InterruptedByTimeoutException.java \
-    ojluni/src/main/java/java/nio/channels/InterruptibleChannel.java \
-    ojluni/src/main/java/java/nio/channels/MembershipKey.java \
-    ojluni/src/main/java/java/nio/channels/MulticastChannel.java \
-    ojluni/src/main/java/java/nio/channels/NetworkChannel.java \
-    ojluni/src/main/java/java/nio/channels/NoConnectionPendingException.java \
-    ojluni/src/main/java/java/nio/channels/NonReadableChannelException.java \
-    ojluni/src/main/java/java/nio/channels/NonWritableChannelException.java \
-    ojluni/src/main/java/java/nio/channels/NotYetBoundException.java \
-    ojluni/src/main/java/java/nio/channels/NotYetConnectedException.java \
-    ojluni/src/main/java/java/nio/channels/OverlappingFileLockException.java \
-    ojluni/src/main/java/java/nio/channels/Pipe.java \
-    ojluni/src/main/java/java/nio/channels/ReadableByteChannel.java \
-    ojluni/src/main/java/java/nio/channels/ReadPendingException.java \
-    ojluni/src/main/java/java/nio/channels/ScatteringByteChannel.java \
-    ojluni/src/main/java/java/nio/channels/SeekableByteChannel.java \
-    ojluni/src/main/java/java/nio/channels/SelectableChannel.java \
-    ojluni/src/main/java/java/nio/channels/SelectionKey.java \
-    ojluni/src/main/java/java/nio/channels/Selector.java \
-    ojluni/src/main/java/java/nio/channels/ServerSocketChannel.java \
-    ojluni/src/main/java/java/nio/channels/ShutdownChannelGroupException.java \
-    ojluni/src/main/java/java/nio/channels/SocketChannel.java \
-    ojluni/src/main/java/java/nio/channels/spi/AbstractInterruptibleChannel.java \
-    ojluni/src/main/java/java/nio/channels/spi/AbstractSelectableChannel.java \
-    ojluni/src/main/java/java/nio/channels/spi/AbstractSelectionKey.java \
-    ojluni/src/main/java/java/nio/channels/spi/AbstractSelector.java \
-    ojluni/src/main/java/java/nio/channels/spi/AsynchronousChannelProvider.java \
-    ojluni/src/main/java/java/nio/channels/spi/SelectorProvider.java \
-    ojluni/src/main/java/java/nio/channels/UnresolvedAddressException.java \
-    ojluni/src/main/java/java/nio/channels/UnsupportedAddressTypeException.java \
-    ojluni/src/main/java/java/nio/channels/WritableByteChannel.java \
-    ojluni/src/main/java/java/nio/channels/WritePendingException.java \
     ojluni/src/main/java/java/nio/CharBuffer.java \
-    ojluni/src/main/java/java/nio/charset/CharacterCodingException.java \
-    ojluni/src/main/java/java/nio/charset/CharsetDecoder.java \
-    ojluni/src/main/java/java/nio/charset/CharsetEncoder.java \
-    ojluni/src/main/java/java/nio/charset/Charset.java \
-    ojluni/src/main/java/java/nio/charset/CoderMalfunctionError.java \
-    ojluni/src/main/java/java/nio/charset/CoderResult.java \
-    ojluni/src/main/java/java/nio/charset/CodingErrorAction.java \
-    ojluni/src/main/java/java/nio/charset/IllegalCharsetNameException.java \
-    ojluni/src/main/java/java/nio/charset/MalformedInputException.java \
-    ojluni/src/main/java/java/nio/charset/spi/CharsetProvider.java \
-    ojluni/src/main/java/java/nio/charset/StandardCharsets.java \
-    ojluni/src/main/java/java/nio/charset/UnmappableCharacterException.java \
-    ojluni/src/main/java/java/nio/charset/UnsupportedCharsetException.java \
     ojluni/src/main/java/java/nio/DirectByteBuffer.java \
     ojluni/src/main/java/java/nio/DoubleBuffer.java \
     ojluni/src/main/java/java/nio/FloatBuffer.java \
@@ -406,6 +335,62 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/java/nio/ReadOnlyBufferException.java \
     ojluni/src/main/java/java/nio/ShortBuffer.java \
     ojluni/src/main/java/java/nio/StringCharBuffer.java \
+    ojluni/src/main/java/java/nio/channels/AlreadyBoundException.java \
+    ojluni/src/main/java/java/nio/channels/AlreadyConnectedException.java \
+    ojluni/src/main/java/java/nio/channels/AsynchronousCloseException.java \
+    ojluni/src/main/java/java/nio/channels/ByteChannel.java \
+    ojluni/src/main/java/java/nio/channels/CancelledKeyException.java \
+    ojluni/src/main/java/java/nio/channels/Channel.java \
+    ojluni/src/main/java/java/nio/channels/Channels.java \
+    ojluni/src/main/java/java/nio/channels/ClosedByInterruptException.java \
+    ojluni/src/main/java/java/nio/channels/ClosedChannelException.java \
+    ojluni/src/main/java/java/nio/channels/ClosedSelectorException.java \
+    ojluni/src/main/java/java/nio/channels/ConnectionPendingException.java \
+    ojluni/src/main/java/java/nio/channels/DatagramChannel.java \
+    ojluni/src/main/java/java/nio/channels/FileChannel.java \
+    ojluni/src/main/java/java/nio/channels/FileLock.java \
+    ojluni/src/main/java/java/nio/channels/FileLockInterruptionException.java \
+    ojluni/src/main/java/java/nio/channels/GatheringByteChannel.java \
+    ojluni/src/main/java/java/nio/channels/IllegalBlockingModeException.java \
+    ojluni/src/main/java/java/nio/channels/IllegalSelectorException.java \
+    ojluni/src/main/java/java/nio/channels/InterruptibleChannel.java \
+    ojluni/src/main/java/java/nio/channels/NetworkChannel.java \
+    ojluni/src/main/java/java/nio/channels/NoConnectionPendingException.java \
+    ojluni/src/main/java/java/nio/channels/NonReadableChannelException.java \
+    ojluni/src/main/java/java/nio/channels/NonWritableChannelException.java \
+    ojluni/src/main/java/java/nio/channels/NotYetBoundException.java \
+    ojluni/src/main/java/java/nio/channels/NotYetConnectedException.java \
+    ojluni/src/main/java/java/nio/channels/OverlappingFileLockException.java \
+    ojluni/src/main/java/java/nio/channels/Pipe.java \
+    ojluni/src/main/java/java/nio/channels/ReadableByteChannel.java \
+    ojluni/src/main/java/java/nio/channels/ScatteringByteChannel.java \
+    ojluni/src/main/java/java/nio/channels/SeekableByteChannel.java \
+    ojluni/src/main/java/java/nio/channels/SelectableChannel.java \
+    ojluni/src/main/java/java/nio/channels/SelectionKey.java \
+    ojluni/src/main/java/java/nio/channels/Selector.java \
+    ojluni/src/main/java/java/nio/channels/ServerSocketChannel.java \
+    ojluni/src/main/java/java/nio/channels/SocketChannel.java \
+    ojluni/src/main/java/java/nio/channels/UnresolvedAddressException.java \
+    ojluni/src/main/java/java/nio/channels/UnsupportedAddressTypeException.java \
+    ojluni/src/main/java/java/nio/channels/WritableByteChannel.java \
+    ojluni/src/main/java/java/nio/channels/spi/AbstractInterruptibleChannel.java \
+    ojluni/src/main/java/java/nio/channels/spi/AbstractSelectableChannel.java \
+    ojluni/src/main/java/java/nio/channels/spi/AbstractSelectionKey.java \
+    ojluni/src/main/java/java/nio/channels/spi/AbstractSelector.java \
+    ojluni/src/main/java/java/nio/channels/spi/SelectorProvider.java \
+    ojluni/src/main/java/java/nio/charset/CharacterCodingException.java \
+    ojluni/src/main/java/java/nio/charset/Charset.java \
+    ojluni/src/main/java/java/nio/charset/CharsetDecoder.java \
+    ojluni/src/main/java/java/nio/charset/CharsetEncoder.java \
+    ojluni/src/main/java/java/nio/charset/CoderMalfunctionError.java \
+    ojluni/src/main/java/java/nio/charset/CoderResult.java \
+    ojluni/src/main/java/java/nio/charset/CodingErrorAction.java \
+    ojluni/src/main/java/java/nio/charset/IllegalCharsetNameException.java \
+    ojluni/src/main/java/java/nio/charset/MalformedInputException.java \
+    ojluni/src/main/java/java/nio/charset/StandardCharsets.java \
+    ojluni/src/main/java/java/nio/charset/UnmappableCharacterException.java \
+    ojluni/src/main/java/java/nio/charset/UnsupportedCharsetException.java \
+    ojluni/src/main/java/java/nio/charset/spi/CharsetProvider.java \
     ojluni/src/main/java/java/security/AccessControlContext.java \
     ojluni/src/main/java/java/security/AccessControlException.java \
     ojluni/src/main/java/java/security/AccessController.java \
@@ -1144,17 +1129,11 @@ openjdk_java_files := \
     ojluni/src/main/java/sun/nio/ch/AbstractPollArrayWrapper.java \
     ojluni/src/main/java/sun/nio/ch/AbstractPollSelectorImpl.java \
     ojluni/src/main/java/sun/nio/ch/AllocatedNativeObject.java \
-    ojluni/src/main/java/sun/nio/ch/AsynchronousChannelGroupImpl.java \
-    ojluni/src/main/java/sun/nio/ch/AsynchronousServerSocketChannelImpl.java \
-    ojluni/src/main/java/sun/nio/ch/AsynchronousSocketChannelImpl.java \
-    ojluni/src/main/java/sun/nio/ch/BsdAsynchronousChannelProvider.java \
-    ojluni/src/main/java/sun/nio/ch/Cancellable.java \
     ojluni/src/main/java/sun/nio/ch/ChannelInputStream.java \
     ojluni/src/main/java/sun/nio/ch/CompletedFuture.java \
     ojluni/src/main/java/sun/nio/ch/DatagramChannelImpl.java \
     ojluni/src/main/java/sun/nio/ch/DatagramDispatcher.java \
     ojluni/src/main/java/sun/nio/ch/DatagramSocketAdaptor.java \
-    ojluni/src/main/java/sun/nio/ch/DefaultAsynchronousChannelProvider.java \
     ojluni/src/main/java/sun/nio/ch/DefaultSelectorProvider.java \
     ojluni/src/main/java/sun/nio/ch/DevPollArrayWrapper.java \
     ojluni/src/main/java/sun/nio/ch/DevPollSelectorImpl.java \
@@ -1162,7 +1141,6 @@ openjdk_java_files := \
     ojluni/src/main/java/sun/nio/ch/DirectBuffer.java \
     ojluni/src/main/java/sun/nio/ch/EPollArrayWrapper.java \
     ojluni/src/main/java/sun/nio/ch/EPoll.java \
-    ojluni/src/main/java/sun/nio/ch/EPollPort.java \
     ojluni/src/main/java/sun/nio/ch/EPollSelectorImpl.java \
     ojluni/src/main/java/sun/nio/ch/EPollSelectorProvider.java \
     ojluni/src/main/java/sun/nio/ch/ExtendedSocketOption.java \
@@ -1173,30 +1151,21 @@ openjdk_java_files := \
     ojluni/src/main/java/sun/nio/ch/FileKey.java \
     ojluni/src/main/java/sun/nio/ch/FileLockImpl.java \
     ojluni/src/main/java/sun/nio/ch/FileLockTable.java \
-    ojluni/src/main/java/sun/nio/ch/Groupable.java \
     ojluni/src/main/java/sun/nio/ch/InheritedChannel.java \
     ojluni/src/main/java/sun/nio/ch/Interruptible.java \
-    ojluni/src/main/java/sun/nio/ch/Invoker.java \
     ojluni/src/main/java/sun/nio/ch/IOStatus.java \
     ojluni/src/main/java/sun/nio/ch/IOUtil.java \
     ojluni/src/main/java/sun/nio/ch/IOVecWrapper.java \
-    ojluni/src/main/java/sun/nio/ch/KQueue.java \
-    ojluni/src/main/java/sun/nio/ch/KQueuePort.java \
-    ojluni/src/main/java/sun/nio/ch/LinuxAsynchronousChannelProvider.java \
-    ojluni/src/main/java/sun/nio/ch/MembershipKeyImpl.java \
-    ojluni/src/main/java/sun/nio/ch/MembershipRegistry.java \
     ojluni/src/main/java/sun/nio/ch/NativeDispatcher.java \
     ojluni/src/main/java/sun/nio/ch/NativeObject.java \
     ojluni/src/main/java/sun/nio/ch/NativeThread.java \
     ojluni/src/main/java/sun/nio/ch/NativeThreadSet.java \
     ojluni/src/main/java/sun/nio/ch/Net.java \
     ojluni/src/main/java/sun/nio/ch/OptionKey.java \
-    ojluni/src/main/java/sun/nio/ch/PendingFuture.java \
     ojluni/src/main/java/sun/nio/ch/PipeImpl.java \
     ojluni/src/main/java/sun/nio/ch/PollArrayWrapper.java \
     ojluni/src/main/java/sun/nio/ch/PollSelectorImpl.java \
     ojluni/src/main/java/sun/nio/ch/PollSelectorProvider.java \
-    ojluni/src/main/java/sun/nio/ch/Port.java \
     ojluni/src/main/java/sun/nio/ch/Reflect.java \
     ojluni/src/main/java/sun/nio/ch/SelChImpl.java \
     ojluni/src/main/java/sun/nio/ch/SelectionKeyImpl.java \
@@ -1211,8 +1180,6 @@ openjdk_java_files := \
     ojluni/src/main/java/sun/nio/ch/SocketOptionRegistry.java \
     ojluni/src/main/java/sun/nio/ch/SourceChannelImpl.java \
     ojluni/src/main/java/sun/nio/ch/ThreadPool.java \
-    ojluni/src/main/java/sun/nio/ch/UnixAsynchronousServerSocketChannelImpl.java \
-    ojluni/src/main/java/sun/nio/ch/UnixAsynchronousSocketChannelImpl.java \
     ojluni/src/main/java/sun/nio/ch/Util.java \
     ojluni/src/main/java/sun/nio/cs/ArrayDecoder.java \
     ojluni/src/main/java/sun/nio/cs/ArrayEncoder.java \
