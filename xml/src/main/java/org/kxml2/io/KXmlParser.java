@@ -157,6 +157,8 @@ public class KXmlParser implements XmlPullParser, Closeable {
     private boolean isWhitespace;
     private String namespace;
     private String prefix;
+    private String foundPrefix = null;
+    private String foundName = null;
     private String name;
     private String text;
 
@@ -268,15 +270,21 @@ public class KXmlParser implements XmlPullParser, Closeable {
             }
         }
 
-        int cut = name.indexOf(':');
+        if (foundPrefix != null && foundName != null) {
+            prefix = foundPrefix;
+            name = foundName;
+        }
+        else {
+            int cut = name.indexOf(':');
 
         if (cut == 0) {
             checkRelaxed("illegal tag name: " + name);
         }
 
-        if (cut != -1) {
-            prefix = name.substring(0, cut);
-            name = name.substring(cut + 1);
+            if (cut != -1) {
+                prefix = name.substring(0, cut);
+                name = name.substring(cut + 1);
+            }
         }
 
         this.namespace = getNamespace(prefix);
@@ -962,13 +970,19 @@ public class KXmlParser implements XmlPullParser, Closeable {
     }
 
     private void readEndTag() throws IOException, XmlPullParserException {
+        int sp = (depth - 1) * 4;
         read('<');
         read('/');
-        name = readName(); // TODO: pass the expected name in as a hint?
+        if (depth == 0) {
+            name = readName();
+        }
+        else {
+            // Pass the expected name in as a hint.
+            name = readExpectedName(elementStack[sp + 3]);
+        }
         skip();
         read('>');
 
-        int sp = (depth - 1) * 4;
 
         if (depth == 0) {
             checkRelaxed("read end tag " + name + " with no tags open");
@@ -1056,7 +1070,7 @@ public class KXmlParser implements XmlPullParser, Closeable {
         if (!xmldecl) {
             read('<');
         }
-        name = readName();
+        name = readName(true);
         attributeCount = 0;
 
         while (true) {
@@ -1430,7 +1444,12 @@ public class KXmlParser implements XmlPullParser, Closeable {
         }
 
         if (result == null) {
-            return stringPool.get(buffer, start, position - start);
+            if (isWhitespace) {
+                return stringPool.get(buffer, start, position - start);
+            }
+            else {
+                return new String(buffer, start, position - start);
+            }
         } else {
             result.append(buffer, start, position - start);
             return result.toString();
@@ -1526,13 +1545,44 @@ public class KXmlParser implements XmlPullParser, Closeable {
      * Returns an element or attribute name. This is always non-empty for
      * non-relaxed parsers.
      */
+    private String readExpectedName(String expected) throws IOException, XmlPullParserException {
+        int length = expected.length();
+        int end = position + length;
+        if (end < limit) {
+            // Fast path for normal case.
+            boolean match = true;
+            for (int i = 0; i < length; i++) {
+                if (buffer[position+i] != expected.charAt(i)) {
+                    match = false;
+                    break;
+                }
+            }
+            if (match) {
+                position += length;
+                return expected;
+            }
+        }
+        return readName();
+    }
+
     private String readName() throws IOException, XmlPullParserException {
+        return readName(false);
+    }
+
+    /**
+     * Returns an element or attribute name. This is always non-empty for
+     * non-relaxed parsers.  findPrefix should only be true for element names
+     */
+    private String readName(boolean findPrefix) throws IOException, XmlPullParserException {
         if (position >= limit && !fillBuffer(1)) {
             checkRelaxed("name expected");
             return "";
         }
 
         int start = position;
+        int nameStart = -1;
+        foundPrefix = null;
+        foundName = null;
         StringBuilder result = null;
 
         // read the first character
@@ -1576,12 +1626,20 @@ public class KXmlParser implements XmlPullParser, Closeable {
                     || c == ':'
                     || c == '.'
                     || c >= '\u00b7') {  // TODO: check the XML spec
+                // Fast path for common case
+                if (c == ':' && findPrefix && foundPrefix == null) {
+                    foundPrefix = stringPool.get(buffer, start, position - start);
+                    nameStart = position+1;
+                }
                 position++;
                 continue;
             }
 
             // we encountered a non-name character. done!
             if (result == null) {
+                if (foundPrefix != null && position != nameStart) {
+                    foundName = stringPool.get(buffer, nameStart, position - nameStart);
+                }
                 return stringPool.get(buffer, start, position - start);
             } else {
                 result.append(buffer, start, position - start);
