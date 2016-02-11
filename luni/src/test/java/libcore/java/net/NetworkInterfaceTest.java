@@ -31,6 +31,9 @@ import java.util.List;
 import java.util.Set;
 import libcore.io.IoUtils;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class NetworkInterfaceTest extends TestCase {
     // http://code.google.com/p/android/issues/detail?id=13784
     private final static int ARPHRD_ETHER = 1; // from if_arp.h
@@ -143,13 +146,9 @@ public class NetworkInterfaceTest extends TestCase {
         }
     }
 
-    // Returns true if interface by name ifName is Ethernet
-    private boolean isEthernet(String ifName) throws Exception {
-        String s = IoUtils.readFileAsString("/sys/class/net/" + ifName + "/type").trim();
-        if (s.startsWith("0x")) {
-            return (Integer.parseInt(s.substring(2), 16) == ARPHRD_ETHER);
-        } else {
-            return (Integer.parseInt(s) == ARPHRD_ETHER);
-        }
+    // Is ifName a name of a Ethernet device?
+    private static Pattern ethernetNamePattern = Pattern.compile("^(eth|wlan)[0-9]+$");
+    private static boolean isEthernet(String ifName) throws Exception {
+        return ethernetNamePattern.matcher(ifName).matches();
     }
 }
