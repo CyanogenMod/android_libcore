@@ -732,7 +732,7 @@ class Array {
      * @throws NegativeArraySizeException
      *             if {@code size < 0}
      */
-    public static Object newArray(Class<?> componentType, int size) throws NegativeArraySizeException {
+    private static Object newArray(Class<?> componentType, int size) throws NegativeArraySizeException {
         if (!componentType.isPrimitive()) {
             return createObjectArray(componentType, size);
         } else if (componentType == char.class) {
