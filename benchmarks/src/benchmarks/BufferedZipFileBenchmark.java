@@ -35,6 +35,7 @@ public final class BufferedZipFileBenchmark {
 
     @BeforeExperiment
     protected void setUp() throws Exception {
+        System.setProperty("java.io.tmpdir", "/data/local/tmp");
         file = File.createTempFile(getClass().getName(), ".zip");
         file.deleteOnExit();
 
