@@ -248,28 +248,6 @@ public class DirectByteBuffer extends MappedByteBuffer implements DirectBuffer {
         return this;
     }
 
-    public ByteBuffer put(ByteBuffer src) {
-        if (isReadOnly) {
-            throw new ReadOnlyBufferException();
-        }
-        if (!memoryRef.isAccessible) {
-            throw new IllegalStateException("buffer is inaccessible");
-        }
-        if (src.hb != null) {
-            int spos = src.position();
-            int slim = src.limit();
-            assert (spos <= slim);
-            int srem = (spos <= slim ? slim - spos : 0);
-            if (src == this)
-                throw new IllegalArgumentException();
-            put(src.hb, src.offset + spos, srem);
-            src.position(spos + srem);
-        } else {
-            super.put(src);
-        }
-        return this;
-    }
-
     public ByteBuffer put(byte[] src, int srcOffset, int length) {
         if (isReadOnly) {
             throw new ReadOnlyBufferException();
