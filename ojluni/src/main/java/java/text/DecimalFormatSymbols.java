@@ -228,6 +228,8 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
 
     /**
      * Gets the string used for percent sign. Different for Arabic, etc.
+     *
+     * @hide
      */
     public String getPercentString() {
         return String.valueOf(percent);
@@ -321,6 +323,8 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
      * Gets the string used to represent minus sign. If no explicit
      * negative format is specified, one is formed by prefixing
      * minusSign to the positive format.
+     *
+     * @hide
      */
     public String getMinusSignString() {
         return String.valueOf(minusSign);
