@@ -28,6 +28,7 @@
 
 package java.nio;
 
+import libcore.io.Memory;
 
 /**
  * A byte buffer.
@@ -529,13 +530,45 @@ public abstract class ByteBuffer
      * @throws ReadOnlyBufferException  If this buffer is read-only
      */
     public ByteBuffer put(ByteBuffer src) {
-        if (src == this)
+        if (!isAccessible()) {
+            throw new IllegalStateException("buffer is inaccessible");
+        }
+        if (isReadOnly) {
+            throw new ReadOnlyBufferException();
+        }
+        if (src == this) {
             throw new IllegalArgumentException();
+        }
         int n = src.remaining();
-        if (n > remaining())
+        if (n > remaining()) {
             throw new BufferOverflowException();
-        for (int i = 0; i < n; i++)
-            put(src.get());
+        }
+
+        if (this.hb != null && src.hb != null) {
+            // System.arraycopy is intrinsified by art and therefore tiny bit faster than memmove
+            System.arraycopy(src.hb, src.position() + src.arrayOffset(),
+                             hb, position() + arrayOffset(), n);
+        } else {
+            // Use the buffer object (and the raw memory address) if it's direct buffer.
+            // Note that isDirect() doesn't imply !hasArray(), ByteBuffer.allocateDirect allocated 
+            // bufferwill have a backing, non-gc-movable byte array. JNI allocated direct byte 
+            // buffers WILL NOT have backing array.
+            final Object srcObject = src.isDirect() ? src : src.array();
+            int srcOffset = src.position();
+            if (!src.isDirect()) {
+                srcOffset += src.arrayOffset();
+            }
+
+            final ByteBuffer dst = this;
+            final Object dstObject = dst.isDirect() ? dst : dst.array();
+            int dstOffset = dst.position();
+            if (!dst.isDirect()) {
+                dstOffset += dst.arrayOffset();
+            }
+            Memory.memmove(dstObject, dstOffset, srcObject, srcOffset, n);
+        }
+        src.position(src.limit());
+        this.position(this.position() + n);
         return this;
     }
 
@@ -1466,10 +1499,6 @@ public abstract class ByteBuffer
      */
     public abstract DoubleBuffer asDoubleBuffer();
 
-    // ----- BEGIN android -----
-    // TODO(pszczepaniak): Remove these after adding this functionality
-    // in the framework
-
     /**
      * @hide
      */
@@ -1483,5 +1512,4 @@ public abstract class ByteBuffer
     public void setAccessible(boolean value) {
         throw new UnsupportedOperationException();
     }
-    // ----- END android -----
 }
