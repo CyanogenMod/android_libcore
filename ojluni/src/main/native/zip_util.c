@@ -27,6 +27,7 @@
  * Support for reading ZIP/JAR files.
  */
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
@@ -417,6 +418,20 @@ hashN(const char *s, int length)
     return h;
 }
 
+/*
+ * Returns true if |s| is a valid zip entry name.
+ */
+static bool isValidEntryName(const char *s, int length)
+{
+    while (length-- > 0) {
+       if (*s++ == 0) {
+           return false;
+       }
+    }
+
+    return true;
+}
+
 static unsigned int
 hash_append(unsigned int hash, char c)
 {
@@ -695,8 +710,13 @@ readCEN(jzfile *zip, jint knownTotal)
             ZIP_FORMAT_ERROR("invalid CEN header (bad header size)");
         }
 
+        const char* entryName = (const char *)cp + CENHDR;
+        if (!isValidEntryName(entryName, nlen)) {
+            ZIP_FORMAT_ERROR("invalid CEN header (invalid entry name)");
+        }
+
         /* if the entry is metadata add it to our metadata names */
-        if (isMetaName((char *)cp+CENHDR, nlen)) {
+        if (isMetaName(entryName, nlen)) {
             if (addMetaName(zip, (char *)cp+CENHDR, nlen) != 0) {
                 goto Catch;
             }
@@ -704,10 +724,30 @@ readCEN(jzfile *zip, jint knownTotal)
 
         /* Record the CEN offset and the name hash in our hash cell. */
         entries[i].cenpos = cenpos + (cp - cenbuf);
-        entries[i].hash = hashN((char *)cp+CENHDR, nlen);
+        entries[i].hash = hashN(entryName, nlen);
+        entries[i].next = ZIP_ENDCHAIN;
 
         /* Add the entry to the hash table */
         hsh = entries[i].hash % tablelen;
+
+        /* First check that there are no other entries that have the same name. */
+        int chain = table[hsh];
+        while (chain != ZIP_ENDCHAIN) {
+            const jzcell* cell = &entries[chain];
+            if (cell->hash == entries[i].hash) {
+                const char* cenStart = (const char *) cenbuf + cell->cenpos - cenpos;
+                if (CENNAM(cenStart) == nlen) {
+                    const char* chainName = cenStart + CENHDR;
+                    if (strncmp(entryName, chainName, nlen) == 0) {
+                        ZIP_FORMAT_ERROR("invalid CEN header (duplicate entry)");
+                    }
+                }
+            }
+
+            chain = cell->next;
+        }
+
+
         entries[i].next = table[hsh];
         table[hsh] = i;
     }

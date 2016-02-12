@@ -233,22 +233,6 @@ class ZipFile implements ZipConstants, Closeable {
             throw new ZipException("No entries");
         }
 
-        // Android-changed: Disallow duplicate entry names or entries that have a C
-        // string terminator in them.
-        Set<String> entryNames = new HashSet<String>();
-        while (entries.hasMoreElements()) {
-            String entryName = entries.nextElement().getName();
-            if (entryNames.contains(entryName)) {
-                close();
-                throw new ZipException("Duplicate entry name: " + entryName);
-            }
-            if (entryName.indexOf('\0') != -1) {
-                close();
-                throw new ZipException("Null in entry name: " + entryName);
-            }
-            entryNames.add(entryName);
-        }
-
         guard.open("close");
     }
 
