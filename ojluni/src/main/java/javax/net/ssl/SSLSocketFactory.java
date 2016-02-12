@@ -92,10 +92,21 @@ public abstract class SSLSocketFactory extends SocketFactory
         }
 
         lastVersion = Security.getVersion();
+        SSLSocketFactory previousDefaultSocketFactory = defaultSocketFactory;
         defaultSocketFactory = null;
 
         String clsName = getSecurityProperty("ssl.SocketFactory.provider");
+
         if (clsName != null) {
+            // The instance for the default socket factory is checked for updates quite
+            // often (for instance, every time a security provider is added). Which leads
+            // to unnecessary overload and excessive error messages in case of class-loading
+            // errors. Avoid creating a new object if the class name is the same as before.
+            if (previousDefaultSocketFactory != null
+                    && clsName.equals(previousDefaultSocketFactory.getClass().getName())) {
+                defaultSocketFactory = previousDefaultSocketFactory;
+                return defaultSocketFactory;
+            }
             log("setting up default SSLSocketFactory");
             try {
                 Class cls = null;
