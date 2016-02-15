@@ -640,9 +640,6 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
     }
 
     public void test_parse_h_z_2DigitOffsetFromGMT() throws Exception {
-        GregorianCalendar cal = new GregorianCalendar(1970, Calendar.JANUARY, 1);
-        cal.setTimeZone(TimeZone.getTimeZone("EST"));
-        cal.set(1970, Calendar.JANUARY, 1, 4, 30);
         assertParse("h z", "14 GMT-24 ", new Date(51840000), 0, 9);
         assertParse("h z", "14 GMT-23 ", new Date(133200000), 0, 9);
         assertParse("h z", "14 GMT+24 ", new Date(48960000), 0, 9);
@@ -650,17 +647,11 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
     }
 
     public void test_parse_h_z_4DigitOffsetFromGMT() throws Exception {
-        GregorianCalendar cal = new GregorianCalendar(1970, Calendar.JANUARY, 1);
-        cal.setTimeZone(TimeZone.getTimeZone("EST"));
-        cal.set(1970, Calendar.JANUARY, 1, 4, 30);
         assertParse("h z", "14 GMT-0001 ", new Date(54000000), 0, 11);
         assertParse("h z", "14 GMT+0001 ", new Date(46800000), 0, 11);
     }
 
     public void test_parse_h_z_4DigitOffsetNoGMT() throws Exception {
-        GregorianCalendar cal = new GregorianCalendar(1970, Calendar.JANUARY, 1);
-        cal.setTimeZone(TimeZone.getTimeZone("EST"));
-        cal.set(1970, Calendar.JANUARY, 1, 4, 30);
         assertParse("h z", "14 +0001 ", new Date(46800000), 0, 8);
         assertParse("h z", "14 -0001 ", new Date(54000000), 0, 8);
     }
