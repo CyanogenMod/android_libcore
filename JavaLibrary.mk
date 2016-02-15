@@ -290,6 +290,7 @@ ifeq ($(LIBCORE_SKIP_TESTS),)
     LOCAL_STATIC_JAVA_LIBRARIES := sqlite-jdbc-host mockwebserver-host nist-pkix-tests-host
     LOCAL_JAVACFLAGS := $(local_javac_flags)
     LOCAL_MODULE_TAGS := optional
+    LOCAL_JAVA_LANGUAGE_VERSION := 1.8
     LOCAL_MODULE := core-tests-hostdex
     LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
     include $(BUILD_HOST_DALVIK_JAVA_LIBRARY)
