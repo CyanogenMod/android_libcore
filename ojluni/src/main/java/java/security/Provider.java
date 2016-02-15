@@ -37,8 +37,6 @@ import java.lang.reflect.*;
 import java.security.Security;
 import java.security.cert.CertStoreParameters;
 
-import javax.security.auth.login.Configuration;
-
 /**
  * This class represents a "provider" for the
  * Java Security API, where a provider implements some or all parts of
