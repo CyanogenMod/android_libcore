@@ -163,33 +163,6 @@ class HeapByteBuffer extends ByteBuffer {
         return this;
     }
 
-    public ByteBuffer put(ByteBuffer src) {
-        if (isReadOnly) {
-            throw new ReadOnlyBufferException();
-        }
-        if (src instanceof HeapByteBuffer) {
-            if (src == this)
-                throw new IllegalArgumentException();
-            HeapByteBuffer sb = (HeapByteBuffer) src;
-            int n = sb.remaining();
-            if (n > remaining())
-                throw new BufferOverflowException();
-            System.arraycopy(sb.hb, sb.ix(sb.position()),
-                    hb, ix(position()), n);
-            sb.position(sb.position() + n);
-            position(position() + n);
-        } else if (src.isDirect()) {
-            int n = src.remaining();
-            if (n > remaining())
-                throw new BufferOverflowException();
-            src.get(hb, ix(position()), n);
-            position(position() + n);
-        } else {
-            super.put(src);
-        }
-        return this;
-    }
-
     public ByteBuffer compact() {
         if (isReadOnly) {
             throw new ReadOnlyBufferException();
