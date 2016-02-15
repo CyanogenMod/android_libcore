@@ -280,13 +280,28 @@ LOCAL_JAVA_LIBRARIES := core-oj-hostdex
 LOCAL_REQUIRED_MODULES := tzdata-host
 include $(BUILD_HOST_DALVIK_JAVA_LIBRARY)
 
+# A library that exists to satisfy javac when
+# compiling source code that contains lambdas.
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES := $(openjdk_lambda_stub_files)
+LOCAL_NO_STANDARD_LIBRARIES := true
+LOCAL_JAVACFLAGS := $(local_javac_flags)
+LOCAL_DX_FLAGS := --core-library
+LOCAL_MODULE_TAGS := optional
+LOCAL_JAVA_LANGUAGE_VERSION := 1.8
+LOCAL_MODULE := core-lambda-stubs-hostdex
+LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
+LOCAL_JAVA_LIBRARIES := core-all-hostdex
+LOCAL_CORE_LIBRARY := true
+include $(BUILD_HOST_DALVIK_JAVA_LIBRARY)
+
 # Make the core-tests library.
 ifeq ($(LIBCORE_SKIP_TESTS),)
     include $(CLEAR_VARS)
     LOCAL_SRC_FILES := $(test_src_files)
     LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
     LOCAL_NO_STANDARD_LIBRARIES := true
-    LOCAL_JAVA_LIBRARIES := core-oj-hostdex core-libart-hostdex okhttp-hostdex bouncycastle-hostdex core-junit-hostdex core-tests-support-hostdex mockito-api-hostdex
+    LOCAL_JAVA_LIBRARIES := core-oj-hostdex core-libart-hostdex core-lambda-stubs-hostdex okhttp-hostdex bouncycastle-hostdex core-junit-hostdex core-tests-support-hostdex mockito-api-hostdex
     LOCAL_STATIC_JAVA_LIBRARIES := sqlite-jdbc-host mockwebserver-host nist-pkix-tests-host
     LOCAL_JAVACFLAGS := $(local_javac_flags)
     LOCAL_MODULE_TAGS := optional
