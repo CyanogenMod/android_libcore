@@ -35,6 +35,7 @@ import java.net.CacheRequest;
 import java.net.CacheResponse;
 import java.net.HttpRetryException;
 import java.net.HttpURLConnection;
+import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.PasswordAuthentication;
 import java.net.ProtocolException;
@@ -2746,6 +2747,45 @@ public final class URLConnectionTest extends AbstractResourceLeakageDetectorTest
         } finally {
             connection.disconnect();
         }
+    }
+
+    // http://b/26769689
+    public void testSSLSocketFactoryWithIpv6LiteralHostname() throws Exception {
+        TestSSLContext testSSLContext = TestSSLContext.create();
+        server.useHttps(testSSLContext.serverContext.getSocketFactory(), false);
+        server.enqueue(new MockResponse());
+        server.play();
+
+        final AtomicReference<String> hostNameUsed = new AtomicReference<>(null);
+
+        SSLSocketFactory factory = new DelegatingSSLSocketFactory(
+                testSSLContext.clientContext.getSocketFactory()) {
+            @Override
+            public SSLSocket createSocket(Socket s, String host, int port, boolean autoClose)
+                    throws IOException {
+                hostNameUsed.set(host);
+                return (SSLSocket) delegate.createSocket(s, host, port, autoClose);
+            }
+        };
+
+        HttpsURLConnection urlConnection = (HttpsURLConnection)
+                new URL("https://[" + Inet6Address.getLoopbackAddress().getHostAddress() + "]:"
+                        + server.getPort() + "/").openConnection();
+        urlConnection.setSSLSocketFactory(factory);
+        try {
+            urlConnection.connect();
+            fail();
+        } catch (IOException expected) {
+            // We expect the connection to fail with a cert validation exception because we're
+            // using a literal address.
+        } finally {
+            urlConnection.disconnect();
+        }
+
+        // Note that the square brackets around the literal address were crucial. Whatsapp
+        // wouldn't function properly without them.
+        assertEquals("[" + Inet6Address.getLoopbackAddress().getHostAddress() + "]",
+                hostNameUsed.get());
     }
 
     /**
