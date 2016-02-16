@@ -647,13 +647,13 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
     }
 
     public void test_parse_h_z_4DigitOffsetFromGMT() throws Exception {
-        assertParse("h z", "14 GMT-0001 ", new Date(54000000), 0, 11);
-        assertParse("h z", "14 GMT+0001 ", new Date(46800000), 0, 11);
+        assertParse("h z", "14 GMT-0100 ", new Date(54000000), 0, 11);
+        assertParse("h z", "14 GMT+0100 ", new Date(46800000), 0, 11);
     }
 
     public void test_parse_h_z_4DigitOffsetNoGMT() throws Exception {
-        assertParse("h z", "14 +0001 ", new Date(46800000), 0, 8);
-        assertParse("h z", "14 -0001 ", new Date(54000000), 0, 8);
+        assertParse("h z", "14 +0100 ", new Date(46800000), 0, 8);
+        assertParse("h z", "14 -0100 ", new Date(54000000), 0, 8);
     }
 
     public void test_parse_yyyyMMddHHmmss() throws Exception {
