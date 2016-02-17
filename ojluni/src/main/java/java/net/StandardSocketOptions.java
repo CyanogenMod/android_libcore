@@ -267,7 +267,6 @@ public final class StandardSocketOptions {
      * the socket option can be queried or changed prior to binding the socket
      * is system dependent.
      *
-     * @see java.nio.channels.MulticastChannel
      * @see MulticastSocket#setInterface
      */
     public static final SocketOption<NetworkInterface> IP_MULTICAST_IF =
@@ -294,7 +293,6 @@ public final class StandardSocketOptions {
      * the socket is bound. Whether the socket option can be queried or changed
      * prior to binding the socket is system dependent.
      *
-     * @see java.nio.channels.MulticastChannel
      * @see MulticastSocket#setTimeToLive
      */
     public static final SocketOption<Integer> IP_MULTICAST_TTL =
@@ -319,7 +317,6 @@ public final class StandardSocketOptions {
      * bound. Whether the socket option can be queried or changed prior to
      * binding the socket is system dependent.
      *
-     * @see java.nio.channels.MulticastChannel
      *  @see MulticastSocket#setLoopbackMode
      */
     public static final SocketOption<Boolean> IP_MULTICAST_LOOP =
