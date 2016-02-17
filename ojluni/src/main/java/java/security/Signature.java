@@ -897,6 +897,11 @@ public abstract class Signature extends SignatureSpi {
         }
     }
 
+    /**
+     * Returns the {@code SignatureSpi} backing this {@code Signature}.
+     *
+     * @hide
+     */
     public SignatureSpi getCurrentSpi() {
       return null;
     }

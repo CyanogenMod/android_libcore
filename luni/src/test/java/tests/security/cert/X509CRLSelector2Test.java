@@ -2,9 +2,8 @@ package tests.security.cert;
 
 import junit.framework.TestCase;
 
-import org.apache.harmony.security.asn1.ASN1Integer;
-import org.apache.harmony.security.asn1.ASN1OctetString;
 import org.apache.harmony.security.tests.support.cert.TestUtils;
+
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -30,6 +29,9 @@ import java.util.Date;
 import java.util.Set;
 
 import javax.security.auth.x500.X500Principal;
+
+import sun.security.util.DerOutputStream;
+import sun.security.x509.CRLNumberExtension;
 
 public class X509CRLSelector2Test extends TestCase {
 
@@ -556,9 +558,13 @@ public class X509CRLSelector2Test extends TestCase {
 
         public byte[] getExtensionValue(String oid) {
             if ("2.5.29.20".equals(oid) && (crlNumber != null)) {
-                return ASN1OctetString.getInstance().encode(
-                        ASN1Integer.getInstance().encode(
-                                crlNumber.toByteArray()));
+                DerOutputStream out = new DerOutputStream();
+                try {
+                    out.putOctetString((new CRLNumberExtension(crlNumber)).getExtensionValue());
+                } catch (IOException e) {
+                    throw new IllegalStateException("Unexpected IOException" , e);
+                }
+                return out.toByteArray();
             }
             return null;
         }

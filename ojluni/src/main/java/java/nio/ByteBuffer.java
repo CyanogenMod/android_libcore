@@ -544,26 +544,28 @@ public abstract class ByteBuffer
             throw new BufferOverflowException();
         }
 
+        // Note that we use offset instead of arrayOffset because arrayOffset is specified to
+        // throw for read only buffers. Our use of arrayOffset here is provably safe, we only
+        // use it to read *from* readOnly buffers.
         if (this.hb != null && src.hb != null) {
             // System.arraycopy is intrinsified by art and therefore tiny bit faster than memmove
-            System.arraycopy(src.hb, src.position() + src.arrayOffset(),
-                             hb, position() + arrayOffset(), n);
+            System.arraycopy(src.hb, src.position() + src.offset, hb, position() + offset, n);
         } else {
-            // Use the buffer object (and the raw memory address) if it's direct buffer.
-            // Note that isDirect() doesn't imply !hasArray(), ByteBuffer.allocateDirect allocated 
-            // bufferwill have a backing, non-gc-movable byte array. JNI allocated direct byte 
-            // buffers WILL NOT have backing array.
+            // Use the buffer object (and the raw memory address) if it's a direct buffer. Note that
+            // isDirect() doesn't imply !hasArray(), ByteBuffer.allocateDirect allocated buffer will
+            // have a backing, non-gc-movable byte array. JNI allocated direct byte buffers WILL NOT
+            // have a backing array.
             final Object srcObject = src.isDirect() ? src : src.array();
             int srcOffset = src.position();
             if (!src.isDirect()) {
-                srcOffset += src.arrayOffset();
+                srcOffset += src.offset;
             }
 
             final ByteBuffer dst = this;
             final Object dstObject = dst.isDirect() ? dst : dst.array();
             int dstOffset = dst.position();
             if (!dst.isDirect()) {
-                dstOffset += dst.arrayOffset();
+                dstOffset += dst.offset;
             }
             Memory.memmove(dstObject, dstOffset, srcObject, srcOffset, n);
         }

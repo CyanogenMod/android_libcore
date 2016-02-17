@@ -629,40 +629,51 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
         GregorianCalendar cal = new GregorianCalendar(1970, Calendar.JANUARY, 1);
         cal.setTimeZone(TimeZone.getTimeZone("GMT+0:1"));
         cal.set(Calendar.DAY_OF_YEAR, 243);
-        assertParse("D z", "243 GMT+0:0", cal.getTime(), 0, 11);
+        assertParse("D z", "243 GMT+00:00", cal.getTime(), 0, 13);
     }
 
     public void test_parse_h_m_z() throws Exception {
         GregorianCalendar cal = new GregorianCalendar(1970, Calendar.JANUARY, 1);
         cal.setTimeZone(TimeZone.getTimeZone("EST"));
         cal.set(1970, Calendar.JANUARY, 1, 4, 30);
-        assertParse("h:m z", "4:30 GMT-5 ", cal.getTime(), 0, 10);
+        assertParse("h:m z", "4:30 GMT-5:00", cal.getTime(), 0, 13);
     }
 
-    public void test_parse_h_z_2DigitOffsetFromGMT() throws Exception {
-        GregorianCalendar cal = new GregorianCalendar(1970, Calendar.JANUARY, 1);
-        cal.setTimeZone(TimeZone.getTimeZone("EST"));
-        cal.set(1970, Calendar.JANUARY, 1, 4, 30);
-        assertParse("h z", "14 GMT-24 ", new Date(51840000), 0, 9);
-        assertParse("h z", "14 GMT-23 ", new Date(133200000), 0, 9);
-        assertParse("h z", "14 GMT+24 ", new Date(48960000), 0, 9);
-        assertParse("h z", "14 GMT+23 ", new Date(-32400000), 0, 9);
+    public void test_parse_h_z_2DigitOffsetFromGMT_doesNotParse() throws Exception {
+        pFormat.applyPattern("h z");
+        try {
+            pFormat.parse("14 GMT-23");
+        } catch (ParseException expected) {
+        }
+
+        try {
+            pFormat.parse("14 GMT+23");
+        } catch (ParseException expected) {
+        }
     }
 
     public void test_parse_h_z_4DigitOffsetFromGMT() throws Exception {
-        GregorianCalendar cal = new GregorianCalendar(1970, Calendar.JANUARY, 1);
-        cal.setTimeZone(TimeZone.getTimeZone("EST"));
-        cal.set(1970, Calendar.JANUARY, 1, 4, 30);
-        assertParse("h z", "14 GMT-0001 ", new Date(54000000), 0, 11);
-        assertParse("h z", "14 GMT+0001 ", new Date(46800000), 0, 11);
+        assertParse("h z", "14 GMT-0100 ", new Date(54000000), 0, 11);
+        assertParse("h z", "14 GMT+0100 ", new Date(46800000), 0, 11);
+
+        // Note that OpenJDK only allows zone offsets in the range [-23:59,+23:59]. These offsets
+        // are confined to a narrower range in practice.
+        pFormat.applyPattern("h z");
+        try {
+            pFormat.parse("14 GMT+24:00");
+            fail();
+        } catch (ParseException expected) {
+        }
+        try {
+            pFormat.parse("14 GMT-24:00");
+            fail();
+        } catch (ParseException expected) {
+        }
     }
 
     public void test_parse_h_z_4DigitOffsetNoGMT() throws Exception {
-        GregorianCalendar cal = new GregorianCalendar(1970, Calendar.JANUARY, 1);
-        cal.setTimeZone(TimeZone.getTimeZone("EST"));
-        cal.set(1970, Calendar.JANUARY, 1, 4, 30);
-        assertParse("h z", "14 +0001 ", new Date(46800000), 0, 8);
-        assertParse("h z", "14 -0001 ", new Date(54000000), 0, 8);
+        assertParse("h z", "14 +0100 ", new Date(46800000), 0, 8);
+        assertParse("h z", "14 -0100 ", new Date(54000000), 0, 8);
     }
 
     public void test_parse_yyyyMMddHHmmss() throws Exception {
@@ -768,10 +779,11 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
         pFormat.applyPattern(pattern);
         ParsePosition position = new ParsePosition(start);
         Date result = pFormat.parse(input, position);
-        assertTrue("Wrong result: " + pattern + " input: " + input + " expected: " + expected +
-                " result: " + result, expected.equals(result));
-        assertTrue("Wrong end position: " + pattern + " input: " + input,
-                position.getIndex() == end);
+        assertEquals("Wrong result: " + pattern + " input: " + input +
+                " resultTime: " + ((result == null) ? "null" : result.getTime()),
+                expected, result);
+        assertEquals("Wrong end position: " + pattern + " input: " + input,
+                end, position.getIndex());
     }
 
     public void test_set2DigitYearStartLjava_util_Date() {
