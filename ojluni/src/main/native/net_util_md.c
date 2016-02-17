@@ -1685,7 +1685,7 @@ NET_Wait(JNIEnv *env, jint fd, jint flags, jint timeout)
         if (timeout <= 0) {
           return read_rv > 0 ? 0 : -1;
         }
-        newTime = prevTime;
+        prevTime = newTime;
 
         if (read_rv > 0) {
           break;
