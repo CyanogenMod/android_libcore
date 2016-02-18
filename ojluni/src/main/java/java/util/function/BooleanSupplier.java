@@ -37,7 +37,6 @@ package java.util.function;
  *
  * @see Supplier
  * @since 1.8
- * @hide 1.8
  */
 @FunctionalInterface
 public interface BooleanSupplier {
