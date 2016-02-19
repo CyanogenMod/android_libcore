@@ -23,9 +23,11 @@ import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
+import java.net.StandardSocketOptions;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.DatagramChannel;
+import java.nio.channels.SocketChannel;
 import java.nio.channels.UnresolvedAddressException;
 import java.util.Enumeration;
 import java.util.Set;
@@ -151,6 +153,23 @@ public class DatagramChannelTest extends junit.framework.TestCase {
         assertTrue(actualAddress.getPort() > 0);
 
         dc.close();
+    }
+
+    public void test_setOption() throws Exception {
+        DatagramChannel dc = DatagramChannel.open();
+        dc.setOption(StandardSocketOptions.SO_SNDBUF, 1000);
+
+        // Assert that we can read back the option from the channel...
+        assertEquals(1000, (int) dc.getOption(StandardSocketOptions.SO_SNDBUF));
+        // ... and its socket adaptor.
+        assertEquals(1000, dc.socket().getSendBufferSize());
+
+        dc.close();
+        try {
+            dc.setOption(StandardSocketOptions.SO_LINGER, 2000);
+            fail();
+        } catch (ClosedChannelException expected) {
+        }
     }
 
     // http://b/26292854
