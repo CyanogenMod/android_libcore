@@ -1900,7 +1900,7 @@ public class SSLSocketTest extends TestCase {
         server.startHandshake();
 
         SSLSession serverSession = server.getSession();
-        assert(serverSession instanceof ExtendedSSLSession);
+        assertTrue(serverSession instanceof ExtendedSSLSession);
         ExtendedSSLSession extendedServerSession = (ExtendedSSLSession) serverSession;
         List<SNIServerName> requestedNames = extendedServerSession.getRequestedServerNames();
         assertNotNull(requestedNames);
