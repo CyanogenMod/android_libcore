@@ -197,6 +197,11 @@ typedef struct cencache {
 #endif
 
 /*
+ * Use mmap for CEN & ENDHDR sections
+ */
+#define USE_MMAP 1
+
+/*
  * Descriptor for a ZIP file.
  */
 typedef struct jzfile {   /* Zip file */
