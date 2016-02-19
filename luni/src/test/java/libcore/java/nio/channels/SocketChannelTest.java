@@ -26,6 +26,7 @@ import java.net.SocketImpl;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
+import java.net.StandardSocketOptions;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SocketChannel;
@@ -275,5 +276,22 @@ public class SocketChannelTest extends junit.framework.TestCase {
     Object implFieldValue = f_impl.get(socket);
     assertNotNull(implFieldValue);
     assertTrue(implFieldValue instanceof SocketImpl);
+  }
+
+  public void test_setOption() throws Exception {
+    SocketChannel sc = SocketChannel.open();
+    sc.setOption(StandardSocketOptions.SO_LINGER, 1000);
+
+    // Assert that we can read back the option from the channel...
+    assertEquals(1000, (int) sc.<Integer>getOption(StandardSocketOptions.SO_LINGER));
+    // ... and its socket adaptor.
+    assertEquals(1000, sc.socket().getSoLinger());
+
+    sc.close();
+    try {
+        sc.setOption(StandardSocketOptions.SO_LINGER, 2000);
+        fail();
+    } catch (ClosedChannelException expected) {
+    }
   }
 }
