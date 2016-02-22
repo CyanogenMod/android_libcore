@@ -172,15 +172,7 @@ class Inet6AddressImpl implements InetAddressImpl {
             scope = ((Inet6Address) addr).getScopeId();
 
         BlockGuard.getThreadPolicy().onNetwork();
-
-        // Never throw an IOException from isReachable. If something terrible happens either
-        // with the network interface in question (or with the destination), then just return
-        // false (i.e, state that the address is unreachable.
-        try {
-            return isReachable0(addr.getAddress(), scope, timeout, ifaddr, ttl, netif_scope);
-        } catch (IOException ioe) {
-            return false;
-        }
+        return isReachable0(addr.getAddress(), scope, timeout, ifaddr, ttl, netif_scope);
     }
 
     @Override
