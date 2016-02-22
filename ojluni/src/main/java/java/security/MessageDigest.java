@@ -403,19 +403,22 @@ public abstract class MessageDigest extends MessageDigestSpi {
      * Returns a string representation of this message digest object.
      */
     public String toString() {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        PrintStream p = new PrintStream(baos);
-        p.print(algorithm+" Message Digest from "+provider.getName()+", ");
+        StringBuilder builder = new StringBuilder();
+        builder.append(algorithm);
+        builder.append(" Message Digest from ");
+        builder.append(provider.getName());
+        builder.append(", ");
+
         switch (state) {
         case INITIAL:
-            p.print("<initialized>");
+            builder.append("<initialized>");
             break;
         case IN_PROGRESS:
-            p.print("<in progress>");
+            builder.append("<in progress>");
             break;
         }
-        p.println();
-        return (baos.toString());
+
+        return builder.toString();
     }
 
     /**
