@@ -107,7 +107,22 @@ class MockDatagramChannel extends DatagramChannel {
     }
 
     @Override
+    public <T> T getOption(SocketOption<T> name) throws IOException {
+        return null;
+    }
+
+    @Override
+    public Set<SocketOption<?>> supportedOptions() {
+        return null;
+    }
+
+    @Override
     public DatagramChannel bind(SocketAddress local) throws IOException {
+        return null;
+    }
+
+    @Override
+    public SocketAddress getLocalAddress() throws IOException {
         return null;
     }
 }
