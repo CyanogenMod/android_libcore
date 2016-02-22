@@ -86,10 +86,10 @@ fileOpen(JNIEnv *env, jobject this, jstring path, jfieldID fid, int flags)
               close(fd);
               errno = EISDIR; // For Exception message
               throwFileNotFoundException(env, path);
-              return;
+            } else {
+              // END android
+              SET_FD(this, fd, fid);
             }
-            // END android
-            SET_FD(this, fd, fid);
         } else {
             throwFileNotFoundException(env, path);
         }
