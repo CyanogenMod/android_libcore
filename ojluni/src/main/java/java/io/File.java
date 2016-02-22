@@ -32,8 +32,6 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.ArrayList;
-import java.security.AccessController;
-import sun.security.action.GetPropertyAction;
 
 /**
  * An abstract representation of file and directory pathnames.
@@ -1782,34 +1780,23 @@ public class File
 
     /* -- Temporary files -- */
 
-    private static class TempDirectory {
-        private TempDirectory() { }
-
-        // temporary directory location
-        private static final File tmpdir = new File(AccessController
-            .doPrivileged(new GetPropertyAction("java.io.tmpdir")));
-        static File location() {
-            return tmpdir;
-        }
-
-        // file name generation
-        static File generateFile(String prefix, String suffix, File dir)
+    // file name generation
+    private static File generateTempFile(String prefix, String suffix, File dir)
             throws IOException
-        {
-            // Android-changed: Use Math.randomIntInternal. This (pseudo) random number
-            // is initialized post-fork
-            int n = Math.randomIntInternal();
-            if (n == Integer.MIN_VALUE) {
-                n = 0;      // corner case
-            } else {
-                n = Math.abs(n);
-            }
-            String name = prefix + Integer.toString(n) + suffix;
-            File f = new File(dir, name);
-            if (!name.equals(f.getName()))
-                throw new IOException("Unable to create temporary file");
-            return f;
+    {
+        // Android-changed: Use Math.randomIntInternal. This (pseudo) random number
+        // is initialized post-fork
+        int n = Math.randomIntInternal();
+        if (n == Integer.MIN_VALUE) {
+            n = 0;      // corner case
+        } else {
+            n = Math.abs(n);
         }
+        String name = prefix + Integer.toString(n) + suffix;
+        File f = new File(dir, name);
+        if (!name.equals(f.getName()))
+            throw new IOException("Unable to create temporary file");
+        return f;
     }
 
     /**
@@ -1891,11 +1878,11 @@ public class File
             suffix = ".tmp";
 
         File tmpdir = (directory != null) ? directory
-                                          : TempDirectory.location();
+                                          : new File(System.getProperty("java.io.tmpdir", "."));
         File f;
         try {
             do {
-                f = TempDirectory.generateFile(prefix, suffix, tmpdir);
+                f = generateTempFile(prefix, suffix, tmpdir);
             } while (f.exists());
             if (!f.createNewFile())
                 throw new IOException("Unable to create temporary file");

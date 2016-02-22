@@ -334,5 +334,20 @@ public class FileTest extends junit.framework.TestCase {
         assertEquals("foo.bar", f2.toString());
     }
 
+    // http://b/27273930
+    public void testJavaIoTmpdirMutable() throws Exception {
+        final String oldTmpDir = System.getProperty("java.io.tmpdir");
+        final String newTmpDir = oldTmpDir + "/newTemp";
+        File subDir = new File(oldTmpDir, "newTemp");
+        assertTrue(subDir.mkdir());
+        try {
+            System.setProperty("java.io.tmpdir", newTmpDir);
+            File tempFile = File.createTempFile("foo", ".bar");
+            assertTrue(tempFile.getAbsolutePath().contains("/newTemp/"));
+        } finally {
+            System.setProperty("java.io.tmpdir", oldTmpDir);
+        }
+    }
+
     private static native void nativeTestFilesWithSurrogatePairs(String base);
 }
