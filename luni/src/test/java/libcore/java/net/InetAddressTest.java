@@ -16,10 +16,12 @@
 
 package libcore.java.net;
 
+import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -178,6 +180,20 @@ public class InetAddressTest extends junit.framework.TestCase {
                 return a.getHostName().equals(b.getHostName());
             }
         }.test();
+    }
+
+    public void test_isReachable_neverThrows() throws Exception {
+        InetAddress inetAddress = InetAddress.getByName("www.google.com");
+
+        final NetworkInterface netIf;
+        try {
+            netIf = NetworkInterface.getByName("dummy0");
+        } catch (SocketException e) {
+            System.logI("Skipping test_isReachable_neverThrows because dummy0 isn't available");
+            return;
+        }
+
+        assertFalse(inetAddress.isReachable(netIf, 256, 500));
     }
 
     public void test_isSiteLocalAddress() throws Exception {
