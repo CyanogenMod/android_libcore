@@ -17,18 +17,17 @@
 
 package org.apache.harmony.tests.javax.net.ssl;
 
-import libcore.java.security.StandardNames;
-
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.security.KeyStore;
 import java.security.Principal;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
 
+import javax.net.ssl.ExtendedSSLSession;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -39,11 +38,12 @@ import javax.net.ssl.SSLSessionBindingListener;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.TrustManager;
 
-import junit.framework.TestCase;
-
-import libcore.io.Base64;
 import org.apache.harmony.tests.javax.net.ssl.HandshakeCompletedEventTest.MyHandshakeListener;
 import org.apache.harmony.tests.javax.net.ssl.HandshakeCompletedEventTest.TestTrustManager;
+
+import junit.framework.TestCase;
+import libcore.io.Base64;
+import libcore.java.security.StandardNames;
 
 public class SSLSessionTest extends TestCase {
 
@@ -125,11 +125,17 @@ public class SSLSessionTest extends TestCase {
     /**
      * javax.net.ssl.SSLSession#getId()
      */
-    public void test_getId() {
+    public void test_getId() throws Exception {
         byte[] id = clientSession.getId();
         SSLSession sess = clientSslContext.getClientSessionContext().getSession(id);
         assertNotNull("Could not find session for id " + id, sess);
-        assertEquals(clientSession, sess);
+        if (clientSession instanceof ExtendedSSLSession) {
+            assertTrue(sess instanceof ExtendedSSLSession);
+            assertExtendedSSLSessionsEqual((ExtendedSSLSession) clientSession,
+                    (ExtendedSSLSession) sess);
+        } else {
+            assertSSLSessionsEqual(clientSession, sess);
+        }
     }
 
     /**
@@ -655,5 +661,48 @@ public class SSLSessionTest extends TestCase {
         keyManagerFactory.init(keyStore, PASSWORD.toCharArray());
 
         return keyManagerFactory.getKeyManagers();
+    }
+
+    public static void assertSSLSessionsEqual(SSLSession a, SSLSession b) throws Exception {
+        assertEquals(a.getApplicationBufferSize(), b.getApplicationBufferSize());
+        assertEquals(a.getCipherSuite(), b.getCipherSuite());
+        assertEquals(a.getCreationTime(), b.getCreationTime());
+        assertEquals(Arrays.toString(a.getId()), Arrays.toString(b.getId()));
+        assertEquals(a.getLastAccessedTime(), b.getLastAccessedTime());
+        assertEquals(Arrays.toString(a.getLocalCertificates()),
+                Arrays.toString(b.getLocalCertificates()));
+        assertEquals(a.getLocalPrincipal(), b.getLocalPrincipal());
+        assertEquals(a.getPacketBufferSize(), b.getPacketBufferSize());
+        assertEquals(Arrays.toString(a.getPeerCertificateChain()),
+                Arrays.toString(b.getPeerCertificateChain()));
+        assertEquals(Arrays.toString(a.getPeerCertificates()),
+                Arrays.toString(b.getPeerCertificates()));
+        assertEquals(a.getPeerHost(), b.getPeerHost());
+        assertEquals(a.getPeerPort(), b.getPeerPort());
+        assertEquals(a.getPeerPrincipal(), b.getPeerPrincipal());
+        assertEquals(a.getProtocol(), b.getProtocol());
+        assertEquals(Arrays.toString(a.getValueNames()), Arrays.toString(b.getValueNames()));
+        for (String name : a.getValueNames()) {
+            assertEquals(a.getValue(name), b.getValue(name));
+        }
+    }
+
+    private static void assertExtendedSSLSessionsEqual(ExtendedSSLSession a, ExtendedSSLSession b)
+            throws Exception {
+        assertSSLSessionsEqual(a, b);
+        assertEquals(Arrays.toString(a.getLocalSupportedSignatureAlgorithms()),
+                Arrays.toString(b.getLocalSupportedSignatureAlgorithms()));
+        assertEquals(Arrays.toString(a.getPeerSupportedSignatureAlgorithms()),
+                Arrays.toString(b.getPeerSupportedSignatureAlgorithms()));
+
+        if (a.getRequestedServerNames() == null) {
+            assertNull(b.getRequestedServerNames());
+        } else {
+            assertEquals(a.getRequestedServerNames().size(), b.getRequestedServerNames().size());
+            for (int i = 0; i < a.getRequestedServerNames().size(); i++) {
+                assertEquals(a.getRequestedServerNames().get(i),
+                        b.getRequestedServerNames().get(i));
+            }
+        }
     }
 }
