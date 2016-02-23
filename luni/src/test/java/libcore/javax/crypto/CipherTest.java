@@ -3203,6 +3203,28 @@ public final class CipherTest extends TestCase {
         }
     }
 
+    public void test_DefaultGCMTagSizeAlgorithmParameterSpec() throws Exception {
+        final String AES = "AES";
+        final String AES_GCM = "AES/GCM/NoPadding";
+        byte[] input = new byte[16];
+        byte[] key = new byte[16];
+        Cipher cipher = Cipher.getInstance(AES_GCM, "BC");
+        AlgorithmParameters param = AlgorithmParameters.getInstance("GCM");
+        param.init(new byte[] {
+            (byte) 48,    // DER encoding : tag_Sequence
+            (byte) 14,    // DER encoding : total length
+            (byte) 4,     // DER encoding : tag_OctetString
+            (byte) 12,    // DER encoding : counter length
+            // Note that IV's size 12 bytes is recommended, but authentication tag size should be 16
+            // bytes.
+            (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0,
+            (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0 });
+        cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(key, AES), param);
+        byte[] ciphertext = cipher.update(input);
+        byte[] tag = cipher.doFinal();
+        assertEquals(16, tag.length);
+    }
+
     public void testAES_ECB_PKCS5Padding_ShortBuffer_Failure() throws Exception {
         for (String provider : AES_PROVIDERS) {
             testAES_ECB_PKCS5Padding_ShortBuffer_Failure(provider);
