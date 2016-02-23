@@ -49,7 +49,9 @@ public final class SerializationTest extends TestCase {
 
     static class FieldMadeTransient implements Serializable {
         private static final long serialVersionUID = 0L;
+        @SuppressWarnings("unused")
         private transient int transientInt;
+        @SuppressWarnings("unused")
         private int nonTransientInt;
     }
 
@@ -64,7 +66,7 @@ public final class SerializationTest extends TestCase {
                 + "374244669656c644d6164655374617469630000000000000000020001490009737461746963496e7"
                 + "47870000022b8";
         FieldMadeStatic deserialized = (FieldMadeStatic) SerializationTester.deserializeHex(s);
-        // The field data is simply ignored if it is static.
+        // The field data must be ignored if it is static.
         assertEquals(9999, deserialized.staticInt);
     }
 
@@ -74,73 +76,101 @@ public final class SerializationTest extends TestCase {
         private static int staticInt = 9999;
     }
 
+    public static boolean serializableContainer1InitializedFlag = false;
+    public static boolean unserializable1InitializedFlag = false;
+
+    public static class Unserializable1 {
+        static {
+            SerializationTest.unserializable1InitializedFlag = true;
+        }
+    }
+
+    static class SerializableContainer1 implements Serializable {
+        private static final long serialVersionUID = 0L;
+        private Unserializable1 unserializable = null;
+
+        static {
+            serializableContainer1InitializedFlag = true;
+        }
+    }
+
     // We can serialize an object that has an unserializable field providing it is null.
     public void testDeserializeNullUnserializableField() throws Exception {
         // This was created by creating a new SerializableContainer and not setting the
         // unserializable field. A canned serialized form is used so we can tell if the static
         // initializers were executed during deserialization.
-        // SerializationTester.serializeHex(new SerializableContainer());
-        String s = "aced0005737200376c6962636f72652e6a6176612e696f2e53657269616c697a6174696f6e54657"
-                + "3742453657269616c697a61626c65436f6e7461696e657200000000000000000200014c000e756e7"
-                + "3657269616c697a61626c657400334c6c6962636f72652f6a6176612f696f2f53657269616c697a6"
-                + "174696f6e546573742457617353657269616c697a61626c653b787070";
+        // SerializationTester.serializeHex(new SerializableContainer1());
+        String s = "aced0005737200386c6962636f72652e6a6176612e696f2e53657269616c697a6174696f6e54657"
+                  + "3742453657269616c697a61626c65436f6e7461696e65723100000000000000000200014c000e7"
+                  + "56e73657269616c697a61626c657400124c6a6176612f6c616e672f4f626a6563743b787070";
 
-        serializableContainerInitializedFlag = false;
-        wasSerializableInitializedFlag = false;
+        assertFalse(serializableContainer1InitializedFlag);
+        assertFalse(unserializable1InitializedFlag);
 
-        SerializableContainer sc = (SerializableContainer) SerializationTester.deserializeHex(s);
+        SerializableContainer1 sc = (SerializableContainer1) SerializationTester.deserializeHex(s);
         assertNull(sc.unserializable);
 
         // Confirm the container was initialized, but the class for the null field was not.
-        assertTrue(serializableContainerInitializedFlag);
-        assertFalse(wasSerializableInitializedFlag);
+        assertTrue(serializableContainer1InitializedFlag);
+        assertFalse(unserializable1InitializedFlag);
     }
 
-    public static boolean serializableContainerInitializedFlag = false;
+    static class Unserializable2 {
+    }
 
-    static class SerializableContainer implements Serializable {
+    static class HasUnserializableField implements Serializable {
         private static final long serialVersionUID = 0L;
-        private Object unserializable = null;
-
-        static {
-            serializableContainerInitializedFlag = true;
-        }
+        @SuppressWarnings("unused") // Required to make objects unserializable.
+        private Unserializable2 unserializable = new Unserializable2();
     }
 
     // We must not serialize an object that has a non-null unserializable field.
     public void testSerializeUnserializableField() throws Exception {
-        SerializableContainer sc = new SerializableContainer();
-        sc.unserializable = new WasSerializable();
+        HasUnserializableField uf = new HasUnserializableField();
         try {
-            SerializationTester.serializeHex(sc);
+            SerializationTester.serializeHex(uf);
             fail();
         } catch (NotSerializableException expected) {
         }
     }
 
+    public static boolean serializableContainer2InitializedFlag = false;
+
+    @SuppressWarnings("unused") // Required for deserialization test
+    static class SerializableContainer2 implements Serializable {
+        private static final long serialVersionUID = 0L;
+        private WasSerializable unserializable = null;
+
+        static {
+            serializableContainer2InitializedFlag = true;
+        }
+    }
+
     // It must not be possible to deserialize an object if a field is no longer serializable.
     public void testDeserializeUnserializableField() throws Exception {
-        // This was generated by creating a SerializableContainer and setting the unserializable
+        // This was generated by creating a SerializableContainer2 and setting the unserializable
         // field to a WasSerializable when it was still Serializable. A canned serialized form is
         // used so we can tell if the static initializers were executed during deserialization.
-        // SerializableContainer sc = new SerializableContainer();
+        // SerializableContainer2 sc = new SerializableContainer2();
         // sc.unserializable = new WasSerializable();
         // SerializationTester.serializeHex(sc);
-        String s = "aced0005737200376c6962636f72652e6a6176612e696f2e53657269616c697a6174696f6e54657"
-                + "3742453657269616c697a61626c65436f6e7461696e657200000000000000000200014c000e756e7"
-                + "3657269616c697a61626c657400124c6a6176612f6c616e672f4f626a6563743b7870737200316c6"
-                + "962636f72652e6a6176612e696f2e53657269616c697a6174696f6e5465737424576173536572696"
-                + "16c697a61626c65000000000000000002000149000169787000000000";
+        String s = "aced0005737200386c6962636f72652e6a6176612e696f2e53657269616c697a6174696f6e54657"
+                  + "3742453657269616c697a61626c65436f6e7461696e65723200000000000000000200014c000e7"
+                  + "56e73657269616c697a61626c657400334c6c6962636f72652f6a6176612f696f2f53657269616"
+                  + "c697a6174696f6e546573742457617353657269616c697a61626c653b7870737200316c6962636"
+                  + "f72652e6a6176612e696f2e53657269616c697a6174696f6e546573742457617353657269616c6"
+                  + "97a61626c65000000000000000002000149000169787000000000";
 
-        serializableContainerInitializedFlag = false;
-        wasSerializableInitializedFlag = false;
+        assertFalse(serializableContainer2InitializedFlag);
+        assertFalse(wasSerializableInitializedFlag);
         try {
             SerializationTester.deserializeHex(s);
             fail();
         } catch (InvalidClassException expected) {
         }
-        // Confirm neither the container nor the contained class was initialized.
-        assertFalse(serializableContainerInitializedFlag);
+        // The container class will be initialized to establish the serialVersionUID.
+        assertTrue(serializableContainer2InitializedFlag);
+        // Confirm the contained class was initialized.
         assertFalse(wasSerializableInitializedFlag);
     }
 
@@ -196,7 +226,7 @@ public final class SerializationTest extends TestCase {
                 + "e546573742457617353657269616c697a61626c65000000000000000002000149000169787000000"
                 + "000";
 
-        wasSerializableInitializedFlag = false;
+        assertFalse(wasSerializableInitializedFlag);
         try {
             SerializationTester.deserializeHex(s);
             fail();
@@ -239,7 +269,7 @@ public final class SerializationTest extends TestCase {
         final String s = "aced0005737200336c6962636f72652e6a6176612e696f2e53657269616c697a6174696f6"
                 + "e546573742457617345787465726e616c697a61626c6500000000000000000c0000787078";
 
-        wasExternalizableInitializedFlag = false;
+        assertFalse(wasExternalizableInitializedFlag);
         try {
             SerializationTester.deserializeHex(s);
             fail();
@@ -275,7 +305,7 @@ public final class SerializationTest extends TestCase {
                 + "e5465737424576173456e756d00000000000000001200007872000e6a6176612e6c616e672e456e7"
                 + "56d0000000000000000120000787074000556414c5545";
 
-        wasEnumInitializedFlag = false;
+        assertFalse(wasEnumInitializedFlag);
         try {
             SerializationTester.deserializeHex(s);
             fail();
@@ -309,7 +339,7 @@ public final class SerializationTest extends TestCase {
         final String s = "aced00057372002b6c6962636f72652e6a6176612e696f2e53657269616c697a6174696f6"
                 + "e54657374245761734f626a656374000000000000000002000149000169787000000000";
 
-        wasObjectInitializedFlag = false;
+        assertFalse(wasObjectInitializedFlag);
         try {
             SerializationTester.deserializeHex(s);
             fail();
