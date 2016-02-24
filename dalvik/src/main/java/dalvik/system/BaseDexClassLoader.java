@@ -28,7 +28,6 @@ import java.util.List;
  */
 public class BaseDexClassLoader extends ClassLoader {
     private final DexPathList pathList;
-    private final boolean sharedNamespace;
 
     /**
      * Constructs an instance.
@@ -42,48 +41,11 @@ public class BaseDexClassLoader extends ClassLoader {
      * libraries, delimited by {@code File.pathSeparator}; may be
      * {@code null}
      * @param parent the parent class loader
-     *
-     * This method will be deprecated in the next release
      */
     public BaseDexClassLoader(String dexPath, File optimizedDirectory,
             String librarySearchPath, ClassLoader parent) {
-        this(dexPath, optimizedDirectory, false, librarySearchPath, null, parent);
-    }
-
-    /**
-     * Constructs an instance.
-     *
-     * @param dexPath the list of jar/apk files containing classes and
-     * resources, delimited by {@code File.pathSeparator}, which
-     * defaults to {@code ":"} on Android
-     * @param optimizedDirectory directory where optimized dex files
-     * should be written; may be {@code null}
-     * @param isSharedNamespace whether this classloader should use the shared linker
-     * namespace. If the shared linker namespace is used, the classloader will have
-     * access to all native libraries loaded by the platform. This should be limited
-     * to the classloaders used by the bundled apps - bundled apps are part of the
-     * platform
-     * @param librarySearchPath the list of directories containing native
-     * libraries, delimited by {@code File.pathSeparator}; may be
-     * {@code null}; directories in this list are used to search for
-     * a native library
-     * @param libraryPermittedPath allows opening native libraries under
-     * directories in this list. The list is delimited by
-     * {@code File.pathSeparator}. Note that the classloader
-     * is implicitly allowed to open libraries from the
-     * directories on libraryPath. Directories from this list
-     * are NOT used to search for the native library;
-     * may be {@code null}
-     * @param parent the parent class loader
-     *
-     * @hide
-     */
-    public BaseDexClassLoader(String dexPath, File optimizedDirectory, boolean isSharedNamespace,
-            String librarySearchPath, String libraryPermittedPath, ClassLoader parent) {
         super(parent);
-        this.pathList = new DexPathList(this, dexPath, librarySearchPath,
-                                        libraryPermittedPath, optimizedDirectory);
-        this.sharedNamespace = isSharedNamespace;
+        this.pathList = new DexPathList(this, dexPath, librarySearchPath, optimizedDirectory);
     }
 
     @Override
@@ -177,20 +139,6 @@ public class BaseDexClassLoader extends ClassLoader {
         }
 
         return result.toString();
-    }
-
-    /**
-     * @hide
-     */
-    public String getLibraryPermittedPath() {
-        return pathList.getLibraryPermittedPath();
-    }
-
-    /**
-     * @hide
-     */
-    public boolean isSharedNamespace() {
-      return sharedNamespace;
     }
 
     @Override public String toString() {

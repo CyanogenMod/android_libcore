@@ -1049,26 +1049,21 @@ public class Runtime {
 
         // So, find out what the native library search path is for the ClassLoader in question...
         String librarySearchPath = null;
-        String libraryPermittedPath = null;
-        boolean isSharedNamespace = false;
         if (loader != null && loader instanceof BaseDexClassLoader) {
             BaseDexClassLoader dexClassLoader = (BaseDexClassLoader) loader;
             librarySearchPath = dexClassLoader.getLdLibraryPath();
-            libraryPermittedPath = dexClassLoader.getLibraryPermittedPath();
-            isSharedNamespace = dexClassLoader.isSharedNamespace();
         }
         // nativeLoad should be synchronized so there's only one LD_LIBRARY_PATH in use regardless
         // of how many ClassLoaders are in the system, but dalvik doesn't support synchronized
         // internal natives.
         synchronized (this) {
-            return nativeLoad(name, loader, isSharedNamespace,
-                              librarySearchPath, libraryPermittedPath);
+            return nativeLoad(name, loader, librarySearchPath);
         }
     }
 
     // TODO: should be synchronized, but dalvik doesn't support synchronized internal natives.
-    private static native String nativeLoad(String filename, ClassLoader loader, boolean isBundled,
-                                            String librarySearchPath, String libraryPermittedPath);
+    private static native String nativeLoad(String filename, ClassLoader loader,
+                                            String librarySearchPath);
 
     /**
      * Creates a localized version of an input stream. This method takes
