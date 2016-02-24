@@ -947,7 +947,6 @@ public final class StandardNames extends Assert {
                             "TLS_RSA_WITH_AES_256_GCM_SHA384",
                             "TLS_RSA_WITH_AES_128_CBC_SHA",
                             "TLS_RSA_WITH_AES_256_CBC_SHA",
-                            "SSL_RSA_WITH_RC4_128_SHA",
                             CIPHER_SUITE_SECURE_RENEGOTIATION);
 
     // NOTE: This list needs to be kept in sync with Javadoc of javax.net.ssl.SSLSocket and
@@ -968,8 +967,7 @@ public final class StandardNames extends Assert {
                                               "ECDHE_ECDSA"));
 
     private static final Set<String> PERMITTED_DEFAULT_BULK_ENCRYPTION_CIPHERS =
-            new HashSet<String>(Arrays.asList("RC4_128",
-                                              "AES_128_CBC",
+            new HashSet<String>(Arrays.asList("AES_128_CBC",
                                               "AES_256_CBC",
                                               "AES_128_GCM",
                                               "AES_256_GCM",
