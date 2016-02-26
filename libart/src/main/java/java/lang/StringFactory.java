@@ -28,7 +28,7 @@ import libcore.util.CharsetUtils;
 import libcore.util.EmptyArray;
 
 /**
- * Class used to generate strings instead of calling String.&lt;init>.
+ * Class used to generate strings instead of calling String.&lt;init&gt;.
  *
  * @hide
  */
