@@ -3539,6 +3539,33 @@ public final class CipherTest extends TestCase {
     }
 
     /*
+     * Check that two AAD updates are equivalent to one.
+     * http://b/27371173
+     */
+    public void test_AESGCMNoPadding_UpdateAADTwice_Success() throws Exception {
+        SecretKeySpec key = new SecretKeySpec(new byte[16], "AES");
+        GCMParameterSpec spec = new GCMParameterSpec(128, new byte[12]);
+        Cipher c1 = Cipher.getInstance("AES/GCM/NoPadding");
+        Cipher c2 = Cipher.getInstance("AES/GCM/NoPadding");
+
+        c1.init(Cipher.ENCRYPT_MODE, key, spec);
+        c1.updateAAD(new byte[] {
+                0x01, 0x02, 0x03, 0x04, 0x05,
+        });
+        c1.updateAAD(new byte[] {
+                0x06, 0x07, 0x08, 0x09, 0x10,
+        });
+
+        c2.init(Cipher.ENCRYPT_MODE, key, spec);
+        c2.updateAAD(new byte[] {
+                0x01, 0x02, 0x03, 0x04, 0x05,
+                0x06, 0x07, 0x08, 0x09, 0x10,
+        });
+
+        assertEquals(Arrays.toString(c1.doFinal()), Arrays.toString(c2.doFinal()));
+    }
+
+    /*
      * Check that GCM encryption with old and new instances update correctly.
      * http://b/26694388
      */
