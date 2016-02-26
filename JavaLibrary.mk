@@ -73,7 +73,7 @@ local_javac_flags+=-Xmaxwarns 9999999
 # We compile android_icu4j along with core-libart because we're implementing parts of core-libart
 # in terms of android_icu4j.
 android_icu4j_root := ../external/icu/android_icu4j/
-android_icu4j_src_files := $(call all-java-files-under,$(android_icu4j_root)/src/main)
+android_icu4j_src_files := $(call all-java-files-under,$(android_icu4j_root)/src/main/java)
 android_icu4j_resource_dirs := $(android_icu4j_root)/resources
 
 #
