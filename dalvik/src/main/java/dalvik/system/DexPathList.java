@@ -70,9 +70,6 @@ import static android.system.OsConstants.S_ISDIR;
     /** List of system native library directories. */
     private final List<File> systemNativeLibraryDirectories;
 
-    /** The permitted library path for classloader-namespaces */
-    private final String libraryPermittedPath;
-
     /**
      * Exceptions thrown during creation of the dexElements list.
      */
@@ -97,7 +94,7 @@ import static android.system.OsConstants.S_ISDIR;
      * system directory for same
      */
     public DexPathList(ClassLoader definingContext, String dexPath,
-            String librarySearchPath, String libraryPermittedPath, File optimizedDirectory) {
+            String librarySearchPath, File optimizedDirectory) {
 
         if (definingContext == null) {
             throw new NullPointerException("definingContext == null");
@@ -155,8 +152,6 @@ import static android.system.OsConstants.S_ISDIR;
         } else {
             dexElementsSuppressedExceptions = null;
         }
-
-        this.libraryPermittedPath = libraryPermittedPath;
     }
 
     @Override public String toString() {
@@ -176,13 +171,6 @@ import static android.system.OsConstants.S_ISDIR;
      */
     public List<File> getNativeLibraryDirectories() {
         return nativeLibraryDirectories;
-    }
-
-    /**
-     * For BaseDexClassLoader.getLibraryPermittedPath.
-     */
-    public String getLibraryPermittedPath() {
-        return libraryPermittedPath;
     }
 
     /**

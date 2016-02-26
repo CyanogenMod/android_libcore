@@ -35,7 +35,7 @@ public class PathClassLoader extends BaseDexClassLoader {
      * @param parent the parent class loader
      */
     public PathClassLoader(String dexPath, ClassLoader parent) {
-        super(dexPath, null, false, null, null, parent);
+        super(dexPath, null, null, parent);
     }
 
     /**
@@ -59,49 +59,8 @@ public class PathClassLoader extends BaseDexClassLoader {
      * libraries, delimited by {@code File.pathSeparator}; may be
      * {@code null}
      * @param parent the parent class loader
-     *
-     * This method will be deprecated in the next release
      */
     public PathClassLoader(String dexPath, String librarySearchPath, ClassLoader parent) {
-        super(dexPath, null, false, librarySearchPath, null, parent);
-    }
-
-    /**
-     * Creates a {@code PathClassLoader} that operates on two given
-     * lists of files and directories. The entries of the first list
-     * should be one of the following:
-     *
-     * <ul>
-     * <li>JAR/ZIP/APK files, possibly containing a "classes.dex" file as
-     * well as arbitrary resources.
-     * <li>Raw ".dex" files (not inside a zip file).
-     * </ul>
-     *
-     * The entries of the second list should be directories containing
-     * native library files.
-     *
-     * @param dexPath the list of jar/apk files containing classes and
-     * resources, delimited by {@code File.pathSeparator}, which
-     * defaults to {@code ":"} on Android
-     * @param isSharedNamespace whether this classloader should use the shared linker
-     * namespace. If the shared linker namespace is used, the classloader will have
-     * access to all native libraries loaded by the platform. This should be limited
-     * to the classloaders used by the bundled apps - bundled apps are part of the
-     * platform
-     * @param librarySearchPath the list of directories containing native
-     * libraries, delimited by {@code File.pathSeparator}; may be
-     * {@code null}
-     * @param libraryPermittedPath allowing to open native libraries under
-     * directories in this list. The list is delimited by {@code File.pathSeparator}.
-     * Note that the classloader is implicitly allowed to open libraries from the
-     * directories on librarySearchPath. Directories from this list are NOT used
-     * to search for the native library; may be {@code null}
-     * @param parent the parent class loader
-     *
-     * @hide
-     */
-    public PathClassLoader(String dexPath, boolean isSharedNamespace, String librarySearchPath,
-            String libraryPermittedPath, ClassLoader parent) {
-        super(dexPath, null, isSharedNamespace, librarySearchPath, libraryPermittedPath, parent);
+        super(dexPath, null, librarySearchPath, parent);
     }
 }
