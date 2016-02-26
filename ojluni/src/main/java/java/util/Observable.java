@@ -61,12 +61,12 @@ package java.util;
  */
 public class Observable {
     private boolean changed = false;
-    private Vector obs;
+    private final ArrayList<Observer> observers;
 
     /** Construct an Observable with zero Observers. */
 
     public Observable() {
-        obs = new Vector();
+        observers = new ArrayList<>();
     }
 
     /**
@@ -81,8 +81,8 @@ public class Observable {
     public synchronized void addObserver(Observer o) {
         if (o == null)
             throw new NullPointerException();
-        if (!obs.contains(o)) {
-            obs.addElement(o);
+        if (!observers.contains(o)) {
+            observers.add(o);
         }
     }
 
@@ -92,7 +92,7 @@ public class Observable {
      * @param   o   the observer to be deleted.
      */
     public synchronized void deleteObserver(Observer o) {
-        obs.removeElement(o);
+        observers.remove(o);
     }
 
     /**
@@ -134,7 +134,7 @@ public class Observable {
          * a temporary array buffer, used as a snapshot of the state of
          * current Observers.
          */
-        Object[] arrLocal;
+        Observer[] arrLocal;
 
         synchronized (this) {
             /* We don't want the Observer doing callbacks into
@@ -151,19 +151,20 @@ public class Observable {
              */
             if (!changed)
                 return;
-            arrLocal = obs.toArray();
+
+            arrLocal = observers.toArray(new Observer[observers.size()]);
             clearChanged();
         }
 
         for (int i = arrLocal.length-1; i>=0; i--)
-            ((Observer)arrLocal[i]).update(this, arg);
+            arrLocal[i].update(this, arg);
     }
 
     /**
      * Clears the observer list so that this object no longer has any observers.
      */
     public synchronized void deleteObservers() {
-        obs.removeAllElements();
+        observers.clear();
     }
 
     /**
@@ -208,6 +209,6 @@ public class Observable {
      * @return  the number of observers of this object.
      */
     public synchronized int countObservers() {
-        return obs.size();
+        return observers.size();
     }
 }
