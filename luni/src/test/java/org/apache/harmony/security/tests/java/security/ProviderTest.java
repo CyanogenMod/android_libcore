@@ -34,6 +34,7 @@ import java.security.Security;
 import java.security.SecurityPermission;
 import java.security.Provider.Service;
 import java.util.Collection;
+import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
@@ -198,6 +199,38 @@ public class ProviderTest extends TestCase {
             }
             fail("Incorrect set");
         }
+    }
+
+    public final void testForEach() {
+        p.put("MessageDigest.SHA-1", "aaa.bbb.ccc.ddd");
+        p.put("MessageDigest.abc", "value 1");
+
+        HashMap<String, String> hm = new HashMap<>();
+        p.forEach((k,v)-> hm.put((String)k, (String)v));
+
+        assertEquals(p.size(), hm.size());
+        for(String key : hm.keySet()) {
+          assertEquals(p.get(key), hm.get(key));
+        }
+    }
+
+    public void testForEachNPE() throws Exception {
+        try {
+            p.forEach(null);
+            fail();
+        } catch(NullPointerException expected) {}
+    }
+
+    public void testForEachCME() throws Exception {
+        p.put("MessageDigest.SHA-1", "aaa.bbb.ccc.ddd");
+        p.put("MessageDigest.abc", "value 1");
+        try {
+            p.forEach(new java.util.function.BiConsumer<Object, Object>() {
+                    @Override
+                    public void accept(Object k, Object v) {p.put("foo", "bar");}
+                });
+            fail();
+        } catch(ConcurrentModificationException expected) {}
     }
 
     /*

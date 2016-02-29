@@ -25,10 +25,14 @@
  */
 
 package java.util;
-import java.io.Serializable;
-import java.io.ObjectOutputStream;
+
 import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.lang.reflect.Array;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+
 
 /**
  * This class consists exclusively of static methods that operate on or return
@@ -1104,6 +1108,12 @@ public class Collections {
         public void clear() {
             throw new UnsupportedOperationException();
         }
+
+        // Override default methods in Collection
+        @Override
+        public void forEach(Consumer<? super E> action) {
+            c.forEach(action);
+        }
     }
 
     /**
@@ -1388,6 +1398,12 @@ public class Collections {
         public int hashCode()           {return m.hashCode();}
         public String toString()        {return m.toString();}
 
+        // Override default methods in Map
+        @Override
+        public void forEach(BiConsumer<? super K, ? super V> action) {
+            m.forEach(action);
+        }
+
         /**
          * We need this class in addition to UnmodifiableSet as
          * Map.Entries themselves permit modification of the backing Map
@@ -1403,6 +1419,17 @@ public class Collections {
             UnmodifiableEntrySet(Set<? extends Map.Entry<? extends K, ? extends V>> s) {
                 super((Set)s);
             }
+
+            static <K, V> Consumer<Map.Entry<K, V>> entryConsumer(Consumer<? super Entry<K, V>> action) {
+                return e -> action.accept(new UnmodifiableEntry<>(e));
+            }
+
+            // Override default methods in Collection
+            public void forEach(Consumer<? super Entry<K, V>> action) {
+                Objects.requireNonNull(action);
+                c.forEach(entryConsumer(action));
+            }
+
             public Iterator<Map.Entry<K,V>> iterator() {
                 return new Iterator<Map.Entry<K,V>>() {
                     private final Iterator<? extends Map.Entry<? extends K, ? extends V>> i = c.iterator();
@@ -1668,6 +1695,13 @@ public class Collections {
         public String toString() {
             synchronized (mutex) {return c.toString();}
         }
+
+        // Override default methods in Collection
+        @Override
+        public void forEach(Consumer<? super E> consumer) {
+            synchronized (mutex) {c.forEach(consumer);}
+        }
+
         private void writeObject(ObjectOutputStream s) throws IOException {
             synchronized (mutex) {s.defaultWriteObject();}
         }
@@ -2100,6 +2134,12 @@ public class Collections {
         public String toString() {
             synchronized (mutex) {return m.toString();}
         }
+        // Override default methods in Map
+        @Override
+        public void forEach(BiConsumer<? super K, ? super V> action) {
+            synchronized (mutex) {m.forEach(action);}
+        }
+
         private void writeObject(ObjectOutputStream s) throws IOException {
             synchronized (mutex) {s.defaultWriteObject();}
         }
@@ -2368,6 +2408,10 @@ public class Collections {
             // element as we added it)
             return c.addAll(checkedCopyOf(coll));
         }
+
+        // Override default methods in Collection
+        @Override
+        public void forEach(Consumer<? super E> action) {c.forEach(action);}
     }
 
     /**
@@ -2715,6 +2759,12 @@ public class Collections {
             if (entrySet==null)
                 entrySet = new CheckedEntrySet<>(m.entrySet(), valueType);
             return entrySet;
+        }
+
+        // Override default methods in Map
+        @Override
+        public void forEach(BiConsumer<? super K, ? super V> action) {
+            m.forEach(action);
         }
 
         /**
@@ -3160,6 +3210,12 @@ public class Collections {
         private Object readResolve() {
             return EMPTY_SET;
         }
+
+        // Override default methods in Collection
+        @Override
+        public void forEach(Consumer<? super E> action) {
+            Objects.requireNonNull(action);
+        }
     }
 
     /**
@@ -3233,6 +3289,12 @@ public class Collections {
         private Object readResolve() {
             return EMPTY_LIST;
         }
+
+        // Override default methods in Collection
+        @Override
+        public void forEach(Consumer<? super E> action) {
+            Objects.requireNonNull(action);
+        }
     }
 
     /**
@@ -3292,6 +3354,12 @@ public class Collections {
         private Object readResolve() {
             return EMPTY_MAP;
         }
+
+        // Override default methods in Map
+        @Override
+        public void forEach(BiConsumer<? super K, ? super V> action) {
+            Objects.requireNonNull(action);
+        }
     }
 
     // Singleton collections
@@ -3346,6 +3414,12 @@ public class Collections {
         public int size() {return 1;}
 
         public boolean contains(Object o) {return eq(o, element);}
+
+        // Override default methods for Collection
+        @Override
+        public void forEach(Consumer<? super E> action) {
+            action.accept(element);
+        }
     }
 
     /**
@@ -3385,6 +3459,12 @@ public class Collections {
             if (index != 0)
               throw new IndexOutOfBoundsException("Index: "+index+", Size: 1");
             return element;
+        }
+
+        // Override default methods for Collection
+        @Override
+        public void forEach(Consumer<? super E> action) {
+            action.accept(element);
         }
     }
 
@@ -3449,6 +3529,12 @@ public class Collections {
             if (values==null)
                 values = singleton(v);
             return values;
+        }
+
+        // Override default methods in Map
+        @Override
+        public void forEach(BiConsumer<? super K, ? super V> action) {
+            action.accept(k, v);
         }
 
     }
@@ -3925,6 +4011,12 @@ public class Collections {
 
         private static final long serialVersionUID = 2454657854757543876L;
 
+        // Override default methods in Collection
+        @Override
+        public void forEach(Consumer<? super E> action) {
+            s.forEach(action);
+        }
+
         private void readObject(java.io.ObjectInputStream stream)
             throws IOException, ClassNotFoundException
         {
@@ -3981,5 +4073,9 @@ public class Collections {
         public boolean removeAll(Collection<?> c)   {return q.removeAll(c);}
         public boolean retainAll(Collection<?> c)   {return q.retainAll(c);}
         // We use inherited addAll; forwarding addAll would be wrong
+
+        // Override default methods in Collection
+        @Override
+        public void forEach(Consumer<? super E> action) {q.forEach(action);}
     }
 }

@@ -18,6 +18,7 @@
 package org.apache.harmony.tests.java.util;
 
 import java.util.Arrays;
+import java.util.ConcurrentModificationException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -220,6 +221,39 @@ public class HashSetTest extends junit.framework.TestCase {
         HashSet<Integer> emptyHs = new HashSet<Integer>();
         HashSet<Integer> cloned = (HashSet) emptyHs.clone();
         cloned.add(new Integer(8));
+    }
+
+    public void test_forEach() throws Exception {
+      HashSet<Integer> hs = new HashSet<>();
+      hs.add(0);
+      hs.add(1);
+      hs.add(2);
+
+      HashSet<Integer> output = new HashSet<>();
+      hs.forEach(k -> output.add(k));
+
+      assertEquals(hs, output);
+    }
+
+    public void test_forEach_NPE() throws Exception {
+        HashSet<String> set = new HashSet<>();
+        try {
+            set.forEach(null);
+            fail();
+        } catch(NullPointerException expected) {}
+    }
+
+    public void test_forEach_CME() throws Exception {
+        HashSet<String> set = new HashSet<>();
+        set.add("one");
+        set.add("two");
+        try {
+            set.forEach(new java.util.function.Consumer<String>() {
+                    @Override
+                    public void accept(String k) {set.add("foo");}
+                });
+            fail();
+        } catch(ConcurrentModificationException expected) {}
     }
 
     /**
