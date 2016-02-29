@@ -5,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -19,7 +19,9 @@ package org.apache.harmony.tests.java.util;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.RandomAccess;
 
@@ -468,5 +470,20 @@ public class Arrays2Test extends TestCase {
             fail("No NPE");
         } catch (NullPointerException e) {
         }
+    }
+
+    public void test_forEach() throws Exception {
+        List<Integer> list = Arrays.asList(0, 1, 2);
+        ArrayList<Integer> output = new ArrayList<>();
+        list.forEach(k -> output.add(k));
+        assertEquals(list, output);
+    }
+
+    public void test_forEach_NPE() throws Exception {
+        List<Integer> list = Arrays.asList(0, 1, 2);
+        try {
+            list.forEach(null);
+            fail();
+        } catch(NullPointerException expected) {}
     }
 }

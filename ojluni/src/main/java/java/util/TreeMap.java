@@ -26,6 +26,9 @@
 
 package java.util;
 
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+
 /**
  * A Red-Black tree based {@link NavigableMap} implementation.
  * The map is sorted according to the {@linkplain Comparable natural
@@ -963,6 +966,19 @@ public class TreeMap<K,V>
      */
     public SortedMap<K,V> tailMap(K fromKey) {
         return tailMap(fromKey, true);
+    }
+
+    @Override
+    public void forEach(BiConsumer<? super K, ? super V> action) {
+        Objects.requireNonNull(action);
+        int expectedModCount = modCount;
+        for (TreeMapEntry<K, V> e = getFirstEntry(); e != null; e = successor(e)) {
+            action.accept(e.key, e.value);
+
+            if (expectedModCount != modCount) {
+                throw new ConcurrentModificationException();
+            }
+        }
     }
 
     // View class support
