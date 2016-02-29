@@ -336,7 +336,7 @@ public class SecureRandom extends java.util.Random {
                 System.logE(" * Android N no longer ships with the Crypto provider.");
                 System.logE(" * If your app was relying on setSeed() to derive keys from strings, you");
                 System.logE(" * should switch to using SecretKeySpec to load raw key bytes directly OR");
-                System.logE(" * generate bytes from a string using the advice over at : ");
+                System.logE(" * use a real key derivation function (KDF). See advice here : ");
                 System.logE(" * https://stackoverflow.com/questions/13433529/android-4-2-broke-my-encrypt-decrypt-code-and-the-provided-solutions-dont-work ");
                 System.logE(" *********************************** ");
             }
