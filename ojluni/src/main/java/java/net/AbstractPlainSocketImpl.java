@@ -546,11 +546,6 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
      */
     protected void finalize() throws IOException {
         if (guard != null) {
-            if (guard.isOpen()) {
-                System.logE("Open AbstractPlainSocketImpl: fd=" + fd.getInt$()
-                        + ", closed: " + socket.isClosed());
-            }
-
             guard.warnIfOpen();
         }
 
@@ -656,4 +651,3 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
 class InetAddressContainer {
     InetAddress addr;
 }
-
