@@ -190,6 +190,10 @@ public final class CloseGuard {
         allocationSite = null;
     }
 
+    public boolean isOpen() {
+        return allocationSite != null && ENABLED;
+    }
+
     /**
      * If CloseGuard is enabled, logs a warning if the caller did not
      * properly cleanup by calling an explicit close method
