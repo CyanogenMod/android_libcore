@@ -125,7 +125,6 @@ public class FileChannelImpl
             }
         }
 
-        nd.preClose(fd);
         threads.signalAndWait();
 
         if (parent != null) {
