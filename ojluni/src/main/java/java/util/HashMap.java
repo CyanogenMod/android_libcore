@@ -25,7 +25,10 @@
  */
 
 package java.util;
+
 import java.io.*;
+import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 /**
  * Hash table based implementation of the <tt>Map</tt> interface.  This
@@ -1027,6 +1030,25 @@ public class HashMap<K,V>
         public void clear() {
             HashMap.this.clear();
         }
+        public final void forEach(Consumer<? super K> action) {
+            HashMapEntry<K,V>[] tab;
+            if (action == null)
+                throw new NullPointerException();
+            if (size > 0 && (tab = table) != null) {
+                int mc = modCount;
+                for (int i = 0; i < tab.length; ++i) {
+                    for (HashMapEntry<K,V> e = tab[i]; e != null; e = e.next) {
+                        action.accept(e.key);
+                        // Android-modified - this was outside of the loop, inconsistent with other
+                        // collections
+                        if (modCount != mc) {
+                            throw new ConcurrentModificationException();
+                        }
+                    }
+                }
+
+            }
+        }
     }
 
     /**
@@ -1059,6 +1081,24 @@ public class HashMap<K,V>
         }
         public void clear() {
             HashMap.this.clear();
+        }
+        public final void forEach(Consumer<? super V> action) {
+            HashMapEntry<K,V>[] tab;
+            if (action == null)
+                throw new NullPointerException();
+            if (size > 0 && (tab = table) != null) {
+                int mc = modCount;
+                for (int i = 0; i < tab.length; ++i) {
+                    for (HashMapEntry<K,V> e = tab[i]; e != null; e = e.next) {
+                        action.accept(e.value);
+                        // Android-modified - this was outside of the loop, inconsistent with other
+                        // collections
+                        if (modCount != mc) {
+                            throw new ConcurrentModificationException();
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -1108,6 +1148,44 @@ public class HashMap<K,V>
         }
         public void clear() {
             HashMap.this.clear();
+        }
+        public final void forEach(Consumer<? super Map.Entry<K,V>> action) {
+            HashMapEntry<K,V>[] tab;
+            if (action == null)
+                throw new NullPointerException();
+            if (size > 0 && (tab = table) != null) {
+                int mc = modCount;
+                for (int i = 0; i < tab.length; ++i) {
+                    for (HashMapEntry<K,V> e = tab[i]; e != null; e = e.next) {
+                        action.accept(e);
+                        // Android-modified - this was outside of the loop, inconsistent with other
+                        // collections
+                        if (modCount != mc) {
+                            throw new ConcurrentModificationException();
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public void forEach(BiConsumer<? super K, ? super V> action) {
+        HashMapEntry<K,V>[] tab;
+        if (action == null)
+            throw new NullPointerException();
+        if (size > 0 && (tab = table) != null) {
+            int mc = modCount;
+            for (int i = 0; i < tab.length; ++i) {
+                for (HashMapEntry<K,V> e = tab[i]; e != null; e = e.next) {
+                    action.accept(e.key, e.value);
+                    // Android-modified - this was outside of the loop, inconsistent with other
+                    // collections
+                    if (modCount != mc) {
+                        throw new ConcurrentModificationException();
+                    }
+                }
+            }
         }
     }
 

@@ -25,8 +25,10 @@ import java.text.CollationKey;
 import java.text.Collator;
 import java.util.AbstractMap;
 import java.util.Collection;
+import java.util.ConcurrentModificationException;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -1953,6 +1955,89 @@ public class TreeMapTest extends junit.framework.TestCase {
         Object firstKey = treeMap.firstKey();
         SortedMap subMap = ((SortedMap) treeMap).subMap(firstKey, firstKey);
         Iterator iter = subMap.values().iterator();
+    }
+
+    public void test_forEach() throws Exception {
+        TreeMap<String, String> map = new TreeMap<>();
+        map.put("one", "1");
+        map.put("two", "2");
+        map.put("three", "3");
+
+        TreeMap<String, String> output = new TreeMap<>();
+        map.forEach((k, v) -> output.put(k,v));
+        assertEquals(map, output);
+
+        HashSet<String> setOutput = new HashSet<>();
+        map.keySet().forEach((k) -> setOutput.add(k));
+        assertEquals(map.keySet(), setOutput);
+
+        setOutput.clear();
+        map.values().forEach((v) -> setOutput.add(v));
+        assertEquals(new HashSet<>(map.values()), setOutput);
+
+        HashSet<Map.Entry<String,String>> entrySetOutput = new HashSet<>();
+        map.entrySet().forEach((v) -> entrySetOutput.add(v));
+        assertEquals(map.entrySet(), entrySetOutput);
+    }
+
+    public void test_forEach_NPE() throws Exception {
+        TreeMap<String, String> map = new TreeMap<>();
+        try {
+            map.forEach(null);
+            fail();
+        } catch(NullPointerException expected) {}
+
+        try {
+            map.keySet().forEach(null);
+            fail();
+        } catch(NullPointerException expected) {}
+
+        try {
+            map.values().forEach(null);
+            fail();
+        } catch(NullPointerException expected) {}
+
+        try {
+            map.entrySet().forEach(null);
+            fail();
+        } catch(NullPointerException expected) {}
+    }
+
+    public void test_forEach_CME() throws Exception {
+        TreeMap<String, String> map = new TreeMap<>();
+        map.put("one", "1");
+        map.put("two", "2");
+        try {
+            map.forEach(new java.util.function.BiConsumer<String, String>() {
+                    @Override
+                    public void accept(String k, String v) {map.put("foo", v);}
+                });
+            fail();
+        } catch(ConcurrentModificationException expected) {}
+
+        try {
+            map.keySet().forEach(new java.util.function.Consumer<String>() {
+                    @Override
+                    public void accept(String k) {map.put("foo2", "boo");}
+                });
+            fail();
+        } catch(ConcurrentModificationException expected) {}
+
+        try {
+            map.values().forEach(new java.util.function.Consumer<String>() {
+                    @Override
+                    public void accept(String k) {map.put("foo3", "boo");}
+                });
+            fail();
+        } catch(ConcurrentModificationException expected) {}
+
+        try {
+            map.entrySet().forEach(new java.util.function.Consumer<Map.Entry<String,String>>() {
+                    @Override
+                    public void accept(Map.Entry<String,String> k) {map.put("foo4", "boo");}
+                });
+            fail();
+        } catch(ConcurrentModificationException expected) {}
     }
 
     /**

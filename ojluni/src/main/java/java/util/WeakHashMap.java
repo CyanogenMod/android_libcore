@@ -27,6 +27,8 @@
 package java.util;
 import java.lang.ref.WeakReference;
 import java.lang.ref.ReferenceQueue;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 
 /**
@@ -1075,6 +1077,28 @@ public class WeakHashMap<K,V>
 
         public <T> T[] toArray(T[] a) {
             return deepCopy().toArray(a);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public void forEach(BiConsumer<? super K, ? super V> action) {
+        Objects.requireNonNull(action);
+        int expectedModCount = modCount;
+
+        Entry<K, V>[] tab = getTable();
+        for (Entry<K, V> entry : tab) {
+            while (entry != null) {
+                Object key = entry.get();
+                if (key != null) {
+                    action.accept((K)WeakHashMap.unmaskNull(key), entry.value);
+                }
+                entry = entry.next;
+
+                if (expectedModCount != modCount) {
+                    throw new ConcurrentModificationException();
+                }
+            }
         }
     }
 }
