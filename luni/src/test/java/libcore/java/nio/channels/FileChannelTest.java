@@ -17,6 +17,7 @@
 package libcore.java.nio.channels;
 
 import java.io.File;
+import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -214,6 +215,31 @@ public class FileChannelTest extends junit.framework.TestCase {
 
         fc.close();
     }
+
+    // b/27351214
+    public void test_close_fromFileDescriptor() throws Exception {
+        // Create a valid FileDescriptor
+        File tmp = File.createTempFile("FileChannelTest", "tmp");
+        FileOutputStream fos = new FileOutputStream(tmp);
+        FileDescriptor fd = fos.getFD();
+        assertTrue(fd.valid());
+
+        // Create FileOutputStream from FileDescriptor
+        FileOutputStream fosFromFd = new FileOutputStream(fd);
+        // Create FileChannel from FileOutputStream created from FileDescriptor
+        FileChannel fc = fosFromFd.getChannel();
+
+        // Invalidate FileDescriptor
+        fos.close();
+        assertFalse(fd.valid());
+
+        // Close FileOutputStream and therefore close the FileChannel.
+        // Without the fix for b/27351214 this will throw an exception
+        // due to channel preClosing the file descriptor after it's
+        // closed.
+        fosFromFd.close();
+    }
+
 
     private static FileChannel createFileContainingBytes(byte[] bytes) throws IOException {
         File tmp = File.createTempFile("FileChannelTest", "tmp");
