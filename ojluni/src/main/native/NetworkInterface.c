@@ -704,6 +704,7 @@ static netif *enumInterfaces(JNIEnv *env) {
     }
   }
 
+  freeifaddrs(origifa);
   close(sock);
 
   return ifs;
