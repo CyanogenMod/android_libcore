@@ -26,6 +26,8 @@
 
 package java.util;
 
+import java.util.function.Consumer;
+
 /**
  * Resizable-array implementation of the <tt>List</tt> interface.  Implements
  * all optional list operations, and permits all elements, including
@@ -1164,6 +1166,24 @@ public class ArrayList<E> extends AbstractList<E>
 
         private String outOfBoundsMsg(int index) {
             return "Index: "+index+", Size: "+this.size;
+        }
+    }
+
+    @Override
+    public void forEach(Consumer<? super E> action) {
+        Objects.requireNonNull(action);
+        final int expectedModCount = modCount;
+        @SuppressWarnings("unchecked")
+        final E[] elementData = (E[]) this.elementData;
+        final int size = this.size;
+        for (int i=0; modCount == expectedModCount && i < size; i++) {
+            action.accept(elementData[i]);
+        }
+        // Note
+        // Iterator will not throw a CME if we add something while iterating over the *last* element
+        // forEach will throw a CME in this case.
+        if (modCount != expectedModCount) {
+            throw new ConcurrentModificationException();
         }
     }
 }

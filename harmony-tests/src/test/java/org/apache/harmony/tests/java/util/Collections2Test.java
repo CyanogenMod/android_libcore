@@ -5,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -22,16 +22,19 @@ import org.apache.harmony.testframework.serialization.SerializationTest;
 import org.apache.harmony.testframework.serialization.SerializationTest.SerializableAssert;
 import tests.util.SerializationTester;
 import java.io.Serializable;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.RandomAccess;
 import java.util.Set;
 import java.util.SortedMap;
@@ -490,6 +493,97 @@ public class Collections2Test extends TestCase {
             fail("IOOBE expected");
         } catch (IndexOutOfBoundsException e) {
         }
+    }
+
+    void testCollectionForEach(Collection<Integer> collection) {
+        ArrayList<Integer> output = new ArrayList<Integer>();
+        collection.forEach(k -> output.add(k));
+
+        assertEquals(new ArrayList<>(collection), output);
+    }
+
+    public void test_Collection_forEach() {
+        ArrayList<Integer> list = new ArrayList<Integer>();
+        list.add(0);
+        list.add(1);
+        list.add(2);
+        testCollectionForEach(Collections.unmodifiableCollection(list));
+        testCollectionForEach(Collections.synchronizedCollection(list));
+        testCollectionForEach(Collections.checkedCollection(list, Integer.class));
+        testCollectionForEach(Collections.singletonList(new Integer(0)));
+    }
+
+    void testMapForEach(Map<String,String> map) {
+        HashMap<String, String> output = new HashMap<String, String>();
+        map.forEach((k, v) -> output.put(k, v));
+        assertEquals(map, output);
+
+        output.clear();
+        map.entrySet().forEach(entry -> output.put(entry.getKey(), entry.getValue()));
+        assertEquals(map, output);
+
+        HashSet<String> setOutput = new HashSet<>();
+        map.values().forEach(value -> setOutput.add(value));
+        assertEquals(new HashSet<>(map.values()), setOutput);
+
+        setOutput.clear();
+        map.keySet().forEach((k) -> setOutput.add(k));
+        assertEquals(map.keySet(), setOutput);
+    }
+
+    public void test_Map_forEach() {
+        HashMap<String, String> map = new HashMap<String, String>();
+        map.put("one", "1");
+        map.put("two", "2");
+        map.put("three", "3");
+        testMapForEach(Collections.unmodifiableMap(map));
+        testMapForEach(Collections.synchronizedMap(map));
+        testMapForEach(Collections.checkedMap(map, String.class, String.class));
+        testMapForEach(Collections.singletonMap("one", "1"));
+    }
+
+    void testSetForEach(Set<Integer> set) {
+        HashSet<Integer> output = new HashSet<Integer>();
+        set.forEach(k -> output.add(k));
+
+        assertEquals(set.size(), output.size());
+        for (Integer key : set) {
+            assertTrue(output.contains(key));
+        }
+    }
+
+    public void test_Set_forEach() {
+        HashSet<Integer> set = new HashSet<Integer>();
+        set.add(1);
+        set.add(2);
+        set.add(3);
+        testSetForEach(Collections.unmodifiableSet(set));
+        testSetForEach(Collections.synchronizedSet(set));
+        testSetForEach(Collections.checkedSet(set, Integer.class));
+        testSetForEach(Collections.singleton(1));
+
+        Set<Integer> fromMap = Collections.newSetFromMap(new HashMap<Integer, Boolean>());
+        fromMap.add(1);
+        fromMap.add(2);
+        fromMap.add(3);
+        testSetForEach(fromMap);
+    }
+
+
+    public void test_Queue_forEach() {
+        Deque<Integer> deque = new ArrayDeque<Integer>();
+        deque.addFirst(2);
+        deque.addFirst(1);
+        deque.addFirst(0);
+
+        Queue<Integer> queue = Collections.asLifoQueue(deque);
+        ArrayList<Integer> output = new ArrayList<Integer>();
+        queue.forEach(v -> output.add(v));
+
+        assertEquals(3, output.size());
+        assertEquals(0, (int)output.get(0));
+        assertEquals(1, (int)output.get(1));
+        assertEquals(2, (int)output.get(2));
     }
 
 }

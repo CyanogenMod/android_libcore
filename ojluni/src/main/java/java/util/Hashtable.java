@@ -25,7 +25,9 @@
  */
 
 package java.util;
+
 import java.io.*;
+import java.util.function.BiConsumer;
 
 /**
  * This class implements a hash table, which maps keys to values. Any
@@ -919,6 +921,26 @@ public class Hashtable<K,V>
         loadFactor = -loadFactor;  // Mark hashCode computation complete
 
         return h;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public synchronized void forEach(BiConsumer<? super K, ? super V> action) {
+        Objects.requireNonNull(action);     // explicit check required in case
+                                            // table is empty.
+        final int expectedModCount = modCount;
+
+        HashtableEntry<?, ?>[] tab = table;
+        for (HashtableEntry<?, ?> entry : tab) {
+            while (entry != null) {
+                action.accept((K)entry.key, (V)entry.value);
+                entry = entry.next;
+
+                if (expectedModCount != modCount) {
+                    throw new ConcurrentModificationException();
+                }
+            }
+        }
     }
 
     /**
