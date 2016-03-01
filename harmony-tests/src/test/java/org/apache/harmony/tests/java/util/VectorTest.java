@@ -20,6 +20,7 @@ package org.apache.harmony.tests.java.util;
 import tests.support.Support_ListTest;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.ConcurrentModificationException;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -1382,6 +1383,41 @@ public class VectorTest extends junit.framework.TestCase {
             super.removeRange(start, end);
         }
     }
+
+    public void test_forEach() throws Exception {
+      Vector<Integer> vector = new Vector<Integer>();
+      vector.add(0);
+      vector.add(1);
+      vector.add(2);
+
+      Vector<Integer> output = new Vector<Integer>();
+      vector.forEach ( k -> output.add(k) );
+
+      assertEquals(vector, output);
+    }
+
+
+    public void test_forEach_NPE() throws Exception {
+        Vector<Integer> vector = new Vector<>();
+        try {
+            vector.forEach(null);
+            fail();
+        } catch(NullPointerException expected) {}
+    }
+
+    public void test_forEach_CME() throws Exception {
+        Vector<Integer> vector = new Vector<>();
+        vector.add(1);
+        vector.add(2);
+        try {
+            vector.forEach(new java.util.function.Consumer<Integer>() {
+                    @Override
+                    public void accept(Integer t) {vector.add(t);}
+                });
+            fail();
+        } catch(ConcurrentModificationException expected) {}
+    }
+
 
     /**
      * Sets up the fixture, for example, open a network connection. This method

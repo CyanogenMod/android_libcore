@@ -895,6 +895,46 @@ public class HashtableTest extends junit.framework.TestCase {
         }
     }
 
+    public void test_forEach() throws Exception {
+        Hashtable<String, String> ht = new Hashtable<>();
+        ht.put("1", "one");
+        ht.put("2", "two");
+        ht.put("3", "three");
+        Hashtable<String, String> output = new Hashtable<>();
+
+        ht.forEach((k,v) -> output.put(k,v));
+        assertEquals(ht, output);
+    }
+
+    public void test_forEach_NPE() throws Exception {
+        Hashtable<String, String> ht = new Hashtable<>();
+        try {
+            ht.forEach(null);
+            fail();
+        } catch(NullPointerException expected) {}
+    }
+
+    public void test_forEach_CME() throws Exception {
+        Hashtable<String, String> ht = new Hashtable<>();
+        ht.put("one", "1");
+        ht.put("two", "2");
+        ht.put("three", "3");
+
+        Hashtable<String, String> outputHt = new Hashtable<>();
+        try {
+            ht.forEach(new java.util.function.BiConsumer<String, String>() {
+                    @Override
+                    public void accept(String k, String v) {
+                        outputHt.put(k, v);
+                        ht.put("foo", v);
+                    }
+                });
+            fail();
+        } catch(ConcurrentModificationException expected) {}
+        // We should get a CME and DO NOT continue forEach evaluation
+        assertEquals(1, outputHt.size());
+    }
+
     protected Hashtable hashtableClone(Hashtable s) {
         return (Hashtable) s.clone();
     }
