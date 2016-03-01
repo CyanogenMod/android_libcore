@@ -27,6 +27,7 @@
 package java.util;
 
 import java.lang.reflect.*;
+import java.util.function.Consumer;
 
 /**
  * This class contains various methods for manipulating arrays (such as
@@ -2886,6 +2887,14 @@ public class Arrays {
 
         public boolean contains(Object o) {
             return indexOf(o) != -1;
+        }
+
+        @Override
+        public void forEach(Consumer<? super E> action) {
+            Objects.requireNonNull(action);
+            for (E e : a) {
+                action.accept(e);
+            }
         }
     }
 

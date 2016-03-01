@@ -19,7 +19,10 @@ package org.apache.harmony.tests.java.util;
 
 import java.util.AbstractMap;
 import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.ConcurrentModificationException;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -393,6 +396,113 @@ public class WeakHashMapTest extends junit.framework.TestCase {
                  System.currentTimeMillis() - startTime < 5000);
 
         assertEquals("Incorrect number of keys returned after gc,", 99, valuesCollection.size());
+    }
+
+    public void test_forEach() throws Exception {
+        WeakHashMap map = new WeakHashMap();
+        for (int i = 0; i < 100; i++)
+            map.put(keyArray[i], valueArray[i]);
+
+        WeakHashMap output = new WeakHashMap();
+        map.forEach((k, v) -> output.put(k,v));
+        assertEquals(map, output);
+
+        HashSet setOutput = new HashSet();
+        map.keySet().forEach((k) -> setOutput.add(k));
+        assertEquals(map.keySet(), setOutput);
+
+        setOutput.clear();
+        map.values().forEach((v) -> setOutput.add(v));
+        assertEquals(new HashSet(map.values()), setOutput);
+
+        HashSet entrySetOutput = new HashSet();
+        map.entrySet().forEach((v) -> entrySetOutput.add(v));
+        assertEquals(map.entrySet(), entrySetOutput);
+    }
+
+    public void test_forEach_NPE() throws Exception {
+        WeakHashMap map = new WeakHashMap();
+        try {
+            map.forEach(null);
+            fail();
+        } catch(NullPointerException expected) {}
+
+        try {
+            map.keySet().forEach(null);
+            fail();
+        } catch(NullPointerException expected) {}
+
+        try {
+            map.values().forEach(null);
+            fail();
+        } catch(NullPointerException expected) {}
+
+        try {
+            map.entrySet().forEach(null);
+            fail();
+        } catch(NullPointerException expected) {}
+
+    }
+
+    public void test_forEach_CME() throws Exception {
+        WeakHashMap map = new WeakHashMap();
+        for (int i = 0; i < 100; i++)
+            map.put(keyArray[i], valueArray[i]);
+        ArrayList<Object> processed = new ArrayList<>();
+        try {
+            map.forEach(new java.util.function.BiConsumer<Object, Object>() {
+                    @Override
+                    public void accept(Object k, Object v) {
+                        processed.add(k);
+                        map.put("foo", v);
+                    }
+                });
+            fail();
+        } catch(ConcurrentModificationException expected) {}
+        // We should get a CME and DO NOT continue forEach evaluation
+        assertEquals(1, processed.size());
+
+        processed.clear();
+        try {
+            map.keySet().forEach(new java.util.function.Consumer<Object>() {
+                    @Override
+                    public void accept(Object k) {
+                        processed.add(k);
+                        map.put("foo2", "boo");
+                    }
+                });
+            fail();
+        } catch(ConcurrentModificationException expected) {}
+        // We should get a CME and DO NOT continue forEach evaluation
+        assertEquals(1, processed.size());
+
+        processed.clear();
+        try {
+            map.values().forEach(new java.util.function.Consumer<Object>() {
+                    @Override
+                    public void accept(Object k) {
+                        processed.add(k);
+                        map.put("foo3", "boo");
+                    }
+                });
+            fail();
+        } catch(ConcurrentModificationException expected) {}
+        // We should get a CME and DO NOT continue forEach evaluation
+        assertEquals(1, processed.size());
+
+        processed.clear();
+        try {
+            map.entrySet().forEach(new java.util.function.Consumer<Map.Entry<Object, Object>>() {
+                    @Override
+                    public void accept(Map.Entry<Object, Object> k) {
+                        processed.add(k.getKey());
+                        map.put("foo4", "boo");
+                    }
+                });
+            fail();
+        } catch(ConcurrentModificationException expected) {}
+        // We should get a CME and DO NOT continue forEach evaluation
+        assertEquals(1, processed.size());
     }
 
     /**

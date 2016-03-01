@@ -36,6 +36,7 @@ import java.lang.ref.*;
 import java.lang.reflect.*;
 import java.security.Security;
 import java.security.cert.CertStoreParameters;
+import java.util.function.BiConsumer;
 
 /**
  * This class represents a "provider" for the
@@ -375,6 +376,15 @@ public abstract class Provider extends Properties {
     public Object get(Object key) {
         checkInitialized();
         return super.get(key);
+    }
+
+    /**
+     * @since 1.8
+     */
+    @Override
+    public synchronized void forEach(BiConsumer<? super Object, ? super Object> action) {
+        checkInitialized();
+        super.forEach(action);
     }
 
     // let javadoc show doc from superclass

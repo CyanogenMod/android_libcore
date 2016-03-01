@@ -24,7 +24,10 @@
  */
 
 package java.util;
+
 import java.io.*;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 /**
  * This class implements the <tt>Map</tt> interface with a hash table, using
@@ -1240,4 +1243,24 @@ public class IdentityHashMap<K,V>
         tab[i] = k;
         tab[i + 1] = value;
     }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public void forEach(BiConsumer<? super K, ? super V> action) {
+        Objects.requireNonNull(action);
+        int expectedModCount = modCount;
+
+        Object[] t = table;
+        for (int index = 0; index < t.length; index += 2) {
+            Object k = t[index];
+            if (k != null) {
+                action.accept((K) unmaskNull(k), (V) t[index + 1]);
+            }
+
+            if (modCount != expectedModCount) {
+                throw new ConcurrentModificationException();
+            }
+        }
+    }
+
 }

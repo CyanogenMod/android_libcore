@@ -25,6 +25,8 @@
 
 package java.util;
 
+import java.util.function.Consumer;
+
 /**
  * The {@code Vector} class implements a growable array of
  * objects. Like an array, it contains components that can be
@@ -1207,6 +1209,21 @@ public class Vector<E>
             }
             cursor = i + 1;
             lastRet = -1;
+        }
+    }
+
+    @Override
+    public synchronized void forEach(Consumer<? super E> action) {
+        Objects.requireNonNull(action);
+        final int expectedModCount = modCount;
+        @SuppressWarnings("unchecked")
+        final E[] elementData = (E[]) this.elementData;
+        final int elementCount = this.elementCount;
+        for (int i=0; modCount == expectedModCount && i < elementCount; i++) {
+            action.accept(elementData[i]);
+        }
+        if (modCount != expectedModCount) {
+            throw new ConcurrentModificationException();
         }
     }
 }

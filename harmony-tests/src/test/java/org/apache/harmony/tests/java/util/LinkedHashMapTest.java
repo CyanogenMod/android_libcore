@@ -21,8 +21,10 @@ import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -703,6 +705,116 @@ public class LinkedHashMapTest extends junit.framework.TestCase {
             assertTrue("Returned incorrect entry set 1", jj.intValue() == i * 2);
         }
         assertTrue("Entries left in map", !it1.hasNext());
+    }
+
+    public void test_forEach() throws Exception {
+        LinkedHashMap<String, String> map = new LinkedHashMap<>();
+        map.put("three", "3");
+        map.put("two", "2");
+        map.put("one", "1");
+
+        LinkedHashMap<String, String> output = new LinkedHashMap<>();
+        map.forEach((k, v) -> output.put(k,v));
+        assertEquals(map, output);
+
+        LinkedHashSet<String> setOutput = new LinkedHashSet<>();
+        map.keySet().forEach((k) -> setOutput.add(k));
+        assertEquals(map.keySet(), setOutput);
+
+        setOutput.clear();
+        map.values().forEach((v) -> setOutput.add(v));
+        assertEquals(new LinkedHashSet<>(map.values()), setOutput);
+
+        LinkedHashSet<Map.Entry<String,String>> entrySetOutput = new LinkedHashSet<>();
+        map.entrySet().forEach((v) -> entrySetOutput.add(v));
+        assertEquals(map.entrySet(), entrySetOutput);
+    }
+
+
+    public void test_forEach_NPE() throws Exception {
+        LinkedHashMap<String, String> map = new LinkedHashMap<>();
+        try {
+            map.forEach(null);
+            fail();
+        } catch(NullPointerException expected) {}
+
+        try {
+            map.keySet().forEach(null);
+            fail();
+        } catch(NullPointerException expected) {}
+
+        try {
+            map.values().forEach(null);
+            fail();
+        } catch(NullPointerException expected) {}
+
+        try {
+            map.entrySet().forEach(null);
+            fail();
+        } catch(NullPointerException expected) {}
+    }
+
+    public void test_forEach_CME() throws Exception {
+        LinkedHashMap<String, String> map = new LinkedHashMap<>();
+        map.put("one", "1");
+        map.put("two", "2");
+        map.put("three", "3");
+
+        LinkedHashMap<String, String> outputMap = new LinkedHashMap<>();
+        try {
+            map.forEach(new java.util.function.BiConsumer<String, String>() {
+                    @Override
+                    public void accept(String k, String v) {
+                        outputMap.put(k, v);
+                        map.put("foo1", v);
+                    }
+                });
+            fail();
+        } catch(ConcurrentModificationException expected) {}
+        // We should get a CME and DO NOT continue forEach evaluation
+        assertEquals(1, outputMap.size());
+
+        outputMap.clear();
+        try {
+            map.keySet().forEach(new java.util.function.Consumer<String>() {
+                    @Override
+                    public void accept(String k) {
+                        outputMap.put(k, "foo");
+                        map.put("foo2", "boo");
+                    }
+                });
+            fail();
+        } catch(ConcurrentModificationException expected) {}
+        // We should get a CME and DO NOT continue forEach evaluation
+        assertEquals(1, outputMap.size());
+
+        outputMap.clear();
+        try {
+            map.values().forEach(new java.util.function.Consumer<String>() {
+                    @Override
+                    public void accept(String k)  {
+                        outputMap.put(k, "foo");
+                        map.put("foo3", "boo");
+                    }
+                });
+            fail();
+        } catch(ConcurrentModificationException expected) {}
+        // We should get a CME and DO NOT continue forEach evaluation
+        assertEquals(1, outputMap.size());
+
+        outputMap.clear();
+        try {
+            map.entrySet().forEach(new java.util.function.Consumer<Map.Entry<String,String>>() {
+                    @Override
+                    public void accept(Map.Entry<String,String> k)  {
+                        outputMap.put(k.getKey(), "foo");
+                        map.put("foo4", "boo");
+                    }
+                });
+            fail();
+        } catch(ConcurrentModificationException expected) {}
+        // We should get a CME and DO NOT continue forEach evaluation
+        assertEquals(1, outputMap.size());
     }
 
     /**
