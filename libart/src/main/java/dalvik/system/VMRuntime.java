@@ -350,7 +350,7 @@ public final class VMRuntime {
      * Register application info
      */
     public static native void registerAppInfo(String packageName, String appDir,
-             String[] codePaths);
+             String[] codePaths, String foreignDexProfileDir);
 
     /**
      * Returns the runtime instruction set corresponding to a given ABI. Multiple
