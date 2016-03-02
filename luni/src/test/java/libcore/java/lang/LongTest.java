@@ -138,4 +138,25 @@ public class LongTest extends junit.framework.TestCase {
         } catch (NumberFormatException expected) {}
     }
 
+    public void testStaticHashCode() {
+        assertEquals(Long.valueOf(567L).hashCode(), Long.hashCode(567L));
+    }
+
+    public void testMax() {
+        long a = 567L;
+        long b = 578L;
+        assertEquals(Math.max(a, b), Long.max(a, b));
+    }
+
+    public void testMin() {
+        long a = 567L;
+        long b = 578L;
+        assertEquals(Math.min(a, b), Long.min(a, b));
+    }
+
+    public void testSum() {
+        long a = 567L;
+        long b = 578L;
+        assertEquals(a + b, Long.sum(a, b));
+    }
 }

@@ -123,6 +123,13 @@ public final class Double extends Number implements Comparable<Double> {
     public static final int SIZE = 64;
 
     /**
+     * The number of bytes used to represent a {@code double} value.
+     *
+     * @since 1.8
+     */
+    public static final int BYTES = SIZE / Byte.SIZE;
+
+    /**
      * The {@code Class} instance representing the primitive type
      * {@code double}.
      *
@@ -723,6 +730,18 @@ public final class Double extends Number implements Comparable<Double> {
      * @return  a {@code hash code} value for this object.
      */
     public int hashCode() {
+        return Double.hashCode(value);
+    }
+
+    /**
+     * Returns a hash code for a {@code double} value; compatible with
+     * {@code Double.hashCode()}.
+     *
+     * @param value the value to hash
+     * @return a hash code value for a {@code double} value.
+     * @since 1.8
+     */
+    public static int hashCode(double value) {
         long bits = doubleToLongBits(value);
         return (int)(bits ^ (bits >>> 32));
     }
@@ -981,6 +1000,48 @@ public final class Double extends Number implements Comparable<Double> {
         return (thisBits == anotherBits ?  0 : // Values are equal
                 (thisBits < anotherBits ? -1 : // (-0.0, 0.0) or (!NaN, NaN)
                  1));                          // (0.0, -0.0) or (NaN, !NaN)
+    }
+
+    /**
+     * Adds two {@code double} values together as per the + operator.
+     *
+     * @param a the first operand
+     * @param b the second operand
+     * @return the sum of {@code a} and {@code b}
+     * @jls 4.2.4 Floating-Point Operations
+     * @see java.util.function.BinaryOperator
+     * @since 1.8
+     */
+    public static double sum(double a, double b) {
+        return a + b;
+    }
+
+    /**
+     * Returns the greater of two {@code double} values
+     * as if by calling {@link Math#max(double, double) Math.max}.
+     *
+     * @param a the first operand
+     * @param b the second operand
+     * @return the greater of {@code a} and {@code b}
+     * @see java.util.function.BinaryOperator
+     * @since 1.8
+     */
+    public static double max(double a, double b) {
+        return Math.max(a, b);
+    }
+
+    /**
+     * Returns the smaller of two {@code double} values
+     * as if by calling {@link Math#min(double, double) Math.min}.
+     *
+     * @param a the first operand
+     * @param b the second operand
+     * @return the smaller of {@code a} and {@code b}.
+     * @see java.util.function.BinaryOperator
+     * @since 1.8
+     */
+    public static double min(double a, double b) {
+        return Math.min(a, b);
     }
 
     /** use serialVersionUID from JDK 1.0.2 for interoperability */
