@@ -25,6 +25,8 @@
 
 package java.util;
 
+import java.util.function.Consumer;
+
 /**
  * Doubly-linked list implementation of the {@code List} and {@code Deque}
  * interfaces.  Implements all optional list operations, and permits all
@@ -946,6 +948,18 @@ public class LinkedList<E>
                 linkBefore(e, next);
             nextIndex++;
             expectedModCount++;
+        }
+
+        @Override
+        public void forEachRemaining(Consumer<? super E> action) {
+            Objects.requireNonNull(action);
+            while (modCount == expectedModCount && nextIndex < size) {
+                action.accept(next.item);
+                lastReturned = next;
+                next = next.next;
+                nextIndex++;
+            }
+            checkForComodification();
         }
 
         final void checkForComodification() {
