@@ -603,32 +603,39 @@ public class MathTest extends junit.framework.TestCase {
                 .log1p(Double.MIN_VALUE), 0D);
     }
 
+    public void test_maxDD_Math() {
+        test_maxDD(true /* use Math */);
+    }
+
+    public void test_maxDD_Double() {
+        test_maxDD(false /* use Math */);
+    }
+
     /**
      * java.lang.Math#max(double, double)
      */
-    public void test_maxDD() {
+    private static void test_maxDD(boolean useMath) {
         // Test for method double java.lang.Math.max(double, double)
-        assertEquals("Incorrect double max value", 1908897.6000089, Math.max(-1908897.6000089,
-                1908897.6000089), 0D);
+        assertEquals("Incorrect double max value", 1908897.6000089,
+                max(-1908897.6000089, 1908897.6000089, useMath), 0D);
         assertEquals("Incorrect double max value",
-                1908897.6000089, Math.max(2.0, 1908897.6000089), 0D);
-        assertEquals("Incorrect double max value", -2.0, Math.max(-2.0,
-                -1908897.6000089), 0D);
+                1908897.6000089, max(2.0, 1908897.6000089, useMath), 0D);
+        assertEquals("Incorrect double max value", -2.0, max(-2.0, -1908897.6000089, useMath), 0D);
 
         // Compare toString representations here since -0.0 = +0.0, and
         // NaN != NaN and we need to distinguish
         assertEquals("Max failed for NaN",
-                Double.toString(Double.NaN), Double.toString(Math.max(Double.NaN, 42.0d)));
+                Double.toString(Double.NaN), Double.toString(max(Double.NaN, 42.0d, useMath)));
         assertEquals("Max failed for NaN",
-                Double.toString(Double.NaN), Double.toString(Math.max(42.0d, Double.NaN)));
+                Double.toString(Double.NaN), Double.toString(max(42.0d, Double.NaN, useMath)));
         assertEquals("Max failed for 0.0",
-                Double.toString(+0.0d), Double.toString(Math.max(+0.0d, -0.0d)));
+                Double.toString(+0.0d), Double.toString(max(+0.0d, -0.0d, useMath)));
         assertEquals("Max failed for 0.0",
-                Double.toString(+0.0d), Double.toString(Math.max(-0.0d, +0.0d)));
+                Double.toString(+0.0d), Double.toString(max(-0.0d, +0.0d, useMath)));
         assertEquals("Max failed for -0.0d",
-                Double.toString(-0.0d), Double.toString(Math.max(-0.0d, -0.0d)));
+                Double.toString(-0.0d), Double.toString(max(-0.0d, -0.0d, useMath)));
         assertEquals("Max failed for 0.0",
-                Double.toString(+0.0d), Double.toString(Math.max(+0.0d, +0.0d)));
+                Double.toString(+0.0d), Double.toString(max(+0.0d, +0.0d, useMath)));
     }
 
     /**
@@ -684,33 +691,57 @@ public class MathTest extends junit.framework.TestCase {
                 -20, Math.max(-20, -19088976000089L));
     }
 
+    public void test_minDD_Math() {
+        test_minDD(true /* useMath */);
+    }
+
+    public void test_minDD_Double() {
+        test_minDD(false /* useMath */);
+    }
+
     /**
      * java.lang.Math#min(double, double)
      */
-    public void test_minDD() {
+    private static void test_minDD(boolean useMath) {
         // Test for method double java.lang.Math.min(double, double)
-        assertEquals("Incorrect double min value", -1908897.6000089, Math.min(-1908897.6000089,
-                1908897.6000089), 0D);
+        assertEquals("Incorrect double min value", -1908897.6000089,
+                min(-1908897.6000089, 1908897.6000089, useMath), 0D);
         assertEquals("Incorrect double min value",
-                2.0, Math.min(2.0, 1908897.6000089), 0D);
-        assertEquals("Incorrect double min value", -1908897.6000089, Math.min(-2.0,
-                -1908897.6000089), 0D);
+                2.0, min(2.0, 1908897.6000089, useMath), 0D);
+        assertEquals("Incorrect double min value", -1908897.6000089,
+                min(-2.0, -1908897.6000089, useMath), 0D);
         assertEquals("Incorrect double min value", 1.0d, Math.min(1.0d, 1.0d));
 
         // Compare toString representations here since -0.0 = +0.0, and
         // NaN != NaN and we need to distinguish
         assertEquals("Min failed for NaN",
-                Double.toString(Double.NaN), Double.toString(Math.min(Double.NaN, 42.0d)));
+                Double.toString(Double.NaN), Double.toString(min(Double.NaN, 42.0d, useMath)));
         assertEquals("Min failed for NaN",
-                Double.toString(Double.NaN), Double.toString(Math.min(42.0d, Double.NaN)));
+                Double.toString(Double.NaN), Double.toString(min(42.0d, Double.NaN, useMath)));
         assertEquals("Min failed for -0.0",
-                Double.toString(-0.0d), Double.toString(Math.min(+0.0d, -0.0d)));
+                Double.toString(-0.0d), Double.toString(min(+0.0d, -0.0d, useMath)));
         assertEquals("Min failed for -0.0",
-                Double.toString(-0.0d), Double.toString(Math.min(-0.0d, +0.0d)));
+                Double.toString(-0.0d), Double.toString(min(-0.0d, +0.0d, useMath)));
         assertEquals("Min failed for -0.0d",
-                Double.toString(-0.0d), Double.toString(Math.min(-0.0d, -0.0d)));
+                Double.toString(-0.0d), Double.toString(min(-0.0d, -0.0d, useMath)));
         assertEquals("Min failed for 0.0",
-                Double.toString(+0.0d), Double.toString(Math.min(+0.0d, +0.0d)));
+                Double.toString(+0.0d), Double.toString(min(+0.0d, +0.0d, useMath)));
+    }
+
+    private static double min(double a, double b, boolean useMath) {
+        if (useMath) {
+            return Math.min(a, b);
+        } else {
+            return Double.min(a, b);
+        }
+    }
+
+    private static double max(double a, double b, boolean useMath) {
+        if (useMath) {
+            return Math.max(a, b);
+        } else {
+            return Double.max(a, b);
+        }
     }
 
     /**
