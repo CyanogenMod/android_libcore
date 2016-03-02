@@ -649,6 +649,7 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/java/util/ArrayDeque.java \
     ojluni/src/main/java/java/util/ArrayList.java \
     ojluni/src/main/java/java/util/Arrays.java \
+    ojluni/src/main/java/java/util/ArraysParallelSortHelpers.java \
     ojluni/src/main/java/java/util/BitSet.java \
     ojluni/src/main/java/java/util/Calendar.java \
     ojluni/src/main/java/java/util/Collection.java \
