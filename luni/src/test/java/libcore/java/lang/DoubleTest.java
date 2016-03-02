@@ -142,4 +142,26 @@ public class DoubleTest extends TestCase {
         } catch (NumberFormatException expected) {
         }
     }
+
+    public void testStaticHashCode() {
+        assertEquals(Double.valueOf(567.0).hashCode(), Double.hashCode(567.0));
+    }
+
+    public void testMax() {
+        double a = 567.0;
+        double b = 578.0;
+        assertEquals(Math.max(a, b), Double.max(a, b));
+    }
+
+    public void testMin() {
+        double a = 567.0;
+        double b = 578.0;
+        assertEquals(Math.min(a, b), Double.min(a, b));
+    }
+
+    public void testSum() {
+        double a = 567.0;
+        double b = 578.0;
+        assertEquals(a + b, Double.sum(a, b));
+    }
 }

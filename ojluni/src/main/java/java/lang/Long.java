@@ -779,6 +779,18 @@ public final class Long extends Number implements Comparable<Long> {
      * @return  a hash code value for this object.
      */
     public int hashCode() {
+        return Long.hashCode(value);
+    }
+
+    /**
+     * Returns a hash code for a {@code long} value; compatible with
+     * {@code Long.hashCode()}.
+     *
+     * @param value the value to hash
+     * @return a hash code value for a {@code long} value.
+     * @since 1.8
+     */
+    public static int hashCode(long value) {
         return (int)(value ^ (value >>> 32));
     }
 
@@ -1194,6 +1206,47 @@ public final class Long extends Number implements Comparable<Long> {
         i = (i & 0x00ff00ff00ff00ffL) << 8 | (i >>> 8) & 0x00ff00ff00ff00ffL;
         return (i << 48) | ((i & 0xffff0000L) << 16) |
             ((i >>> 16) & 0xffff0000L) | (i >>> 48);
+    }
+
+    /**
+     * Adds two {@code long} values together as per the + operator.
+     *
+     * @param a the first operand
+     * @param b the second operand
+     * @return the sum of {@code a} and {@code b}
+     * @see java.util.function.BinaryOperator
+     * @since 1.8
+     */
+    public static long sum(long a, long b) {
+        return a + b;
+    }
+
+    /**
+     * Returns the greater of two {@code long} values
+     * as if by calling {@link Math#max(long, long) Math.max}.
+     *
+     * @param a the first operand
+     * @param b the second operand
+     * @return the greater of {@code a} and {@code b}
+     * @see java.util.function.BinaryOperator
+     * @since 1.8
+     */
+    public static long max(long a, long b) {
+        return Math.max(a, b);
+    }
+
+    /**
+     * Returns the smaller of two {@code long} values
+     * as if by calling {@link Math#min(long, long) Math.min}.
+     *
+     * @param a the first operand
+     * @param b the second operand
+     * @return the smaller of {@code a} and {@code b}
+     * @see java.util.function.BinaryOperator
+     * @since 1.8
+     */
+    public static long min(long a, long b) {
+        return Math.min(a, b);
     }
 
     /** use serialVersionUID from JDK 1.0.2 for interoperability */
