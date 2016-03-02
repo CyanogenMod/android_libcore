@@ -1696,3 +1696,10 @@ NET_Wait(JNIEnv *env, jint fd, jint flags, jint timeout)
 
     return timeout;
 }
+
+// http://b/27301951
+__attribute__((destructor))
+static void netUtilCleanUp() {
+    if (loRoutes != 0) free(loRoutes);
+    if (localifs != 0) free(localifs);
+}
