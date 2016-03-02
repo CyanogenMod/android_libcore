@@ -324,10 +324,25 @@ public class SecureRandom extends java.util.Random {
      */
     public static SecureRandom getInstance(String algorithm, String provider)
             throws NoSuchAlgorithmException, NoSuchProviderException {
-        Instance instance = GetInstance.getInstance("SecureRandom",
-            SecureRandomSpi.class, algorithm, provider);
-        return new SecureRandom((SecureRandomSpi)instance.impl,
-            instance.provider, algorithm);
+        try {
+            Instance instance = GetInstance.getInstance("SecureRandom",
+                    SecureRandomSpi.class, algorithm, provider);
+            return new SecureRandom((SecureRandomSpi) instance.impl,
+                    instance.provider, algorithm);
+        } catch (NoSuchProviderException nspe) {
+            if ("Crypto".equals(provider)) {
+                System.logE(" ********** PLEASE READ ************ ");
+                System.logE(" * ");
+                System.logE(" * Android N no longer ships with the Crypto provider.");
+                System.logE(" * If your app was relying on setSeed() to derive keys from strings, you");
+                System.logE(" * should switch to using SecretKeySpec to load raw key bytes directly OR");
+                System.logE(" * generate bytes from a string using the advice over at : ");
+                System.logE(" * https://stackoverflow.com/questions/13433529/android-4-2-broke-my-encrypt-decrypt-code-and-the-provided-solutions-dont-work ");
+                System.logE(" *********************************** ");
+            }
+
+            throw nspe;
+        }
     }
 
     /**
