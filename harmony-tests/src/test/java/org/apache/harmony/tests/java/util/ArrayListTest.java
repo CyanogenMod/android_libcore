@@ -27,6 +27,7 @@ import java.util.Set;
 import java.util.Vector;
 
 import tests.support.Support_ListTest;
+import libcore.java.util.ForEachRemainingTester;
 
 public class ArrayListTest extends junit.framework.TestCase {
 
@@ -1073,12 +1074,7 @@ public class ArrayListTest extends junit.framework.TestCase {
         list.add(2);
         ArrayList<Integer> processed = new ArrayList<>();
         try {
-            list.forEach(new java.util.function.Consumer<Integer>() {
-                    @Override
-                    public void accept(Integer t) {
-                        processed.add(t);
-                        list.add(t);}
-                });
+            list.forEach(t -> { processed.add(t); list.add(t); });
             fail();
         } catch(ConcurrentModificationException expected) {}
         assertEquals(1, processed.size());
@@ -1090,16 +1086,16 @@ public class ArrayListTest extends junit.framework.TestCase {
         list.add(2);
         list.add(3);
         try {
-            list.forEach(new java.util.function.Consumer<Integer>() {
-                        @Override
-                        public void accept(Integer t) {
-                            if (t == 3) {
-                                list.add(t);
-                            }
-                        }
-                });
+            list.forEach(t -> {
+                if (t == 3) list.add(t);
+            });
             fail();
         } catch(ConcurrentModificationException expected) {}
+    }
+
+    public void test_forEachRemaining_iterator() throws Exception {
+        ForEachRemainingTester.runTests(ArrayList.class, new String[] { "foo", "bar", "baz"});
+        ForEachRemainingTester.runTests(ArrayList.class, new String[] { "foo" });
     }
 
     /**

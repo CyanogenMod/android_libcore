@@ -22,10 +22,12 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.NoSuchElementException;
 
 import junit.framework.TestCase;
 
+import libcore.java.util.ForEachRemainingTester;
 import org.apache.harmony.testframework.serialization.SerializationTest;
 import org.apache.harmony.testframework.serialization.SerializationTest.SerializableAssert;
 
@@ -889,6 +891,11 @@ public class ArrayDequeTest extends TestCase {
         while (0 != testQue.size()) {
             assertEquals(testQue.remove(), cloned.remove());
         }
+    }
+
+    public void test_forEachRemaining_iterator() throws Exception {
+        ForEachRemainingTester.runTests(ArrayDeque.class, new String[]{ "foo", "bar", "baz "});
+        ForEachRemainingTester.runTests(ArrayDeque.class, new String[] { "foo" });
     }
 
     /**
