@@ -689,6 +689,10 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/java/util/InputMismatchException.java \
     ojluni/src/main/java/java/util/InvalidPropertiesFormatException.java \
     ojluni/src/main/java/java/util/Iterator.java \
+    ojluni/src/main/java/java/util/Optional.java \
+    ojluni/src/main/java/java/util/OptionalInt.java \
+    ojluni/src/main/java/java/util/OptionalLong.java \
+    ojluni/src/main/java/java/util/OptionalDouble.java \
     ojluni/src/main/java/java/util/function/BiConsumer.java \
     ojluni/src/main/java/java/util/function/BiFunction.java \
     ojluni/src/main/java/java/util/function/BinaryOperator.java \
