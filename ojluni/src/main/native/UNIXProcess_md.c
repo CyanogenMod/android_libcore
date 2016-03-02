@@ -493,8 +493,9 @@ throwIOException(JNIEnv *env, int errnum, const char *defaultDetail)
             detail = s;
     }
     /* ASCII Decimal representation uses 2.4 times as many bits as binary. */
-    errmsg = NEW(char, strlen(format) + strlen(detail) + 3 * sizeof(errnum));
-    sprintf(errmsg, format, errnum, detail);
+    size_t newsize = strlen(format) + strlen(detail) + 3 * sizeof(errnum);
+    errmsg = NEW(char, newsize);
+    snprintf(errmsg, newsize, format, errnum, detail);
     s = JNU_NewStringPlatform(env, errmsg);
     if (s != NULL) {
         jobject x = JNU_NewObjectByName(env, "java/io/IOException",

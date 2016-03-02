@@ -284,7 +284,8 @@ void
 NET_ThrowByNameWithLastError(JNIEnv *env, const char *name,
                    const char *defaultDetail) {
     char errmsg[255];
-    sprintf(errmsg, "errno: %d, error: %s\n", errno, defaultDetail);
+    snprintf(errmsg, sizeof(errmsg), "errno: %d, error: %s\n", errno,
+             defaultDetail);
     JNU_ThrowByNameWithLastError(env, name, errmsg);
 }
 
@@ -490,7 +491,7 @@ void ThrowUnknownHostExceptionWithGaiError(JNIEnv *env,
     buf = (char *) malloc(size);
     if (buf) {
         jstring s;
-        sprintf(buf, format, hostname, error_string);
+        snprintf(buf, size, format, hostname, error_string);
         s = JNU_NewStringPlatform(env, buf);
         if (s != NULL) {
             jobject x = JNU_NewObjectByName(env,
