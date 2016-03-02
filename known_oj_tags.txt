@@ -20,4 +20,3 @@
 @spec
 @revised
 @jls
-@implSpec
