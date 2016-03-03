@@ -71,4 +71,20 @@ public class ClassTest extends TestCase {
             fail("Got exception");
         }
     }
+
+    interface C {
+        void foo();
+    }
+    interface D extends C {
+        void foo();
+    }
+    abstract class Z implements D { }
+
+    public void test_getMethod() {
+      try {
+          assertEquals(Z.class.getMethod("foo"), D.class.getMethod("foo"));
+      } catch (NoSuchMethodException e) {
+          fail("Got exception");
+      }
+    }
 }
