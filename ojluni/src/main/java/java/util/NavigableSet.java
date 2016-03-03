@@ -27,13 +27,16 @@
  * License version 2 only, as published by the Free Software Foundation.
  * However, the following notice accompanied the original version of this
  * file:
- *
  * Written by Doug Lea and Josh Bloch with assistance from members of JCP
  * JSR-166 Expert Group and released to the public domain, as explained at
  * http://creativecommons.org/publicdomain/zero/1.0/
  */
 
 package java.util;
+
+// BEGIN android-note
+// removed link to collections framework docs
+// END android-note
 
 /**
  * A {@link SortedSet} extended with navigation methods reporting
@@ -56,7 +59,7 @@ package java.util;
  * Subsets of any {@code NavigableSet} must implement the {@code
  * NavigableSet} interface.
  *
- * <p> The return values of navigation methods may be ambiguous in
+ * <p>The return values of navigation methods may be ambiguous in
  * implementations that permit {@code null} elements. However, even
  * in this case the result can be disambiguated by checking
  * {@code contains(null)}. To avoid such issues, implementations of
@@ -73,10 +76,6 @@ package java.util;
  * implement {@code NavigableSet}, but extensions and implementations
  * of this interface are encouraged to override these methods to return
  * {@code NavigableSet}.
- *
- * <p>This interface is a member of the
- * <a href="{@docRoot}/../technotes/guides/collections/index.html">
- * Java Collections Framework</a>.
  *
  * @author Doug Lea
  * @author Josh Bloch
@@ -172,7 +171,7 @@ public interface NavigableSet<E> extends SortedSet<E> {
      * the iteration are undefined.
      *
      * <p>The returned set has an ordering equivalent to
-     * <tt>{@link Collections#reverseOrder(Comparator) Collections.reverseOrder}(comparator())</tt>.
+     * {@link Collections#reverseOrder(Comparator) Collections.reverseOrder}{@code (comparator())}.
      * The expression {@code s.descendingSet().descendingSet()} returns a
      * view of {@code s} essentially equivalent to {@code s}.
      *
@@ -192,7 +191,7 @@ public interface NavigableSet<E> extends SortedSet<E> {
      * Returns a view of the portion of this set whose elements range from
      * {@code fromElement} to {@code toElement}.  If {@code fromElement} and
      * {@code toElement} are equal, the returned set is empty unless {@code
-     * fromInclusive} and {@code toInclusive} are both true.  The returned set
+     * fromExclusive} and {@code toExclusive} are both true.  The returned set
      * is backed by this set, so changes in the returned set are reflected in
      * this set, and vice-versa.  The returned set supports all optional set
      * operations that this set supports.
@@ -303,7 +302,7 @@ public interface NavigableSet<E> extends SortedSet<E> {
      * @throws ClassCastException       {@inheritDoc}
      * @throws NullPointerException     {@inheritDoc}
      * @throws IllegalArgumentException {@inheritDoc}
-na     */
+     */
     SortedSet<E> headSet(E toElement);
 
     /**
