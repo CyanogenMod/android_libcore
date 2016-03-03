@@ -51,44 +51,9 @@ public class DexClassLoader extends BaseDexClassLoader {
      *     libraries, delimited by {@code File.pathSeparator}; may be
      *     {@code null}
      * @param parent the parent class loader
-     *
-     * This method will be deprecated in the next release
      */
     public DexClassLoader(String dexPath, String optimizedDirectory,
             String librarySearchPath, ClassLoader parent) {
-        super(dexPath, new File(optimizedDirectory), false, librarySearchPath, null, parent);
-    }
-
-    /**
-     * Creates a {@code DexClassLoader} that finds interpreted and native
-     * code.  Interpreted classes are found in a set of DEX files contained
-     * in Jar or APK files.
-     *
-     * <p>The path lists are separated using the character specified by the
-     * {@code path.separator} system property, which defaults to {@code :}.
-     *
-     * @param dexPath the list of jar/apk files containing classes and
-     *     resources, delimited by {@code File.pathSeparator}, which
-     *     defaults to {@code ":"} on Android
-     * @param optimizedDirectory directory where optimized dex files
-     *     should be written; must not be {@code null}
-     * @param librarySearchPath the list of directories containing native
-     *     libraries, delimited by {@code File.pathSeparator}; may be
-     *     {@code null}
-     * @param libraryPermittedPath Allowing open native libraries under
-     * 		 directories in this list. The list is delimited by
-     *     {@code File.pathSeparator}. Note that the classloader
-     *     is implicitly allowed to open libraries from the
-     *     directories on librarySearchPath. Directories from this list
-     *     are NOT used to search for the native library;
-     *     may be {@code null}
-     * @param parent the parent class loader
-     *
-     * @hide
-     */
-    public DexClassLoader(String dexPath, String optimizedDirectory,
-            String librarySearchPath, String libraryPermittedPath, ClassLoader parent) {
-        super(dexPath, new File(optimizedDirectory), false, librarySearchPath,
-              libraryPermittedPath, parent);
+        super(dexPath, new File(optimizedDirectory), librarySearchPath, parent);
     }
 }
