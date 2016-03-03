@@ -338,6 +338,7 @@ public class Executors {
      * {@code Callable} to an otherwise resultless action.
      * @param task the task to run
      * @param result the result to return
+     * @param <T> the type of the result
      * @return a callable object
      * @throws NullPointerException if task null
      */
