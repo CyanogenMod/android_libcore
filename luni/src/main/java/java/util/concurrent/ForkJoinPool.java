@@ -2470,6 +2470,7 @@ public class ForkJoinPool extends AbstractExecutorService {
      * minimally only the latter.
      *
      * @param task the task
+     * @param <T> the type of the task's result
      * @return the task's result
      * @throws NullPointerException if the task is null
      * @throws RejectedExecutionException if the task cannot be
@@ -2518,6 +2519,7 @@ public class ForkJoinPool extends AbstractExecutorService {
      * Submits a ForkJoinTask for execution.
      *
      * @param task the task to submit
+     * @param <T> the type of the task's result
      * @return the task
      * @throws NullPointerException if the task is null
      * @throws RejectedExecutionException if the task cannot be

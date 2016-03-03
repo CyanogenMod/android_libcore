@@ -27,13 +27,16 @@
  * License version 2 only, as published by the Free Software Foundation.
  * However, the following notice accompanied the original version of this
  * file:
- *
  * Written by Doug Lea and Josh Bloch with assistance from members of JCP
  * JSR-166 Expert Group and released to the public domain, as explained at
  * http://creativecommons.org/publicdomain/zero/1.0/
  */
 
 package java.util;
+
+// BEGIN android-note
+// removed link to collections framework docs
+// END android-note
 
 /**
  * A {@link SortedMap} extended with navigation methods returning the
@@ -80,11 +83,7 @@ package java.util;
  * implement {@code NavigableMap}, but extensions and implementations
  * of this interface are encouraged to override these methods to return
  * {@code NavigableMap}.  Similarly,
- * {@link #keySet()} can be overriden to return {@code NavigableSet}.
- *
- * <p>This interface is a member of the
- * <a href="{@docRoot}/../technotes/guides/collections/index.html">
- * Java Collections Framework</a>.
+ * {@link #keySet()} can be overridden to return {@code NavigableSet}.
  *
  * @author Doug Lea
  * @author Josh Bloch
@@ -254,7 +253,7 @@ public interface NavigableMap<K,V> extends SortedMap<K,V> {
      * operation), the results of the iteration are undefined.
      *
      * <p>The returned map has an ordering equivalent to
-     * <tt>{@link Collections#reverseOrder(Comparator) Collections.reverseOrder}(comparator())</tt>.
+     * {@link Collections#reverseOrder(Comparator) Collections.reverseOrder}{@code (comparator())}.
      * The expression {@code m.descendingMap().descendingMap()} returns a
      * view of {@code m} essentially equivalent to {@code m}.
      *
@@ -298,7 +297,7 @@ public interface NavigableMap<K,V> extends SortedMap<K,V> {
      * Returns a view of the portion of this map whose keys range from
      * {@code fromKey} to {@code toKey}.  If {@code fromKey} and
      * {@code toKey} are equal, the returned map is empty unless
-     * {@code fromInclusive} and {@code toInclusive} are both true.  The
+     * {@code fromExclusive} and {@code toExclusive} are both true.  The
      * returned map is backed by this map, so changes in the returned map are
      * reflected in this map, and vice-versa.  The returned map supports all
      * optional map operations that this map supports.
