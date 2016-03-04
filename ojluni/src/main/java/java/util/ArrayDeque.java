@@ -648,6 +648,9 @@ public class ArrayDeque<E> extends AbstractCollection<E>
             while (i != f) {
                 @SuppressWarnings("unchecked") E e = (E)a[i];
                 i = (i + 1) & m;
+                // Android-note: This uses a different heuristic for detecting
+                // concurrent modification exceptions than next(). As such, this is a less
+                // precise test.
                 if (e == null)
                     throw new ConcurrentModificationException();
                 action.accept(e);
