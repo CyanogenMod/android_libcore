@@ -1153,6 +1153,30 @@ public class Vector<E>
             lastRet = -1;
         }
 
+        @Override
+        public void forEachRemaining(Consumer<? super E> action) {
+            Objects.requireNonNull(action);
+            synchronized (Vector.this) {
+                final int size = elementCount;
+                int i = cursor;
+                if (i >= size) {
+                    return;
+                }
+                @SuppressWarnings("unchecked")
+                final E[] elementData = (E[]) Vector.this.elementData;
+                if (i >= elementData.length) {
+                    throw new ConcurrentModificationException();
+                }
+                while (i != size && modCount == expectedModCount) {
+                    action.accept(elementData[i++]);
+                }
+                // update once at end of iteration to reduce heap write traffic
+                cursor = i;
+                lastRet = i - 1;
+                checkForComodification();
+            }
+        }
+
         final void checkForComodification() {
             if (modCount != expectedModCount)
                 throw new ConcurrentModificationException();

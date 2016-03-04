@@ -16,7 +16,9 @@
 
 package libcore.java.util.concurrent;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.List;
@@ -28,6 +30,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import junit.framework.TestCase;
+import libcore.java.util.ForEachRemainingTester;
 import libcore.util.SerializationTester;
 
 public final class CopyOnWriteArrayListTest extends TestCase {
@@ -278,5 +281,21 @@ public final class CopyOnWriteArrayListTest extends TestCase {
         assertEquals(String[].class, asList.toArray().getClass());
         CopyOnWriteArrayList<Object> objects = new CopyOnWriteArrayList<Object>(asList);
         objects.add(Boolean.TRUE);
+    }
+
+    public void test_forEachRemaining_iterator() throws Exception {
+        ForEachRemainingTester.test_forEachRemaining(
+                new CopyOnWriteArrayList<>(), new String[] { "foo", "bar", "baz"});
+        ForEachRemainingTester.test_forEachRemaining_NPE(
+                new CopyOnWriteArrayList<>(), new String[] {});
+    }
+
+    public void test_forEachRemaining_CME() throws Exception {
+        CopyOnWriteArrayList<String> list = new CopyOnWriteArrayList<>();
+        list.add("foo");
+        list.add("bar");
+        list.add("baz");
+        // Shouldn't throw a CME.
+        list.iterator().forEachRemaining(s -> list.add(s));
     }
 }

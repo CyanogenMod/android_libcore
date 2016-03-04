@@ -1083,6 +1083,11 @@ public class Collections {
                 public void remove() {
                     throw new UnsupportedOperationException();
                 }
+                @Override
+                public void forEachRemaining(Consumer<? super E> action) {
+                    // Use backing collection version
+                    i.forEachRemaining(action);
+                }
             };
         }
 
@@ -1267,6 +1272,11 @@ public class Collections {
                 public void add(E e) {
                     throw new UnsupportedOperationException();
                 }
+
+                @Override
+                public void forEachRemaining(Consumer<? super E> action) {
+                    i.forEachRemaining(action);
+                }
             };
         }
 
@@ -1443,6 +1453,8 @@ public class Collections {
                     public void remove() {
                         throw new UnsupportedOperationException();
                     }
+                    // Android-note: This seems pretty inconsistent. Unlike other subclasses, we aren't
+                    // delegating to the subclass iterator here. Seems like an oversight.
                 };
             }
 
@@ -2364,6 +2376,7 @@ public class Collections {
                 public boolean hasNext() { return it.hasNext(); }
                 public E next()          { return it.next(); }
                 public void remove()     {        it.remove(); }};
+            // Android-note: Should we delegate to it for forEachRemaining ?
         }
 
         public boolean add(E e) {
@@ -2609,6 +2622,11 @@ public class Collections {
                     typeCheck(e);
                     i.add(e);
                 }
+
+                @Override
+                public void forEachRemaining(Consumer<? super E> action) {
+                    i.forEachRemaining(action);
+                }
             };
         }
 
@@ -2808,6 +2826,7 @@ public class Collections {
                     public Map.Entry<K,V> next() {
                         return checkedEntry(i.next(), valueType);
                     }
+                    // Android-note: forEachRemaining is missing checks.
                 };
             }
 
@@ -3066,6 +3085,10 @@ public class Collections {
         public boolean hasNext() { return false; }
         public E next() { throw new NoSuchElementException(); }
         public void remove() { throw new IllegalStateException(); }
+        @Override
+        public void forEachRemaining(Consumer<? super E> action) {
+            Objects.requireNonNull(action);
+        }
     }
 
     /**
@@ -3390,6 +3413,14 @@ public class Collections {
             }
             public void remove() {
                 throw new UnsupportedOperationException();
+            }
+            @Override
+            public void forEachRemaining(Consumer<? super E> action) {
+                Objects.requireNonNull(action);
+                if (hasNext) {
+                    action.accept(e);
+                    hasNext = false;
+                }
             }
         };
     }
