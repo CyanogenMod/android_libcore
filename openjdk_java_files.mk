@@ -693,6 +693,8 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/java/util/OptionalInt.java \
     ojluni/src/main/java/java/util/OptionalLong.java \
     ojluni/src/main/java/java/util/OptionalDouble.java \
+    ojluni/src/main/java/java/util/PrimitiveIterator.java \
+    ojluni/src/main/java/java/util/Tripwire.java \
     ojluni/src/main/java/java/util/function/BiConsumer.java \
     ojluni/src/main/java/java/util/function/BiFunction.java \
     ojluni/src/main/java/java/util/function/BinaryOperator.java \
