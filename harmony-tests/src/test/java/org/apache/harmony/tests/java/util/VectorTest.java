@@ -18,7 +18,10 @@
 package org.apache.harmony.tests.java.util;
 
 import libcore.java.util.ForEachRemainingTester;
+import libcore.java.util.SpliteratorTester;
 import tests.support.Support_ListTest;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.ConcurrentModificationException;
@@ -27,6 +30,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Spliterator;
 import java.util.Vector;
 
 public class VectorTest extends junit.framework.TestCase {
@@ -1424,6 +1428,41 @@ public class VectorTest extends junit.framework.TestCase {
         ForEachRemainingTester.runTests(Vector.class, new String[] { "foo" });
     }
 
+    public void test_spliterator() throws Exception {
+        ArrayList<Integer> testElements = new ArrayList<>(
+                Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16));
+        Vector<Integer> list = new Vector<>();
+        list.addAll(testElements);
+
+        SpliteratorTester.runBasicIterationTests(list.spliterator(), testElements);
+        SpliteratorTester.runBasicSplitTests(list, testElements);
+        SpliteratorTester.testSpliteratorNPE(list.spliterator());
+
+        assertTrue(list.spliterator().hasCharacteristics(
+                Spliterator.ORDERED | Spliterator.SIZED | Spliterator.SUBSIZED));
+
+        SpliteratorTester.runOrderedTests(list);
+        SpliteratorTester.runSizedTests(list, 16 /* expected size */);
+        SpliteratorTester.runSubSizedTests(list, 16 /* expected size */);
+    }
+
+    public void test_spliterator_CME() throws Exception {
+        Vector<Integer> list = new Vector<>();
+        list.add(52);
+
+        Spliterator<Integer> sp = list.spliterator();
+        try {
+            sp.tryAdvance(value -> list.add(value));
+            fail();
+        } catch (ConcurrentModificationException expected) {
+        }
+
+        try {
+            sp.forEachRemaining(value -> list.add(value));
+            fail();
+        } catch (ConcurrentModificationException expected) {
+        }
+    }
 
     /**
      * Sets up the fixture, for example, open a network connection. This method

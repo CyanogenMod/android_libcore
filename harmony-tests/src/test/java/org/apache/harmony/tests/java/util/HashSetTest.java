@@ -17,10 +17,13 @@
 
 package org.apache.harmony.tests.java.util;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.ConcurrentModificationException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.io.ObjectOutputStream;
 import java.io.ByteArrayOutputStream;
@@ -28,7 +31,9 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Spliterator;
 
+import libcore.java.util.SpliteratorTester;
 import org.apache.harmony.testframework.serialization.SerializationTest;
 
 public class HashSetTest extends junit.framework.TestCase {
@@ -254,6 +259,22 @@ public class HashSetTest extends junit.framework.TestCase {
                 });
             fail();
         } catch(ConcurrentModificationException expected) {}
+    }
+
+    public void test_spliterator() throws Exception {
+        HashSet<String> hashSet = new HashSet<>();
+        List<String> keys = Arrays.asList(
+                "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p");
+        hashSet.addAll(keys);
+
+        ArrayList<String> expectedKeys = new ArrayList<>(keys);
+        SpliteratorTester.runBasicIterationTests_unordered(hashSet.spliterator(), expectedKeys,
+                String::compareTo);
+        SpliteratorTester.runBasicSplitTests(hashSet, expectedKeys);
+        SpliteratorTester.testSpliteratorNPE(hashSet.spliterator());
+
+        assertTrue(hashSet.spliterator().hasCharacteristics(Spliterator.DISTINCT));
+        SpliteratorTester.runDistinctTests(keys);
     }
 
     /**

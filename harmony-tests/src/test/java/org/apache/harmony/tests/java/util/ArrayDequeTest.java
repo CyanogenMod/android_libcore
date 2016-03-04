@@ -20,14 +20,17 @@ package org.apache.harmony.tests.java.util;
 import java.io.Serializable;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
+import java.util.Spliterator;
 
 import junit.framework.TestCase;
 
 import libcore.java.util.ForEachRemainingTester;
+import libcore.java.util.SpliteratorTester;
 import org.apache.harmony.testframework.serialization.SerializationTest;
 import org.apache.harmony.testframework.serialization.SerializationTest.SerializableAssert;
 
@@ -907,6 +910,36 @@ public class ArrayDequeTest extends TestCase {
         // The ArrayDeque forEachRemaining implementation doesn't use a precise check
         // for concurrent modifications.
         adq.iterator().forEachRemaining(s -> adq.add(s));
+    }
+
+    public void test_spliterator() throws Exception {
+        ArrayList<Integer> testElements = new ArrayList<>(
+                Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16));
+        ArrayDeque<Integer> adq = new ArrayDeque<>();
+        adq.addAll(testElements);
+
+        SpliteratorTester.runBasicIterationTests(adq.spliterator(), testElements);
+        SpliteratorTester.runBasicSplitTests(adq, testElements);
+        SpliteratorTester.testSpliteratorNPE(adq.spliterator());
+
+        assertTrue(adq.spliterator().hasCharacteristics(
+                Spliterator.ORDERED | Spliterator.SIZED | Spliterator.SUBSIZED));
+
+        SpliteratorTester.runOrderedTests(adq);
+        SpliteratorTester.runSizedTests(adq, 16 /* expected size */);
+        SpliteratorTester.runSubSizedTests(adq, 16 /* expected size */);
+    }
+
+    public void test_spliterator_CME() throws Exception {
+        ArrayDeque<Integer> adq = new ArrayDeque<>();
+        adq.add(52);
+
+        Spliterator<Integer> sp = adq.spliterator();
+
+        // Spliterators from ArrayDequeues never throw CME. The following statements
+        // would have thrown a CME on most other collection classes.
+        assertTrue(sp.tryAdvance(value -> adq.add(value)));
+        sp.forEachRemaining(value -> adq.add(value));
     }
 
     /**
