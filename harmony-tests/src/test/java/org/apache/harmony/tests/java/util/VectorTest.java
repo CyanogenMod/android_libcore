@@ -17,6 +17,7 @@
 
 package org.apache.harmony.tests.java.util;
 
+import libcore.java.util.ForEachRemainingTester;
 import tests.support.Support_ListTest;
 import java.util.Arrays;
 import java.util.Collection;
@@ -1416,6 +1417,11 @@ public class VectorTest extends junit.framework.TestCase {
                 });
             fail();
         } catch(ConcurrentModificationException expected) {}
+    }
+
+    public void test_forEachRemaining_iterator() throws Exception {
+        ForEachRemainingTester.runTests(Vector.class, new String[] { "foo", "bar", "baz" });
+        ForEachRemainingTester.runTests(Vector.class, new String[] { "foo" });
     }
 
 
