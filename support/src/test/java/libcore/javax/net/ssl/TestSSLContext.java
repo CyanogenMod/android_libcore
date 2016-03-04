@@ -16,8 +16,15 @@
 
 package libcore.javax.net.ssl;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.security.KeyStore;
@@ -91,6 +98,107 @@ public final class TestSSLContext extends Assert {
     public final SSLServerSocket serverSocket;
     public final InetAddress host;
     public final int port;
+
+    /**
+     * Used for replacing the hostname in an InetSocketAddress object during
+     * serialization.
+     */
+    private static class HostnameRewritingObjectOutputStream extends ObjectOutputStream {
+        private final String hostname;
+
+        public HostnameRewritingObjectOutputStream(OutputStream out, String hostname)
+                throws IOException {
+            super(out);
+            this.hostname = hostname;
+        }
+
+        @Override
+        public PutField putFields() throws IOException {
+            return new PutFieldProxy(super.putFields(), hostname);
+        }
+
+        private static class PutFieldProxy extends ObjectOutputStream.PutField {
+            private final PutField delegate;
+            private final String hostname;
+
+            public PutFieldProxy(ObjectOutputStream.PutField delegate, String hostname) {
+                this.delegate = delegate;
+                this.hostname = hostname;
+            }
+
+            @Override
+            public void put(String name, boolean val) {
+                delegate.put(name, val);
+            }
+
+            @Override
+            public void put(String name, byte val) {
+                delegate.put(name, val);
+            }
+
+            @Override
+            public void put(String name, char val) {
+                delegate.put(name, val);
+            }
+
+            @Override
+            public void put(String name, short val) {
+                delegate.put(name, val);
+            }
+
+            @Override
+            public void put(String name, int val) {
+                delegate.put(name, val);
+            }
+
+            @Override
+            public void put(String name, long val) {
+                delegate.put(name, val);
+            }
+
+            @Override
+            public void put(String name, float val) {
+                delegate.put(name, val);
+            }
+
+            @Override
+            public void put(String name, double val) {
+                delegate.put(name, val);
+            }
+
+            @Override
+            public void put(String name, Object val) {
+                if ("hostname".equals(name)) {
+                    delegate.put(name, hostname);
+                } else {
+                    delegate.put(name, val);
+                }
+            }
+
+            @SuppressWarnings("deprecation")
+            @Override
+            public void write(ObjectOutput out) throws IOException {
+                delegate.write(out);
+            }
+        }
+    }
+
+    /**
+     * Creates an InetSocketAddress where the hostname points to an arbitrary
+     * hostname, but the address points to the loopback address. Useful for
+     * testing SNI where both "localhost" and IP addresses are not allowed.
+     */
+    public InetSocketAddress getLoopbackAsHostname(String hostname, int port) throws IOException, ClassNotFoundException {
+        InetSocketAddress addr = new InetSocketAddress(InetAddress.getLoopbackAddress(), port);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        HostnameRewritingObjectOutputStream oos = new HostnameRewritingObjectOutputStream(baos, hostname);
+        oos.writeObject(addr);
+        oos.close();
+
+        ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(baos.toByteArray()));
+        return (InetSocketAddress) ois.readObject();
+    }
 
     private TestSSLContext(KeyStore clientKeyStore,
                            char[] clientStorePassword,

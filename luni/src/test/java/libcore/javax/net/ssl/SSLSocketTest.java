@@ -1259,12 +1259,11 @@ public class SSLSocketTest extends TestCase {
 
     public void test_SSLSocket_endpointIdentification_Failure() throws Exception {
         final TestSSLContext c = TestSSLContext.create();
-        SSLSocket client = (SSLSocket) c.clientContext.getSocketFactory().createSocket(
-                InetAddress.getByName("127.0.0.2"), c.port);
+        SSLSocket client = (SSLSocket) c.clientContext.getSocketFactory().createSocket();
         SSLParameters p = client.getSSLParameters();
         p.setEndpointIdentificationAlgorithm("HTTPS");
         client.setSSLParameters(p);
-        // client.connect(new InetSocketAddress(c.host, c.port));
+        client.connect(c.getLoopbackAsHostname("unmatched.example.com", c.port));
         final SSLSocket server = (SSLSocket) c.serverSocket.accept();
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Future<Void> future = executor.submit(new Callable<Void>() {
