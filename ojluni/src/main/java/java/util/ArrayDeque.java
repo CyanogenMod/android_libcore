@@ -33,6 +33,9 @@
 
 package java.util;
 
+import java.io.*;
+import java.util.function.Consumer;
+
 // BEGIN android-note
 // removed link to collections framework docs
 // END android-note
@@ -634,6 +637,21 @@ public class ArrayDeque<E> extends AbstractCollection<E>
                 fence = tail;
             }
             lastRet = -1;
+        }
+
+        @Override
+        public void forEachRemaining(Consumer<? super E> action) {
+            Objects.requireNonNull(action);
+            Object[] a = elements;
+            int m = a.length - 1, f = fence, i = cursor;
+            cursor = f;
+            while (i != f) {
+                @SuppressWarnings("unchecked") E e = (E)a[i];
+                i = (i + 1) & m;
+                if (e == null)
+                    throw new ConcurrentModificationException();
+                action.accept(e);
+            }
         }
     }
 

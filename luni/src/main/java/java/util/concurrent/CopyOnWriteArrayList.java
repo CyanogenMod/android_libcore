@@ -29,6 +29,8 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.RandomAccess;
+import java.util.function.Consumer;
+
 import libcore.util.EmptyArray;
 import libcore.util.Objects;
 
@@ -746,6 +748,17 @@ public class CopyOnWriteArrayList<E> implements List<E>, RandomAccess, Cloneable
 
         public void set(E object) {
             throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void forEachRemaining(Consumer<? super E> action) {
+            java.util.Objects.requireNonNull(action);
+            Object[] elements = snapshot;
+            for (int i = index; i < to; i++) {
+                @SuppressWarnings("unchecked") E e = (E) elements[i];
+                action.accept(e);
+            }
+            index = to;
         }
     }
 

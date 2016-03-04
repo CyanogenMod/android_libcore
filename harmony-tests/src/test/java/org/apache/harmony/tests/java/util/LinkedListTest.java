@@ -27,7 +27,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
+import java.util.Vector;
 
+import libcore.java.util.ForEachRemainingTester;
 import org.apache.harmony.testframework.serialization.SerializationTest;
 import org.apache.harmony.testframework.serialization.SerializationTest.SerializableAssert;
 
@@ -935,6 +937,11 @@ public class LinkedListTest extends junit.framework.TestCase {
         assertEquals(testObjOne, testList.pollLast());
         assertEquals(0, testList.size());
         assertNull(testList.peekLast());
+    }
+
+    public void test_forEachRemaining_iterator() throws Exception {
+        ForEachRemainingTester.runTests(LinkedList.class, new String[]{ "foo", "bar", "baz "});
+        ForEachRemainingTester.runTests(LinkedList.class, new String[] { "foo" });
     }
 
     /**
