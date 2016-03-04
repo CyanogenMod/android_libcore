@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2003, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2003, 2013, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -22,11 +22,12 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-
 package java.lang;
 
 import java.util.Iterator;
 import java.util.Objects;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.function.Consumer;
 
 /**
@@ -42,9 +43,8 @@ import java.util.function.Consumer;
  * @jls 14.14.2 The enhanced for statement
  */
 public interface Iterable<T> {
-
     /**
-     * Returns an iterator over a set of elements of type T.
+     * Returns an iterator over elements of type {@code T}.
      *
      * @return an Iterator.
      */
@@ -74,5 +74,30 @@ public interface Iterable<T> {
         for (T t : this) {
             action.accept(t);
         }
+    }
+
+    /**
+     * Creates a {@link Spliterator} over the elements described by this
+     * {@code Iterable}.
+     *
+     * @implSpec
+     * The default implementation creates an
+     * <em><a href="Spliterator.html#binding">early-binding</a></em>
+     * spliterator from the iterable's {@code Iterator}.  The spliterator
+     * inherits the <em>fail-fast</em> properties of the iterable's iterator.
+     *
+     * @implNote
+     * The default implementation should usually be overridden.  The
+     * spliterator returned by the default implementation has poor splitting
+     * capabilities, is unsized, and does not report any spliterator
+     * characteristics. Implementing classes can nearly always provide a
+     * better implementation.
+     *
+     * @return a {@code Spliterator} over the elements described by this
+     * {@code Iterable}.
+     * @since 1.8
+     */
+    default Spliterator<T> spliterator() {
+        return Spliterators.spliteratorUnknownSize(iterator(), 0);
     }
 }

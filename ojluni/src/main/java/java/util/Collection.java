@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2013, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -60,9 +60,9 @@ package java.util;
  * but is not required to, throw the exception if the collection to be added
  * is empty.
  *
- * <p><a name="optional-restrictions"/>
+ * <p><a name="optional-restrictions">
  * Some collection implementations have restrictions on the elements that
- * they may contain.  For example, some implementations prohibit null elements,
+ * they may contain.</a>  For example, some implementations prohibit null elements,
  * and some have restrictions on the types of their elements.  Attempting to
  * add an ineligible element throws an unchecked exception, typically
  * <tt>NullPointerException</tt> or <tt>ClassCastException</tt>.  Attempting
@@ -453,4 +453,60 @@ public interface Collection<E> extends Iterable<E> {
      * @see Object#equals(Object)
      */
     int hashCode();
+
+    // TODO: Restore links to #stream and #parallelStream.
+    /**
+     * Creates a {@link Spliterator} over the elements in this collection.
+     *
+     * Implementations should document characteristic values reported by the
+     * spliterator.  Such characteristic values are not required to be reported
+     * if the spliterator reports {@link Spliterator#SIZED} and this collection
+     * contains no elements.
+     *
+     * <p>The default implementation should be overridden by subclasses that
+     * can return a more efficient spliterator.  In order to
+     * preserve expected laziness behavior for the {@code stream} and
+     * {@code parallelStream()}} methods, spliterators should either have the
+     * characteristic of {@code IMMUTABLE} or {@code CONCURRENT}, or be
+     * <em><a href="Spliterator.html#binding">late-binding</a></em>.
+     * If none of these is practical, the overriding class should describe the
+     * spliterator's documented policy of binding and structural interference,
+     * and should override the {@code stream} and {@code parallelStream}
+     * methods to create streams using a {@code Supplier} of the spliterator,
+     * as in:
+     * <pre>{@code
+     *     Stream<E> s = StreamSupport.stream(() -> spliterator(), spliteratorCharacteristics)
+     * }</pre>
+     * <p>These requirements ensure that streams produced by the
+     * {@code stream} and {@code parallelStream} methods will reflect the
+     * contents of the collection as of initiation of the terminal stream
+     * operation.
+     *
+     * @implSpec
+     * The default implementation creates a
+     * <em><a href="Spliterator.html#binding">late-binding</a></em> spliterator
+     * from the collections's {@code Iterator}.  The spliterator inherits the
+     * <em>fail-fast</em> properties of the collection's iterator.
+     * <p>
+     * The created {@code Spliterator} reports {@link Spliterator#SIZED}.
+     *
+     * @implNote
+     * The created {@code Spliterator} additionally reports
+     * {@link Spliterator#SUBSIZED}.
+     *
+     * <p>If a spliterator covers no elements then the reporting of additional
+     * characteristic values, beyond that of {@code SIZED} and {@code SUBSIZED},
+     * does not aid clients to control, specialize or simplify computation.
+     * However, this does enable shared use of an immutable and empty
+     * spliterator instance (see {@link Spliterators#emptySpliterator()}) for
+     * empty collections, and enables clients to determine if such a spliterator
+     * covers no elements.
+     *
+     * @return a {@code Spliterator} over the elements in this collection
+     * @since 1.8
+     */
+    @Override
+    default Spliterator<E> spliterator() {
+        return Spliterators.spliterator(this, 0);
+    }
 }

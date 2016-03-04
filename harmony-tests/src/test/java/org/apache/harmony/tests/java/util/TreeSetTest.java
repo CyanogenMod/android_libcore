@@ -17,12 +17,18 @@
 
 package org.apache.harmony.tests.java.util;
 
+import libcore.java.util.SpliteratorTester;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.Spliterator;
 import java.util.TreeSet;
 
 public class TreeSetTest extends junit.framework.TestCase {
@@ -319,6 +325,25 @@ public class TreeSetTest extends junit.framework.TestCase {
         s2.add(new Object());
         assertFalse("Sets should not be equal 3", s1.equals(s2));
         assertFalse("Sets should not be equal 4", s2.equals(s1));
+    }
+
+    public void test_spliterator() throws Exception {
+        TreeSet<String> treeSet = new TreeSet<>();
+        List<String> keys = Arrays.asList(
+                "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p");
+        treeSet.addAll(keys);
+
+        ArrayList<String> expectedKeys = new ArrayList<>(keys);
+        SpliteratorTester.runBasicIterationTests_unordered(treeSet.spliterator(), expectedKeys,
+                String::compareTo);
+        SpliteratorTester.runBasicSplitTests(treeSet, expectedKeys);
+        SpliteratorTester.testSpliteratorNPE(treeSet.spliterator());
+
+        assertTrue(treeSet.spliterator().hasCharacteristics(Spliterator.ORDERED));
+        SpliteratorTester.runOrderedTests(keys);
+
+        assertTrue(treeSet.spliterator().hasCharacteristics(Spliterator.DISTINCT));
+        SpliteratorTester.runDistinctTests(keys);
     }
 
     /**

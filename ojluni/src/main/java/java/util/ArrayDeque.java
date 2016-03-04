@@ -890,4 +890,99 @@ public class ArrayDeque<E> extends AbstractCollection<E>
         for (int i = 0; i < size; i++)
             elements[i] = s.readObject();
     }
+
+    /**
+     * Creates a <em><a href="Spliterator.html#binding">late-binding</a></em>
+     * and <em>fail-fast</em> {@link Spliterator} over the elements in this
+     * deque.
+     *
+     * <p>The {@code Spliterator} reports {@link Spliterator#SIZED},
+     * {@link Spliterator#SUBSIZED}, {@link Spliterator#ORDERED}, and
+     * {@link Spliterator#NONNULL}.  Overriding implementations should document
+     * the reporting of additional characteristic values.
+     *
+     * @return a {@code Spliterator} over the elements in this deque
+     * @since 1.8
+     */
+    public Spliterator<E> spliterator() {
+        return new DeqSpliterator<E>(this, -1, -1);
+    }
+
+    static final class DeqSpliterator<E> implements Spliterator<E> {
+        private final ArrayDeque<E> deq;
+        private int fence;  // -1 until first use
+        private int index;  // current index, modified on traverse/split
+
+        /** Creates new spliterator covering the given array and range */
+        DeqSpliterator(ArrayDeque<E> deq, int origin, int fence) {
+            this.deq = deq;
+            this.index = origin;
+            this.fence = fence;
+        }
+
+        private int getFence() { // force initialization
+            int t;
+            if ((t = fence) < 0) {
+                t = fence = deq.tail;
+                index = deq.head;
+            }
+            return t;
+        }
+
+        public DeqSpliterator<E> trySplit() {
+            int t = getFence(), h = index, n = deq.elements.length;
+            if (h != t && ((h + 1) & (n - 1)) != t) {
+                if (h > t)
+                    t += n;
+                int m = ((h + t) >>> 1) & (n - 1);
+                return new DeqSpliterator<>(deq, h, index = m);
+            }
+            return null;
+        }
+
+        public void forEachRemaining(Consumer<? super E> consumer) {
+            if (consumer == null)
+                throw new NullPointerException();
+            Object[] a = deq.elements;
+            int m = a.length - 1, f = getFence(), i = index;
+            index = f;
+            while (i != f) {
+                @SuppressWarnings("unchecked") E e = (E)a[i];
+                i = (i + 1) & m;
+                if (e == null)
+                    throw new ConcurrentModificationException();
+                consumer.accept(e);
+            }
+        }
+
+        public boolean tryAdvance(Consumer<? super E> consumer) {
+            if (consumer == null)
+                throw new NullPointerException();
+            Object[] a = deq.elements;
+            int m = a.length - 1, f = getFence(), i = index;
+            if (i != fence) {
+                @SuppressWarnings("unchecked") E e = (E)a[i];
+                index = (i + 1) & m;
+                if (e == null)
+                    throw new ConcurrentModificationException();
+                consumer.accept(e);
+                return true;
+            }
+            return false;
+        }
+
+        public long estimateSize() {
+            int n = getFence() - index;
+            if (n < 0)
+                n += deq.elements.length;
+            return (long) n;
+        }
+
+        @Override
+        public int characteristics() {
+            return Spliterator.ORDERED | Spliterator.SIZED |
+                Spliterator.NONNULL | Spliterator.SUBSIZED;
+        }
+    }
+
 }
