@@ -894,8 +894,19 @@ public class ArrayDequeTest extends TestCase {
     }
 
     public void test_forEachRemaining_iterator() throws Exception {
-        ForEachRemainingTester.runTests(ArrayDeque.class, new String[]{ "foo", "bar", "baz "});
-        ForEachRemainingTester.runTests(ArrayDeque.class, new String[] { "foo" });
+        ForEachRemainingTester.test_forEachRemaining(new ArrayDeque<>(),
+                new String[]{ "foo", "bar", "baz "});
+        ForEachRemainingTester.test_forEachRemaining_NPE(new ArrayDeque<>(),
+                new String[]{"foo", "bar", "baz "});
+    }
+
+    public void test_forEachRemaining_CME() throws Exception {
+        ArrayDeque<String> adq = new ArrayDeque<>();
+        adq.add("foo");
+
+        // The ArrayDeque forEachRemaining implementation doesn't use a precise check
+        // for concurrent modifications.
+        adq.iterator().forEachRemaining(s -> adq.add(s));
     }
 
     /**
