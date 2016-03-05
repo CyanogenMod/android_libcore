@@ -69,7 +69,8 @@ public class ForEachRemainingTester {
 
         ArrayList<T> recorder = new ArrayList<>();
         collection.iterator().forEachRemaining((T i) -> recorder.add(i));
-        assertEquals(collection, recorder);
+        // Note that the collection may not override equals and hashCode.
+        assertEquals(new ArrayList<T>(collection), recorder);
 
         recorder.clear();
         Iterator<T> it = collection.iterator();
