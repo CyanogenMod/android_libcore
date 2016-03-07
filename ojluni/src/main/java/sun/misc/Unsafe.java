@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2009, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2013, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -393,4 +393,151 @@ public final class Unsafe {
             long dstAddr, long bytes);
 
     public native void copyMemory(long srcAddr, long dstAddr, long bytes);
+
+
+    // The following contain CAS-based Java implementations used on
+    // platforms not supporting native instructions
+
+    /**
+     * Atomically adds the given value to the current value of a field
+     * or array element within the given object {@code o}
+     * at the given {@code offset}.
+     *
+     * @param o object/array to update the field/element in
+     * @param offset field/element offset
+     * @param delta the value to add
+     * @return the previous value
+     * @since 1.8
+     */
+    // @HotSpotIntrinsicCandidate
+    public final int getAndAddInt(Object o, long offset, int delta) {
+        int v;
+        do {
+            v = getIntVolatile(o, offset);
+        } while (!compareAndSwapInt(o, offset, v, v + delta));
+        return v;
+    }
+
+    /**
+     * Atomically adds the given value to the current value of a field
+     * or array element within the given object {@code o}
+     * at the given {@code offset}.
+     *
+     * @param o object/array to update the field/element in
+     * @param offset field/element offset
+     * @param delta the value to add
+     * @return the previous value
+     * @since 1.8
+     */
+    // @HotSpotIntrinsicCandidate
+    public final long getAndAddLong(Object o, long offset, long delta) {
+        long v;
+        do {
+            v = getLongVolatile(o, offset);
+        } while (!compareAndSwapLong(o, offset, v, v + delta));
+        return v;
+    }
+
+    /**
+     * Atomically exchanges the given value with the current value of
+     * a field or array element within the given object {@code o}
+     * at the given {@code offset}.
+     *
+     * @param o object/array to update the field/element in
+     * @param offset field/element offset
+     * @param newValue new value
+     * @return the previous value
+     * @since 1.8
+     */
+    // @HotSpotIntrinsicCandidate
+    public final int getAndSetInt(Object o, long offset, int newValue) {
+        int v;
+        do {
+            v = getIntVolatile(o, offset);
+        } while (!compareAndSwapInt(o, offset, v, newValue));
+        return v;
+    }
+
+    /**
+     * Atomically exchanges the given value with the current value of
+     * a field or array element within the given object {@code o}
+     * at the given {@code offset}.
+     *
+     * @param o object/array to update the field/element in
+     * @param offset field/element offset
+     * @param newValue new value
+     * @return the previous value
+     * @since 1.8
+     */
+    // @HotSpotIntrinsicCandidate
+    public final long getAndSetLong(Object o, long offset, long newValue) {
+        long v;
+        do {
+            v = getLongVolatile(o, offset);
+        } while (!compareAndSwapLong(o, offset, v, newValue));
+        return v;
+    }
+
+    /**
+     * Atomically exchanges the given reference value with the current
+     * reference value of a field or array element within the given
+     * object {@code o} at the given {@code offset}.
+     *
+     * @param o object/array to update the field/element in
+     * @param offset field/element offset
+     * @param newValue new value
+     * @return the previous value
+     * @since 1.8
+     */
+    // @HotSpotIntrinsicCandidate
+    public final Object getAndSetObject(Object o, long offset, Object newValue) {
+        Object v;
+        do {
+            v = getObjectVolatile(o, offset);
+        } while (!compareAndSwapObject(o, offset, v, newValue));
+        return v;
+    }
+
+
+    /**
+     * Ensures that loads before the fence will not be reordered with loads and
+     * stores after the fence; a "LoadLoad plus LoadStore barrier".
+     *
+     * Corresponds to C11 atomic_thread_fence(memory_order_acquire)
+     * (an "acquire fence").
+     *
+     * A pure LoadLoad fence is not provided, since the addition of LoadStore
+     * is almost always desired, and most current hardware instructions that
+     * provide a LoadLoad barrier also provide a LoadStore barrier for free.
+     * @since 1.8
+     */
+    // @HotSpotIntrinsicCandidate
+    public native void loadFence();
+
+    /**
+     * Ensures that loads and stores before the fence will not be reordered with
+     * stores after the fence; a "StoreStore plus LoadStore barrier".
+     *
+     * Corresponds to C11 atomic_thread_fence(memory_order_release)
+     * (a "release fence").
+     *
+     * A pure StoreStore fence is not provided, since the addition of LoadStore
+     * is almost always desired, and most current hardware instructions that
+     * provide a StoreStore barrier also provide a LoadStore barrier for free.
+     * @since 1.8
+     */
+    // @HotSpotIntrinsicCandidate
+    public native void storeFence();
+
+    /**
+     * Ensures that loads and stores before the fence will not be reordered
+     * with loads and stores after the fence.  Implies the effects of both
+     * loadFence() and storeFence(), and in addition, the effect of a StoreLoad
+     * barrier.
+     *
+     * Corresponds to C11 atomic_thread_fence(memory_order_seq_cst).
+     * @since 1.8
+     */
+    // @HotSpotIntrinsicCandidate
+    public native void fullFence();
 }
