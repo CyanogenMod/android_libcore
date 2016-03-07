@@ -197,7 +197,7 @@ LOCAL_CPPFLAGS += $(core_cppflags)
 LOCAL_SRC_FILES += \
   luni/src/benchmark/native/libcore_io_Memory_bench.cpp \
 
-LOCAL_C_INCLUDES += libcore/include bionic/benchmarks
+LOCAL_C_INCLUDES += libcore/include
 LOCAL_MODULE_TAGS := debug
 LOCAL_MODULE := libjavacore-benchmarks
 LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/NativeCode.mk

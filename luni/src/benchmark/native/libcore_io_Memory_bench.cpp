@@ -17,11 +17,12 @@
 // The functions we want to benchmark are static, so include the source code.
 #include "luni/src/main/native/libcore_io_Memory.cpp"
 
-#include <benchmark/Benchmark.h>
+#include <benchmark/benchmark.h>
 
 template<typename T, size_t ALIGN>
-void swap_bench(testing::Benchmark* bench, void (*swap_func)(T*, const T*, size_t),
-                int iters, size_t num_elements) {
+void swap_bench(benchmark::State& state, void (*swap_func)(T*, const T*, size_t)) {
+  size_t num_elements = state.range_x();
+
   T* src;
   T* dst;
   T* src_elems;
@@ -44,13 +45,9 @@ void swap_bench(testing::Benchmark* bench, void (*swap_func)(T*, const T*, size_
   memset(dst, 0, sizeof(T) * num_elements);
   memset(src, 0x12, sizeof(T) * num_elements);
 
-  bench->StartBenchmarkTiming();
-
-  for (int i = 0; i < iters; i++) {
+  while (state.KeepRunning()) {
     swap_func(src, dst, num_elements);
   }
-
-  bench->StopBenchmarkTiming();
 
   delete[] src_elems;
   delete[] dst_elems;
@@ -59,47 +56,56 @@ void swap_bench(testing::Benchmark* bench, void (*swap_func)(T*, const T*, size_
 #define AT_COMMON_VALUES \
     Arg(10)->Arg(100)->Arg(1000)->Arg(1024*10)->Arg(1024*100)
 
-BENCHMARK_WITH_ARG(BM_libcore_swapShorts_aligned, int)->AT_COMMON_VALUES;
-void BM_libcore_swapShorts_aligned::Run(int iters, int num_shorts) {
-  swap_bench<jshort, 0>(this, swapShorts, iters, num_shorts);
-}
+// Aligned.
 
-BENCHMARK_WITH_ARG(BM_libcore_swapInts_aligned, int)->AT_COMMON_VALUES;
-void BM_libcore_swapInts_aligned::Run(int iters, int num_ints) {
-  swap_bench<jint, 0>(this, swapInts, iters, num_ints);
+static void BM_swapShorts_aligned(benchmark::State& state) {
+  swap_bench<jshort, 0>(state, swapShorts);
 }
+BENCHMARK(BM_swapShorts_aligned)->AT_COMMON_VALUES;
 
-BENCHMARK_WITH_ARG(BM_libcore_swapLongs_aligned, int)->AT_COMMON_VALUES;
-void BM_libcore_swapLongs_aligned::Run(int iters, int num_longs) {
-  swap_bench<jlong, 0>(this, swapLongs, iters, num_longs);
+static void BM_swapInts_aligned(benchmark::State& state) {
+  swap_bench<jint, 0>(state, swapInts);
 }
+BENCHMARK(BM_swapInts_aligned)->AT_COMMON_VALUES;
 
-BENCHMARK_WITH_ARG(BM_libcore_swapShorts_unaligned1, int)->AT_COMMON_VALUES;
-void BM_libcore_swapShorts_unaligned1::Run(int iters, int num_shorts) {
-  swap_bench<jshort, 1>(this, swapShorts, iters, num_shorts);
+static void BM_swapLongs_aligned(benchmark::State& state) {
+  swap_bench<jlong, 0>(state, swapLongs);
 }
+BENCHMARK(BM_swapLongs_aligned)->AT_COMMON_VALUES;
 
-BENCHMARK_WITH_ARG(BM_libcore_swapInts_unaligned1, int)->AT_COMMON_VALUES;
-void BM_libcore_swapInts_unaligned1::Run(int iters, int num_ints) {
-  swap_bench<jint, 1>(this, swapInts, iters, num_ints);
-}
+// Unaligned 1.
 
-BENCHMARK_WITH_ARG(BM_libcore_swapLongs_unaligned1, int)->AT_COMMON_VALUES;
-void BM_libcore_swapLongs_unaligned1::Run(int iters, int num_longs) {
-  swap_bench<jlong, 1>(this, swapLongs, iters, num_longs);
+static void BM_swapShorts_unaligned_1(benchmark::State& state) {
+  swap_bench<jshort, 1>(state, swapShorts);
 }
+BENCHMARK(BM_swapShorts_unaligned_1)->AT_COMMON_VALUES;
 
-BENCHMARK_WITH_ARG(BM_libcore_swapShorts_unaligned2, int)->AT_COMMON_VALUES;
-void BM_libcore_swapShorts_unaligned2::Run(int iters, int num_shorts) {
-  swap_bench<jshort, 2>(this, swapShorts, iters, num_shorts);
+static void BM_swapInts_unaligned_1(benchmark::State& state) {
+  swap_bench<jint, 1>(state, swapInts);
 }
+BENCHMARK(BM_swapInts_unaligned_1)->AT_COMMON_VALUES;
 
-BENCHMARK_WITH_ARG(BM_libcore_swapInts_unaligned2, int)->AT_COMMON_VALUES;
-void BM_libcore_swapInts_unaligned2::Run(int iters, int num_ints) {
-  swap_bench<jint, 2>(this, swapInts, iters, num_ints);
+static void BM_swapLongs_unaligned_1(benchmark::State& state) {
+  swap_bench<jlong, 1>(state, swapLongs);
 }
+BENCHMARK(BM_swapLongs_unaligned_1)->AT_COMMON_VALUES;
 
-BENCHMARK_WITH_ARG(BM_libcore_swapLongs_unaligned2, int)->AT_COMMON_VALUES;
-void BM_libcore_swapLongs_unaligned2::Run(int iters, int num_longs) {
-  swap_bench<jlong, 2>(this, swapLongs, iters, num_longs);
+// Unaligned 2.
+
+static void BM_swapShorts_unaligned_2(benchmark::State& state) {
+  swap_bench<jshort, 2>(state, swapShorts);
 }
+BENCHMARK(BM_swapShorts_unaligned_2)->AT_COMMON_VALUES;
+
+static void BM_swapInts_unaligned_2(benchmark::State& state) {
+  swap_bench<jint, 2>(state, swapInts);
+}
+BENCHMARK(BM_swapInts_unaligned_2)->AT_COMMON_VALUES;
+
+static void BM_swapLongs_unaligned_2(benchmark::State& state) {
+  swap_bench<jlong, 2>(state, swapLongs);
+}
+BENCHMARK(BM_swapLongs_unaligned_2)->AT_COMMON_VALUES;
+
+
+BENCHMARK_MAIN();
