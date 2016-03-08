@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2011, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -31,11 +31,6 @@ package java.util;
  * offers O(n log(n)) performance on many data sets that cause other
  * quicksorts to degrade to quadratic performance, and is typically
  * faster than traditional (one-pivot) Quicksort implementations.
- *
- * All exposed methods are package-private, designed to be invoked
- * from public methods (in class Arrays) after performing any
- * necessary array bounds checks and expanding parameters into the
- * required forms.
  *
  * @author Vladimir Yaroslavskiy
  * @author Jon Bentley
@@ -94,18 +89,22 @@ final class DualPivotQuicksort {
      */
 
     /**
-     * Sorts the specified range of the array using the given
-     * workspace array slice if possible for merging
+     * Sorts the specified array.
+     *
+     * @param a the array to be sorted
+     */
+    public static void sort(int[] a) {
+        sort(a, 0, a.length - 1);
+    }
+
+    /**
+     * Sorts the specified range of the array.
      *
      * @param a the array to be sorted
      * @param left the index of the first element, inclusive, to be sorted
      * @param right the index of the last element, inclusive, to be sorted
-     * @param work a workspace array (slice)
-     * @param workBase origin of usable space in work array
-     * @param workLen usable size of work array
      */
-    static void sort(int[] a, int left, int right,
-                     int[] work, int workBase, int workLen) {
+    public static void sort(int[] a, int left, int right) {
         // Use Quicksort on small arrays
         if (right - left < QUICKSORT_THRESHOLD) {
             sort(a, left, right, true);
@@ -148,35 +147,24 @@ final class DualPivotQuicksort {
         }
 
         // Check special cases
-        // Implementation note: variable "right" is increased by 1.
         if (run[count] == right++) { // The last run contains one element
             run[++count] = right;
         } else if (count == 1) { // The array is already sorted
             return;
         }
 
-        // Determine alternation base for merge
-        byte odd = 0;
+        /*
+         * Create temporary array, which is used for merging.
+         * Implementation note: variable "right" is increased by 1.
+         */
+        int[] b; byte odd = 0;
         for (int n = 1; (n <<= 1) < count; odd ^= 1);
 
-        // Use or create temporary array b for merging
-        int[] b;                 // temp array; alternates with a
-        int ao, bo;              // array offsets from 'left'
-        int blen = right - left; // space needed for b
-        if (work == null || workLen < blen || workBase + blen > work.length) {
-            work = new int[blen];
-            workBase = 0;
-        }
         if (odd == 0) {
-            System.arraycopy(a, left, work, workBase, blen);
-            b = a;
-            bo = 0;
-            a = work;
-            ao = workBase - left;
+            b = a; a = new int[b.length];
+            for (int i = left - 1; ++i < right; a[i] = b[i]);
         } else {
-            b = work;
-            ao = 0;
-            bo = workBase - left;
+            b = new int[a.length];
         }
 
         // Merging
@@ -184,22 +172,21 @@ final class DualPivotQuicksort {
             for (int k = (last = 0) + 2; k <= count; k += 2) {
                 int hi = run[k], mi = run[k - 1];
                 for (int i = run[k - 2], p = i, q = mi; i < hi; ++i) {
-                    if (q >= hi || p < mi && a[p + ao] <= a[q + ao]) {
-                        b[i + bo] = a[p++ + ao];
+                    if (q >= hi || p < mi && a[p] <= a[q]) {
+                        b[i] = a[p++];
                     } else {
-                        b[i + bo] = a[q++ + ao];
+                        b[i] = a[q++];
                     }
                 }
                 run[++last] = hi;
             }
             if ((count & 1) != 0) {
                 for (int i = right, lo = run[count - 1]; --i >= lo;
-                    b[i + bo] = a[i + ao]
+                    b[i] = a[i]
                 );
                 run[++last] = right;
             }
             int[] t = a; a = b; b = t;
-            int o = ao; ao = bo; bo = o;
         }
     }
 
@@ -542,18 +529,22 @@ final class DualPivotQuicksort {
     }
 
     /**
-     * Sorts the specified range of the array using the given
-     * workspace array slice if possible for merging
+     * Sorts the specified array.
+     *
+     * @param a the array to be sorted
+     */
+    public static void sort(long[] a) {
+        sort(a, 0, a.length - 1);
+    }
+
+    /**
+     * Sorts the specified range of the array.
      *
      * @param a the array to be sorted
      * @param left the index of the first element, inclusive, to be sorted
      * @param right the index of the last element, inclusive, to be sorted
-     * @param work a workspace array (slice)
-     * @param workBase origin of usable space in work array
-     * @param workLen usable size of work array
      */
-    static void sort(long[] a, int left, int right,
-                     long[] work, int workBase, int workLen) {
+    public static void sort(long[] a, int left, int right) {
         // Use Quicksort on small arrays
         if (right - left < QUICKSORT_THRESHOLD) {
             sort(a, left, right, true);
@@ -596,35 +587,24 @@ final class DualPivotQuicksort {
         }
 
         // Check special cases
-        // Implementation note: variable "right" is increased by 1.
         if (run[count] == right++) { // The last run contains one element
             run[++count] = right;
         } else if (count == 1) { // The array is already sorted
             return;
         }
 
-        // Determine alternation base for merge
-        byte odd = 0;
+        /*
+         * Create temporary array, which is used for merging.
+         * Implementation note: variable "right" is increased by 1.
+         */
+        long[] b; byte odd = 0;
         for (int n = 1; (n <<= 1) < count; odd ^= 1);
 
-        // Use or create temporary array b for merging
-        long[] b;                 // temp array; alternates with a
-        int ao, bo;              // array offsets from 'left'
-        int blen = right - left; // space needed for b
-        if (work == null || workLen < blen || workBase + blen > work.length) {
-            work = new long[blen];
-            workBase = 0;
-        }
         if (odd == 0) {
-            System.arraycopy(a, left, work, workBase, blen);
-            b = a;
-            bo = 0;
-            a = work;
-            ao = workBase - left;
+            b = a; a = new long[b.length];
+            for (int i = left - 1; ++i < right; a[i] = b[i]);
         } else {
-            b = work;
-            ao = 0;
-            bo = workBase - left;
+            b = new long[a.length];
         }
 
         // Merging
@@ -632,22 +612,21 @@ final class DualPivotQuicksort {
             for (int k = (last = 0) + 2; k <= count; k += 2) {
                 int hi = run[k], mi = run[k - 1];
                 for (int i = run[k - 2], p = i, q = mi; i < hi; ++i) {
-                    if (q >= hi || p < mi && a[p + ao] <= a[q + ao]) {
-                        b[i + bo] = a[p++ + ao];
+                    if (q >= hi || p < mi && a[p] <= a[q]) {
+                        b[i] = a[p++];
                     } else {
-                        b[i + bo] = a[q++ + ao];
+                        b[i] = a[q++];
                     }
                 }
                 run[++last] = hi;
             }
             if ((count & 1) != 0) {
                 for (int i = right, lo = run[count - 1]; --i >= lo;
-                    b[i + bo] = a[i + ao]
+                    b[i] = a[i]
                 );
                 run[++last] = right;
             }
             long[] t = a; a = b; b = t;
-            int o = ao; ao = bo; bo = o;
         }
     }
 
@@ -990,18 +969,22 @@ final class DualPivotQuicksort {
     }
 
     /**
-     * Sorts the specified range of the array using the given
-     * workspace array slice if possible for merging
+     * Sorts the specified array.
+     *
+     * @param a the array to be sorted
+     */
+    public static void sort(short[] a) {
+        sort(a, 0, a.length - 1);
+    }
+
+    /**
+     * Sorts the specified range of the array.
      *
      * @param a the array to be sorted
      * @param left the index of the first element, inclusive, to be sorted
      * @param right the index of the last element, inclusive, to be sorted
-     * @param work a workspace array (slice)
-     * @param workBase origin of usable space in work array
-     * @param workLen usable size of work array
      */
-    static void sort(short[] a, int left, int right,
-                     short[] work, int workBase, int workLen) {
+    public static void sort(short[] a, int left, int right) {
         // Use counting sort on large arrays
         if (right - left > COUNTING_SORT_THRESHOLD_FOR_SHORT_OR_CHAR) {
             int[] count = new int[NUM_SHORT_VALUES];
@@ -1019,7 +1002,7 @@ final class DualPivotQuicksort {
                 } while (--s > 0);
             }
         } else { // Use Dual-Pivot Quicksort on small arrays
-            doSort(a, left, right, work, workBase, workLen);
+            doSort(a, left, right);
         }
     }
 
@@ -1032,12 +1015,8 @@ final class DualPivotQuicksort {
      * @param a the array to be sorted
      * @param left the index of the first element, inclusive, to be sorted
      * @param right the index of the last element, inclusive, to be sorted
-     * @param work a workspace array (slice)
-     * @param workBase origin of usable space in work array
-     * @param workLen usable size of work array
      */
-    private static void doSort(short[] a, int left, int right,
-                               short[] work, int workBase, int workLen) {
+    private static void doSort(short[] a, int left, int right) {
         // Use Quicksort on small arrays
         if (right - left < QUICKSORT_THRESHOLD) {
             sort(a, left, right, true);
@@ -1080,35 +1059,24 @@ final class DualPivotQuicksort {
         }
 
         // Check special cases
-        // Implementation note: variable "right" is increased by 1.
         if (run[count] == right++) { // The last run contains one element
             run[++count] = right;
         } else if (count == 1) { // The array is already sorted
             return;
         }
 
-        // Determine alternation base for merge
-        byte odd = 0;
+        /*
+         * Create temporary array, which is used for merging.
+         * Implementation note: variable "right" is increased by 1.
+         */
+        short[] b; byte odd = 0;
         for (int n = 1; (n <<= 1) < count; odd ^= 1);
 
-        // Use or create temporary array b for merging
-        short[] b;                 // temp array; alternates with a
-        int ao, bo;              // array offsets from 'left'
-        int blen = right - left; // space needed for b
-        if (work == null || workLen < blen || workBase + blen > work.length) {
-            work = new short[blen];
-            workBase = 0;
-        }
         if (odd == 0) {
-            System.arraycopy(a, left, work, workBase, blen);
-            b = a;
-            bo = 0;
-            a = work;
-            ao = workBase - left;
+            b = a; a = new short[b.length];
+            for (int i = left - 1; ++i < right; a[i] = b[i]);
         } else {
-            b = work;
-            ao = 0;
-            bo = workBase - left;
+            b = new short[a.length];
         }
 
         // Merging
@@ -1116,22 +1084,21 @@ final class DualPivotQuicksort {
             for (int k = (last = 0) + 2; k <= count; k += 2) {
                 int hi = run[k], mi = run[k - 1];
                 for (int i = run[k - 2], p = i, q = mi; i < hi; ++i) {
-                    if (q >= hi || p < mi && a[p + ao] <= a[q + ao]) {
-                        b[i + bo] = a[p++ + ao];
+                    if (q >= hi || p < mi && a[p] <= a[q]) {
+                        b[i] = a[p++];
                     } else {
-                        b[i + bo] = a[q++ + ao];
+                        b[i] = a[q++];
                     }
                 }
                 run[++last] = hi;
             }
             if ((count & 1) != 0) {
                 for (int i = right, lo = run[count - 1]; --i >= lo;
-                    b[i + bo] = a[i + ao]
+                    b[i] = a[i]
                 );
                 run[++last] = right;
             }
             short[] t = a; a = b; b = t;
-            int o = ao; ao = bo; bo = o;
         }
     }
 
@@ -1474,18 +1441,22 @@ final class DualPivotQuicksort {
     }
 
     /**
-     * Sorts the specified range of the array using the given
-     * workspace array slice if possible for merging
+     * Sorts the specified array.
+     *
+     * @param a the array to be sorted
+     */
+    public static void sort(char[] a) {
+        sort(a, 0, a.length - 1);
+    }
+
+    /**
+     * Sorts the specified range of the array.
      *
      * @param a the array to be sorted
      * @param left the index of the first element, inclusive, to be sorted
      * @param right the index of the last element, inclusive, to be sorted
-     * @param work a workspace array (slice)
-     * @param workBase origin of usable space in work array
-     * @param workLen usable size of work array
      */
-    static void sort(char[] a, int left, int right,
-                     char[] work, int workBase, int workLen) {
+    public static void sort(char[] a, int left, int right) {
         // Use counting sort on large arrays
         if (right - left > COUNTING_SORT_THRESHOLD_FOR_SHORT_OR_CHAR) {
             int[] count = new int[NUM_CHAR_VALUES];
@@ -1503,7 +1474,7 @@ final class DualPivotQuicksort {
                 } while (--s > 0);
             }
         } else { // Use Dual-Pivot Quicksort on small arrays
-            doSort(a, left, right, work, workBase, workLen);
+            doSort(a, left, right);
         }
     }
 
@@ -1516,12 +1487,8 @@ final class DualPivotQuicksort {
      * @param a the array to be sorted
      * @param left the index of the first element, inclusive, to be sorted
      * @param right the index of the last element, inclusive, to be sorted
-     * @param work a workspace array (slice)
-     * @param workBase origin of usable space in work array
-     * @param workLen usable size of work array
      */
-    private static void doSort(char[] a, int left, int right,
-                               char[] work, int workBase, int workLen) {
+    private static void doSort(char[] a, int left, int right) {
         // Use Quicksort on small arrays
         if (right - left < QUICKSORT_THRESHOLD) {
             sort(a, left, right, true);
@@ -1564,35 +1531,24 @@ final class DualPivotQuicksort {
         }
 
         // Check special cases
-        // Implementation note: variable "right" is increased by 1.
         if (run[count] == right++) { // The last run contains one element
             run[++count] = right;
         } else if (count == 1) { // The array is already sorted
             return;
         }
 
-        // Determine alternation base for merge
-        byte odd = 0;
+        /*
+         * Create temporary array, which is used for merging.
+         * Implementation note: variable "right" is increased by 1.
+         */
+        char[] b; byte odd = 0;
         for (int n = 1; (n <<= 1) < count; odd ^= 1);
 
-        // Use or create temporary array b for merging
-        char[] b;                 // temp array; alternates with a
-        int ao, bo;              // array offsets from 'left'
-        int blen = right - left; // space needed for b
-        if (work == null || workLen < blen || workBase + blen > work.length) {
-            work = new char[blen];
-            workBase = 0;
-        }
         if (odd == 0) {
-            System.arraycopy(a, left, work, workBase, blen);
-            b = a;
-            bo = 0;
-            a = work;
-            ao = workBase - left;
+            b = a; a = new char[b.length];
+            for (int i = left - 1; ++i < right; a[i] = b[i]);
         } else {
-            b = work;
-            ao = 0;
-            bo = workBase - left;
+            b = new char[a.length];
         }
 
         // Merging
@@ -1600,22 +1556,21 @@ final class DualPivotQuicksort {
             for (int k = (last = 0) + 2; k <= count; k += 2) {
                 int hi = run[k], mi = run[k - 1];
                 for (int i = run[k - 2], p = i, q = mi; i < hi; ++i) {
-                    if (q >= hi || p < mi && a[p + ao] <= a[q + ao]) {
-                        b[i + bo] = a[p++ + ao];
+                    if (q >= hi || p < mi && a[p] <= a[q]) {
+                        b[i] = a[p++];
                     } else {
-                        b[i + bo] = a[q++ + ao];
+                        b[i] = a[q++];
                     }
                 }
                 run[++last] = hi;
             }
             if ((count & 1) != 0) {
                 for (int i = right, lo = run[count - 1]; --i >= lo;
-                    b[i + bo] = a[i + ao]
+                    b[i] = a[i]
                 );
                 run[++last] = right;
             }
             char[] t = a; a = b; b = t;
-            int o = ao; ao = bo; bo = o;
         }
     }
 
@@ -1961,13 +1916,22 @@ final class DualPivotQuicksort {
     private static final int NUM_BYTE_VALUES = 1 << 8;
 
     /**
+     * Sorts the specified array.
+     *
+     * @param a the array to be sorted
+     */
+    public static void sort(byte[] a) {
+        sort(a, 0, a.length - 1);
+    }
+
+    /**
      * Sorts the specified range of the array.
      *
      * @param a the array to be sorted
      * @param left the index of the first element, inclusive, to be sorted
      * @param right the index of the last element, inclusive, to be sorted
      */
-    static void sort(byte[] a, int left, int right) {
+    public static void sort(byte[] a, int left, int right) {
         // Use counting sort on large arrays
         if (right - left > COUNTING_SORT_THRESHOLD_FOR_BYTE) {
             int[] count = new int[NUM_BYTE_VALUES];
@@ -1999,18 +1963,22 @@ final class DualPivotQuicksort {
     }
 
     /**
-     * Sorts the specified range of the array using the given
-     * workspace array slice if possible for merging
+     * Sorts the specified array.
+     *
+     * @param a the array to be sorted
+     */
+    public static void sort(float[] a) {
+        sort(a, 0, a.length - 1);
+    }
+
+    /**
+     * Sorts the specified range of the array.
      *
      * @param a the array to be sorted
      * @param left the index of the first element, inclusive, to be sorted
      * @param right the index of the last element, inclusive, to be sorted
-     * @param work a workspace array (slice)
-     * @param workBase origin of usable space in work array
-     * @param workLen usable size of work array
      */
-    static void sort(float[] a, int left, int right,
-                     float[] work, int workBase, int workLen) {
+    public static void sort(float[] a, int left, int right) {
         /*
          * Phase 1: Move NaNs to the end of the array.
          */
@@ -2029,7 +1997,7 @@ final class DualPivotQuicksort {
         /*
          * Phase 2: Sort everything except NaNs (which are already in place).
          */
-        doSort(a, left, right, work, workBase, workLen);
+        doSort(a, left, right);
 
         /*
          * Phase 3: Place negative zeros before positive zeros.
@@ -2096,12 +2064,8 @@ final class DualPivotQuicksort {
      * @param a the array to be sorted
      * @param left the index of the first element, inclusive, to be sorted
      * @param right the index of the last element, inclusive, to be sorted
-     * @param work a workspace array (slice)
-     * @param workBase origin of usable space in work array
-     * @param workLen usable size of work array
      */
-    private static void doSort(float[] a, int left, int right,
-                               float[] work, int workBase, int workLen) {
+    private static void doSort(float[] a, int left, int right) {
         // Use Quicksort on small arrays
         if (right - left < QUICKSORT_THRESHOLD) {
             sort(a, left, right, true);
@@ -2144,35 +2108,24 @@ final class DualPivotQuicksort {
         }
 
         // Check special cases
-        // Implementation note: variable "right" is increased by 1.
         if (run[count] == right++) { // The last run contains one element
             run[++count] = right;
         } else if (count == 1) { // The array is already sorted
             return;
         }
 
-        // Determine alternation base for merge
-        byte odd = 0;
+        /*
+         * Create temporary array, which is used for merging.
+         * Implementation note: variable "right" is increased by 1.
+         */
+        float[] b; byte odd = 0;
         for (int n = 1; (n <<= 1) < count; odd ^= 1);
 
-        // Use or create temporary array b for merging
-        float[] b;                 // temp array; alternates with a
-        int ao, bo;              // array offsets from 'left'
-        int blen = right - left; // space needed for b
-        if (work == null || workLen < blen || workBase + blen > work.length) {
-            work = new float[blen];
-            workBase = 0;
-        }
         if (odd == 0) {
-            System.arraycopy(a, left, work, workBase, blen);
-            b = a;
-            bo = 0;
-            a = work;
-            ao = workBase - left;
+            b = a; a = new float[b.length];
+            for (int i = left - 1; ++i < right; a[i] = b[i]);
         } else {
-            b = work;
-            ao = 0;
-            bo = workBase - left;
+            b = new float[a.length];
         }
 
         // Merging
@@ -2180,22 +2133,21 @@ final class DualPivotQuicksort {
             for (int k = (last = 0) + 2; k <= count; k += 2) {
                 int hi = run[k], mi = run[k - 1];
                 for (int i = run[k - 2], p = i, q = mi; i < hi; ++i) {
-                    if (q >= hi || p < mi && a[p + ao] <= a[q + ao]) {
-                        b[i + bo] = a[p++ + ao];
+                    if (q >= hi || p < mi && a[p] <= a[q]) {
+                        b[i] = a[p++];
                     } else {
-                        b[i + bo] = a[q++ + ao];
+                        b[i] = a[q++];
                     }
                 }
                 run[++last] = hi;
             }
             if ((count & 1) != 0) {
                 for (int i = right, lo = run[count - 1]; --i >= lo;
-                    b[i + bo] = a[i + ao]
+                    b[i] = a[i]
                 );
                 run[++last] = right;
             }
             float[] t = a; a = b; b = t;
-            int o = ao; ao = bo; bo = o;
         }
     }
 
@@ -2538,18 +2490,22 @@ final class DualPivotQuicksort {
     }
 
     /**
-     * Sorts the specified range of the array using the given
-     * workspace array slice if possible for merging
+     * Sorts the specified array.
+     *
+     * @param a the array to be sorted
+     */
+    public static void sort(double[] a) {
+        sort(a, 0, a.length - 1);
+    }
+
+    /**
+     * Sorts the specified range of the array.
      *
      * @param a the array to be sorted
      * @param left the index of the first element, inclusive, to be sorted
      * @param right the index of the last element, inclusive, to be sorted
-     * @param work a workspace array (slice)
-     * @param workBase origin of usable space in work array
-     * @param workLen usable size of work array
      */
-    static void sort(double[] a, int left, int right,
-                     double[] work, int workBase, int workLen) {
+    public static void sort(double[] a, int left, int right) {
         /*
          * Phase 1: Move NaNs to the end of the array.
          */
@@ -2568,7 +2524,7 @@ final class DualPivotQuicksort {
         /*
          * Phase 2: Sort everything except NaNs (which are already in place).
          */
-        doSort(a, left, right, work, workBase, workLen);
+        doSort(a, left, right);
 
         /*
          * Phase 3: Place negative zeros before positive zeros.
@@ -2635,12 +2591,8 @@ final class DualPivotQuicksort {
      * @param a the array to be sorted
      * @param left the index of the first element, inclusive, to be sorted
      * @param right the index of the last element, inclusive, to be sorted
-     * @param work a workspace array (slice)
-     * @param workBase origin of usable space in work array
-     * @param workLen usable size of work array
      */
-    private static void doSort(double[] a, int left, int right,
-                               double[] work, int workBase, int workLen) {
+    private static void doSort(double[] a, int left, int right) {
         // Use Quicksort on small arrays
         if (right - left < QUICKSORT_THRESHOLD) {
             sort(a, left, right, true);
@@ -2683,35 +2635,24 @@ final class DualPivotQuicksort {
         }
 
         // Check special cases
-        // Implementation note: variable "right" is increased by 1.
         if (run[count] == right++) { // The last run contains one element
             run[++count] = right;
         } else if (count == 1) { // The array is already sorted
             return;
         }
 
-        // Determine alternation base for merge
-        byte odd = 0;
+        /*
+         * Create temporary array, which is used for merging.
+         * Implementation note: variable "right" is increased by 1.
+         */
+        double[] b; byte odd = 0;
         for (int n = 1; (n <<= 1) < count; odd ^= 1);
 
-        // Use or create temporary array b for merging
-        double[] b;                 // temp array; alternates with a
-        int ao, bo;              // array offsets from 'left'
-        int blen = right - left; // space needed for b
-        if (work == null || workLen < blen || workBase + blen > work.length) {
-            work = new double[blen];
-            workBase = 0;
-        }
         if (odd == 0) {
-            System.arraycopy(a, left, work, workBase, blen);
-            b = a;
-            bo = 0;
-            a = work;
-            ao = workBase - left;
+            b = a; a = new double[b.length];
+            for (int i = left - 1; ++i < right; a[i] = b[i]);
         } else {
-            b = work;
-            ao = 0;
-            bo = workBase - left;
+            b = new double[a.length];
         }
 
         // Merging
@@ -2719,22 +2660,21 @@ final class DualPivotQuicksort {
             for (int k = (last = 0) + 2; k <= count; k += 2) {
                 int hi = run[k], mi = run[k - 1];
                 for (int i = run[k - 2], p = i, q = mi; i < hi; ++i) {
-                    if (q >= hi || p < mi && a[p + ao] <= a[q + ao]) {
-                        b[i + bo] = a[p++ + ao];
+                    if (q >= hi || p < mi && a[p] <= a[q]) {
+                        b[i] = a[p++];
                     } else {
-                        b[i + bo] = a[q++ + ao];
+                        b[i] = a[q++];
                     }
                 }
                 run[++last] = hi;
             }
             if ((count & 1) != 0) {
                 for (int i = right, lo = run[count - 1]; --i >= lo;
-                    b[i + bo] = a[i + ao]
+                    b[i] = a[i]
                 );
                 run[++last] = right;
             }
             double[] t = a; a = b; b = t;
-            int o = ao; ao = bo; bo = o;
         }
     }
 
