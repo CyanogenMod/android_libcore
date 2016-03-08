@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2014 The Android Open Source Project
- * Copyright (c) 1997, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2014, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -3707,6 +3707,11 @@ public class Collections {
         }
 
         private Object readResolve() { return reverseOrder(); }
+
+        @Override
+        public Comparator<Comparable<Object>> reversed() {
+            return Comparator.naturalOrder();
+        }
     }
 
     /**
@@ -3769,6 +3774,11 @@ public class Collections {
 
         public int hashCode() {
             return cmp.hashCode() ^ Integer.MIN_VALUE;
+        }
+
+        @Override
+        public Comparator<T> reversed() {
+            return cmp;
         }
     }
 
