@@ -655,6 +655,7 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/java/util/Collections.java \
     ojluni/src/main/java/java/util/ComparableTimSort.java \
     ojluni/src/main/java/java/util/Comparator.java \
+    ojluni/src/main/java/java/util/Comparators.java \
     ojluni/src/main/java/java/util/ConcurrentModificationException.java \
     ojluni/src/main/java/java/util/Currency.java \
     ojluni/src/main/java/java/util/Date.java \
@@ -1468,3 +1469,4 @@ openjdk_lambda_stub_files := \
     ojluni/src/lambda/java/java/lang/invoke/MethodHandleInfo.java \
     ojluni/src/lambda/java/java/lang/invoke/MethodHandles.java \
     ojluni/src/lambda/java/java/lang/invoke/MethodType.java \
+    ojluni/src/lambda/java/java/lang/invoke/SerializedLambda.java
