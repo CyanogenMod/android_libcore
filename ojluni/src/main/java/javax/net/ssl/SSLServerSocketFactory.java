@@ -47,7 +47,7 @@ public abstract class SSLServerSocketFactory extends ServerSocketFactory
 {
     private static SSLServerSocketFactory defaultServerSocketFactory;
 
-    private static int lastVersion;
+    private static int lastVersion = -1;
 
     private static void log(String msg) {
         if (SSLSocketFactory.DEBUG) {
@@ -86,14 +86,25 @@ public abstract class SSLServerSocketFactory extends ServerSocketFactory
         }
 
         lastVersion = Security.getVersion();
+        SSLServerSocketFactory previousDefaultServerSocketFactory = defaultServerSocketFactory;
         defaultServerSocketFactory = null;
 
         String clsName = SSLSocketFactory.getSecurityProperty
                 ("ssl.ServerSocketFactory.provider");
         if (clsName != null) {
+            // The instance for the default socket factory is checked for updates quite
+            // often (for instance, every time a security provider is added). Which leads
+            // to unnecessary overload and excessive error messages in case of class-loading
+            // errors. Avoid creating a new object if the class name is the same as before.
+            if (previousDefaultServerSocketFactory != null
+                    && clsName.equals(previousDefaultServerSocketFactory.getClass().getName())) {
+                defaultServerSocketFactory = previousDefaultServerSocketFactory;
+                return defaultServerSocketFactory;
+            }
+            Class cls = null;
             log("setting up default SSLServerSocketFactory");
             try {
-                Class cls = null;
+                log("setting up default SSLServerSocketFactory");
                 try {
                     cls = Class.forName(clsName);
                 } catch (ClassNotFoundException e) {
@@ -108,7 +119,7 @@ public abstract class SSLServerSocketFactory extends ServerSocketFactory
                     }
                 }
                 log("class " + clsName + " is loaded");
-                SSLServerSocketFactory fac = (SSLServerSocketFactory)cls.newInstance();
+                SSLServerSocketFactory fac = (SSLServerSocketFactory) cls.newInstance();
                 log("instantiated an instance of class " + clsName);
                 defaultServerSocketFactory = fac;
                 if (defaultServerSocketFactory != null) {
