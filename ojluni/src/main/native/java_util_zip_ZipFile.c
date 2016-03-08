@@ -324,8 +324,8 @@ ZipFile_read(JNIEnv *env, jclass cls, jlong zfile,
             ThrowZipException(env, msg);
         } else {
             char errmsg[128];
-            sprintf(errmsg, "errno: %d, error: %s\n",
-                    errno, "Error reading ZIP file");
+            snprintf(errmsg, sizeof(errmsg), "errno: %d, error: %s\n", errno,
+                     "Error reading ZIP file");
             JNU_ThrowIOExceptionWithLastError(env, errmsg);
         }
     }
