@@ -62,15 +62,17 @@ import java.util.function.BiConsumer;
  * provided to create a linked hash map whose order of iteration is the order
  * in which its entries were last accessed, from least-recently accessed to
  * most-recently (<i>access-order</i>).  This kind of map is well-suited to
- * building LRU caches.  Invoking the <tt>put</tt> or <tt>get</tt> method
- * results in an access to the corresponding entry (assuming it exists after
- * the invocation completes).  The <tt>putAll</tt> method generates one entry
- * access for each mapping in the specified map, in the order that key-value
- * mappings are provided by the specified map's entry set iterator.  <i>No
- * other methods generate entry accesses.</i> In particular, operations on
- * collection-views do <i>not</i> affect the order of iteration of the backing
- * map.
- *
+ * building LRU caches.  Invoking the {@code put}, {@code putIfAbsent},
+ * {@code get}, {@code getOrDefault}, {@code compute}, {@code computeIfAbsent},
+ * {@code computeIfPresent}, or {@code merge} methods results
+ * in an access to the corresponding entry (assuming it exists after the
+ * invocation completes). The {@code replace} methods only result in an access
+ * of the entry if the value is replaced.  The {@code putAll} method generates one
+ * entry access for each mapping in the specified map, in the order that
+ * key-value mappings are provided by the specified map's entry set iterator.
+ * <i>No other methods generate entry accesses.</i>  In particular, operations
+ * on collection-views do <i>not</i> affect the order of iteration of the
+ * backing map. *
  * <p>The {@link #removeEldestEntry(Map.Entry)} method may be overridden to
  * impose a policy for removing stale mappings automatically when new mappings
  * are added to the map.

@@ -28,6 +28,8 @@ package java.util;
 
 import java.io.*;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 /**
  * This class implements a hash table, which maps keys to values. Any
@@ -942,6 +944,58 @@ public class Hashtable<K,V>
             }
         }
     }
+
+    // Overrides Java8 default methods(added method synchronization)
+
+    @Override
+    public synchronized V getOrDefault(Object key, V defaultValue) {
+        return Map.super.getOrDefault(key, defaultValue);
+    }
+
+    @Override
+    public synchronized V putIfAbsent(K key, V value) {
+        return Map.super.putIfAbsent(key, value);
+    }
+
+    @Override
+    public synchronized boolean remove(Object key, Object value) {
+       return Map.super.remove(key, value);
+    }
+
+    @Override
+    public synchronized boolean replace(K key, V oldValue, V newValue) {
+        return Map.super.replace(key, oldValue, newValue);
+    }
+
+    @Override
+    public synchronized V replace(K key, V value) {
+        return Map.super.replace(key, value);
+    }
+
+    @Override
+    public synchronized V computeIfAbsent(K key, Function<? super K,
+            ? extends V> mappingFunction) {
+        return Map.super.computeIfAbsent(key, mappingFunction);
+    }
+
+    @Override
+    public synchronized V computeIfPresent(K key, BiFunction<? super K,
+            ? super V, ? extends V> remappingFunction) {
+        return Map.super.computeIfPresent(key, remappingFunction);
+    }
+
+    @Override
+    public synchronized V compute(K key, BiFunction<? super K, ? super V,
+            ? extends V> remappingFunction) {
+        return Map.super.compute(key, remappingFunction);
+    }
+
+    @Override
+    public synchronized V merge(K key, V value, BiFunction<? super V, ? super V,
+            ? extends V> remappingFunction) {
+        return Map.super.merge(key, value, remappingFunction);
+    }
+
 
     /**
      * Save the state of the Hashtable to a stream (i.e., serialize it).
