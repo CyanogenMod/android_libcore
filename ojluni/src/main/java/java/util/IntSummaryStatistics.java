@@ -26,12 +26,14 @@ package java.util;
 
 import java.util.function.IntConsumer;
 
+// TODO: Revert changes from {@linkplain} and {@link} to {@code} once
+// the streams changes have landed.
 /**
  * A state object for collecting statistics such as count, min, max, sum, and
  * average.
  *
  * <p>This class is designed to work with (though does not require)
- * {@linkplain java.util.stream streams}. For example, you can compute
+ * {@code java.util.stream streams}. For example, you can compute
  * summary statistics on a stream of ints with:
  * <pre> {@code
  * IntSummaryStatistics stats = intStream.collect(IntSummaryStatistics::new,
@@ -40,8 +42,8 @@ import java.util.function.IntConsumer;
  * }</pre>
  *
  * <p>{@code IntSummaryStatistics} can be used as a
- * {@linkplain java.util.stream.Stream#collect(Collector) reduction}
- * target for a {@linkplain java.util.stream.Stream stream}. For example:
+ * {@code java.util.stream.Stream#collect(Collector) reduction}
+ * target for a {@code java.util.stream.Stream stream}. For example:
  *
  * <pre> {@code
  * IntSummaryStatistics stats = people.stream()
@@ -52,9 +54,9 @@ import java.util.function.IntConsumer;
  * maximum, sum, and average of their number of dependents.
  *
  * @implNote This implementation is not thread safe. However, it is safe to use
- * {@link java.util.stream.Collectors#summarizingInt(java.util.function.ToIntFunction)
+ * {@code java.util.stream.Collectors#summarizingInt(java.util.function.ToIntFunction)
  * Collectors.toIntStatistics()} on a parallel stream, because the parallel
- * implementation of {@link java.util.stream.Stream#collect Stream.collect()}
+ * implementation of {@code java.util.stream.Stream#collect Stream.collect()}
  * provides the necessary partitioning, isolation, and merging of results for
  * safe and efficient parallel execution.
  *
