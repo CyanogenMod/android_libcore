@@ -695,6 +695,7 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/java/util/OptionalLong.java \
     ojluni/src/main/java/java/util/OptionalDouble.java \
     ojluni/src/main/java/java/util/PrimitiveIterator.java \
+    ojluni/src/main/java/java/util/StringJoiner.java \
     ojluni/src/main/java/java/util/Tripwire.java \
     ojluni/src/main/java/java/util/DoubleSummaryStatistics.java \
     ojluni/src/main/java/java/util/IntSummaryStatistics.java \
