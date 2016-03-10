@@ -934,10 +934,11 @@ public class ArrayDequeTest extends TestCase {
         ArrayDeque<Integer> adq = new ArrayDeque<>();
         adq.add(52);
 
-        // ArrayDequeues
         Spliterator<Integer> sp = adq.spliterator();
-        assertTrue(sp.tryAdvance(value -> adq.add(value)));
 
+        // Spliterators from ArrayDequeues never throw CME. The following statements
+        // would have thrown a CME on most other collection classes.
+        assertTrue(sp.tryAdvance(value -> adq.add(value)));
         sp.forEachRemaining(value -> adq.add(value));
     }
 

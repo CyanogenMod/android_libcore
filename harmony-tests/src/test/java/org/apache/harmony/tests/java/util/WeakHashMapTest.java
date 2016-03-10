@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Spliterator;
 import java.util.WeakHashMap;
 import libcore.java.lang.ref.FinalizationTester;
 
@@ -534,6 +535,10 @@ public class WeakHashMapTest extends junit.framework.TestCase {
                 String::compareTo);
         SpliteratorTester.runBasicSplitTests(keys, expectedKeys);
         SpliteratorTester.testSpliteratorNPE(keys.spliterator());
+
+        assertTrue(keys.spliterator().hasCharacteristics(Spliterator.DISTINCT));
+
+        SpliteratorTester.runDistinctTests(keys);
     }
 
     public void test_spliterator_valueSet() {
@@ -593,8 +598,11 @@ public class WeakHashMapTest extends junit.framework.TestCase {
                 (a, b) -> (a.getKey().compareTo(b.getKey())));
         SpliteratorTester.runBasicSplitTests(values, expectedValues, comparator);
         SpliteratorTester.testSpliteratorNPE(values.spliterator());
-    }
 
+        assertTrue(values.spliterator().hasCharacteristics(Spliterator.DISTINCT));
+
+        SpliteratorTester.runDistinctTests(values);
+    }
 
     /**
      * Sets up the fixture, for example, open a network connection. This method

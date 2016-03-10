@@ -4214,7 +4214,8 @@ public class ArraysTest extends junit.framework.TestCase {
     }
 
     public void test_spliterator_ref() {
-        String[] elements = { "a", "b", "c", "d", "e", "f", "g", "h",
+        String[] elements = {
+                "a", "b", "c", "d", "e", "f", "g", "h",
                 "i", "j", "k", "l", "m", "n", "o", "p" };
 
         ArrayList<String> expected = new ArrayList<>(Arrays.asList(elements));
@@ -4260,7 +4261,7 @@ public class ArraysTest extends junit.framework.TestCase {
         assertEquals(expected, recorder);
     }
 
-    public static class PrimitiveIntArrayList {
+    private static class PrimitiveIntArrayList {
         final int[] array;
         int idx;
 
@@ -4278,7 +4279,7 @@ public class ArraysTest extends junit.framework.TestCase {
         }
     }
 
-    public static class PrimitiveLongArrayList {
+    private static class PrimitiveLongArrayList {
         final long[] array;
         int idx;
 
@@ -4296,7 +4297,7 @@ public class ArraysTest extends junit.framework.TestCase {
         }
     }
 
-    public static class PrimitiveDoubleArrayList {
+    private static class PrimitiveDoubleArrayList {
         final double[] array;
         int idx;
 

@@ -154,7 +154,7 @@ public class SpliteratorsTest extends TestCase {
         assertTrue(sp.hasCharacteristics(Spliterator.ORDERED));
     }
 
-    public static class PrimitiveIntArrayList {
+    private static class PrimitiveIntArrayList {
         final int[] array;
         int idx;
 
@@ -172,7 +172,7 @@ public class SpliteratorsTest extends TestCase {
         }
     }
 
-    public static class PrimitiveLongArrayList {
+    private static class PrimitiveLongArrayList {
         final long[] array;
         int idx;
 
@@ -190,7 +190,7 @@ public class SpliteratorsTest extends TestCase {
         }
     }
 
-    public static class PrimitiveDoubleArrayList {
+    private static class PrimitiveDoubleArrayList {
         final double[] array;
         int idx;
 
@@ -516,7 +516,7 @@ public class SpliteratorsTest extends TestCase {
         assertTrue(sp.hasCharacteristics(Spliterator.ORDERED));
     }
 
-    public static class CannedIntPrimitiveIterator implements PrimitiveIterator.OfInt {
+    private static class CannedIntPrimitiveIterator implements PrimitiveIterator.OfInt {
         private final int[] data;
         private int idx;
 
@@ -536,7 +536,7 @@ public class SpliteratorsTest extends TestCase {
         }
     }
 
-    public static class CannedLongPrimitiveIterator implements PrimitiveIterator.OfLong {
+    private static class CannedLongPrimitiveIterator implements PrimitiveIterator.OfLong {
         private final long[] data;
         private int idx;
 
@@ -556,7 +556,7 @@ public class SpliteratorsTest extends TestCase {
         }
     }
 
-    public static class CannedDoublePrimitiveIterator implements PrimitiveIterator.OfDouble {
+    private static class CannedDoublePrimitiveIterator implements PrimitiveIterator.OfDouble {
         private final double[] data;
         private int idx;
 
