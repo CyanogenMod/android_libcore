@@ -21,6 +21,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.SecurityException;
+import java.lang.SecurityManager;
 import java.util.Formatter;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -235,5 +237,17 @@ public class SystemTest extends TestCase {
         // Android-specific: The RI clears everything, Android resets to immutable defaults.
         assertEquals(userDir, System.getProperty("user.dir"));
         assertNull(System.getProperty("p1"));
+    }
+
+    public void testSystem_setSecurityManager_null_noException() {
+        System.setSecurityManager(null);
+    }
+
+    public void testSystem_setSecurityManager_notNull_throwsException() {
+        try  {
+            System.setSecurityManager(new SecurityManager());
+            fail("Expected " + SecurityException.class.getName());
+        } catch (SecurityException expected) {
+        }
     }
 }
