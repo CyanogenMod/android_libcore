@@ -843,6 +843,11 @@ public class HashMapTest extends junit.framework.TestCase {
         SpliteratorTester.runBasicIterationTests(keys.spliterator(), expectedKeys);
         SpliteratorTester.runBasicSplitTests(keys, expectedKeys);
         SpliteratorTester.testSpliteratorNPE(keys.spliterator());
+
+        assertTrue(keys.spliterator().hasCharacteristics(Spliterator.SIZED | Spliterator.DISTINCT));
+
+        SpliteratorTester.runSizedTests(keys.spliterator(), 16);
+        SpliteratorTester.runDistinctTests(keys);
     }
 
     public void test_spliterator_valueSet() {
@@ -870,6 +875,10 @@ public class HashMapTest extends junit.framework.TestCase {
         SpliteratorTester.runBasicIterationTests(values.spliterator(), expectedValues);
         SpliteratorTester.runBasicSplitTests(values, expectedValues);
         SpliteratorTester.testSpliteratorNPE(values.spliterator());
+
+        assertTrue(values.spliterator().hasCharacteristics(Spliterator.SIZED));
+
+        SpliteratorTester.runSizedTests(values.spliterator(), 16);
     }
 
     public void test_spliterator_entrySet() {
@@ -900,6 +909,11 @@ public class HashMapTest extends junit.framework.TestCase {
         SpliteratorTester.runBasicIterationTests(values.spliterator(), expectedValues);
         SpliteratorTester.runBasicSplitTests(values, expectedValues, comparator);
         SpliteratorTester.testSpliteratorNPE(values.spliterator());
+
+        assertTrue(values.spliterator().hasCharacteristics(Spliterator.SIZED | Spliterator.DISTINCT));
+
+        SpliteratorTester.runSizedTests(values.spliterator(), 16);
+        SpliteratorTester.runDistinctTests(values);
     }
 
     /**
