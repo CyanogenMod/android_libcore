@@ -16,11 +16,17 @@
 
 package org.apache.harmony.tests.java.util;
 
+import libcore.java.util.SpliteratorTester;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.Spliterator;
 import java.util.Vector;
 
 /**
@@ -323,6 +329,25 @@ public class LinkedHashSetTest extends junit.framework.TestCase {
         } catch (ArrayStoreException e) {
             //expected
         }
+    }
+
+    public void test_spliterator() throws Exception {
+        LinkedHashSet<String> hashSet = new LinkedHashSet<>();
+        List<String> keys = Arrays.asList(
+                "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p");
+        hashSet.addAll(keys);
+
+        ArrayList<String> expectedKeys = new ArrayList<>(keys);
+        SpliteratorTester.runBasicIterationTests_unordered(hashSet.spliterator(), expectedKeys,
+                String::compareTo);
+        SpliteratorTester.runBasicSplitTests(hashSet, expectedKeys);
+        SpliteratorTester.testSpliteratorNPE(hashSet.spliterator());
+
+        assertTrue(hashSet.spliterator().hasCharacteristics(Spliterator.ORDERED));
+        SpliteratorTester.runOrderedTests(keys);
+
+        assertTrue(hashSet.spliterator().hasCharacteristics(Spliterator.DISTINCT));
+        SpliteratorTester.runDistinctTests(keys);
     }
 
     /**

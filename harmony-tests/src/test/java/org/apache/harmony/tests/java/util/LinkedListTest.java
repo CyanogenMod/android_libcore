@@ -27,9 +27,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
+import java.util.Spliterator;
 import java.util.Vector;
 
 import libcore.java.util.ForEachRemainingTester;
+import libcore.java.util.SpliteratorTester;
 import org.apache.harmony.testframework.serialization.SerializationTest;
 import org.apache.harmony.testframework.serialization.SerializationTest.SerializableAssert;
 
@@ -942,6 +944,42 @@ public class LinkedListTest extends junit.framework.TestCase {
     public void test_forEachRemaining_iterator() throws Exception {
         ForEachRemainingTester.runTests(LinkedList.class, new String[]{ "foo", "bar", "baz "});
         ForEachRemainingTester.runTests(LinkedList.class, new String[] { "foo" });
+    }
+
+    public void test_spliterator() throws Exception {
+        ArrayList<Integer> testElements = new ArrayList<>(
+                Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16));
+        LinkedList<Integer> list = new LinkedList<>();
+        list.addAll(testElements);
+
+        SpliteratorTester.runBasicIterationTests(list.spliterator(), testElements);
+        SpliteratorTester.runBasicSplitTests(list, testElements);
+        SpliteratorTester.testSpliteratorNPE(list.spliterator());
+
+        assertTrue(list.spliterator().hasCharacteristics(
+                Spliterator.ORDERED | Spliterator.SIZED | Spliterator.SUBSIZED));
+
+        SpliteratorTester.runOrderedTests(list);
+        SpliteratorTester.runSizedTests(list, 16 /* expected size */);
+        SpliteratorTester.runSubSizedTests(list, 16 /* expected size */);
+    }
+
+    public void test_spliterator_CME() throws Exception {
+        LinkedList<Integer> list = new LinkedList<>();
+        list.add(52);
+
+        Spliterator<Integer> sp = list.spliterator();
+        try {
+            sp.tryAdvance(value -> list.add(value));
+            fail();
+        } catch (ConcurrentModificationException expected) {
+        }
+
+        try {
+            sp.forEachRemaining(value -> list.add(value));
+            fail();
+        } catch (ConcurrentModificationException expected) {
+        }
     }
 
     /**
