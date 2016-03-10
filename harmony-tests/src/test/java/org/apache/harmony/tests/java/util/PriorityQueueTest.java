@@ -20,14 +20,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.ConcurrentModificationException;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.PriorityQueue;
 import java.util.SortedSet;
+import java.util.Spliterator;
 import java.util.TreeSet;
 
 import junit.framework.TestCase;
+import libcore.java.util.SpliteratorTester;
 import tests.util.SerializationTester;
 
 public class PriorityQueueTest extends TestCase {
@@ -780,6 +784,42 @@ public class PriorityQueueTest extends TestCase {
             // expected
         }
     }
+
+    public void test_spliterator() throws Exception {
+        ArrayList<Integer> testElements = new ArrayList<>(
+                Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16));
+        PriorityQueue<Integer> list = new PriorityQueue<>();
+        list.addAll(testElements);
+
+        SpliteratorTester.runBasicIterationTests(list.spliterator(), testElements);
+        SpliteratorTester.runBasicSplitTests(list, testElements);
+        SpliteratorTester.testSpliteratorNPE(list.spliterator());
+
+        assertTrue(list.spliterator().hasCharacteristics(
+                Spliterator.SIZED | Spliterator.SUBSIZED));
+
+        SpliteratorTester.runSizedTests(list, 16 /* expected size */);
+        SpliteratorTester.runSubSizedTests(list, 16 /* expected size */);
+    }
+
+    public void test_spliterator_CME() throws Exception {
+        PriorityQueue<Integer> list = new PriorityQueue<>();
+        list.add(52);
+
+        Spliterator<Integer> sp = list.spliterator();
+        try {
+            sp.tryAdvance(value -> list.add(value));
+            fail();
+        } catch (ConcurrentModificationException expected) {
+        }
+
+        try {
+            sp.forEachRemaining(value -> list.add(value));
+            fail();
+        } catch (ConcurrentModificationException expected) {
+        }
+    }
+
 
     private static class MockComparator<E> implements Comparator<E> {
 

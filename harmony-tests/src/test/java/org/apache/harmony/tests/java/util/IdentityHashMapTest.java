@@ -17,6 +17,7 @@
 
 package org.apache.harmony.tests.java.util;
 
+import libcore.java.util.SpliteratorTester;
 import org.apache.harmony.testframework.serialization.SerializationTest;
 import org.apache.harmony.testframework.serialization.SerializationTest.SerializableAssert;
 import tests.support.Support_MapTest2;
@@ -25,6 +26,7 @@ import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -967,6 +969,91 @@ public class IdentityHashMapTest extends junit.framework.TestCase {
         // We should get a CME and DO NOT continue forEach evaluation
         assertEquals(1, outputMap.size());
     }
+
+    public void test_spliterator_keySet() {
+        IdentityHashMap<String, String> hashMap = new IdentityHashMap<>();
+        hashMap.put("a", "1");
+        hashMap.put("b", "2");
+        hashMap.put("c", "3");
+        hashMap.put("d", "4");
+        hashMap.put("e", "5");
+        hashMap.put("f", "6");
+        hashMap.put("g", "7");
+        hashMap.put("h", "8");
+        hashMap.put("i", "9");
+        hashMap.put("j", "10");
+        hashMap.put("k", "11");
+        hashMap.put("l", "12");
+        hashMap.put("m", "13");
+        hashMap.put("n", "14");
+        hashMap.put("o", "15");
+        hashMap.put("p", "16");
+
+        Set<String> keys = hashMap.keySet();
+        ArrayList<String> expectedKeys = new ArrayList<>(keys);
+
+        SpliteratorTester.runBasicIterationTests(keys.spliterator(), expectedKeys);
+        SpliteratorTester.runBasicSplitTests(keys, expectedKeys);
+        SpliteratorTester.testSpliteratorNPE(keys.spliterator());
+    }
+
+    public void test_spliterator_valueSet() {
+        IdentityHashMap<String, String> hashMap = new IdentityHashMap<>();
+        hashMap.put("a", "1");
+        hashMap.put("b", "2");
+        hashMap.put("c", "3");
+        hashMap.put("d", "4");
+        hashMap.put("e", "5");
+        hashMap.put("f", "6");
+        hashMap.put("g", "7");
+        hashMap.put("h", "8");
+        hashMap.put("i", "9");
+        hashMap.put("j", "10");
+        hashMap.put("k", "11");
+        hashMap.put("l", "12");
+        hashMap.put("m", "13");
+        hashMap.put("n", "14");
+        hashMap.put("o", "15");
+        hashMap.put("p", "16");
+
+        Collection<String> values = hashMap.values();
+        ArrayList<String> expectedValues = new ArrayList<>(values);
+
+        SpliteratorTester.runBasicIterationTests(values.spliterator(), expectedValues);
+        SpliteratorTester.runBasicSplitTests(values, expectedValues);
+        SpliteratorTester.testSpliteratorNPE(values.spliterator());
+    }
+
+    public void test_spliterator_entrySet() {
+        IdentityHashMap<String, String> hashMap = new IdentityHashMap<>();
+        hashMap.put("a", "1");
+        hashMap.put("b", "2");
+        hashMap.put("c", "3");
+        hashMap.put("d", "4");
+        hashMap.put("e", "5");
+        hashMap.put("f", "6");
+        hashMap.put("g", "7");
+        hashMap.put("h", "8");
+        hashMap.put("i", "9");
+        hashMap.put("j", "10");
+        hashMap.put("k", "11");
+        hashMap.put("l", "12");
+        hashMap.put("m", "13");
+        hashMap.put("n", "14");
+        hashMap.put("o", "15");
+        hashMap.put("p", "16");
+
+        Set<Map.Entry<String, String>> values = hashMap.entrySet();
+        ArrayList<Map.Entry<String, String>> expectedValues = new ArrayList<>(values);
+
+        Comparator<Map.Entry<String, String>> comparator =
+                (a, b) -> (a.getKey().compareTo(b.getKey()));
+
+        SpliteratorTester.runBasicIterationTests(values.spliterator(), expectedValues);
+        SpliteratorTester.runBasicSplitTests(values, expectedValues, comparator);
+        SpliteratorTester.testSpliteratorNPE(values.spliterator());
+    }
+
 
     // comparator for IdentityHashMap objects
     private static final SerializableAssert COMPARATOR = new SerializableAssert() {

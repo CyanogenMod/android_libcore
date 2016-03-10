@@ -21,15 +21,19 @@ import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.ConcurrentModificationException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Spliterator;
 import java.util.WeakHashMap;
 import libcore.java.lang.ref.FinalizationTester;
 
+import libcore.java.util.SpliteratorTester;
 import tests.support.Support_MapTest2;
 
 public class WeakHashMapTest extends junit.framework.TestCase {
@@ -503,6 +507,101 @@ public class WeakHashMapTest extends junit.framework.TestCase {
         } catch(ConcurrentModificationException expected) {}
         // We should get a CME and DO NOT continue forEach evaluation
         assertEquals(1, processed.size());
+    }
+
+    public void test_spliterator_keySet() {
+        WeakHashMap<String, String> hashMap = new WeakHashMap<>();
+        hashMap.put("a", "1");
+        hashMap.put("b", "2");
+        hashMap.put("c", "3");
+        hashMap.put("d", "4");
+        hashMap.put("e", "5");
+        hashMap.put("f", "6");
+        hashMap.put("g", "7");
+        hashMap.put("h", "8");
+        hashMap.put("i", "9");
+        hashMap.put("j", "10");
+        hashMap.put("k", "11");
+        hashMap.put("l", "12");
+        hashMap.put("m", "13");
+        hashMap.put("n", "14");
+        hashMap.put("o", "15");
+        hashMap.put("p", "16");
+
+        Set<String> keys = hashMap.keySet();
+        ArrayList<String> expectedKeys = new ArrayList<>(keys);
+
+        SpliteratorTester.runBasicIterationTests_unordered(keys.spliterator(), expectedKeys,
+                String::compareTo);
+        SpliteratorTester.runBasicSplitTests(keys, expectedKeys);
+        SpliteratorTester.testSpliteratorNPE(keys.spliterator());
+
+        assertTrue(keys.spliterator().hasCharacteristics(Spliterator.DISTINCT));
+
+        SpliteratorTester.runDistinctTests(keys);
+    }
+
+    public void test_spliterator_valueSet() {
+        WeakHashMap<String, String> hashMap = new WeakHashMap<>();
+        hashMap.put("a", "1");
+        hashMap.put("b", "2");
+        hashMap.put("c", "3");
+        hashMap.put("d", "4");
+        hashMap.put("e", "5");
+        hashMap.put("f", "6");
+        hashMap.put("g", "7");
+        hashMap.put("h", "8");
+        hashMap.put("i", "9");
+        hashMap.put("j", "10");
+        hashMap.put("k", "11");
+        hashMap.put("l", "12");
+        hashMap.put("m", "13");
+        hashMap.put("n", "14");
+        hashMap.put("o", "15");
+        hashMap.put("p", "16");
+
+        Collection<String> values = hashMap.values();
+        ArrayList<String> expectedValues = new ArrayList<>(values);
+
+        SpliteratorTester.runBasicIterationTests_unordered(
+                values.spliterator(), expectedValues, String::compareTo);
+        SpliteratorTester.runBasicSplitTests(values, expectedValues);
+        SpliteratorTester.testSpliteratorNPE(values.spliterator());
+    }
+
+    public void test_spliterator_entrySet() {
+        WeakHashMap<String, String> hashMap = new WeakHashMap<>();
+        hashMap.put("a", "1");
+        hashMap.put("b", "2");
+        hashMap.put("c", "3");
+        hashMap.put("d", "4");
+        hashMap.put("e", "5");
+        hashMap.put("f", "6");
+        hashMap.put("g", "7");
+        hashMap.put("h", "8");
+        hashMap.put("i", "9");
+        hashMap.put("j", "10");
+        hashMap.put("k", "11");
+        hashMap.put("l", "12");
+        hashMap.put("m", "13");
+        hashMap.put("n", "14");
+        hashMap.put("o", "15");
+        hashMap.put("p", "16");
+
+        Set<Map.Entry<String, String>> values = hashMap.entrySet();
+        ArrayList<Map.Entry<String, String>> expectedValues = new ArrayList<>(values);
+
+        Comparator<Map.Entry<String, String>> comparator =
+                (a, b) -> (a.getKey().compareTo(b.getKey()));
+
+        SpliteratorTester.runBasicIterationTests_unordered(values.spliterator(), expectedValues,
+                (a, b) -> (a.getKey().compareTo(b.getKey())));
+        SpliteratorTester.runBasicSplitTests(values, expectedValues, comparator);
+        SpliteratorTester.testSpliteratorNPE(values.spliterator());
+
+        assertTrue(values.spliterator().hasCharacteristics(Spliterator.DISTINCT));
+
+        SpliteratorTester.runDistinctTests(values);
     }
 
     /**

@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2014 The Android Open Source Project
- * Copyright (c) 1997, 2011, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2013, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -2848,19 +2848,21 @@ public class Arrays {
         private final E[] a;
 
         ArrayList(E[] array) {
-            if (array==null)
-                throw new NullPointerException();
-            a = array;
+            a = Objects.requireNonNull(array);
         }
 
+        @Override
         public int size() {
             return a.length;
         }
 
+        @Override
         public Object[] toArray() {
             return a.clone();
         }
 
+        @Override
+        @SuppressWarnings("unchecked")
         public <T> T[] toArray(T[] a) {
             int size = size();
             if (a.length < size)
@@ -2872,16 +2874,19 @@ public class Arrays {
             return a;
         }
 
+        @Override
         public E get(int index) {
             return a[index];
         }
 
+        @Override
         public E set(int index, E element) {
             E oldValue = a[index];
             a[index] = element;
             return oldValue;
         }
 
+        @Override
         public int indexOf(Object o) {
             if (o==null) {
                 for (int i=0; i<a.length; i++)
@@ -2895,8 +2900,14 @@ public class Arrays {
             return -1;
         }
 
+        @Override
         public boolean contains(Object o) {
             return indexOf(o) != -1;
+        }
+
+        @Override
+        public Spliterator<E> spliterator() {
+            return Spliterators.spliterator(a, Spliterator.ORDERED);
         }
     }
 
@@ -3700,5 +3711,165 @@ public class Arrays {
             throw new ArrayIndexOutOfBoundsException(arrayLength, offset,
                     count);
         }
+    }
+
+
+    /**
+     * Returns a {@link Spliterator} covering all of the specified array.
+     *
+     * <p>The spliterator reports {@link Spliterator#SIZED},
+     * {@link Spliterator#SUBSIZED}, {@link Spliterator#ORDERED}, and
+     * {@link Spliterator#IMMUTABLE}.
+     *
+     * @param <T> type of elements
+     * @param array the array, assumed to be unmodified during use
+     * @return a spliterator for the array elements
+     * @since 1.8
+     */
+    public static <T> Spliterator<T> spliterator(T[] array) {
+        return Spliterators.spliterator(array,
+                                        Spliterator.ORDERED | Spliterator.IMMUTABLE);
+    }
+
+    /**
+     * Returns a {@link Spliterator} covering the specified range of the
+     * specified array.
+     *
+     * <p>The spliterator reports {@link Spliterator#SIZED},
+     * {@link Spliterator#SUBSIZED}, {@link Spliterator#ORDERED}, and
+     * {@link Spliterator#IMMUTABLE}.
+     *
+     * @param <T> type of elements
+     * @param array the array, assumed to be unmodified during use
+     * @param startInclusive the first index to cover, inclusive
+     * @param endExclusive index immediately past the last index to cover
+     * @return a spliterator for the array elements
+     * @throws ArrayIndexOutOfBoundsException if {@code startInclusive} is
+     *         negative, {@code endExclusive} is less than
+     *         {@code startInclusive}, or {@code endExclusive} is greater than
+     *         the array size
+     * @since 1.8
+     */
+    public static <T> Spliterator<T> spliterator(T[] array, int startInclusive, int endExclusive) {
+        return Spliterators.spliterator(array, startInclusive, endExclusive,
+                                        Spliterator.ORDERED | Spliterator.IMMUTABLE);
+    }
+
+    /**
+     * Returns a {@link Spliterator.OfInt} covering all of the specified array.
+     *
+     * <p>The spliterator reports {@link Spliterator#SIZED},
+     * {@link Spliterator#SUBSIZED}, {@link Spliterator#ORDERED}, and
+     * {@link Spliterator#IMMUTABLE}.
+     *
+     * @param array the array, assumed to be unmodified during use
+     * @return a spliterator for the array elements
+     * @since 1.8
+     */
+    public static Spliterator.OfInt spliterator(int[] array) {
+        return Spliterators.spliterator(array,
+                                        Spliterator.ORDERED | Spliterator.IMMUTABLE);
+    }
+
+    /**
+     * Returns a {@link Spliterator.OfInt} covering the specified range of the
+     * specified array.
+     *
+     * <p>The spliterator reports {@link Spliterator#SIZED},
+     * {@link Spliterator#SUBSIZED}, {@link Spliterator#ORDERED}, and
+     * {@link Spliterator#IMMUTABLE}.
+     *
+     * @param array the array, assumed to be unmodified during use
+     * @param startInclusive the first index to cover, inclusive
+     * @param endExclusive index immediately past the last index to cover
+     * @return a spliterator for the array elements
+     * @throws ArrayIndexOutOfBoundsException if {@code startInclusive} is
+     *         negative, {@code endExclusive} is less than
+     *         {@code startInclusive}, or {@code endExclusive} is greater than
+     *         the array size
+     * @since 1.8
+     */
+    public static Spliterator.OfInt spliterator(int[] array, int startInclusive, int endExclusive) {
+        return Spliterators.spliterator(array, startInclusive, endExclusive,
+                                        Spliterator.ORDERED | Spliterator.IMMUTABLE);
+    }
+
+    /**
+     * Returns a {@link Spliterator.OfLong} covering all of the specified array.
+     *
+     * <p>The spliterator reports {@link Spliterator#SIZED},
+     * {@link Spliterator#SUBSIZED}, {@link Spliterator#ORDERED}, and
+     * {@link Spliterator#IMMUTABLE}.
+     *
+     * @param array the array, assumed to be unmodified during use
+     * @return the spliterator for the array elements
+     * @since 1.8
+     */
+    public static Spliterator.OfLong spliterator(long[] array) {
+        return Spliterators.spliterator(array,
+                                        Spliterator.ORDERED | Spliterator.IMMUTABLE);
+    }
+
+    /**
+     * Returns a {@link Spliterator.OfLong} covering the specified range of the
+     * specified array.
+     *
+     * <p>The spliterator reports {@link Spliterator#SIZED},
+     * {@link Spliterator#SUBSIZED}, {@link Spliterator#ORDERED}, and
+     * {@link Spliterator#IMMUTABLE}.
+     *
+     * @param array the array, assumed to be unmodified during use
+     * @param startInclusive the first index to cover, inclusive
+     * @param endExclusive index immediately past the last index to cover
+     * @return a spliterator for the array elements
+     * @throws ArrayIndexOutOfBoundsException if {@code startInclusive} is
+     *         negative, {@code endExclusive} is less than
+     *         {@code startInclusive}, or {@code endExclusive} is greater than
+     *         the array size
+     * @since 1.8
+     */
+    public static Spliterator.OfLong spliterator(long[] array, int startInclusive, int endExclusive) {
+        return Spliterators.spliterator(array, startInclusive, endExclusive,
+                                        Spliterator.ORDERED | Spliterator.IMMUTABLE);
+    }
+
+    /**
+     * Returns a {@link Spliterator.OfDouble} covering all of the specified
+     * array.
+     *
+     * <p>The spliterator reports {@link Spliterator#SIZED},
+     * {@link Spliterator#SUBSIZED}, {@link Spliterator#ORDERED}, and
+     * {@link Spliterator#IMMUTABLE}.
+     *
+     * @param array the array, assumed to be unmodified during use
+     * @return a spliterator for the array elements
+     * @since 1.8
+     */
+    public static Spliterator.OfDouble spliterator(double[] array) {
+        return Spliterators.spliterator(array,
+                                        Spliterator.ORDERED | Spliterator.IMMUTABLE);
+    }
+
+    /**
+     * Returns a {@link Spliterator.OfDouble} covering the specified range of
+     * the specified array.
+     *
+     * <p>The spliterator reports {@link Spliterator#SIZED},
+     * {@link Spliterator#SUBSIZED}, {@link Spliterator#ORDERED}, and
+     * {@link Spliterator#IMMUTABLE}.
+     *
+     * @param array the array, assumed to be unmodified during use
+     * @param startInclusive the first index to cover, inclusive
+     * @param endExclusive index immediately past the last index to cover
+     * @return a spliterator for the array elements
+     * @throws ArrayIndexOutOfBoundsException if {@code startInclusive} is
+     *         negative, {@code endExclusive} is less than
+     *         {@code startInclusive}, or {@code endExclusive} is greater than
+     *         the array size
+     * @since 1.8
+     */
+    public static Spliterator.OfDouble spliterator(double[] array, int startInclusive, int endExclusive) {
+        return Spliterators.spliterator(array, startInclusive, endExclusive,
+                                        Spliterator.ORDERED | Spliterator.IMMUTABLE);
     }
 }

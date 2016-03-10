@@ -16,14 +16,22 @@
  */
 package org.apache.harmony.tests.java.util;
 
+import libcore.java.util.SpliteratorTester;
 import tests.support.Support_UnmodifiableCollectionTest;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
+import java.util.Spliterator;
+import java.util.function.Consumer;
+import java.util.function.DoubleConsumer;
+import java.util.function.IntConsumer;
+import java.util.function.LongConsumer;
 
 public class ArraysTest extends junit.framework.TestCase {
 
@@ -4188,6 +4196,357 @@ public class ArraysTest extends junit.framework.TestCase {
         }
         assertEquals(0,
                 Arrays.copyOfRange(objArray, 0, 0, LinkedList[].class).length);
+    }
+
+    public void test_asList_spliterator() {
+        List<String> list = Arrays.asList(
+                "a", "b", "c", "d", "e", "f", "g", "h",
+                "i", "j", "k", "l", "m", "n", "o", "p");
+        ArrayList<String> expected = new ArrayList<>(list);
+
+        SpliteratorTester.runBasicIterationTests(list.spliterator(), expected);
+        SpliteratorTester.runBasicSplitTests(list, expected);
+        SpliteratorTester.testSpliteratorNPE(list.spliterator());
+
+        assertTrue(list.spliterator().hasCharacteristics(Spliterator.ORDERED));
+
+        SpliteratorTester.runOrderedTests(list);
+    }
+
+    public void test_spliterator_ref() {
+        String[] elements = {
+                "a", "b", "c", "d", "e", "f", "g", "h",
+                "i", "j", "k", "l", "m", "n", "o", "p" };
+
+        ArrayList<String> expected = new ArrayList<>(Arrays.asList(elements));
+
+        SpliteratorTester.runBasicIterationTests(Arrays.spliterator(elements), expected);
+        SpliteratorTester.testSpliteratorNPE(Arrays.spliterator(elements));
+
+        Spliterator<String> sp = Arrays.spliterator(elements);
+        assertTrue(sp.hasCharacteristics(Spliterator.ORDERED));
+
+        // Basic split tests.
+        Spliterator<String> sp1 =  sp.trySplit();
+        assertNotNull(sp1);
+
+        ArrayList<String> recorder = new ArrayList<>();
+        sp1.forEachRemaining(value -> recorder.add(value));
+        sp.forEachRemaining(value -> recorder.add(value));
+        Collections.sort(recorder);
+        assertEquals(expected, recorder);
+    }
+
+    public void test_spliterator_ref_bounds() {
+        String[] elements = { "BAD", "EVIL", "a", "b", "c", "d", "e", "f", "g", "h",
+                "i", "j", "k", "l", "m", "n", "o", "p", "DO", "NOT", "INCLUDE" };
+
+        ArrayList<String> expected = new ArrayList<>(
+                Arrays.asList(Arrays.copyOfRange(elements, 2, 16)));
+
+        SpliteratorTester.runBasicIterationTests(Arrays.spliterator(elements, 2, 16), expected);
+        SpliteratorTester.testSpliteratorNPE(Arrays.spliterator(elements, 2, 16));
+
+        Spliterator<String> sp = Arrays.spliterator(elements, 2, 16);
+        assertTrue(sp.hasCharacteristics(Spliterator.ORDERED));
+
+        // Basic split tests.
+        Spliterator<String> sp1 =  sp.trySplit();
+        assertNotNull(sp1);
+
+        ArrayList<String> recorder = new ArrayList<>();
+        sp1.forEachRemaining(value -> recorder.add(value));
+        sp.forEachRemaining(value -> recorder.add(value));
+        Collections.sort(recorder);
+        assertEquals(expected, recorder);
+    }
+
+    private static class PrimitiveIntArrayList {
+        final int[] array;
+        int idx;
+
+        PrimitiveIntArrayList(int size) {
+            array = new int[size];
+        }
+
+        public void add(int element) {
+            array[idx++] = element;
+        }
+
+        public int[] toSortedArray() {
+            Arrays.sort(array);
+            return array;
+        }
+    }
+
+    private static class PrimitiveLongArrayList {
+        final long[] array;
+        int idx;
+
+        PrimitiveLongArrayList(int size) {
+            array = new long[size];
+        }
+
+        public void add(long element) {
+            array[idx++] = element;
+        }
+
+        public long[] toSortedArray() {
+            Arrays.sort(array);
+            return array;
+        }
+    }
+
+    private static class PrimitiveDoubleArrayList {
+        final double[] array;
+        int idx;
+
+        PrimitiveDoubleArrayList(int size) {
+            array = new double[size];
+        }
+
+        public void add(double element) {
+            array[idx++] = element;
+        }
+
+        public double[] toSortedArray() {
+            Arrays.sort(array);
+            return array;
+        }
+    }
+
+    public void test_spliterator_int() {
+        int[] elements = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
+
+        Spliterator.OfInt intSp = Arrays.spliterator(elements);
+
+        assertEquals(16, intSp.estimateSize());
+        assertEquals(16, intSp.getExactSizeIfKnown());
+        assertTrue(intSp.hasCharacteristics(Spliterator.ORDERED));
+
+        assertTrue(intSp.tryAdvance((Integer value) -> assertEquals(1, (int) value)));
+        assertTrue(intSp.tryAdvance((int value) -> assertEquals(2, (int) value)));
+
+        PrimitiveIntArrayList recorder = new PrimitiveIntArrayList(16);
+        // Record elements observed by previous tests.
+        recorder.add(1);
+        recorder.add(2);
+
+        Spliterator.OfInt split1 = intSp.trySplit();
+        assertNotNull(split1);
+        assertTrue(split1.tryAdvance((int value) -> recorder.add(value)));
+        assertTrue(split1.tryAdvance((Integer value) -> recorder.add(value)));
+
+        // Assert that splits can themselves resplit.
+        Spliterator.OfInt split2 = split1.trySplit();
+        assertNotNull(split2);
+        split2.forEachRemaining((int value) -> recorder.add(value));
+        assertFalse(split2.tryAdvance((int value) -> fail()));
+        assertFalse(split2.tryAdvance((Integer value) -> fail()));
+
+        // Iterate over the remaning elements so we can make sure we've looked at
+        // everything.
+        split1.forEachRemaining((int value) -> recorder.add(value));
+        intSp.forEachRemaining((int value) -> recorder.add(value));
+
+        int[] recorded = recorder.toSortedArray();
+        assertEquals(Arrays.toString(elements), Arrays.toString(recorded));
+    }
+
+    public void test_spliterator_intOffsetBasic() {
+        int[] elements = { 123123, 131321312, 1, 2, 3, 4, 32323232, 45454};
+        Spliterator.OfInt sp = Arrays.spliterator(elements, 2, 6);
+
+        PrimitiveIntArrayList recorder = new PrimitiveIntArrayList(4);
+        sp.tryAdvance((Integer value) -> recorder.add((int) value));
+        sp.tryAdvance((int value) -> recorder.add(value));
+        sp.forEachRemaining((int value) -> recorder.add(value));
+
+        int[] recorded = recorder.toSortedArray();
+        assertEquals(Arrays.toString(new int[] { 1, 2, 3, 4 }), Arrays.toString(recorded));
+    }
+
+    public void test_spliterator_longOffsetBasic() {
+        long[] elements = { 123123, 131321312, 1, 2, 3, 4, 32323232, 45454};
+        Spliterator.OfLong sp = Arrays.spliterator(elements, 2, 6);
+
+        PrimitiveLongArrayList recorder = new PrimitiveLongArrayList(4);
+        sp.tryAdvance((Long value) -> recorder.add((long) value));
+        sp.tryAdvance((long value) -> recorder.add(value));
+        sp.forEachRemaining((long value) -> recorder.add(value));
+
+        long[] recorded = recorder.toSortedArray();
+        assertEquals(Arrays.toString(new long[] { 1, 2, 3, 4 }), Arrays.toString(recorded));
+    }
+
+    public void test_spliterator_doubleOffsetBasic() {
+        double[] elements = { 123123, 131321312, 1, 2, 3, 4, 32323232, 45454};
+        Spliterator.OfDouble sp = Arrays.spliterator(elements, 2, 6);
+
+        PrimitiveDoubleArrayList recorder = new PrimitiveDoubleArrayList(4);
+        sp.tryAdvance((Double value) -> recorder.add((double) value));
+        sp.tryAdvance((double value) -> recorder.add(value));
+        sp.forEachRemaining((double value) -> recorder.add(value));
+
+        double[] recorded = recorder.toSortedArray();
+        assertEquals(Arrays.toString(new double[] { 1, 2, 3, 4 }), Arrays.toString(recorded));
+    }
+
+    public void test_spliterator_long() {
+        long[] elements = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
+
+        Spliterator.OfLong longSp = Arrays.spliterator(elements);
+
+        assertEquals(16, longSp.estimateSize());
+        assertEquals(16, longSp.getExactSizeIfKnown());
+        assertTrue(longSp.hasCharacteristics(Spliterator.ORDERED));
+
+        assertTrue(longSp.tryAdvance((Long value) -> assertEquals(1, (long) value)));
+        assertTrue(longSp.tryAdvance((long value) -> assertEquals(2, (long) value)));
+
+        PrimitiveLongArrayList recorder = new PrimitiveLongArrayList(16);
+        // Record elements observed by previous tests.
+        recorder.add(1);
+        recorder.add(2);
+
+        Spliterator.OfLong split1 = longSp.trySplit();
+        assertNotNull(split1);
+        assertTrue(split1.tryAdvance((long value) -> recorder.add(value)));
+        assertTrue(split1.tryAdvance((Long value) -> recorder.add(value)));
+
+        // Assert that splits can themselves resplit.
+        Spliterator.OfLong split2 = split1.trySplit();
+        assertNotNull(split2);
+        split2.forEachRemaining((long value) -> recorder.add(value));
+        assertFalse(split2.tryAdvance((long value) -> fail()));
+        assertFalse(split2.tryAdvance((Long value) -> fail()));
+
+        // Iterate over the remaning elements so we can make sure we've looked at
+        // everything.
+        split1.forEachRemaining((long value) -> recorder.add(value));
+        longSp.forEachRemaining((long value) -> recorder.add(value));
+
+        long[] recorded = recorder.toSortedArray();
+        assertEquals(Arrays.toString(elements), Arrays.toString(recorded));
+    }
+
+
+    public void test_spliterator_double() {
+        double[] elements = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
+
+        Spliterator.OfDouble doubleSp = Arrays.spliterator(elements);
+
+        assertEquals(16, doubleSp.estimateSize());
+        assertEquals(16, doubleSp.getExactSizeIfKnown());
+        assertTrue(doubleSp.hasCharacteristics(Spliterator.ORDERED));
+
+        assertTrue(doubleSp.tryAdvance((Double value) -> assertEquals(1.0, (double) value)));
+        assertTrue(doubleSp.tryAdvance((double value) -> assertEquals(2.0, (double) value)));
+
+        PrimitiveDoubleArrayList recorder = new PrimitiveDoubleArrayList(16);
+        // Record elements observed by previous tests.
+        recorder.add(1);
+        recorder.add(2);
+
+        Spliterator.OfDouble split1 = doubleSp.trySplit();
+        assertNotNull(split1);
+        assertTrue(split1.tryAdvance((double value) -> recorder.add(value)));
+        assertTrue(split1.tryAdvance((Double value) -> recorder.add(value)));
+
+        // Assert that splits can themselves resplit.
+        Spliterator.OfDouble split2 = split1.trySplit();
+        assertNotNull(split2);
+        split2.forEachRemaining((double value) -> recorder.add(value));
+        assertFalse(split2.tryAdvance((double value) -> fail()));
+        assertFalse(split2.tryAdvance((Double value) -> fail()));
+
+        // Iterate over the remaining elements so we can make sure we've looked at
+        // everything.
+        split1.forEachRemaining((double value) -> recorder.add(value));
+        doubleSp.forEachRemaining((double value) -> recorder.add(value));
+
+        double[] recorded = recorder.toSortedArray();
+        assertEquals(Arrays.toString(elements), Arrays.toString(recorded));
+    }
+
+    public void test_primitive_spliterators_NPE() {
+        final int[] elements = { 1, 2, 3, 4, 5, 6};
+        Spliterator.OfInt intSp = Arrays.spliterator(elements);
+        try {
+            intSp.forEachRemaining((Consumer<Integer>) null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+
+        try {
+            intSp.tryAdvance((Consumer<Integer>) null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+
+        try {
+            intSp.forEachRemaining((IntConsumer) null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+
+        try {
+            intSp.tryAdvance((IntConsumer) null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+
+        final long[] longElements = { 1, 2, 3, 4, 5, 6};
+        Spliterator.OfLong longSp = Arrays.spliterator(longElements);
+        try {
+            longSp.forEachRemaining((Consumer<Long>) null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+
+        try {
+            longSp.tryAdvance((Consumer<Long>) null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+
+        try {
+            longSp.forEachRemaining((LongConsumer) null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+
+        try {
+            longSp.tryAdvance((LongConsumer) null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+
+        final double[] doubleElements = { 1, 2, 3, 4, 5, 6};
+        Spliterator.OfDouble doubleSp = Arrays.spliterator(doubleElements);
+        try {
+            doubleSp.forEachRemaining((Consumer<Double>) null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+
+        try {
+            doubleSp.tryAdvance((Consumer<Double>) null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+
+        try {
+            doubleSp.forEachRemaining((DoubleConsumer) null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+
+        try {
+            doubleSp.tryAdvance((DoubleConsumer) null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
     }
 
     /**

@@ -17,6 +17,7 @@
 
 package org.apache.harmony.tests.java.util;
 
+import libcore.java.util.SpliteratorTester;
 import org.apache.harmony.testframework.serialization.SerializationTest;
 import tests.support.Support_MapTest2;
 import tests.support.Support_UnmodifiableCollectionTest;
@@ -27,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,6 +36,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.Spliterator;
 import java.util.TreeMap;
 
 public class HashMapTest extends junit.framework.TestCase {
@@ -815,6 +818,104 @@ public class HashMapTest extends junit.framework.TestCase {
         }
     }
 
+    public void test_spliterator_keySet() {
+        HashMap<String, String> hashMap = new HashMap<>();
+        hashMap.put("a", "1");
+        hashMap.put("b", "2");
+        hashMap.put("c", "3");
+        hashMap.put("d", "4");
+        hashMap.put("e", "5");
+        hashMap.put("f", "6");
+        hashMap.put("g", "7");
+        hashMap.put("h", "8");
+        hashMap.put("i", "9");
+        hashMap.put("j", "10");
+        hashMap.put("k", "11");
+        hashMap.put("l", "12");
+        hashMap.put("m", "13");
+        hashMap.put("n", "14");
+        hashMap.put("o", "15");
+        hashMap.put("p", "16");
+
+        Set<String> keys = hashMap.keySet();
+        ArrayList<String> expectedKeys = new ArrayList<>(keys);
+
+        SpliteratorTester.runBasicIterationTests(keys.spliterator(), expectedKeys);
+        SpliteratorTester.runBasicSplitTests(keys, expectedKeys);
+        SpliteratorTester.testSpliteratorNPE(keys.spliterator());
+
+        assertTrue(keys.spliterator().hasCharacteristics(Spliterator.SIZED | Spliterator.DISTINCT));
+
+        SpliteratorTester.runSizedTests(keys.spliterator(), 16);
+        SpliteratorTester.runDistinctTests(keys);
+    }
+
+    public void test_spliterator_valueSet() {
+        HashMap<String, String> hashMap = new HashMap<>();
+        hashMap.put("a", "1");
+        hashMap.put("b", "2");
+        hashMap.put("c", "3");
+        hashMap.put("d", "4");
+        hashMap.put("e", "5");
+        hashMap.put("f", "6");
+        hashMap.put("g", "7");
+        hashMap.put("h", "8");
+        hashMap.put("i", "9");
+        hashMap.put("j", "10");
+        hashMap.put("k", "11");
+        hashMap.put("l", "12");
+        hashMap.put("m", "13");
+        hashMap.put("n", "14");
+        hashMap.put("o", "15");
+        hashMap.put("p", "16");
+
+        Collection<String> values = hashMap.values();
+        ArrayList<String> expectedValues = new ArrayList<>(values);
+
+        SpliteratorTester.runBasicIterationTests(values.spliterator(), expectedValues);
+        SpliteratorTester.runBasicSplitTests(values, expectedValues);
+        SpliteratorTester.testSpliteratorNPE(values.spliterator());
+
+        assertTrue(values.spliterator().hasCharacteristics(Spliterator.SIZED));
+
+        SpliteratorTester.runSizedTests(values.spliterator(), 16);
+    }
+
+    public void test_spliterator_entrySet() {
+        HashMap<String, String> hashMap = new HashMap<>();
+        hashMap.put("a", "1");
+        hashMap.put("b", "2");
+        hashMap.put("c", "3");
+        hashMap.put("d", "4");
+        hashMap.put("e", "5");
+        hashMap.put("f", "6");
+        hashMap.put("g", "7");
+        hashMap.put("h", "8");
+        hashMap.put("i", "9");
+        hashMap.put("j", "10");
+        hashMap.put("k", "11");
+        hashMap.put("l", "12");
+        hashMap.put("m", "13");
+        hashMap.put("n", "14");
+        hashMap.put("o", "15");
+        hashMap.put("p", "16");
+
+        Set<Map.Entry<String, String>> values = hashMap.entrySet();
+        ArrayList<Map.Entry<String, String>> expectedValues = new ArrayList<>(values);
+
+        Comparator<Map.Entry<String, String>> comparator =
+                (a, b) -> (a.getKey().compareTo(b.getKey()));
+
+        SpliteratorTester.runBasicIterationTests(values.spliterator(), expectedValues);
+        SpliteratorTester.runBasicSplitTests(values, expectedValues, comparator);
+        SpliteratorTester.testSpliteratorNPE(values.spliterator());
+
+        assertTrue(values.spliterator().hasCharacteristics(Spliterator.SIZED | Spliterator.DISTINCT));
+
+        SpliteratorTester.runSizedTests(values.spliterator(), 16);
+        SpliteratorTester.runDistinctTests(values);
+    }
+
     /**
      * Sets up the fixture, for example, open a network connection. This method
      * is called before a test is executed.
@@ -864,3 +965,4 @@ public class HashMapTest extends junit.framework.TestCase {
         SerializationTest.verifySelf(hm);
     }
 }
+

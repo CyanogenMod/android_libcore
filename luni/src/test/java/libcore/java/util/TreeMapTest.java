@@ -17,6 +17,8 @@
 package libcore.java.util;
 
 import java.util.AbstractMap.SimpleEntry;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
@@ -24,8 +26,12 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NavigableMap;
+import java.util.Set;
 import java.util.SortedMap;
+import java.util.Spliterator;
 import java.util.TreeMap;
+import java.util.WeakHashMap;
+
 import junit.framework.TestCase;
 import libcore.util.SerializationTester;
 
@@ -461,5 +467,104 @@ public class TreeMapTest extends TestCase {
 
         treeMap.put("candy", "floss");
         treeMap.put("cheddar", "cheese");
+    }
+
+    public void test_spliterator_keySet() {
+        TreeMap<String, String> treeMap = new TreeMap<>();
+        treeMap.put("a", "1");
+        treeMap.put("b", "2");
+        treeMap.put("c", "3");
+        treeMap.put("d", "4");
+        treeMap.put("e", "5");
+        treeMap.put("f", "6");
+        treeMap.put("g", "7");
+        treeMap.put("h", "8");
+        treeMap.put("i", "9");
+        treeMap.put("j", "10");
+        treeMap.put("k", "11");
+        treeMap.put("l", "12");
+        treeMap.put("m", "13");
+        treeMap.put("n", "14");
+        treeMap.put("o", "15");
+        treeMap.put("p", "16");
+
+        Set<String> keys = treeMap.keySet();
+        ArrayList<String> expectedKeys = new ArrayList<>(keys);
+
+        SpliteratorTester.runBasicIterationTests_unordered(keys.spliterator(), expectedKeys,
+                String::compareTo);
+        SpliteratorTester.runBasicSplitTests(keys, expectedKeys);
+        SpliteratorTester.testSpliteratorNPE(keys.spliterator());
+
+        assertTrue(keys.spliterator().hasCharacteristics(Spliterator.ORDERED | Spliterator.SORTED));
+        SpliteratorTester.runSortedTests(keys);
+        SpliteratorTester.runOrderedTests(keys);
+    }
+
+    public void test_spliterator_valueSet() {
+        TreeMap<String, String> treeMap = new TreeMap<>();
+        treeMap.put("a", "1");
+        treeMap.put("b", "2");
+        treeMap.put("c", "3");
+        treeMap.put("d", "4");
+        treeMap.put("e", "5");
+        treeMap.put("f", "6");
+        treeMap.put("g", "7");
+        treeMap.put("h", "8");
+        treeMap.put("i", "9");
+        treeMap.put("j", "10");
+        treeMap.put("k", "11");
+        treeMap.put("l", "12");
+        treeMap.put("m", "13");
+        treeMap.put("n", "14");
+        treeMap.put("o", "15");
+        treeMap.put("p", "16");
+
+        Collection<String> values = treeMap.values();
+        ArrayList<String> expectedValues = new ArrayList<>(values);
+
+        SpliteratorTester.runBasicIterationTests_unordered(
+                values.spliterator(), expectedValues, String::compareTo);
+        SpliteratorTester.runBasicSplitTests(values, expectedValues);
+        SpliteratorTester.testSpliteratorNPE(values.spliterator());
+
+        assertTrue(values.spliterator().hasCharacteristics(Spliterator.ORDERED | Spliterator.SORTED));
+        SpliteratorTester.runSortedTests(values);
+        SpliteratorTester.runOrderedTests(values);
+    }
+
+    public void test_spliterator_entrySet() {
+        TreeMap<String, String> treeMap = new TreeMap<>();
+        treeMap.put("a", "1");
+        treeMap.put("b", "2");
+        treeMap.put("c", "3");
+        treeMap.put("d", "4");
+        treeMap.put("e", "5");
+        treeMap.put("f", "6");
+        treeMap.put("g", "7");
+        treeMap.put("h", "8");
+        treeMap.put("i", "9");
+        treeMap.put("j", "10");
+        treeMap.put("k", "11");
+        treeMap.put("l", "12");
+        treeMap.put("m", "13");
+        treeMap.put("n", "14");
+        treeMap.put("o", "15");
+        treeMap.put("p", "16");
+
+        Set<Map.Entry<String, String>> values = treeMap.entrySet();
+        ArrayList<Map.Entry<String, String>> expectedValues = new ArrayList<>(values);
+
+        Comparator<Map.Entry<String, String>> comparator =
+                (a, b) -> (a.getKey().compareTo(b.getKey()));
+
+        SpliteratorTester.runBasicIterationTests_unordered(values.spliterator(), expectedValues,
+                (a, b) -> (a.getKey().compareTo(b.getKey())));
+        SpliteratorTester.runBasicSplitTests(values, expectedValues, comparator);
+        SpliteratorTester.testSpliteratorNPE(values.spliterator());
+
+        assertTrue(values.spliterator().hasCharacteristics(Spliterator.ORDERED | Spliterator.SORTED));
+        SpliteratorTester.runSortedTests(values, (a, b) -> (a.getKey().compareTo(b.getKey())));
+        SpliteratorTester.runOrderedTests(values);
     }
 }
