@@ -818,6 +818,8 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/java/util/SimpleTimeZone.java \
     ojluni/src/main/java/java/util/SortedMap.java \
     ojluni/src/main/java/java/util/SortedSet.java \
+    ojluni/src/main/java/java/util/Spliterator.java \
+    ojluni/src/main/java/java/util/Spliterators.java \
     ojluni/src/main/java/java/util/Stack.java \
     ojluni/src/main/java/java/util/StringTokenizer.java \
     ojluni/src/main/java/java/util/Timer.java \

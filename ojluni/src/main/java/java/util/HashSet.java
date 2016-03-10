@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2013, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -308,5 +308,21 @@ public class HashSet<E>
             E e = (E) s.readObject();
             map.put(e, PRESENT);
         }
+    }
+
+    /**
+     * Creates a <em><a href="Spliterator.html#binding">late-binding</a></em>
+     * and <em>fail-fast</em> {@link Spliterator} over the elements in this
+     * set.
+     *
+     * <p>The {@code Spliterator} reports {@link Spliterator#SIZED} and
+     * {@link Spliterator#DISTINCT}.  Overriding implementations should document
+     * the reporting of additional characteristic values.
+     *
+     * @return a {@code Spliterator} over the elements in this set
+     * @since 1.8
+     */
+    public Spliterator<E> spliterator() {
+        return new HashMap.KeySpliterator<E,Object>(map, 0, -1, 0, 0);
     }
 }
