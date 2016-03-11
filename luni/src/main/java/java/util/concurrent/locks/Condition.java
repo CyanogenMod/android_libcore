@@ -6,8 +6,8 @@
 
 package java.util.concurrent.locks;
 
-import java.util.concurrent.TimeUnit;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 /**
  * {@code Condition} factors out the {@code Object} monitor
@@ -98,7 +98,7 @@ import java.util.Date;
  * <p>Note that {@code Condition} instances are just normal objects and can
  * themselves be used as the target in a {@code synchronized} statement,
  * and can have their own monitor {@link Object#wait wait} and
- * {@link Object#notify notification} methods invoked.
+ * {@link Object#notify notify} methods invoked.
  * Acquiring the monitor lock of a {@code Condition} instance, or using its
  * monitor methods, has no specified relationship with acquiring the
  * {@link Lock} associated with that {@code Condition} or the use of its
@@ -280,7 +280,7 @@ public interface Condition {
      * condition still does not hold. Typical uses of this method take
      * the following form:
      *
-     *  <pre> {@code
+     * <pre> {@code
      * boolean aMethod(long timeout, TimeUnit unit) {
      *   long nanos = unit.toNanos(timeout);
      *   lock.lock();
@@ -333,7 +333,7 @@ public interface Condition {
      * Causes the current thread to wait until it is signalled or interrupted,
      * or the specified waiting time elapses. This method is behaviorally
      * equivalent to:
-     *  <pre> {@code awaitNanos(unit.toNanos(time)) > 0}</pre>
+     * <pre> {@code awaitNanos(unit.toNanos(time)) > 0}</pre>
      *
      * @param time the maximum time to wait
      * @param unit the time unit of the {@code time} argument
@@ -382,7 +382,7 @@ public interface Condition {
      *
      * <p>The return value indicates whether the deadline has elapsed,
      * which can be used as follows:
-     *  <pre> {@code
+     * <pre> {@code
      * boolean aMethod(Date deadline) {
      *   boolean stillWaiting = true;
      *   lock.lock();

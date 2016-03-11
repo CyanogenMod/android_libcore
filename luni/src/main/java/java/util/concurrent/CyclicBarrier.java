@@ -23,10 +23,10 @@ import java.util.concurrent.locks.ReentrantLock;
  * This <em>barrier action</em> is useful
  * for updating shared-state before any of the parties continue.
  *
- * <p><b>Sample usage:</b> Here is an example of
- *  using a barrier in a parallel decomposition design:
+ * <p><b>Sample usage:</b> Here is an example of using a barrier in a
+ * parallel decomposition design:
  *
- *  <pre> {@code
+ * <pre> {@code
  * class Solver {
  *   final int N;
  *   final float[][] data;
@@ -53,16 +53,20 @@ import java.util.concurrent.locks.ReentrantLock;
  *   public Solver(float[][] matrix) {
  *     data = matrix;
  *     N = matrix.length;
- *     barrier = new CyclicBarrier(N,
- *                                 new Runnable() {
- *                                   public void run() {
- *                                     mergeRows(...);
- *                                   }
- *                                 });
- *     for (int i = 0; i < N; ++i)
- *       new Thread(new Worker(i)).start();
+ *     Runnable barrierAction =
+ *       new Runnable() { public void run() { mergeRows(...); }};
+ *     barrier = new CyclicBarrier(N, barrierAction);
  *
- *     waitUntilDone();
+ *     List<Thread> threads = new ArrayList<>(N);
+ *     for (int i = 0; i < N; i++) {
+ *       Thread thread = new Thread(new Worker(i));
+ *       threads.add(thread);
+ *       thread.start();
+ *     }
+ *
+ *     // wait until done
+ *     for (Thread thread : threads)
+ *       thread.join();
  *   }
  * }}</pre>
  *
@@ -79,7 +83,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * {@link #await} returns the arrival index of that thread at the barrier.
  * You can then choose which thread should execute the barrier action, for
  * example:
- *  <pre> {@code
+ * <pre> {@code
  * if (barrier.await() == 0) {
  *   // log the completion of this iteration
  * }}</pre>
@@ -117,7 +121,7 @@ public class CyclicBarrier {
      * but no subsequent reset.
      */
     private static class Generation {
-        boolean broken = false;
+        boolean broken;         // initially false
     }
 
     /** The lock for guarding barrier entry */
@@ -388,7 +392,8 @@ public class CyclicBarrier {
      *         to arrive and zero indicates the last to arrive
      * @throws InterruptedException if the current thread was interrupted
      *         while waiting
-     * @throws TimeoutException if the specified timeout elapses
+     * @throws TimeoutException if the specified timeout elapses.
+     *         In this case the barrier will be broken.
      * @throws BrokenBarrierException if <em>another</em> thread was
      *         interrupted or timed out while the current thread was
      *         waiting, or the barrier was reset, or the barrier was broken

@@ -28,7 +28,7 @@ public class PhaserTest extends JSR166TestCase {
     //     main(suite(), args);
     // }
     // public static Test suite() {
-    //     return new TestSuite(...);
+    //     return new TestSuite(PhaserTest.class);
     // }
 
     private static final int maxParties = 65535;
@@ -342,8 +342,8 @@ public class PhaserTest extends JSR166TestCase {
      * registered or unarrived parties would become negative
      */
     public void testArriveAndDeregister1() {
+        Phaser phaser = new Phaser();
         try {
-            Phaser phaser = new Phaser();
             phaser.arriveAndDeregister();
             shouldThrow();
         } catch (IllegalStateException success) {}
@@ -629,11 +629,11 @@ public class PhaserTest extends JSR166TestCase {
             threads.add(newStartedThread(new CheckedRunnable() {
                 public void realRun() {
                     for (int k = 0; k < 3; k++) {
-                        assertEquals(2*k+1, phaser.arriveAndAwaitAdvance());
+                        assertEquals(2 * k + 1, phaser.arriveAndAwaitAdvance());
                         count.incrementAndGet();
-                        assertEquals(2*k+1, phaser.arrive());
-                        assertEquals(2*k+2, phaser.awaitAdvance(2*k+1));
-                        assertEquals(4*(k+1), count.get());
+                        assertEquals(2 * k + 1, phaser.arrive());
+                        assertEquals(2 * k + 2, phaser.awaitAdvance(2 * k + 1));
+                        assertEquals(4 * (k + 1), count.get());
                     }}}));
 
         for (Thread thread : threads)
@@ -689,7 +689,7 @@ public class PhaserTest extends JSR166TestCase {
         for (Phaser phaser : phasers) {
             assertEquals(-42, phaser.awaitAdvance(-42));
             assertEquals(-42, phaser.awaitAdvanceInterruptibly(-42));
-            assertEquals(-42, phaser.awaitAdvanceInterruptibly(-42, SMALL_DELAY_MS, MILLISECONDS));
+            assertEquals(-42, phaser.awaitAdvanceInterruptibly(-42, MEDIUM_DELAY_MS, MILLISECONDS));
         }
 
         for (Phaser child : onePartyChildren)
@@ -697,10 +697,10 @@ public class PhaserTest extends JSR166TestCase {
         for (Phaser phaser : phasers) {
             assertEquals(-42, phaser.awaitAdvance(-42));
             assertEquals(-42, phaser.awaitAdvanceInterruptibly(-42));
-            assertEquals(-42, phaser.awaitAdvanceInterruptibly(-42, SMALL_DELAY_MS, MILLISECONDS));
+            assertEquals(-42, phaser.awaitAdvanceInterruptibly(-42, MEDIUM_DELAY_MS, MILLISECONDS));
             assertEquals(1, phaser.awaitAdvance(0));
             assertEquals(1, phaser.awaitAdvanceInterruptibly(0));
-            assertEquals(1, phaser.awaitAdvanceInterruptibly(0, SMALL_DELAY_MS, MILLISECONDS));
+            assertEquals(1, phaser.awaitAdvanceInterruptibly(0, MEDIUM_DELAY_MS, MILLISECONDS));
         }
 
         for (Phaser child : onePartyChildren)
@@ -708,13 +708,13 @@ public class PhaserTest extends JSR166TestCase {
         for (Phaser phaser : phasers) {
             assertEquals(-42, phaser.awaitAdvance(-42));
             assertEquals(-42, phaser.awaitAdvanceInterruptibly(-42));
-            assertEquals(-42, phaser.awaitAdvanceInterruptibly(-42, SMALL_DELAY_MS, MILLISECONDS));
+            assertEquals(-42, phaser.awaitAdvanceInterruptibly(-42, MEDIUM_DELAY_MS, MILLISECONDS));
             assertEquals(2, phaser.awaitAdvance(0));
             assertEquals(2, phaser.awaitAdvanceInterruptibly(0));
-            assertEquals(2, phaser.awaitAdvanceInterruptibly(0, SMALL_DELAY_MS, MILLISECONDS));
+            assertEquals(2, phaser.awaitAdvanceInterruptibly(0, MEDIUM_DELAY_MS, MILLISECONDS));
             assertEquals(2, phaser.awaitAdvance(1));
             assertEquals(2, phaser.awaitAdvanceInterruptibly(1));
-            assertEquals(2, phaser.awaitAdvanceInterruptibly(1, SMALL_DELAY_MS, MILLISECONDS));
+            assertEquals(2, phaser.awaitAdvanceInterruptibly(1, MEDIUM_DELAY_MS, MILLISECONDS));
         }
     }
 
@@ -752,8 +752,8 @@ public class PhaserTest extends JSR166TestCase {
      * unarrived parties
      */
     public void testArriveAndAwaitAdvance1() {
+        Phaser phaser = new Phaser();
         try {
-            Phaser phaser = new Phaser();
             phaser.arriveAndAwaitAdvance();
             shouldThrow();
         } catch (IllegalStateException success) {}

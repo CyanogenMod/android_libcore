@@ -25,6 +25,7 @@ package java.util.concurrent;
  * @author Doug Lea
  * @param <V> the result type of method {@code call}
  */
+@FunctionalInterface
 public interface Callable<V> {
     /**
      * Computes a result, or throws an exception if unable to do so.

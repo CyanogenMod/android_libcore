@@ -28,7 +28,7 @@ public class RecursiveTaskTest extends JSR166TestCase {
     //     main(suite(), args);
     // }
     // public static Test suite() {
-    //     return new TestSuite(...);
+    //     return new TestSuite(RecursiveTaskTest.class);
     // }
 
     private static ForkJoinPool mainPool() {
@@ -46,15 +46,13 @@ public class RecursiveTaskTest extends JSR166TestCase {
     }
 
     private <T> T testInvokeOnPool(ForkJoinPool pool, RecursiveTask<T> a) {
-        try {
+        try (PoolCleaner cleaner = cleaner(pool)) {
             checkNotDone(a);
 
             T result = pool.invoke(a);
 
             checkCompletedNormally(a, result);
             return result;
-        } finally {
-            joinPool(pool);
         }
     }
 
@@ -335,6 +333,8 @@ public class RecursiveTaskTest extends JSR166TestCase {
                 FibTask f = new FibTask(8);
                 assertSame(f, f.fork());
                 helpQuiesce();
+                while (!f.isDone()) // wait out race
+                    ;
                 assertEquals(0, getQueuedTaskCount());
                 checkCompletedNormally(f, 21);
                 return NoResult;

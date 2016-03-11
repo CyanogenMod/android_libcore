@@ -6,7 +6,8 @@
 
 package java.util.concurrent;
 
-import java.util.*;
+import java.util.NavigableMap;
+import java.util.NavigableSet;
 
 // BEGIN android-note
 // removed link to collections framework docs
@@ -73,7 +74,7 @@ public interface ConcurrentNavigableMap<K,V>
      * reflected in the descending map, and vice-versa.
      *
      * <p>The returned map has an ordering equivalent to
-     * {@link Collections#reverseOrder(Comparator) Collections.reverseOrder}{@code (comparator())}.
+     * {@link java.util.Collections#reverseOrder(Comparator) Collections.reverseOrder}{@code (comparator())}.
      * The expression {@code m.descendingMap().descendingMap()} returns a
      * view of {@code m} essentially equivalent to {@code m}.
      *
@@ -92,15 +93,12 @@ public interface ConcurrentNavigableMap<K,V>
      * operations.  It does not support the {@code add} or {@code addAll}
      * operations.
      *
-     * <p>The view's {@code iterator} is a "weakly consistent" iterator
-     * that will never throw {@link ConcurrentModificationException},
-     * and guarantees to traverse elements as they existed upon
-     * construction of the iterator, and may (but is not guaranteed to)
-     * reflect any modifications subsequent to construction.
+     * <p>The view's iterators and spliterators are
+     * <a href="package-summary.html#Weakly"><i>weakly consistent</i></a>.
      *
      * @return a navigable set view of the keys in this map
      */
-    public NavigableSet<K> navigableKeySet();
+    NavigableSet<K> navigableKeySet();
 
     /**
      * Returns a {@link NavigableSet} view of the keys contained in this map.
@@ -113,11 +111,8 @@ public interface ConcurrentNavigableMap<K,V>
      * operations.  It does not support the {@code add} or {@code addAll}
      * operations.
      *
-     * <p>The view's {@code iterator} is a "weakly consistent" iterator
-     * that will never throw {@link ConcurrentModificationException},
-     * and guarantees to traverse elements as they existed upon
-     * construction of the iterator, and may (but is not guaranteed to)
-     * reflect any modifications subsequent to construction.
+     * <p>The view's iterators and spliterators are
+     * <a href="package-summary.html#Weakly"><i>weakly consistent</i></a>.
      *
      * <p>This method is equivalent to method {@code navigableKeySet}.
      *
@@ -136,13 +131,10 @@ public interface ConcurrentNavigableMap<K,V>
      * operations.  It does not support the {@code add} or {@code addAll}
      * operations.
      *
-     * <p>The view's {@code iterator} is a "weakly consistent" iterator
-     * that will never throw {@link ConcurrentModificationException},
-     * and guarantees to traverse elements as they existed upon
-     * construction of the iterator, and may (but is not guaranteed to)
-     * reflect any modifications subsequent to construction.
+     * <p>The view's iterators and spliterators are
+     * <a href="package-summary.html#Weakly"><i>weakly consistent</i></a>.
      *
      * @return a reverse order navigable set view of the keys in this map
      */
-    public NavigableSet<K> descendingKeySet();
+    NavigableSet<K> descendingKeySet();
 }

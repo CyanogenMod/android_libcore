@@ -7,12 +7,16 @@
 package java.util.concurrent;
 
 import java.util.AbstractCollection;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Queue;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.function.Consumer;
 
 // BEGIN android-note
 // removed link to collections framework docs
@@ -27,12 +31,8 @@ import java.util.Queue;
  * Like most other concurrent collection implementations, this class
  * does not permit the use of {@code null} elements.
  *
- * <p>Iterators are <i>weakly consistent</i>, returning elements
- * reflecting the state of the deque at some point at or since the
- * creation of the iterator.  They do <em>not</em> throw {@link
- * java.util.ConcurrentModificationException
- * ConcurrentModificationException}, and may proceed concurrently with
- * other operations.
+ * <p>Iterators and spliterators are
+ * <a href="package-summary.html#Weakly"><i>weakly consistent</i></a>.
  *
  * <p>Beware that, unlike in most collections, the {@code size} method
  * is <em>NOT</em> a constant-time operation. Because of the
@@ -59,7 +59,7 @@ import java.util.Queue;
  * @since 1.7
  * @author Doug Lea
  * @author Martin Buchholz
- * @param <E> the type of elements held in this collection
+ * @param <E> the type of elements held in this deque
  */
 public class ConcurrentLinkedDeque<E>
     extends AbstractCollection<E>
@@ -272,47 +272,45 @@ public class ConcurrentLinkedDeque<E>
          * only be seen after publication via casNext or casPrev.
          */
         Node(E item) {
-            UNSAFE.putObject(this, itemOffset, item);
+            U.putObject(this, ITEM, item);
         }
 
         boolean casItem(E cmp, E val) {
-            return UNSAFE.compareAndSwapObject(this, itemOffset, cmp, val);
+            return U.compareAndSwapObject(this, ITEM, cmp, val);
         }
 
         void lazySetNext(Node<E> val) {
-            UNSAFE.putOrderedObject(this, nextOffset, val);
+            U.putOrderedObject(this, NEXT, val);
         }
 
         boolean casNext(Node<E> cmp, Node<E> val) {
-            return UNSAFE.compareAndSwapObject(this, nextOffset, cmp, val);
+            return U.compareAndSwapObject(this, NEXT, cmp, val);
         }
 
         void lazySetPrev(Node<E> val) {
-            UNSAFE.putOrderedObject(this, prevOffset, val);
+            U.putOrderedObject(this, PREV, val);
         }
 
         boolean casPrev(Node<E> cmp, Node<E> val) {
-            return UNSAFE.compareAndSwapObject(this, prevOffset, cmp, val);
+            return U.compareAndSwapObject(this, PREV, cmp, val);
         }
 
         // Unsafe mechanics
 
-        private static final sun.misc.Unsafe UNSAFE;
-        private static final long prevOffset;
-        private static final long itemOffset;
-        private static final long nextOffset;
+        private static final sun.misc.Unsafe U = sun.misc.Unsafe.getUnsafe();
+        private static final long PREV;
+        private static final long ITEM;
+        private static final long NEXT;
 
         static {
             try {
-                UNSAFE = sun.misc.Unsafe.getUnsafe();
-                Class<?> k = Node.class;
-                prevOffset = UNSAFE.objectFieldOffset
-                    (k.getDeclaredField("prev"));
-                itemOffset = UNSAFE.objectFieldOffset
-                    (k.getDeclaredField("item"));
-                nextOffset = UNSAFE.objectFieldOffset
-                    (k.getDeclaredField("next"));
-            } catch (Exception e) {
+                PREV = U.objectFieldOffset
+                    (Node.class.getDeclaredField("prev"));
+                ITEM = U.objectFieldOffset
+                    (Node.class.getDeclaredField("item"));
+                NEXT = U.objectFieldOffset
+                    (Node.class.getDeclaredField("next"));
+            } catch (ReflectiveOperationException e) {
                 throw new Error(e);
             }
         }
@@ -322,8 +320,7 @@ public class ConcurrentLinkedDeque<E>
      * Links e as first element.
      */
     private void linkFirst(E e) {
-        checkNotNull(e);
-        final Node<E> newNode = new Node<E>(e);
+        final Node<E> newNode = new Node<E>(Objects.requireNonNull(e));
 
         restartFromHead:
         for (;;)
@@ -355,8 +352,7 @@ public class ConcurrentLinkedDeque<E>
      * Links e as last element.
      */
     private void linkLast(E e) {
-        checkNotNull(e);
-        final Node<E> newNode = new Node<E>(e);
+        final Node<E> newNode = new Node<E>(Objects.requireNonNull(e));
 
         restartFromTail:
         for (;;)
@@ -761,16 +757,6 @@ public class ConcurrentLinkedDeque<E>
     // Minor convenience utilities
 
     /**
-     * Throws NullPointerException if argument is null.
-     *
-     * @param v the element
-     */
-    private static void checkNotNull(Object v) {
-        if (v == null)
-            throw new NullPointerException();
-    }
-
-    /**
      * Returns element unless it is null, in which case throws
      * NoSuchElementException.
      *
@@ -781,22 +767,6 @@ public class ConcurrentLinkedDeque<E>
         if (v == null)
             throw new NoSuchElementException();
         return v;
-    }
-
-    /**
-     * Creates an array list and fills it with elements of this list.
-     * Used by toArray.
-     *
-     * @return the array list
-     */
-    private ArrayList<E> toArrayList() {
-        ArrayList<E> list = new ArrayList<E>();
-        for (Node<E> p = first(); p != null; p = succ(p)) {
-            E item = p.item;
-            if (item != null)
-                list.add(item);
-        }
-        return list;
     }
 
     /**
@@ -819,8 +789,7 @@ public class ConcurrentLinkedDeque<E>
         // Copy c into a private chain of Nodes
         Node<E> h = null, t = null;
         for (E e : c) {
-            checkNotNull(e);
-            Node<E> newNode = new Node<E>(e);
+            Node<E> newNode = new Node<E>(Objects.requireNonNull(e));
             if (h == null)
                 h = t = newNode;
             else {
@@ -995,23 +964,42 @@ public class ConcurrentLinkedDeque<E>
     }
 
     public E poll()           { return pollFirst(); }
-    public E remove()         { return removeFirst(); }
     public E peek()           { return peekFirst(); }
-    public E element()        { return getFirst(); }
-    public void push(E e)     { addFirst(e); }
+
+    /**
+     * @throws NoSuchElementException {@inheritDoc}
+     */
+    public E remove()         { return removeFirst(); }
+
+    /**
+     * @throws NoSuchElementException {@inheritDoc}
+     */
     public E pop()            { return removeFirst(); }
 
     /**
-     * Removes the first element {@code e} such that
-     * {@code o.equals(e)}, if such an element exists in this deque.
+     * @throws NoSuchElementException {@inheritDoc}
+     */
+    public E element()        { return getFirst(); }
+
+    /**
+     * @throws NullPointerException {@inheritDoc}
+     */
+    public void push(E e)     { addFirst(e); }
+
+    /**
+     * Removes the first occurrence of the specified element from this deque.
      * If the deque does not contain the element, it is unchanged.
+     * More formally, removes the first element {@code e} such that
+     * {@code o.equals(e)} (if such an element exists).
+     * Returns {@code true} if this deque contained the specified element
+     * (or equivalently, if this deque changed as a result of the call).
      *
      * @param o element to be removed from this deque, if present
      * @return {@code true} if the deque contained the specified element
      * @throws NullPointerException if the specified element is null
      */
     public boolean removeFirstOccurrence(Object o) {
-        checkNotNull(o);
+        Objects.requireNonNull(o);
         for (Node<E> p = first(); p != null; p = succ(p)) {
             E item = p.item;
             if (item != null && o.equals(item) && p.casItem(item, null)) {
@@ -1023,16 +1011,19 @@ public class ConcurrentLinkedDeque<E>
     }
 
     /**
-     * Removes the last element {@code e} such that
-     * {@code o.equals(e)}, if such an element exists in this deque.
+     * Removes the last occurrence of the specified element from this deque.
      * If the deque does not contain the element, it is unchanged.
+     * More formally, removes the last element {@code e} such that
+     * {@code o.equals(e)} (if such an element exists).
+     * Returns {@code true} if this deque contained the specified element
+     * (or equivalently, if this deque changed as a result of the call).
      *
      * @param o element to be removed from this deque, if present
      * @return {@code true} if the deque contained the specified element
      * @throws NullPointerException if the specified element is null
      */
     public boolean removeLastOccurrence(Object o) {
-        checkNotNull(o);
+        Objects.requireNonNull(o);
         for (Node<E> p = last(); p != null; p = pred(p)) {
             E item = p.item;
             if (item != null && o.equals(item) && p.casItem(item, null)) {
@@ -1044,18 +1035,20 @@ public class ConcurrentLinkedDeque<E>
     }
 
     /**
-     * Returns {@code true} if this deque contains at least one
-     * element {@code e} such that {@code o.equals(e)}.
+     * Returns {@code true} if this deque contains the specified element.
+     * More formally, returns {@code true} if and only if this deque contains
+     * at least one element {@code e} such that {@code o.equals(e)}.
      *
      * @param o element whose presence in this deque is to be tested
      * @return {@code true} if this deque contains the specified element
      */
     public boolean contains(Object o) {
-        if (o == null) return false;
-        for (Node<E> p = first(); p != null; p = succ(p)) {
-            E item = p.item;
-            if (item != null && o.equals(item))
-                return true;
+        if (o != null) {
+            for (Node<E> p = first(); p != null; p = succ(p)) {
+                E item = p.item;
+                if (item != null && o.equals(item))
+                    return true;
+            }
         }
         return false;
     }
@@ -1086,19 +1079,28 @@ public class ConcurrentLinkedDeque<E>
      * @return the number of elements in this deque
      */
     public int size() {
-        int count = 0;
-        for (Node<E> p = first(); p != null; p = succ(p))
-            if (p.item != null)
-                // Collection.size() spec says to max out
-                if (++count == Integer.MAX_VALUE)
-                    break;
-        return count;
+        restartFromHead: for (;;) {
+            int count = 0;
+            for (Node<E> p = first(); p != null;) {
+                if (p.item != null)
+                    if (++count == Integer.MAX_VALUE)
+                        break;  // @see Collection.size()
+                if (p == (p = p.next))
+                    continue restartFromHead;
+            }
+            return count;
+        }
     }
 
     /**
-     * Removes the first element {@code e} such that
-     * {@code o.equals(e)}, if such an element exists in this deque.
+     * Removes the first occurrence of the specified element from this deque.
      * If the deque does not contain the element, it is unchanged.
+     * More formally, removes the first element {@code e} such that
+     * {@code o.equals(e)} (if such an element exists).
+     * Returns {@code true} if this deque contained the specified element
+     * (or equivalently, if this deque changed as a result of the call).
+     *
+     * <p>This method is equivalent to {@link #removeFirstOccurrence(Object)}.
      *
      * @param o element to be removed from this deque, if present
      * @return {@code true} if the deque contained the specified element
@@ -1128,8 +1130,7 @@ public class ConcurrentLinkedDeque<E>
         // Copy c into a private chain of Nodes
         Node<E> beginningOfTheEnd = null, last = null;
         for (E e : c) {
-            checkNotNull(e);
-            Node<E> newNode = new Node<E>(e);
+            Node<E> newNode = new Node<E>(Objects.requireNonNull(e));
             if (beginningOfTheEnd == null)
                 beginningOfTheEnd = last = newNode;
             else {
@@ -1180,6 +1181,62 @@ public class ConcurrentLinkedDeque<E>
             ;
     }
 
+    public String toString() {
+        String[] a = null;
+        restartFromHead: for (;;) {
+            int charLength = 0;
+            int size = 0;
+            for (Node<E> p = first(); p != null;) {
+                E item = p.item;
+                if (item != null) {
+                    if (a == null)
+                        a = new String[4];
+                    else if (size == a.length)
+                        a = Arrays.copyOf(a, 2 * size);
+                    String s = item.toString();
+                    a[size++] = s;
+                    charLength += s.length();
+                }
+                if (p == (p = p.next))
+                    continue restartFromHead;
+            }
+
+            if (size == 0)
+                return "[]";
+
+            return Helpers.toString(a, size, charLength);
+        }
+    }
+
+    private Object[] toArrayInternal(Object[] a) {
+        Object[] x = a;
+        restartFromHead: for (;;) {
+            int size = 0;
+            for (Node<E> p = first(); p != null;) {
+                E item = p.item;
+                if (item != null) {
+                    if (x == null)
+                        x = new Object[4];
+                    else if (size == x.length)
+                        x = Arrays.copyOf(x, 2 * (size + 4));
+                    x[size++] = item;
+                }
+                if (p == (p = p.next))
+                    continue restartFromHead;
+            }
+            if (x == null)
+                return new Object[0];
+            else if (a != null && size <= a.length) {
+                if (a != x)
+                    System.arraycopy(x, 0, a, 0, size);
+                if (size < a.length)
+                    a[size] = null;
+                return a;
+            }
+            return (size == x.length) ? x : Arrays.copyOf(x, size);
+        }
+    }
+
     /**
      * Returns an array containing all of the elements in this deque, in
      * proper sequence (from first to last element).
@@ -1194,7 +1251,7 @@ public class ConcurrentLinkedDeque<E>
      * @return an array containing all of the elements in this deque
      */
     public Object[] toArray() {
-        return toArrayList().toArray();
+        return toArrayInternal(null);
     }
 
     /**
@@ -1220,7 +1277,7 @@ public class ConcurrentLinkedDeque<E>
      * The following code can be used to dump the deque into a newly
      * allocated array of {@code String}:
      *
-     *  <pre> {@code String[] y = x.toArray(new String[0]);}</pre>
+     * <pre> {@code String[] y = x.toArray(new String[0]);}</pre>
      *
      * Note that {@code toArray(new Object[0])} is identical in function to
      * {@code toArray()}.
@@ -1234,20 +1291,18 @@ public class ConcurrentLinkedDeque<E>
      *         this deque
      * @throws NullPointerException if the specified array is null
      */
+    @SuppressWarnings("unchecked")
     public <T> T[] toArray(T[] a) {
-        return toArrayList().toArray(a);
+        if (a == null) throw new NullPointerException();
+        return (T[]) toArrayInternal(a);
     }
 
     /**
      * Returns an iterator over the elements in this deque in proper sequence.
      * The elements will be returned in order from first (head) to last (tail).
      *
-     * <p>The returned iterator is a "weakly consistent" iterator that
-     * will never throw {@link java.util.ConcurrentModificationException
-     * ConcurrentModificationException}, and guarantees to traverse
-     * elements as they existed upon construction of the iterator, and
-     * may (but is not guaranteed to) reflect any modifications
-     * subsequent to construction.
+     * <p>The returned iterator is
+     * <a href="package-summary.html#Weakly"><i>weakly consistent</i></a>.
      *
      * @return an iterator over the elements in this deque in proper sequence
      */
@@ -1260,12 +1315,8 @@ public class ConcurrentLinkedDeque<E>
      * sequential order.  The elements will be returned in order from
      * last (tail) to first (head).
      *
-     * <p>The returned iterator is a "weakly consistent" iterator that
-     * will never throw {@link java.util.ConcurrentModificationException
-     * ConcurrentModificationException}, and guarantees to traverse
-     * elements as they existed upon construction of the iterator, and
-     * may (but is not guaranteed to) reflect any modifications
-     * subsequent to construction.
+     * <p>The returned iterator is
+     * <a href="package-summary.html#Weakly"><i>weakly consistent</i></a>.
      *
      * @return an iterator over the elements in this deque in reverse order
      */
@@ -1310,7 +1361,7 @@ public class ConcurrentLinkedDeque<E>
             Node<E> p = (nextNode == null) ? startNode() : nextNode(nextNode);
             for (;; p = nextNode(p)) {
                 if (p == null) {
-                    // p might be active end or TERMINATOR node; both are OK
+                    // might be at active end or TERMINATOR node; both are OK
                     nextNode = null;
                     nextItem = null;
                     break;
@@ -1356,9 +1407,121 @@ public class ConcurrentLinkedDeque<E>
         Node<E> nextNode(Node<E> p) { return pred(p); }
     }
 
+    /** A customized variant of Spliterators.IteratorSpliterator */
+    static final class CLDSpliterator<E> implements Spliterator<E> {
+        static final int MAX_BATCH = 1 << 25;  // max batch array size;
+        final ConcurrentLinkedDeque<E> queue;
+        Node<E> current;    // current node; null until initialized
+        int batch;          // batch size for splits
+        boolean exhausted;  // true when no more nodes
+        CLDSpliterator(ConcurrentLinkedDeque<E> queue) {
+            this.queue = queue;
+        }
+
+        public Spliterator<E> trySplit() {
+            Node<E> p;
+            final ConcurrentLinkedDeque<E> q = this.queue;
+            int b = batch;
+            int n = (b <= 0) ? 1 : (b >= MAX_BATCH) ? MAX_BATCH : b + 1;
+            if (!exhausted &&
+                ((p = current) != null || (p = q.first()) != null)) {
+                if (p.item == null && p == (p = p.next))
+                    current = p = q.first();
+                if (p != null && p.next != null) {
+                    Object[] a = new Object[n];
+                    int i = 0;
+                    do {
+                        if ((a[i] = p.item) != null)
+                            ++i;
+                        if (p == (p = p.next))
+                            p = q.first();
+                    } while (p != null && i < n);
+                    if ((current = p) == null)
+                        exhausted = true;
+                    if (i > 0) {
+                        batch = i;
+                        return Spliterators.spliterator
+                            (a, 0, i, (Spliterator.ORDERED |
+                                       Spliterator.NONNULL |
+                                       Spliterator.CONCURRENT));
+                    }
+                }
+            }
+            return null;
+        }
+
+        public void forEachRemaining(Consumer<? super E> action) {
+            Node<E> p;
+            if (action == null) throw new NullPointerException();
+            final ConcurrentLinkedDeque<E> q = this.queue;
+            if (!exhausted &&
+                ((p = current) != null || (p = q.first()) != null)) {
+                exhausted = true;
+                do {
+                    E e = p.item;
+                    if (p == (p = p.next))
+                        p = q.first();
+                    if (e != null)
+                        action.accept(e);
+                } while (p != null);
+            }
+        }
+
+        public boolean tryAdvance(Consumer<? super E> action) {
+            Node<E> p;
+            if (action == null) throw new NullPointerException();
+            final ConcurrentLinkedDeque<E> q = this.queue;
+            if (!exhausted &&
+                ((p = current) != null || (p = q.first()) != null)) {
+                E e;
+                do {
+                    e = p.item;
+                    if (p == (p = p.next))
+                        p = q.first();
+                } while (e == null && p != null);
+                if ((current = p) == null)
+                    exhausted = true;
+                if (e != null) {
+                    action.accept(e);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public long estimateSize() { return Long.MAX_VALUE; }
+
+        public int characteristics() {
+            return Spliterator.ORDERED | Spliterator.NONNULL |
+                Spliterator.CONCURRENT;
+        }
+    }
+
+    /**
+     * Returns a {@link Spliterator} over the elements in this deque.
+     *
+     * <p>The returned spliterator is
+     * <a href="package-summary.html#Weakly"><i>weakly consistent</i></a>.
+     *
+     * <p>The {@code Spliterator} reports {@link Spliterator#CONCURRENT},
+     * {@link Spliterator#ORDERED}, and {@link Spliterator#NONNULL}.
+     *
+     * @implNote
+     * The {@code Spliterator} implements {@code trySplit} to permit limited
+     * parallelism.
+     *
+     * @return a {@code Spliterator} over the elements in this deque
+     * @since 1.8
+     */
+    public Spliterator<E> spliterator() {
+        return new CLDSpliterator<E>(this);
+    }
+
     /**
      * Saves this deque to a stream (that is, serializes it).
      *
+     * @param s the stream
+     * @throws java.io.IOException if an I/O error occurs
      * @serialData All of the elements (each an {@code E}) in
      * the proper order, followed by a null
      */
@@ -1381,6 +1544,10 @@ public class ConcurrentLinkedDeque<E>
 
     /**
      * Reconstitutes this deque from a stream (that is, deserializes it).
+     * @param s the stream
+     * @throws ClassNotFoundException if the class of a serialized object
+     *         could not be found
+     * @throws java.io.IOException if an I/O error occurs
      */
     private void readObject(java.io.ObjectInputStream s)
         throws java.io.IOException, ClassNotFoundException {
@@ -1388,8 +1555,7 @@ public class ConcurrentLinkedDeque<E>
 
         // Read in elements until trailing null sentinel found
         Node<E> h = null, t = null;
-        Object item;
-        while ((item = s.readObject()) != null) {
+        for (Object item; (item = s.readObject()) != null; ) {
             @SuppressWarnings("unchecked")
             Node<E> newNode = new Node<E>((E) item);
             if (h == null)
@@ -1404,31 +1570,29 @@ public class ConcurrentLinkedDeque<E>
     }
 
     private boolean casHead(Node<E> cmp, Node<E> val) {
-        return UNSAFE.compareAndSwapObject(this, headOffset, cmp, val);
+        return U.compareAndSwapObject(this, HEAD, cmp, val);
     }
 
     private boolean casTail(Node<E> cmp, Node<E> val) {
-        return UNSAFE.compareAndSwapObject(this, tailOffset, cmp, val);
+        return U.compareAndSwapObject(this, TAIL, cmp, val);
     }
 
     // Unsafe mechanics
 
-    private static final sun.misc.Unsafe UNSAFE;
-    private static final long headOffset;
-    private static final long tailOffset;
+    private static final sun.misc.Unsafe U = sun.misc.Unsafe.getUnsafe();
+    private static final long HEAD;
+    private static final long TAIL;
     static {
         PREV_TERMINATOR = new Node<Object>();
         PREV_TERMINATOR.next = PREV_TERMINATOR;
         NEXT_TERMINATOR = new Node<Object>();
         NEXT_TERMINATOR.prev = NEXT_TERMINATOR;
         try {
-            UNSAFE = sun.misc.Unsafe.getUnsafe();
-            Class<?> k = ConcurrentLinkedDeque.class;
-            headOffset = UNSAFE.objectFieldOffset
-                (k.getDeclaredField("head"));
-            tailOffset = UNSAFE.objectFieldOffset
-                (k.getDeclaredField("tail"));
-        } catch (Exception e) {
+            HEAD = U.objectFieldOffset
+                (ConcurrentLinkedDeque.class.getDeclaredField("head"));
+            TAIL = U.objectFieldOffset
+                (ConcurrentLinkedDeque.class.getDeclaredField("tail"));
+        } catch (ReflectiveOperationException e) {
             throw new Error(e);
         }
     }

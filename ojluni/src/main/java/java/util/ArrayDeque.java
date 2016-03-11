@@ -33,7 +33,7 @@
 
 package java.util;
 
-import java.io.*;
+import java.io.Serializable;
 import java.util.function.Consumer;
 
 // BEGIN android-note
@@ -81,10 +81,10 @@ import java.util.function.Consumer;
  *
  * @author  Josh Bloch and Doug Lea
  * @since   1.6
- * @param <E> the type of elements held in this collection
+ * @param <E> the type of elements held in this deque
  */
 public class ArrayDeque<E> extends AbstractCollection<E>
-                           implements Deque<E>, Cloneable, java.io.Serializable
+                           implements Deque<E>, Cloneable, Serializable
 {
     /**
      * The array in which the elements of the deque are stored.
@@ -96,20 +96,20 @@ public class ArrayDeque<E> extends AbstractCollection<E>
      * other.  We also guarantee that all array cells not holding
      * deque elements are always null.
      */
-    private transient Object[] elements;
+    transient Object[] elements; // non-private to simplify nested class access
 
     /**
      * The index of the element at the head of the deque (which is the
      * element that would be removed by remove() or pop()); or an
      * arbitrary number equal to tail if the deque is empty.
      */
-    private transient int head;
+    transient int head;
 
     /**
      * The index at which the next element would be added to the tail
      * of the deque (via addLast(E), add(E), or push(E)).
      */
-    private transient int tail;
+    transient int tail;
 
     /**
      * The minimum capacity that we'll use for a newly created deque.
@@ -137,8 +137,8 @@ public class ArrayDeque<E> extends AbstractCollection<E>
             initialCapacity |= (initialCapacity >>> 16);
             initialCapacity++;
 
-            if (initialCapacity < 0)   // Too many elements, must back off
-                initialCapacity >>>= 1;// Good luck allocating 2 ^ 30 elements
+            if (initialCapacity < 0)    // Too many elements, must back off
+                initialCapacity >>>= 1; // Good luck allocating 2^30 elements
         }
         elements = new Object[initialCapacity];
     }
@@ -275,25 +275,27 @@ public class ArrayDeque<E> extends AbstractCollection<E>
     }
 
     public E pollFirst() {
-        int h = head;
+        final Object[] elements = this.elements;
+        final int h = head;
         @SuppressWarnings("unchecked")
         E result = (E) elements[h];
         // Element is null if deque empty
-        if (result == null)
-            return null;
-        elements[h] = null;     // Must null out slot
-        head = (h + 1) & (elements.length - 1);
+        if (result != null) {
+            elements[h] = null; // Must null out slot
+            head = (h + 1) & (elements.length - 1);
+        }
         return result;
     }
 
     public E pollLast() {
-        int t = (tail - 1) & (elements.length - 1);
+        final Object[] elements = this.elements;
+        final int t = (tail - 1) & (elements.length - 1);
         @SuppressWarnings("unchecked")
         E result = (E) elements[t];
-        if (result == null)
-            return null;
-        elements[t] = null;
-        tail = t;
+        if (result != null) {
+            elements[t] = null;
+            tail = t;
+        }
         return result;
     }
 
@@ -343,17 +345,15 @@ public class ArrayDeque<E> extends AbstractCollection<E>
      * @return {@code true} if the deque contained the specified element
      */
     public boolean removeFirstOccurrence(Object o) {
-        if (o == null)
-            return false;
-        int mask = elements.length - 1;
-        int i = head;
-        Object x;
-        while ( (x = elements[i]) != null) {
-            if (o.equals(x)) {
-                delete(i);
-                return true;
+        if (o != null) {
+            int mask = elements.length - 1;
+            int i = head;
+            for (Object x; (x = elements[i]) != null; i = (i + 1) & mask) {
+                if (o.equals(x)) {
+                    delete(i);
+                    return true;
+                }
             }
-            i = (i + 1) & mask;
         }
         return false;
     }
@@ -371,17 +371,15 @@ public class ArrayDeque<E> extends AbstractCollection<E>
      * @return {@code true} if the deque contained the specified element
      */
     public boolean removeLastOccurrence(Object o) {
-        if (o == null)
-            return false;
-        int mask = elements.length - 1;
-        int i = (tail - 1) & mask;
-        Object x;
-        while ( (x = elements[i]) != null) {
-            if (o.equals(x)) {
-                delete(i);
-                return true;
+        if (o != null) {
+            int mask = elements.length - 1;
+            int i = (tail - 1) & mask;
+            for (Object x; (x = elements[i]) != null; i = (i - 1) & mask) {
+                if (o.equals(x)) {
+                    delete(i);
+                    return true;
+                }
             }
-            i = (i - 1) & mask;
         }
         return false;
     }
@@ -501,11 +499,11 @@ public class ArrayDeque<E> extends AbstractCollection<E>
     }
 
     private void checkInvariants() {
-        // assert elements[tail] == null;
-        // assert head == tail ? elements[head] == null :
-        //     (elements[head] != null &&
-        //      elements[(tail - 1) & (elements.length - 1)] != null);
-        // assert elements[(head - 1) & (elements.length - 1)] == null;
+        assert elements[tail] == null;
+        assert head == tail ? elements[head] == null :
+            (elements[head] != null &&
+             elements[(tail - 1) & (elements.length - 1)] != null);
+        assert elements[(head - 1) & (elements.length - 1)] == null;
     }
 
     /**
@@ -518,8 +516,8 @@ public class ArrayDeque<E> extends AbstractCollection<E>
      *
      * @return true if elements moved backwards
      */
-    private boolean delete(int i) {
-        //checkInvariants();
+    boolean delete(int i) {
+        checkInvariants();
         final Object[] elements = this.elements;
         final int mask = elements.length - 1;
         final int h = head;
@@ -704,15 +702,13 @@ public class ArrayDeque<E> extends AbstractCollection<E>
      * @return {@code true} if this deque contains the specified element
      */
     public boolean contains(Object o) {
-        if (o == null)
-            return false;
-        int mask = elements.length - 1;
-        int i = head;
-        Object x;
-        while ( (x = elements[i]) != null) {
-            if (o.equals(x))
-                return true;
-            i = (i + 1) & mask;
+        if (o != null) {
+            int mask = elements.length - 1;
+            int i = head;
+            for (Object x; (x = elements[i]) != null; i = (i + 1) & mask) {
+                if (o.equals(x))
+                    return true;
+            }
         }
         return false;
     }
@@ -725,7 +721,7 @@ public class ArrayDeque<E> extends AbstractCollection<E>
      * Returns {@code true} if this deque contained the specified element
      * (or equivalently, if this deque changed as a result of the call).
      *
-     * <p>This method is equivalent to {@link #removeFirstOccurrence}.
+     * <p>This method is equivalent to {@link #removeFirstOccurrence(Object)}.
      *
      * @param o element to be removed from this deque, if present
      * @return {@code true} if this deque contained the specified element
@@ -798,7 +794,7 @@ public class ArrayDeque<E> extends AbstractCollection<E>
      * The following code can be used to dump the deque into a newly
      * allocated array of {@code String}:
      *
-     *  <pre> {@code String[] y = x.toArray(new String[0]);}</pre>
+     * <pre> {@code String[] y = x.toArray(new String[0]);}</pre>
      *
      * Note that {@code toArray(new Object[0])} is identical in function to
      * {@code toArray()}.
@@ -856,6 +852,8 @@ public class ArrayDeque<E> extends AbstractCollection<E>
     /**
      * Saves this deque to a stream (that is, serializes it).
      *
+     * @param s the stream
+     * @throws java.io.IOException if an I/O error occurs
      * @serialData The current size ({@code int}) of the deque,
      * followed by all of its elements (each an object reference) in
      * first-to-last order.
@@ -875,6 +873,10 @@ public class ArrayDeque<E> extends AbstractCollection<E>
 
     /**
      * Reconstitutes this deque from a stream (that is, deserializes it).
+     * @param s the stream
+     * @throws ClassNotFoundException if the class of a serialized object
+     *         could not be found
+     * @throws java.io.IOException if an I/O error occurs
      */
     private void readObject(java.io.ObjectInputStream s)
             throws java.io.IOException, ClassNotFoundException {
@@ -913,7 +915,7 @@ public class ArrayDeque<E> extends AbstractCollection<E>
         private int fence;  // -1 until first use
         private int index;  // current index, modified on traverse/split
 
-        /** Creates new spliterator covering the given array and range */
+        /** Creates new spliterator covering the given array and range. */
         DeqSpliterator(ArrayDeque<E> deq, int origin, int fence) {
             this.deq = deq;
             this.index = origin;
@@ -935,7 +937,7 @@ public class ArrayDeque<E> extends AbstractCollection<E>
                 if (h > t)
                     t += n;
                 int m = ((h + t) >>> 1) & (n - 1);
-                return new DeqSpliterator<>(deq, h, index = m);
+                return new DeqSpliterator<E>(deq, h, index = m);
             }
             return null;
         }
@@ -960,7 +962,7 @@ public class ArrayDeque<E> extends AbstractCollection<E>
                 throw new NullPointerException();
             Object[] a = deq.elements;
             int m = a.length - 1, f = getFence(), i = index;
-            if (i != fence) {
+            if (i != f) {
                 @SuppressWarnings("unchecked") E e = (E)a[i];
                 index = (i + 1) & m;
                 if (e == null)

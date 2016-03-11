@@ -15,30 +15,28 @@ package java.util.concurrent;
  * invoking {@code new Thread(new RunnableTask()).start()} for each
  * of a set of tasks, you might use:
  *
- * <pre>
- * Executor executor = <em>anExecutor</em>;
+ * <pre> {@code
+ * Executor executor = anExecutor();
  * executor.execute(new RunnableTask1());
  * executor.execute(new RunnableTask2());
- * ...
- * </pre>
+ * ...}</pre>
  *
- * However, the {@code Executor} interface does not strictly
- * require that execution be asynchronous. In the simplest case, an
- * executor can run the submitted task immediately in the caller's
- * thread:
+ * However, the {@code Executor} interface does not strictly require
+ * that execution be asynchronous. In the simplest case, an executor
+ * can run the submitted task immediately in the caller's thread:
  *
- *  <pre> {@code
+ * <pre> {@code
  * class DirectExecutor implements Executor {
  *   public void execute(Runnable r) {
  *     r.run();
  *   }
  * }}</pre>
  *
- * More typically, tasks are executed in some thread other
- * than the caller's thread.  The executor below spawns a new thread
- * for each task.
+ * More typically, tasks are executed in some thread other than the
+ * caller's thread.  The executor below spawns a new thread for each
+ * task.
  *
- *  <pre> {@code
+ * <pre> {@code
  * class ThreadPerTaskExecutor implements Executor {
  *   public void execute(Runnable r) {
  *     new Thread(r).start();
@@ -50,7 +48,7 @@ package java.util.concurrent;
  * serializes the submission of tasks to a second executor,
  * illustrating a composite executor.
  *
- *  <pre> {@code
+ * <pre> {@code
  * class SerialExecutor implements Executor {
  *   final Queue<Runnable> tasks = new ArrayDeque<>();
  *   final Executor executor;

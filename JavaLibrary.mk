@@ -215,7 +215,7 @@ include $(CLEAR_VARS)
 LOCAL_SRC_FILES :=  $(call all-test-java-files-under, jsr166-tests)
 LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
 LOCAL_NO_STANDARD_LIBRARIES := true
-LOCAL_JAVA_LIBRARIES := core-oj core-libart core-junit
+LOCAL_JAVA_LIBRARIES := core-oj core-libart core-lambda-stubs core-junit
 LOCAL_JAVACFLAGS := $(local_javac_flags)
 LOCAL_MODULE := jsr166-tests
 LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk

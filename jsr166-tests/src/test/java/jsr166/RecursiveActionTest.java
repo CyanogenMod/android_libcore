@@ -32,7 +32,7 @@ public class RecursiveActionTest extends JSR166TestCase {
     //     main(suite(), args);
     // }
     // public static Test suite() {
-    //     return new TestSuite(...);
+    //     return new TestSuite(RecursiveActionTest.class);
     // }
 
     private static ForkJoinPool mainPool() {
@@ -50,14 +50,12 @@ public class RecursiveActionTest extends JSR166TestCase {
     }
 
     private void testInvokeOnPool(ForkJoinPool pool, RecursiveAction a) {
-        try {
+        try (PoolCleaner cleaner = cleaner(pool)) {
             checkNotDone(a);
 
             assertNull(pool.invoke(a));
 
             checkCompletedNormally(a);
-        } finally {
-            joinPool(pool);
         }
     }
 
@@ -429,12 +427,12 @@ public class RecursiveActionTest extends JSR166TestCase {
 
         t = newStartedThread(r);
         testInvokeOnPool(mainPool(), a);
-        awaitTermination(t, LONG_DELAY_MS);
+        awaitTermination(t);
 
         a.reinitialize();
         t = newStartedThread(r);
         testInvokeOnPool(singletonPool(), a);
-        awaitTermination(t, LONG_DELAY_MS);
+        awaitTermination(t);
     }
 
     /**

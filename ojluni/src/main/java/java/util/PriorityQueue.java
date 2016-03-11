@@ -77,7 +77,7 @@ import java.util.function.Consumer;
  *
  * @since 1.5
  * @author Josh Bloch, Doug Lea
- * @param <E> the type of elements held in this collection
+ * @param <E> the type of elements held in this queue
  */
 public class PriorityQueue<E> extends AbstractQueue<E>
     implements java.io.Serializable {
@@ -99,7 +99,7 @@ public class PriorityQueue<E> extends AbstractQueue<E>
     /**
      * The number of elements in the priority queue.
      */
-    private int size = 0;
+    int size;
 
     /**
      * The comparator, or null if priority queue uses elements'
@@ -111,7 +111,7 @@ public class PriorityQueue<E> extends AbstractQueue<E>
      * The number of times this priority queue has been
      * <i>structurally modified</i>.  See AbstractList for gory details.
      */
-    transient int modCount = 0; // non-private to simplify nested class access
+    transient int modCount;     // non-private to simplify nested class access
 
     /**
      * Creates a {@code PriorityQueue} with the default initial
@@ -258,8 +258,8 @@ public class PriorityQueue<E> extends AbstractQueue<E>
             a = Arrays.copyOf(a, a.length, Object[].class);
         int len = a.length;
         if (len == 1 || this.comparator != null)
-            for (int i = 0; i < len; i++)
-                if (a[i] == null)
+            for (Object e : a)
+                if (e == null)
                     throw new NullPointerException();
         this.queue = a;
         this.size = a.length;
@@ -406,7 +406,7 @@ public class PriorityQueue<E> extends AbstractQueue<E>
      * @return {@code true} if this queue contains the specified element
      */
     public boolean contains(Object o) {
-        return indexOf(o) != -1;
+        return indexOf(o) >= 0;
     }
 
     /**
@@ -448,7 +448,7 @@ public class PriorityQueue<E> extends AbstractQueue<E>
      * The following code can be used to dump the queue into a newly
      * allocated array of {@code String}:
      *
-     *  <pre> {@code String[] y = x.toArray(new String[0]);}</pre>
+     * <pre> {@code String[] y = x.toArray(new String[0]);}</pre>
      *
      * Note that {@code toArray(new Object[0])} is identical in function to
      * {@code toArray()}.
@@ -489,7 +489,7 @@ public class PriorityQueue<E> extends AbstractQueue<E>
          * Index (into queue array) of element to be returned by
          * subsequent call to next.
          */
-        private int cursor = 0;
+        private int cursor;
 
         /**
          * Index of element returned by most recent call to next,
@@ -509,13 +509,13 @@ public class PriorityQueue<E> extends AbstractQueue<E>
          * We expect that most iterations, even those involving removals,
          * will not need to store elements in this field.
          */
-        private ArrayDeque<E> forgetMeNot = null;
+        private ArrayDeque<E> forgetMeNot;
 
         /**
          * Element returned by the most recent call to next iff that
          * element was drawn from the forgetMeNot list.
          */
-        private E lastRetElt = null;
+        private E lastRetElt;
 
         /**
          * The modCount value that the iterator believes that the backing
@@ -609,8 +609,8 @@ public class PriorityQueue<E> extends AbstractQueue<E>
      * avoid missing traversing elements.
      */
     @SuppressWarnings("unchecked")
-    private E removeAt(int i) {
-        assert i >= 0 && i < size;
+    E removeAt(int i) {
+        // assert i >= 0 && i < size;
         modCount++;
         int s = --size;
         if (s == i) // removed last element
@@ -756,6 +756,7 @@ public class PriorityQueue<E> extends AbstractQueue<E>
      *             emitted (int), followed by all of its elements
      *             (each an {@code Object}) in the proper order.
      * @param s the stream
+     * @throws java.io.IOException if an I/O error occurs
      */
     private void writeObject(java.io.ObjectOutputStream s)
         throws java.io.IOException {
@@ -775,6 +776,9 @@ public class PriorityQueue<E> extends AbstractQueue<E>
      * (that is, deserializes it).
      *
      * @param s the stream
+     * @throws ClassNotFoundException if the class of a serialized object
+     *         could not be found
+     * @throws java.io.IOException if an I/O error occurs
      */
     private void readObject(java.io.ObjectInputStream s)
         throws java.io.IOException, ClassNotFoundException {
@@ -809,7 +813,7 @@ public class PriorityQueue<E> extends AbstractQueue<E>
      * @since 1.8
      */
     public final Spliterator<E> spliterator() {
-        return new PriorityQueueSpliterator<E>(this, 0, -1, 0);
+        return new PriorityQueueSpliterator<>(this, 0, -1, 0);
     }
 
     static final class PriorityQueueSpliterator<E> implements Spliterator<E> {
@@ -822,9 +826,9 @@ public class PriorityQueue<E> extends AbstractQueue<E>
         private int fence;            // -1 until first use
         private int expectedModCount; // initialized when fence set
 
-        /** Creates new spliterator covering the given range */
+        /** Creates new spliterator covering the given range. */
         PriorityQueueSpliterator(PriorityQueue<E> pq, int origin, int fence,
-                             int expectedModCount) {
+                                 int expectedModCount) {
             this.pq = pq;
             this.index = origin;
             this.fence = fence;
@@ -843,8 +847,8 @@ public class PriorityQueue<E> extends AbstractQueue<E>
         public PriorityQueueSpliterator<E> trySplit() {
             int hi = getFence(), lo = index, mid = (lo + hi) >>> 1;
             return (lo >= mid) ? null :
-                new PriorityQueueSpliterator<E>(pq, lo, index = mid,
-                                                expectedModCount);
+                new PriorityQueueSpliterator<>(pq, lo, index = mid,
+                                               expectedModCount);
         }
 
         @SuppressWarnings("unchecked")

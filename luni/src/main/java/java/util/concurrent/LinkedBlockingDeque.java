@@ -10,8 +10,11 @@ import java.util.AbstractQueue;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Consumer;
 
 // BEGIN android-note
 // removed link to collections framework docs
@@ -40,7 +43,7 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  * @since 1.6
  * @author  Doug Lea
- * @param <E> the type of elements held in this collection
+ * @param <E> the type of elements held in this deque
  */
 public class LinkedBlockingDeque<E>
     extends AbstractQueue<E>
@@ -286,8 +289,8 @@ public class LinkedBlockingDeque<E>
     // BlockingDeque methods
 
     /**
-     * @throws IllegalStateException {@inheritDoc}
-     * @throws NullPointerException  {@inheritDoc}
+     * @throws IllegalStateException if this deque is full
+     * @throws NullPointerException {@inheritDoc}
      */
     public void addFirst(E e) {
         if (!offerFirst(e))
@@ -295,7 +298,7 @@ public class LinkedBlockingDeque<E>
     }
 
     /**
-     * @throws IllegalStateException {@inheritDoc}
+     * @throws IllegalStateException if this deque is full
      * @throws NullPointerException  {@inheritDoc}
      */
     public void addLast(E e) {
@@ -380,7 +383,7 @@ public class LinkedBlockingDeque<E>
         lock.lockInterruptibly();
         try {
             while (!linkFirst(node)) {
-                if (nanos <= 0)
+                if (nanos <= 0L)
                     return false;
                 nanos = notFull.awaitNanos(nanos);
             }
@@ -403,7 +406,7 @@ public class LinkedBlockingDeque<E>
         lock.lockInterruptibly();
         try {
             while (!linkLast(node)) {
-                if (nanos <= 0)
+                if (nanos <= 0L)
                     return false;
                 nanos = notFull.awaitNanos(nanos);
             }
@@ -485,7 +488,7 @@ public class LinkedBlockingDeque<E>
         try {
             E x;
             while ( (x = unlinkFirst()) == null) {
-                if (nanos <= 0)
+                if (nanos <= 0L)
                     return null;
                 nanos = notEmpty.awaitNanos(nanos);
             }
@@ -503,7 +506,7 @@ public class LinkedBlockingDeque<E>
         try {
             E x;
             while ( (x = unlinkLast()) == null) {
-                if (nanos <= 0)
+                if (nanos <= 0L)
                     return null;
                 nanos = notEmpty.awaitNanos(nanos);
             }
@@ -594,8 +597,7 @@ public class LinkedBlockingDeque<E>
      *
      * <p>This method is equivalent to {@link #addLast}.
      *
-     * @throws IllegalStateException if the element cannot be added at this
-     *         time due to capacity restrictions
+     * @throws IllegalStateException if this deque is full
      * @throws NullPointerException if the specified element is null
      */
     public boolean add(E e) {
@@ -732,8 +734,8 @@ public class LinkedBlockingDeque<E>
     // Stack methods
 
     /**
-     * @throws IllegalStateException {@inheritDoc}
-     * @throws NullPointerException  {@inheritDoc}
+     * @throws IllegalStateException if this deque is full
+     * @throws NullPointerException {@inheritDoc}
      */
     public void push(E e) {
         addFirst(e);
@@ -823,7 +825,7 @@ public class LinkedBlockingDeque<E>
 //      * @throws ClassCastException            {@inheritDoc}
 //      * @throws NullPointerException          {@inheritDoc}
 //      * @throws IllegalArgumentException      {@inheritDoc}
-//      * @throws IllegalStateException         {@inheritDoc}
+//      * @throws IllegalStateException if this deque is full
 //      * @see #add(Object)
 //      */
 //     public boolean addAll(Collection<? extends E> c) {
@@ -893,7 +895,7 @@ public class LinkedBlockingDeque<E>
      * The following code can be used to dump the deque into a newly
      * allocated array of {@code String}:
      *
-     *  <pre> {@code String[] y = x.toArray(new String[0]);}</pre>
+     * <pre> {@code String[] y = x.toArray(new String[0]);}</pre>
      *
      * Note that {@code toArray(new Object[0])} is identical in function to
      * {@code toArray()}.
@@ -928,26 +930,7 @@ public class LinkedBlockingDeque<E>
     }
 
     public String toString() {
-        final ReentrantLock lock = this.lock;
-        lock.lock();
-        try {
-            Node<E> p = first;
-            if (p == null)
-                return "[]";
-
-            StringBuilder sb = new StringBuilder();
-            sb.append('[');
-            for (;;) {
-                E e = p.item;
-                sb.append(e == this ? "(this Collection)" : e);
-                p = p.next;
-                if (p == null)
-                    return sb.append(']').toString();
-                sb.append(',').append(' ');
-            }
-        } finally {
-            lock.unlock();
-        }
+        return Helpers.collectionToString(this);
     }
 
     /**
@@ -977,12 +960,8 @@ public class LinkedBlockingDeque<E>
      * Returns an iterator over the elements in this deque in proper sequence.
      * The elements will be returned in order from first (head) to last (tail).
      *
-     * <p>The returned iterator is a "weakly consistent" iterator that
-     * will never throw {@link java.util.ConcurrentModificationException
-     * ConcurrentModificationException}, and guarantees to traverse
-     * elements as they existed upon construction of the iterator, and
-     * may (but is not guaranteed to) reflect any modifications
-     * subsequent to construction.
+     * <p>The returned iterator is
+     * <a href="package-summary.html#Weakly"><i>weakly consistent</i></a>.
      *
      * @return an iterator over the elements in this deque in proper sequence
      */
@@ -995,12 +974,8 @@ public class LinkedBlockingDeque<E>
      * sequential order.  The elements will be returned in order from
      * last (tail) to first (head).
      *
-     * <p>The returned iterator is a "weakly consistent" iterator that
-     * will never throw {@link java.util.ConcurrentModificationException
-     * ConcurrentModificationException}, and guarantees to traverse
-     * elements as they existed upon construction of the iterator, and
-     * may (but is not guaranteed to) reflect any modifications
-     * subsequent to construction.
+     * <p>The returned iterator is
+     * <a href="package-summary.html#Weakly"><i>weakly consistent</i></a>.
      *
      * @return an iterator over the elements in this deque in reverse order
      */
@@ -1009,11 +984,11 @@ public class LinkedBlockingDeque<E>
     }
 
     /**
-     * Base class for Iterators for LinkedBlockingDeque
+     * Base class for LinkedBlockingDeque iterators.
      */
     private abstract class AbstractItr implements Iterator<E> {
         /**
-         * The next node to return in next()
+         * The next node to return in next().
          */
         Node<E> next;
 
@@ -1122,9 +1097,149 @@ public class LinkedBlockingDeque<E>
         Node<E> nextNode(Node<E> n) { return n.prev; }
     }
 
+    /** A customized variant of Spliterators.IteratorSpliterator */
+    static final class LBDSpliterator<E> implements Spliterator<E> {
+        static final int MAX_BATCH = 1 << 25;  // max batch array size;
+        final LinkedBlockingDeque<E> queue;
+        Node<E> current;    // current node; null until initialized
+        int batch;          // batch size for splits
+        boolean exhausted;  // true when no more nodes
+        long est;           // size estimate
+        LBDSpliterator(LinkedBlockingDeque<E> queue) {
+            this.queue = queue;
+            this.est = queue.size();
+        }
+
+        public long estimateSize() { return est; }
+
+        public Spliterator<E> trySplit() {
+            Node<E> h;
+            final LinkedBlockingDeque<E> q = this.queue;
+            int b = batch;
+            int n = (b <= 0) ? 1 : (b >= MAX_BATCH) ? MAX_BATCH : b + 1;
+            if (!exhausted &&
+                ((h = current) != null || (h = q.first) != null) &&
+                h.next != null) {
+                Object[] a = new Object[n];
+                final ReentrantLock lock = q.lock;
+                int i = 0;
+                Node<E> p = current;
+                lock.lock();
+                try {
+                    if (p != null || (p = q.first) != null) {
+                        do {
+                            if ((a[i] = p.item) != null)
+                                ++i;
+                        } while ((p = p.next) != null && i < n);
+                    }
+                } finally {
+                    lock.unlock();
+                }
+                if ((current = p) == null) {
+                    est = 0L;
+                    exhausted = true;
+                }
+                else if ((est -= i) < 0L)
+                    est = 0L;
+                if (i > 0) {
+                    batch = i;
+                    return Spliterators.spliterator
+                        (a, 0, i, (Spliterator.ORDERED |
+                                   Spliterator.NONNULL |
+                                   Spliterator.CONCURRENT));
+                }
+            }
+            return null;
+        }
+
+        public void forEachRemaining(Consumer<? super E> action) {
+            if (action == null) throw new NullPointerException();
+            final LinkedBlockingDeque<E> q = this.queue;
+            final ReentrantLock lock = q.lock;
+            if (!exhausted) {
+                exhausted = true;
+                Node<E> p = current;
+                do {
+                    E e = null;
+                    lock.lock();
+                    try {
+                        if (p == null)
+                            p = q.first;
+                        while (p != null) {
+                            e = p.item;
+                            p = p.next;
+                            if (e != null)
+                                break;
+                        }
+                    } finally {
+                        lock.unlock();
+                    }
+                    if (e != null)
+                        action.accept(e);
+                } while (p != null);
+            }
+        }
+
+        public boolean tryAdvance(Consumer<? super E> action) {
+            if (action == null) throw new NullPointerException();
+            final LinkedBlockingDeque<E> q = this.queue;
+            final ReentrantLock lock = q.lock;
+            if (!exhausted) {
+                E e = null;
+                lock.lock();
+                try {
+                    if (current == null)
+                        current = q.first;
+                    while (current != null) {
+                        e = current.item;
+                        current = current.next;
+                        if (e != null)
+                            break;
+                    }
+                } finally {
+                    lock.unlock();
+                }
+                if (current == null)
+                    exhausted = true;
+                if (e != null) {
+                    action.accept(e);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public int characteristics() {
+            return Spliterator.ORDERED | Spliterator.NONNULL |
+                Spliterator.CONCURRENT;
+        }
+    }
+
+    /**
+     * Returns a {@link Spliterator} over the elements in this deque.
+     *
+     * <p>The returned spliterator is
+     * <a href="package-summary.html#Weakly"><i>weakly consistent</i></a>.
+     *
+     * <p>The {@code Spliterator} reports {@link Spliterator#CONCURRENT},
+     * {@link Spliterator#ORDERED}, and {@link Spliterator#NONNULL}.
+     *
+     * @implNote
+     * The {@code Spliterator} implements {@code trySplit} to permit limited
+     * parallelism.
+     *
+     * @return a {@code Spliterator} over the elements in this deque
+     * @since 1.8
+     */
+    public Spliterator<E> spliterator() {
+        return new LBDSpliterator<E>(this);
+    }
+
     /**
      * Saves this deque to a stream (that is, serializes it).
      *
+     * @param s the stream
+     * @throws java.io.IOException if an I/O error occurs
      * @serialData The capacity (int), followed by elements (each an
      * {@code Object}) in the proper order, followed by a null
      */
@@ -1147,6 +1262,10 @@ public class LinkedBlockingDeque<E>
 
     /**
      * Reconstitutes this deque from a stream (that is, deserializes it).
+     * @param s the stream
+     * @throws ClassNotFoundException if the class of a serialized object
+     *         could not be found
+     * @throws java.io.IOException if an I/O error occurs
      */
     private void readObject(java.io.ObjectInputStream s)
         throws java.io.IOException, ClassNotFoundException {

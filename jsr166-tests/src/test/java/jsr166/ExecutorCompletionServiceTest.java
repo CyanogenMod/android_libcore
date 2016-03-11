@@ -33,7 +33,7 @@ public class ExecutorCompletionServiceTest extends JSR166TestCase {
     //     main(suite(), args);
     // }
     // public static Test suite() {
-    //     return new TestSuite(...);
+    //     return new TestSuite(ExecutorCompletionServiceTest.class);
     // }
 
     /**
@@ -61,15 +61,14 @@ public class ExecutorCompletionServiceTest extends JSR166TestCase {
      * Submitting a null callable throws NPE
      */
     public void testSubmitNPE() {
-        ExecutorService e = Executors.newCachedThreadPool();
-        ExecutorCompletionService ecs = new ExecutorCompletionService(e);
-        try {
+        final ExecutorService e = Executors.newCachedThreadPool();
+        final ExecutorCompletionService ecs = new ExecutorCompletionService(e);
+        try (PoolCleaner cleaner = cleaner(e)) {
             Callable c = null;
-            ecs.submit(c);
-            shouldThrow();
-        } catch (NullPointerException success) {
-        } finally {
-            joinPool(e);
+            try {
+                ecs.submit(c);
+                shouldThrow();
+            } catch (NullPointerException success) {}
         }
     }
 
@@ -77,15 +76,14 @@ public class ExecutorCompletionServiceTest extends JSR166TestCase {
      * Submitting a null runnable throws NPE
      */
     public void testSubmitNPE2() {
-        ExecutorService e = Executors.newCachedThreadPool();
-        ExecutorCompletionService ecs = new ExecutorCompletionService(e);
-        try {
+        final ExecutorService e = Executors.newCachedThreadPool();
+        final ExecutorCompletionService ecs = new ExecutorCompletionService(e);
+        try (PoolCleaner cleaner = cleaner(e)) {
             Runnable r = null;
-            ecs.submit(r, Boolean.TRUE);
-            shouldThrow();
-        } catch (NullPointerException success) {
-        } finally {
-            joinPool(e);
+            try {
+                ecs.submit(r, Boolean.TRUE);
+                shouldThrow();
+            } catch (NullPointerException success) {}
         }
     }
 
@@ -93,15 +91,13 @@ public class ExecutorCompletionServiceTest extends JSR166TestCase {
      * A taken submitted task is completed
      */
     public void testTake() throws InterruptedException {
-        ExecutorService e = Executors.newCachedThreadPool();
-        ExecutorCompletionService ecs = new ExecutorCompletionService(e);
-        try {
+        final ExecutorService e = Executors.newCachedThreadPool();
+        final ExecutorCompletionService ecs = new ExecutorCompletionService(e);
+        try (PoolCleaner cleaner = cleaner(e)) {
             Callable c = new StringTask();
             ecs.submit(c);
             Future f = ecs.take();
             assertTrue(f.isDone());
-        } finally {
-            joinPool(e);
         }
     }
 
@@ -109,15 +105,13 @@ public class ExecutorCompletionServiceTest extends JSR166TestCase {
      * Take returns the same future object returned by submit
      */
     public void testTake2() throws InterruptedException {
-        ExecutorService e = Executors.newCachedThreadPool();
-        ExecutorCompletionService ecs = new ExecutorCompletionService(e);
-        try {
+        final ExecutorService e = Executors.newCachedThreadPool();
+        final ExecutorCompletionService ecs = new ExecutorCompletionService(e);
+        try (PoolCleaner cleaner = cleaner(e)) {
             Callable c = new StringTask();
             Future f1 = ecs.submit(c);
             Future f2 = ecs.take();
             assertSame(f1, f2);
-        } finally {
-            joinPool(e);
         }
     }
 
@@ -125,9 +119,9 @@ public class ExecutorCompletionServiceTest extends JSR166TestCase {
      * If poll returns non-null, the returned task is completed
      */
     public void testPoll1() throws Exception {
-        ExecutorService e = Executors.newCachedThreadPool();
-        ExecutorCompletionService ecs = new ExecutorCompletionService(e);
-        try {
+        final ExecutorService e = Executors.newCachedThreadPool();
+        final ExecutorCompletionService ecs = new ExecutorCompletionService(e);
+        try (PoolCleaner cleaner = cleaner(e)) {
             assertNull(ecs.poll());
             Callable c = new StringTask();
             ecs.submit(c);
@@ -141,8 +135,6 @@ public class ExecutorCompletionServiceTest extends JSR166TestCase {
             }
             assertTrue(f.isDone());
             assertSame(TEST_STRING, f.get());
-        } finally {
-            joinPool(e);
         }
     }
 
@@ -150,17 +142,15 @@ public class ExecutorCompletionServiceTest extends JSR166TestCase {
      * If timed poll returns non-null, the returned task is completed
      */
     public void testPoll2() throws InterruptedException {
-        ExecutorService e = Executors.newCachedThreadPool();
-        ExecutorCompletionService ecs = new ExecutorCompletionService(e);
-        try {
+        final ExecutorService e = Executors.newCachedThreadPool();
+        final ExecutorCompletionService ecs = new ExecutorCompletionService(e);
+        try (PoolCleaner cleaner = cleaner(e)) {
             assertNull(ecs.poll());
             Callable c = new StringTask();
             ecs.submit(c);
             Future f = ecs.poll(SHORT_DELAY_MS, MILLISECONDS);
             if (f != null)
                 assertTrue(f.isDone());
-        } finally {
-            joinPool(e);
         }
     }
 
@@ -174,15 +164,16 @@ public class ExecutorCompletionServiceTest extends JSR166TestCase {
             MyCallableFuture(Callable<V> c) { super(c); }
             protected void done() { done.set(true); }
         }
-        ExecutorService e = new ThreadPoolExecutor(
-                                 1, 1, 30L, TimeUnit.SECONDS,
-                                 new ArrayBlockingQueue<Runnable>(1)) {
-            protected <T> RunnableFuture<T> newTaskFor(Callable<T> c) {
-                return new MyCallableFuture<T>(c);
-            }};
+        final ExecutorService e =
+            new ThreadPoolExecutor(1, 1,
+                                   30L, TimeUnit.SECONDS,
+                                   new ArrayBlockingQueue<Runnable>(1)) {
+                protected <T> RunnableFuture<T> newTaskFor(Callable<T> c) {
+                    return new MyCallableFuture<T>(c);
+                }};
         ExecutorCompletionService<String> ecs =
             new ExecutorCompletionService<String>(e);
-        try {
+        try (PoolCleaner cleaner = cleaner(e)) {
             assertNull(ecs.poll());
             Callable<String> c = new StringTask();
             Future f1 = ecs.submit(c);
@@ -191,8 +182,6 @@ public class ExecutorCompletionServiceTest extends JSR166TestCase {
             Future f2 = ecs.take();
             assertSame("submit and take must return same objects", f1, f2);
             assertTrue("completed task must have set done", done.get());
-        } finally {
-            joinPool(e);
         }
     }
 
@@ -206,15 +195,16 @@ public class ExecutorCompletionServiceTest extends JSR166TestCase {
             MyRunnableFuture(Runnable t, V r) { super(t, r); }
             protected void done() { done.set(true); }
         }
-        ExecutorService e = new ThreadPoolExecutor(
-                                 1, 1, 30L, TimeUnit.SECONDS,
-                                 new ArrayBlockingQueue<Runnable>(1)) {
-            protected <T> RunnableFuture<T> newTaskFor(Runnable t, T r) {
-                return new MyRunnableFuture<T>(t, r);
-            }};
-        ExecutorCompletionService<String> ecs =
+        final ExecutorService e =
+            new ThreadPoolExecutor(1, 1,
+                                   30L, TimeUnit.SECONDS,
+                                   new ArrayBlockingQueue<Runnable>(1)) {
+                protected <T> RunnableFuture<T> newTaskFor(Runnable t, T r) {
+                    return new MyRunnableFuture<T>(t, r);
+                }};
+        final ExecutorCompletionService<String> ecs =
             new ExecutorCompletionService<String>(e);
-        try {
+        try (PoolCleaner cleaner = cleaner(e)) {
             assertNull(ecs.poll());
             Runnable r = new NoOpRunnable();
             Future f1 = ecs.submit(r, null);
@@ -223,8 +213,6 @@ public class ExecutorCompletionServiceTest extends JSR166TestCase {
             Future f2 = ecs.take();
             assertSame("submit and take must return same objects", f1, f2);
             assertTrue("completed task must have set done", done.get());
-        } finally {
-            joinPool(e);
         }
     }
 

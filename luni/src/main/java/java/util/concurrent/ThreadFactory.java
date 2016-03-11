@@ -13,7 +13,7 @@ package java.util.concurrent;
  *
  * <p>
  * The simplest implementation of this interface is just:
- *  <pre> {@code
+ * <pre> {@code
  * class SimpleThreadFactory implements ThreadFactory {
  *   public Thread newThread(Runnable r) {
  *     return new Thread(r);

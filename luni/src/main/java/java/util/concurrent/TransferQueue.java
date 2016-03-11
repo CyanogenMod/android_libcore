@@ -34,7 +34,7 @@ package java.util.concurrent;
  *
  * @since 1.7
  * @author Doug Lea
- * @param <E> the type of elements held in this collection
+ * @param <E> the type of elements held in this queue
  */
 public interface TransferQueue<E> extends BlockingQueue<E> {
     /**

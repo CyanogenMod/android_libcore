@@ -6,8 +6,9 @@
 
 package java.util.concurrent.locks;
 
-import java.util.concurrent.TimeUnit;
 import java.util.Collection;
+import java.util.concurrent.TimeUnit;
+/// OPENJDK-9 import jdk.internal.vm.annotation.ReservedStackAccess;
 
 /**
  * A reentrant mutual exclusion {@link Lock} with the same basic
@@ -44,7 +45,7 @@ import java.util.Collection;
  * follow a call to {@code lock} with a {@code try} block, most
  * typically in a before/after construction such as:
  *
- *  <pre> {@code
+ * <pre> {@code
  * class X {
  *   private final ReentrantLock lock = new ReentrantLock();
  *   // ...
@@ -98,6 +99,7 @@ public class ReentrantLock implements Lock, java.io.Serializable {
          * Performs non-fair tryLock.  tryAcquire is implemented in
          * subclasses, but both need nonfair try for trylock method.
          */
+/// OPENJDK-9         @ReservedStackAccess
         final boolean nonfairTryAcquire(int acquires) {
             final Thread current = Thread.currentThread();
             int c = getState();
@@ -117,6 +119,7 @@ public class ReentrantLock implements Lock, java.io.Serializable {
             return false;
         }
 
+/// OPENJDK-9         @ReservedStackAccess
         protected final boolean tryRelease(int releases) {
             int c = getState() - releases;
             if (Thread.currentThread() != getExclusiveOwnerThread())
@@ -174,6 +177,7 @@ public class ReentrantLock implements Lock, java.io.Serializable {
          * Performs lock.  Try immediate barge, backing up to normal
          * acquire on failure.
          */
+/// OPENJDK-9         @ReservedStackAccess
         final void lock() {
             if (compareAndSetState(0, 1))
                 setExclusiveOwnerThread(Thread.currentThread());
@@ -200,6 +204,7 @@ public class ReentrantLock implements Lock, java.io.Serializable {
          * Fair version of tryAcquire.  Don't grant access unless
          * recursive call or no waiters or is first.
          */
+/// OPENJDK-9         @ReservedStackAccess
         protected final boolean tryAcquire(int acquires) {
             final Thread current = Thread.currentThread();
             int c = getState();
@@ -350,7 +355,7 @@ public class ReentrantLock implements Lock, java.io.Serializable {
      * method. If you want a timed {@code tryLock} that does permit barging on
      * a fair lock then combine the timed and un-timed forms together:
      *
-     *  <pre> {@code
+     * <pre> {@code
      * if (lock.tryLock() ||
      *     lock.tryLock(timeout, unit)) {
      *   ...
@@ -456,7 +461,7 @@ public class ReentrantLock implements Lock, java.io.Serializable {
      * InterruptedException} will be thrown, and the thread's
      * interrupted status will be cleared.
      *
-     * <li> Waiting threads are signalled in FIFO order.
+     * <li>Waiting threads are signalled in FIFO order.
      *
      * <li>The ordering of lock reacquisition for threads returning
      * from waiting methods is the same as for threads initially
@@ -483,7 +488,7 @@ public class ReentrantLock implements Lock, java.io.Serializable {
      * not be entered with the lock already held then we can assert that
      * fact:
      *
-     *  <pre> {@code
+     * <pre> {@code
      * class X {
      *   ReentrantLock lock = new ReentrantLock();
      *   // ...
@@ -508,12 +513,12 @@ public class ReentrantLock implements Lock, java.io.Serializable {
     /**
      * Queries if this lock is held by the current thread.
      *
-     * <p>Analogous to the {@link Thread#holdsLock} method for built-in
-     * monitor locks, this method is typically used for debugging and
-     * testing. For example, a method that should only be called while
-     * a lock is held can assert that this is the case:
+     * <p>Analogous to the {@link Thread#holdsLock(Object)} method for
+     * built-in monitor locks, this method is typically used for
+     * debugging and testing. For example, a method that should only be
+     * called while a lock is held can assert that this is the case:
      *
-     *  <pre> {@code
+     * <pre> {@code
      * class X {
      *   ReentrantLock lock = new ReentrantLock();
      *   // ...
@@ -527,7 +532,7 @@ public class ReentrantLock implements Lock, java.io.Serializable {
      * <p>It can also be used to ensure that a reentrant lock is used
      * in a non-reentrant manner, for example:
      *
-     *  <pre> {@code
+     * <pre> {@code
      * class X {
      *   ReentrantLock lock = new ReentrantLock();
      *   // ...
@@ -618,12 +623,11 @@ public class ReentrantLock implements Lock, java.io.Serializable {
     }
 
     /**
-     * Returns an estimate of the number of threads waiting to
-     * acquire this lock.  The value is only an estimate because the number of
+     * Returns an estimate of the number of threads waiting to acquire
+     * this lock.  The value is only an estimate because the number of
      * threads may change dynamically while this method traverses
      * internal data structures.  This method is designed for use in
-     * monitoring of the system state, not for synchronization
-     * control.
+     * monitoring system state, not for synchronization control.
      *
      * @return the estimated number of threads waiting for this lock
      */

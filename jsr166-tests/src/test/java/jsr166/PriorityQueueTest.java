@@ -27,7 +27,7 @@ public class PriorityQueueTest extends JSR166TestCase {
     //     main(suite(), args);
     // }
     // public static Test suite() {
-    //     return new TestSuite(...);
+    //     return new TestSuite(PriorityQueueTest.class);
     // }
 
     static class MyReverseComparator implements Comparator {
@@ -43,7 +43,7 @@ public class PriorityQueueTest extends JSR166TestCase {
     private PriorityQueue<Integer> populatedQueue(int n) {
         PriorityQueue<Integer> q = new PriorityQueue<Integer>(n);
         assertTrue(q.isEmpty());
-        for (int i = n-1; i >= 0; i -= 2)
+        for (int i = n - 1; i >= 0; i -= 2)
             assertTrue(q.offer(new Integer(i)));
         for (int i = (n & 1); i < n; i += 2)
             assertTrue(q.offer(new Integer(i)));
@@ -84,8 +84,7 @@ public class PriorityQueueTest extends JSR166TestCase {
      */
     public void testConstructor4() {
         try {
-            Integer[] ints = new Integer[SIZE];
-            new PriorityQueue(Arrays.asList(ints));
+            new PriorityQueue(Arrays.asList(new Integer[SIZE]));
             shouldThrow();
         } catch (NullPointerException success) {}
     }
@@ -94,10 +93,10 @@ public class PriorityQueueTest extends JSR166TestCase {
      * Initializing from Collection with some null elements throws NPE
      */
     public void testConstructor5() {
+        Integer[] ints = new Integer[SIZE];
+        for (int i = 0; i < SIZE - 1; ++i)
+            ints[i] = new Integer(i);
         try {
-            Integer[] ints = new Integer[SIZE];
-            for (int i = 0; i < SIZE-1; ++i)
-                ints[i] = new Integer(i);
             new PriorityQueue(Arrays.asList(ints));
             shouldThrow();
         } catch (NullPointerException success) {}
@@ -126,7 +125,7 @@ public class PriorityQueueTest extends JSR166TestCase {
         for (int i = 0; i < SIZE; ++i)
             ints[i] = new Integer(i);
         q.addAll(Arrays.asList(ints));
-        for (int i = SIZE-1; i >= 0; --i)
+        for (int i = SIZE - 1; i >= 0; --i)
             assertEquals(ints[i], q.poll());
     }
 
@@ -150,7 +149,7 @@ public class PriorityQueueTest extends JSR166TestCase {
     public void testSize() {
         PriorityQueue q = populatedQueue(SIZE);
         for (int i = 0; i < SIZE; ++i) {
-            assertEquals(SIZE-i, q.size());
+            assertEquals(SIZE - i, q.size());
             q.remove();
         }
         for (int i = 0; i < SIZE; ++i) {
@@ -163,8 +162,8 @@ public class PriorityQueueTest extends JSR166TestCase {
      * offer(null) throws NPE
      */
     public void testOfferNull() {
+        PriorityQueue q = new PriorityQueue(1);
         try {
-            PriorityQueue q = new PriorityQueue(1);
             q.offer(null);
             shouldThrow();
         } catch (NullPointerException success) {}
@@ -174,8 +173,8 @@ public class PriorityQueueTest extends JSR166TestCase {
      * add(null) throws NPE
      */
     public void testAddNull() {
+        PriorityQueue q = new PriorityQueue(1);
         try {
-            PriorityQueue q = new PriorityQueue(1);
             q.add(null);
             shouldThrow();
         } catch (NullPointerException success) {}
@@ -217,8 +216,8 @@ public class PriorityQueueTest extends JSR166TestCase {
      * addAll(null) throws NPE
      */
     public void testAddAll1() {
+        PriorityQueue q = new PriorityQueue(1);
         try {
-            PriorityQueue q = new PriorityQueue(1);
             q.addAll(null);
             shouldThrow();
         } catch (NullPointerException success) {}
@@ -228,10 +227,9 @@ public class PriorityQueueTest extends JSR166TestCase {
      * addAll of a collection with null elements throws NPE
      */
     public void testAddAll2() {
+        PriorityQueue q = new PriorityQueue(SIZE);
         try {
-            PriorityQueue q = new PriorityQueue(SIZE);
-            Integer[] ints = new Integer[SIZE];
-            q.addAll(Arrays.asList(ints));
+            q.addAll(Arrays.asList(new Integer[SIZE]));
             shouldThrow();
         } catch (NullPointerException success) {}
     }
@@ -241,11 +239,11 @@ public class PriorityQueueTest extends JSR166TestCase {
      * possibly adding some elements
      */
     public void testAddAll3() {
+        PriorityQueue q = new PriorityQueue(SIZE);
+        Integer[] ints = new Integer[SIZE];
+        for (int i = 0; i < SIZE - 1; ++i)
+            ints[i] = new Integer(i);
         try {
-            PriorityQueue q = new PriorityQueue(SIZE);
-            Integer[] ints = new Integer[SIZE];
-            for (int i = 0; i < SIZE-1; ++i)
-                ints[i] = new Integer(i);
             q.addAll(Arrays.asList(ints));
             shouldThrow();
         } catch (NullPointerException success) {}
@@ -258,7 +256,7 @@ public class PriorityQueueTest extends JSR166TestCase {
         Integer[] empty = new Integer[0];
         Integer[] ints = new Integer[SIZE];
         for (int i = 0; i < SIZE; ++i)
-            ints[i] = new Integer(SIZE-1-i);
+            ints[i] = new Integer(SIZE - 1 - i);
         PriorityQueue q = new PriorityQueue(SIZE);
         assertFalse(q.addAll(Arrays.asList(empty)));
         assertTrue(q.addAll(Arrays.asList(ints)));
@@ -329,14 +327,14 @@ public class PriorityQueueTest extends JSR166TestCase {
             assertTrue(q.contains(i));
             assertTrue(q.remove(i));
             assertFalse(q.contains(i));
-            assertTrue(q.contains(i-1));
+            assertTrue(q.contains(i - 1));
         }
         for (int i = 0; i < SIZE; i += 2) {
             assertTrue(q.contains(i));
             assertTrue(q.remove(i));
             assertFalse(q.contains(i));
-            assertFalse(q.remove(i+1));
-            assertFalse(q.contains(i+1));
+            assertFalse(q.remove(i + 1));
+            assertFalse(q.contains(i + 1));
         }
         assertTrue(q.isEmpty());
     }
@@ -395,7 +393,7 @@ public class PriorityQueueTest extends JSR166TestCase {
                 assertTrue(changed);
 
             assertTrue(q.containsAll(p));
-            assertEquals(SIZE-i, q.size());
+            assertEquals(SIZE - i, q.size());
             p.remove();
         }
     }
@@ -408,7 +406,7 @@ public class PriorityQueueTest extends JSR166TestCase {
             PriorityQueue q = populatedQueue(SIZE);
             PriorityQueue p = populatedQueue(i);
             assertTrue(q.removeAll(p));
-            assertEquals(SIZE-i, q.size());
+            assertEquals(SIZE - i, q.size());
             for (int j = 0; j < i; ++j) {
                 Integer x = (Integer)(p.remove());
                 assertFalse(q.contains(x));

@@ -6,7 +6,8 @@
 
 package java.util.concurrent.atomic;
 
-import sun.misc.Unsafe;
+import java.util.function.BinaryOperator;
+import java.util.function.UnaryOperator;
 
 /**
  * An object reference that may be updated atomically. See the {@link
@@ -19,14 +20,16 @@ import sun.misc.Unsafe;
 public class AtomicReference<V> implements java.io.Serializable {
     private static final long serialVersionUID = -1848883965231344442L;
 
-    private static final Unsafe unsafe = Unsafe.getUnsafe();
-    private static final long valueOffset;
+    private static final sun.misc.Unsafe U = sun.misc.Unsafe.getUnsafe();
+    private static final long VALUE;
 
     static {
         try {
-            valueOffset = unsafe.objectFieldOffset
+            VALUE = U.objectFieldOffset
                 (AtomicReference.class.getDeclaredField("value"));
-        } catch (Exception ex) { throw new Error(ex); }
+        } catch (ReflectiveOperationException e) {
+            throw new Error(e);
+        }
     }
 
     private volatile V value;
@@ -71,7 +74,7 @@ public class AtomicReference<V> implements java.io.Serializable {
      * @since 1.6
      */
     public final void lazySet(V newValue) {
-        unsafe.putOrderedObject(this, valueOffset, newValue);
+        U.putOrderedObject(this, VALUE, newValue);
     }
 
     /**
@@ -79,11 +82,11 @@ public class AtomicReference<V> implements java.io.Serializable {
      * if the current value {@code ==} the expected value.
      * @param expect the expected value
      * @param update the new value
-     * @return true if successful. False return indicates that
+     * @return {@code true} if successful. False return indicates that
      * the actual value was not equal to the expected value.
      */
     public final boolean compareAndSet(V expect, V update) {
-        return unsafe.compareAndSwapObject(this, valueOffset, expect, update);
+        return U.compareAndSwapObject(this, VALUE, expect, update);
     }
 
     /**
@@ -96,10 +99,10 @@ public class AtomicReference<V> implements java.io.Serializable {
      *
      * @param expect the expected value
      * @param update the new value
-     * @return true if successful
+     * @return {@code true} if successful
      */
     public final boolean weakCompareAndSet(V expect, V update) {
-        return unsafe.compareAndSwapObject(this, valueOffset, expect, update);
+        return U.compareAndSwapObject(this, VALUE, expect, update);
     }
 
     /**
@@ -108,12 +111,95 @@ public class AtomicReference<V> implements java.io.Serializable {
      * @param newValue the new value
      * @return the previous value
      */
+    @SuppressWarnings("unchecked")
     public final V getAndSet(V newValue) {
-        while (true) {
-            V x = get();
-            if (compareAndSet(x, newValue))
-                return x;
-        }
+        return (V)U.getAndSetObject(this, VALUE, newValue);
+    }
+
+    /**
+     * Atomically updates the current value with the results of
+     * applying the given function, returning the previous value. The
+     * function should be side-effect-free, since it may be re-applied
+     * when attempted updates fail due to contention among threads.
+     *
+     * @param updateFunction a side-effect-free function
+     * @return the previous value
+     * @since 1.8
+     */
+    public final V getAndUpdate(UnaryOperator<V> updateFunction) {
+        V prev, next;
+        do {
+            prev = get();
+            next = updateFunction.apply(prev);
+        } while (!compareAndSet(prev, next));
+        return prev;
+    }
+
+    /**
+     * Atomically updates the current value with the results of
+     * applying the given function, returning the updated value. The
+     * function should be side-effect-free, since it may be re-applied
+     * when attempted updates fail due to contention among threads.
+     *
+     * @param updateFunction a side-effect-free function
+     * @return the updated value
+     * @since 1.8
+     */
+    public final V updateAndGet(UnaryOperator<V> updateFunction) {
+        V prev, next;
+        do {
+            prev = get();
+            next = updateFunction.apply(prev);
+        } while (!compareAndSet(prev, next));
+        return next;
+    }
+
+    /**
+     * Atomically updates the current value with the results of
+     * applying the given function to the current and given values,
+     * returning the previous value. The function should be
+     * side-effect-free, since it may be re-applied when attempted
+     * updates fail due to contention among threads.  The function
+     * is applied with the current value as its first argument,
+     * and the given update as the second argument.
+     *
+     * @param x the update value
+     * @param accumulatorFunction a side-effect-free function of two arguments
+     * @return the previous value
+     * @since 1.8
+     */
+    public final V getAndAccumulate(V x,
+                                    BinaryOperator<V> accumulatorFunction) {
+        V prev, next;
+        do {
+            prev = get();
+            next = accumulatorFunction.apply(prev, x);
+        } while (!compareAndSet(prev, next));
+        return prev;
+    }
+
+    /**
+     * Atomically updates the current value with the results of
+     * applying the given function to the current and given values,
+     * returning the updated value. The function should be
+     * side-effect-free, since it may be re-applied when attempted
+     * updates fail due to contention among threads.  The function
+     * is applied with the current value as its first argument,
+     * and the given update as the second argument.
+     *
+     * @param x the update value
+     * @param accumulatorFunction a side-effect-free function of two arguments
+     * @return the updated value
+     * @since 1.8
+     */
+    public final V accumulateAndGet(V x,
+                                    BinaryOperator<V> accumulatorFunction) {
+        V prev, next;
+        do {
+            prev = get();
+            next = accumulatorFunction.apply(prev, x);
+        } while (!compareAndSet(prev, next));
+        return next;
     }
 
     /**

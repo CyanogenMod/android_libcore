@@ -367,7 +367,7 @@ public class FutureTask<V> implements RunnableFuture<V> {
         throws InterruptedException {
         // The code below is very delicate, to achieve these goals:
         // - call nanoTime exactly once for each call to park
-        // - if nanos <= 0, return promptly without allocation or nanoTime
+        // - if nanos <= 0L, return promptly without allocation or nanoTime
         // - if nanos == Long.MIN_VALUE, don't underflow
         // - if nanos == Long.MAX_VALUE, and nanoTime is non-monotonic
         //   and we suffer a spurious wakeup, we will do no worse than
@@ -467,7 +467,7 @@ public class FutureTask<V> implements RunnableFuture<V> {
                 (FutureTask.class.getDeclaredField("runner"));
             WAITERS = U.objectFieldOffset
                 (FutureTask.class.getDeclaredField("waiters"));
-        } catch (Exception e) {
+        } catch (ReflectiveOperationException e) {
             throw new Error(e);
         }
 

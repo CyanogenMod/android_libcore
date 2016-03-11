@@ -6,9 +6,10 @@
 
 package java.util.concurrent.atomic;
 
-import java.util.Arrays;
 import java.lang.reflect.Array;
-import sun.misc.Unsafe;
+import java.util.Arrays;
+import java.util.function.BinaryOperator;
+import java.util.function.UnaryOperator;
 
 /**
  * An array of object references in which elements may be updated
@@ -22,23 +23,22 @@ import sun.misc.Unsafe;
 public class AtomicReferenceArray<E> implements java.io.Serializable {
     private static final long serialVersionUID = -6209656149925076980L;
 
-    private static final Unsafe unsafe;
-    private static final int base;
-    private static final int shift;
-    private static final long arrayFieldOffset;
+    private static final sun.misc.Unsafe U = sun.misc.Unsafe.getUnsafe();
+    private static final long ARRAY;
+    private static final int ABASE;
+    private static final int ASHIFT;
     private final Object[] array; // must have exact type Object[]
 
     static {
         try {
-            unsafe = Unsafe.getUnsafe();
-            arrayFieldOffset = unsafe.objectFieldOffset
+            ARRAY = U.objectFieldOffset
                 (AtomicReferenceArray.class.getDeclaredField("array"));
-            base = unsafe.arrayBaseOffset(Object[].class);
-            int scale = unsafe.arrayIndexScale(Object[].class);
+            ABASE = U.arrayBaseOffset(Object[].class);
+            int scale = U.arrayIndexScale(Object[].class);
             if ((scale & (scale - 1)) != 0)
-                throw new Error("data type scale not a power of two");
-            shift = 31 - Integer.numberOfLeadingZeros(scale);
-        } catch (Exception e) {
+                throw new Error("array index scale not a power of two");
+            ASHIFT = 31 - Integer.numberOfLeadingZeros(scale);
+        } catch (ReflectiveOperationException e) {
             throw new Error(e);
         }
     }
@@ -51,7 +51,7 @@ public class AtomicReferenceArray<E> implements java.io.Serializable {
     }
 
     private static long byteOffset(int i) {
-        return ((long) i << shift) + base;
+        return ((long) i << ASHIFT) + ABASE;
     }
 
     /**
@@ -97,7 +97,7 @@ public class AtomicReferenceArray<E> implements java.io.Serializable {
 
     @SuppressWarnings("unchecked")
     private E getRaw(long offset) {
-        return (E) unsafe.getObjectVolatile(array, offset);
+        return (E) U.getObjectVolatile(array, offset);
     }
 
     /**
@@ -107,7 +107,7 @@ public class AtomicReferenceArray<E> implements java.io.Serializable {
      * @param newValue the new value
      */
     public final void set(int i, E newValue) {
-        unsafe.putObjectVolatile(array, checkedByteOffset(i), newValue);
+        U.putObjectVolatile(array, checkedByteOffset(i), newValue);
     }
 
     /**
@@ -118,7 +118,7 @@ public class AtomicReferenceArray<E> implements java.io.Serializable {
      * @since 1.6
      */
     public final void lazySet(int i, E newValue) {
-        unsafe.putOrderedObject(array, checkedByteOffset(i), newValue);
+        U.putOrderedObject(array, checkedByteOffset(i), newValue);
     }
 
     /**
@@ -129,13 +129,9 @@ public class AtomicReferenceArray<E> implements java.io.Serializable {
      * @param newValue the new value
      * @return the previous value
      */
+    @SuppressWarnings("unchecked")
     public final E getAndSet(int i, E newValue) {
-        long offset = checkedByteOffset(i);
-        while (true) {
-            E current = getRaw(offset);
-            if (compareAndSetRaw(offset, current, newValue))
-                return current;
-        }
+        return (E)U.getAndSetObject(array, checkedByteOffset(i), newValue);
     }
 
     /**
@@ -145,7 +141,7 @@ public class AtomicReferenceArray<E> implements java.io.Serializable {
      * @param i the index
      * @param expect the expected value
      * @param update the new value
-     * @return true if successful. False return indicates that
+     * @return {@code true} if successful. False return indicates that
      * the actual value was not equal to the expected value.
      */
     public final boolean compareAndSet(int i, E expect, E update) {
@@ -153,7 +149,7 @@ public class AtomicReferenceArray<E> implements java.io.Serializable {
     }
 
     private boolean compareAndSetRaw(long offset, E expect, E update) {
-        return unsafe.compareAndSwapObject(array, offset, expect, update);
+        return U.compareAndSwapObject(array, offset, expect, update);
     }
 
     /**
@@ -167,10 +163,104 @@ public class AtomicReferenceArray<E> implements java.io.Serializable {
      * @param i the index
      * @param expect the expected value
      * @param update the new value
-     * @return true if successful
+     * @return {@code true} if successful
      */
     public final boolean weakCompareAndSet(int i, E expect, E update) {
         return compareAndSet(i, expect, update);
+    }
+
+    /**
+     * Atomically updates the element at index {@code i} with the results
+     * of applying the given function, returning the previous value. The
+     * function should be side-effect-free, since it may be re-applied
+     * when attempted updates fail due to contention among threads.
+     *
+     * @param i the index
+     * @param updateFunction a side-effect-free function
+     * @return the previous value
+     * @since 1.8
+     */
+    public final E getAndUpdate(int i, UnaryOperator<E> updateFunction) {
+        long offset = checkedByteOffset(i);
+        E prev, next;
+        do {
+            prev = getRaw(offset);
+            next = updateFunction.apply(prev);
+        } while (!compareAndSetRaw(offset, prev, next));
+        return prev;
+    }
+
+    /**
+     * Atomically updates the element at index {@code i} with the results
+     * of applying the given function, returning the updated value. The
+     * function should be side-effect-free, since it may be re-applied
+     * when attempted updates fail due to contention among threads.
+     *
+     * @param i the index
+     * @param updateFunction a side-effect-free function
+     * @return the updated value
+     * @since 1.8
+     */
+    public final E updateAndGet(int i, UnaryOperator<E> updateFunction) {
+        long offset = checkedByteOffset(i);
+        E prev, next;
+        do {
+            prev = getRaw(offset);
+            next = updateFunction.apply(prev);
+        } while (!compareAndSetRaw(offset, prev, next));
+        return next;
+    }
+
+    /**
+     * Atomically updates the element at index {@code i} with the
+     * results of applying the given function to the current and
+     * given values, returning the previous value. The function should
+     * be side-effect-free, since it may be re-applied when attempted
+     * updates fail due to contention among threads.  The function is
+     * applied with the current value at index {@code i} as its first
+     * argument, and the given update as the second argument.
+     *
+     * @param i the index
+     * @param x the update value
+     * @param accumulatorFunction a side-effect-free function of two arguments
+     * @return the previous value
+     * @since 1.8
+     */
+    public final E getAndAccumulate(int i, E x,
+                                    BinaryOperator<E> accumulatorFunction) {
+        long offset = checkedByteOffset(i);
+        E prev, next;
+        do {
+            prev = getRaw(offset);
+            next = accumulatorFunction.apply(prev, x);
+        } while (!compareAndSetRaw(offset, prev, next));
+        return prev;
+    }
+
+    /**
+     * Atomically updates the element at index {@code i} with the
+     * results of applying the given function to the current and
+     * given values, returning the updated value. The function should
+     * be side-effect-free, since it may be re-applied when attempted
+     * updates fail due to contention among threads.  The function is
+     * applied with the current value at index {@code i} as its first
+     * argument, and the given update as the second argument.
+     *
+     * @param i the index
+     * @param x the update value
+     * @param accumulatorFunction a side-effect-free function of two arguments
+     * @return the updated value
+     * @since 1.8
+     */
+    public final E accumulateAndGet(int i, E x,
+                                    BinaryOperator<E> accumulatorFunction) {
+        long offset = checkedByteOffset(i);
+        E prev, next;
+        do {
+            prev = getRaw(offset);
+            next = accumulatorFunction.apply(prev, x);
+        } while (!compareAndSetRaw(offset, prev, next));
+        return next;
     }
 
     /**
@@ -194,17 +284,20 @@ public class AtomicReferenceArray<E> implements java.io.Serializable {
 
     /**
      * Reconstitutes the instance from a stream (that is, deserializes it).
+     * @param s the stream
+     * @throws ClassNotFoundException if the class of a serialized object
+     *         could not be found
+     * @throws java.io.IOException if an I/O error occurs
      */
     private void readObject(java.io.ObjectInputStream s)
-        throws java.io.IOException, ClassNotFoundException,
-        java.io.InvalidObjectException {
+        throws java.io.IOException, ClassNotFoundException {
         // Note: This must be changed if any additional fields are defined
         Object a = s.readFields().get("array", null);
         if (a == null || !a.getClass().isArray())
             throw new java.io.InvalidObjectException("Not array type");
         if (a.getClass() != Object[].class)
             a = Arrays.copyOf((Object[])a, Array.getLength(a), Object[].class);
-        unsafe.putObjectVolatile(this, arrayFieldOffset, a);
+        U.putObjectVolatile(this, ARRAY, a);
     }
 
 }

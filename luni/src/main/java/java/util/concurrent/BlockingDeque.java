@@ -6,7 +6,13 @@
 
 package java.util.concurrent;
 
-import java.util.*;
+import java.util.Deque;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
+// BEGIN android-note
+// fixed framework docs link to "Collection#optional"
+// END android-note
 
 /**
  * A {@link Deque} that additionally supports blocking operations that wait
@@ -22,7 +28,6 @@ import java.util.*;
  * and the fourth blocks for only a given maximum time limit before giving
  * up.  These methods are summarized in the following table:
  *
- * <p>
  * <table BORDER CELLPADDING=3 CELLSPACING=1>
  * <caption>Summary of BlockingDeque methods</caption>
  *  <tr>
@@ -98,7 +103,6 @@ import java.util.*;
  * {@code BlockingQueue} interface are precisely equivalent to
  * {@code BlockingDeque} methods as indicated in the following table:
  *
- * <p>
  * <table BORDER CELLPADDING=3 CELLSPACING=1>
  * <caption>Comparison of BlockingQueue and BlockingDeque methods</caption>
  *  <tr>
@@ -169,7 +173,7 @@ import java.util.*;
  *
  * @since 1.6
  * @author Doug Lea
- * @param <E> the type of elements held in this collection
+ * @param <E> the type of elements held in this deque
  */
 public interface BlockingDeque<E> extends BlockingQueue<E>, Deque<E> {
     /*
@@ -375,9 +379,9 @@ public interface BlockingDeque<E> extends BlockingQueue<E>, Deque<E> {
      * @return {@code true} if an element was removed as a result of this call
      * @throws ClassCastException if the class of the specified element
      *         is incompatible with this deque
-     *         (<a href="../Collection.html#optional-restrictions">optional</a>)
+     * (<a href="../Collection.html#optional-restrictions">optional</a>)
      * @throws NullPointerException if the specified element is null
-     *         (<a href="../Collection.html#optional-restrictions">optional</a>)
+     * (<a href="../Collection.html#optional-restrictions">optional</a>)
      */
     boolean removeFirstOccurrence(Object o);
 
@@ -393,9 +397,9 @@ public interface BlockingDeque<E> extends BlockingQueue<E>, Deque<E> {
      * @return {@code true} if an element was removed as a result of this call
      * @throws ClassCastException if the class of the specified element
      *         is incompatible with this deque
-     *         (<a href="../Collection.html#optional-restrictions">optional</a>)
+     * (<a href="../Collection.html#optional-restrictions">optional</a>)
      * @throws NullPointerException if the specified element is null
-     *         (<a href="../Collection.html#optional-restrictions">optional</a>)
+     * (<a href="../Collection.html#optional-restrictions">optional</a>)
      */
     boolean removeLastOccurrence(Object o);
 
@@ -570,9 +574,9 @@ public interface BlockingDeque<E> extends BlockingQueue<E>, Deque<E> {
      * @return {@code true} if this deque changed as a result of the call
      * @throws ClassCastException if the class of the specified element
      *         is incompatible with this deque
-     *         (<a href="../Collection.html#optional-restrictions">optional</a>)
+     * (<a href="../Collection.html#optional-restrictions">optional</a>)
      * @throws NullPointerException if the specified element is null
-     *         (<a href="../Collection.html#optional-restrictions">optional</a>)
+     * (<a href="../Collection.html#optional-restrictions">optional</a>)
      */
     boolean remove(Object o);
 
@@ -585,18 +589,18 @@ public interface BlockingDeque<E> extends BlockingQueue<E>, Deque<E> {
      * @return {@code true} if this deque contains the specified element
      * @throws ClassCastException if the class of the specified element
      *         is incompatible with this deque
-     *         (<a href="../Collection.html#optional-restrictions">optional</a>)
+     * (<a href="../Collection.html#optional-restrictions">optional</a>)
      * @throws NullPointerException if the specified element is null
-     *         (<a href="../Collection.html#optional-restrictions">optional</a>)
+     * (<a href="../Collection.html#optional-restrictions">optional</a>)
      */
-    public boolean contains(Object o);
+    boolean contains(Object o);
 
     /**
      * Returns the number of elements in this deque.
      *
      * @return the number of elements in this deque
      */
-    public int size();
+    int size();
 
     /**
      * Returns an iterator over the elements in this deque in proper sequence.

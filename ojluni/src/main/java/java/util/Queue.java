@@ -50,7 +50,6 @@ package java.util;
  * implementations; in most implementations, insert operations cannot
  * fail.
  *
- * <p>
  * <table BORDER CELLPADDING=3 CELLSPACING=1>
  * <caption>Summary of Queue methods</caption>
  *  <tr>
@@ -128,17 +127,9 @@ package java.util;
  * always well-defined for queues with the same elements but different
  * ordering properties.
  *
- * @see java.util.Collection
- * @see LinkedList
- * @see PriorityQueue
- * @see java.util.concurrent.LinkedBlockingQueue
- * @see java.util.concurrent.BlockingQueue
- * @see java.util.concurrent.ArrayBlockingQueue
- * @see java.util.concurrent.LinkedBlockingQueue
- * @see java.util.concurrent.PriorityBlockingQueue
  * @since 1.5
  * @author Doug Lea
- * @param <E> the type of elements held in this collection
+ * @param <E> the type of elements held in this queue
  */
 public interface Queue<E> extends Collection<E> {
     /**

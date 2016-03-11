@@ -21,7 +21,7 @@ public class AtomicMarkableReferenceTest extends JSR166TestCase {
     //     main(suite(), args);
     // }
     // public static Test suite() {
-    //     return new TestSuite(...);
+    //     return new TestSuite(AtomicMarkableReferenceTest.class);
     // }
 
     /**

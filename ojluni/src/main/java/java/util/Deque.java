@@ -59,7 +59,6 @@ package java.util;
  * <p>The twelve methods described above are summarized in the
  * following table:
  *
- * <p>
  * <table BORDER CELLPADDING=3 CELLSPACING=1>
  * <caption>Summary of Deque methods</caption>
  *  <tr>
@@ -103,7 +102,6 @@ package java.util;
  * inherited from the {@code Queue} interface are precisely equivalent to
  * {@code Deque} methods as indicated in the following table:
  *
- * <p>
  * <table BORDER CELLPADDING=3 CELLSPACING=1>
  * <caption>Comparison of Queue and Deque methods</caption>
  *  <tr>
@@ -142,7 +140,6 @@ package java.util;
  * beginning of the deque.  Stack methods are precisely equivalent to
  * {@code Deque} methods as indicated in the table below:
  *
- * <p>
  * <table BORDER CELLPADDING=3 CELLSPACING=1>
  * <caption>Comparison of Stack and Deque methods</caption>
  *  <tr>
@@ -190,7 +187,7 @@ package java.util;
  * @author Doug Lea
  * @author Josh Bloch
  * @since  1.6
- * @param <E> the type of elements held in this collection
+ * @param <E> the type of elements held in this deque
  */
 public interface Deque<E> extends Queue<E> {
     /**
@@ -346,17 +343,18 @@ public interface Deque<E> extends Queue<E> {
      * Removes the first occurrence of the specified element from this deque.
      * If the deque does not contain the element, it is unchanged.
      * More formally, removes the first element {@code e} such that
-     * <tt>(o==null&nbsp;?&nbsp;e==null&nbsp;:&nbsp;o.equals(e))</tt>
-     * (if such an element exists).
+     * {@code Objects.equals(o, e)} (if such an element exists).
      * Returns {@code true} if this deque contained the specified element
      * (or equivalently, if this deque changed as a result of the call).
      *
      * @param o element to be removed from this deque, if present
      * @return {@code true} if an element was removed as a result of this call
      * @throws ClassCastException if the class of the specified element
-     *         is incompatible with this deque (optional)
+     *         is incompatible with this deque
+     * (<a href="Collection.html#optional-restrictions">optional</a>)
      * @throws NullPointerException if the specified element is null and this
-     *         deque does not permit null elements (optional)
+     *         deque does not permit null elements
+     * (<a href="Collection.html#optional-restrictions">optional</a>)
      */
     boolean removeFirstOccurrence(Object o);
 
@@ -364,17 +362,18 @@ public interface Deque<E> extends Queue<E> {
      * Removes the last occurrence of the specified element from this deque.
      * If the deque does not contain the element, it is unchanged.
      * More formally, removes the last element {@code e} such that
-     * <tt>(o==null&nbsp;?&nbsp;e==null&nbsp;:&nbsp;o.equals(e))</tt>
-     * (if such an element exists).
+     * {@code Objects.equals(o, e)} (if such an element exists).
      * Returns {@code true} if this deque contained the specified element
      * (or equivalently, if this deque changed as a result of the call).
      *
      * @param o element to be removed from this deque, if present
      * @return {@code true} if an element was removed as a result of this call
      * @throws ClassCastException if the class of the specified element
-     *         is incompatible with this deque (optional)
+     *         is incompatible with this deque
+     * (<a href="Collection.html#optional-restrictions">optional</a>)
      * @throws NullPointerException if the specified element is null and this
-     *         deque does not permit null elements (optional)
+     *         deque does not permit null elements
+     * (<a href="Collection.html#optional-restrictions">optional</a>)
      */
     boolean removeLastOccurrence(Object o);
 
@@ -519,8 +518,7 @@ public interface Deque<E> extends Queue<E> {
      * Removes the first occurrence of the specified element from this deque.
      * If the deque does not contain the element, it is unchanged.
      * More formally, removes the first element {@code e} such that
-     * <tt>(o==null&nbsp;?&nbsp;e==null&nbsp;:&nbsp;o.equals(e))</tt>
-     * (if such an element exists).
+     * {@code Objects.equals(o, e)} (if such an element exists).
      * Returns {@code true} if this deque contained the specified element
      * (or equivalently, if this deque changed as a result of the call).
      *
@@ -529,24 +527,27 @@ public interface Deque<E> extends Queue<E> {
      * @param o element to be removed from this deque, if present
      * @return {@code true} if an element was removed as a result of this call
      * @throws ClassCastException if the class of the specified element
-     *         is incompatible with this deque (optional)
+     *         is incompatible with this deque
+     * (<a href="Collection.html#optional-restrictions">optional</a>)
      * @throws NullPointerException if the specified element is null and this
-     *         deque does not permit null elements (optional)
+     *         deque does not permit null elements
+     * (<a href="Collection.html#optional-restrictions">optional</a>)
      */
     boolean remove(Object o);
 
     /**
      * Returns {@code true} if this deque contains the specified element.
      * More formally, returns {@code true} if and only if this deque contains
-     * at least one element {@code e} such that
-     * <tt>(o==null&nbsp;?&nbsp;e==null&nbsp;:&nbsp;o.equals(e))</tt>.
+     * at least one element {@code e} such that {@code Objects.equals(o, e)}.
      *
      * @param o element whose presence in this deque is to be tested
      * @return {@code true} if this deque contains the specified element
-     * @throws ClassCastException if the type of the specified element
-     *         is incompatible with this deque (optional)
+     * @throws ClassCastException if the class of the specified element
+     *         is incompatible with this deque
+     * (<a href="Collection.html#optional-restrictions">optional</a>)
      * @throws NullPointerException if the specified element is null and this
-     *         deque does not permit null elements (optional)
+     *         deque does not permit null elements
+     * (<a href="Collection.html#optional-restrictions">optional</a>)
      */
     boolean contains(Object o);
 
@@ -555,7 +556,7 @@ public interface Deque<E> extends Queue<E> {
      *
      * @return the number of elements in this deque
      */
-    public int size();
+    int size();
 
     /**
      * Returns an iterator over the elements in this deque in proper sequence.

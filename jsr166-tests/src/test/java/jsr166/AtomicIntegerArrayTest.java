@@ -15,6 +15,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 public class AtomicIntegerArrayTest extends JSR166TestCase {
+
     // android-note: Removed because the CTS runner does a bad job of
     // retrying tests that have suite() declarations.
     //
@@ -22,7 +23,7 @@ public class AtomicIntegerArrayTest extends JSR166TestCase {
     //     main(suite(), args);
     // }
     // public static Test suite() {
-    //     return new TestSuite(...);
+    //     return new TestSuite(AtomicIntegerArrayTest.class);
     // }
 
     /**
@@ -290,7 +291,7 @@ public class AtomicIntegerArrayTest extends JSR166TestCase {
                     assertTrue(v >= 0);
                     if (v != 0) {
                         done = false;
-                        if (aa.compareAndSet(i, v, v-1))
+                        if (aa.compareAndSet(i, v, v - 1))
                             ++counts;
                     }
                 }

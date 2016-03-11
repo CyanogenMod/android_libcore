@@ -30,7 +30,7 @@ public class ConcurrentHashMapTest extends JSR166TestCase {
     //     main(suite(), args);
     // }
     // public static Test suite() {
-    //     return new TestSuite(...);
+    //     return new TestSuite(ConcurrentHashMapTest.class);
     // }
 
     /**
@@ -50,7 +50,9 @@ public class ConcurrentHashMapTest extends JSR166TestCase {
     }
 
     /** Re-implement Integer.compare for old java versions */
-    static int compare(int x, int y) { return x < y ? -1 : x > y ? 1 : 0; }
+    static int compare(int x, int y) {
+        return (x < y) ? -1 : (x > y) ? 1 : 0;
+    }
 
     // classes for testing Comparable fallbacks
     static class BI implements Comparable<BI> {
@@ -538,7 +540,7 @@ public class ConcurrentHashMapTest extends JSR166TestCase {
     /**
      * Constructor (initialCapacity, loadFactor) throws
      * IllegalArgumentException if either argument is negative
-      */
+     */
     public void testConstructor2() {
         try {
             new ConcurrentHashMap(-1, .75f);

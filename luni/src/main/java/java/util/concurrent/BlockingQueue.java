@@ -10,7 +10,8 @@ import java.util.Collection;
 import java.util.Queue;
 
 // BEGIN android-note
-// removed link to collections framework docs
+// removed link to collections framework docs from header
+// fixed framework docs link to "Collection#optional"
 // END android-note
 
 /**
@@ -28,7 +29,6 @@ import java.util.Queue;
  * and the fourth blocks for only a given maximum time limit before giving
  * up.  These methods are summarized in the following table:
  *
- * <p>
  * <table BORDER CELLPADDING=3 CELLSPACING=1>
  * <caption>Summary of BlockingQueue methods</caption>
  *  <tr>
@@ -103,7 +103,7 @@ import java.util.Queue;
  * Usage example, based on a typical producer-consumer scenario.
  * Note that a {@code BlockingQueue} can safely be used with multiple
  * producers and multiple consumers.
- *  <pre> {@code
+ * <pre> {@code
  * class Producer implements Runnable {
  *   private final BlockingQueue queue;
  *   Producer(BlockingQueue q) { queue = q; }
@@ -147,7 +147,7 @@ import java.util.Queue;
  *
  * @since 1.5
  * @author Doug Lea
- * @param <E> the type of elements held in this collection
+ * @param <E> the type of elements held in this queue
  */
 public interface BlockingQueue<E> extends Queue<E> {
     /**
@@ -275,9 +275,9 @@ public interface BlockingQueue<E> extends Queue<E> {
      * @return {@code true} if this queue changed as a result of the call
      * @throws ClassCastException if the class of the specified element
      *         is incompatible with this queue
-     *         (<a href="../Collection.html#optional-restrictions">optional</a>)
+     * (<a href="../Collection.html#optional-restrictions">optional</a>)
      * @throws NullPointerException if the specified element is null
-     *         (<a href="../Collection.html#optional-restrictions">optional</a>)
+     * (<a href="../Collection.html#optional-restrictions">optional</a>)
      */
     boolean remove(Object o);
 
@@ -290,11 +290,11 @@ public interface BlockingQueue<E> extends Queue<E> {
      * @return {@code true} if this queue contains the specified element
      * @throws ClassCastException if the class of the specified element
      *         is incompatible with this queue
-     *         (<a href="../Collection.html#optional-restrictions">optional</a>)
+     * (<a href="../Collection.html#optional-restrictions">optional</a>)
      * @throws NullPointerException if the specified element is null
-     *         (<a href="../Collection.html#optional-restrictions">optional</a>)
+     * (<a href="../Collection.html#optional-restrictions">optional</a>)
      */
-    public boolean contains(Object o);
+    boolean contains(Object o);
 
     /**
      * Removes all available elements from this queue and adds them

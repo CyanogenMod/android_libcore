@@ -21,9 +21,9 @@ package java.util.concurrent;
  * to swap buffers between threads so that the thread filling the
  * buffer gets a freshly emptied one when it needs it, handing off the
  * filled one to the thread emptying the buffer.
- *  <pre> {@code
+ * <pre> {@code
  * class FillAndEmpty {
- *   Exchanger<DataBuffer> exchanger = new Exchanger<DataBuffer>();
+ *   Exchanger<DataBuffer> exchanger = new Exchanger<>();
  *   DataBuffer initialEmptyBuffer = ... a made-up type
  *   DataBuffer initialFullBuffer = ...
  *
@@ -125,9 +125,10 @@ public class Exchanger<V> {
      * writing, there is no way to determine cacheline size, we define
      * a value that is enough for common platforms.  Additionally,
      * extra care elsewhere is taken to avoid other false/unintended
-     * sharing and to enhance locality, including adding padding to
-     * Nodes, embedding "bound" as an Exchanger field, and reworking
-     * some park/unpark mechanics compared to LockSupport versions.
+     * sharing and to enhance locality, including adding padding (via
+     * @Contended) to Nodes, embedding "bound" as an Exchanger field,
+     * and reworking some park/unpark mechanics compared to
+     * LockSupport versions.
      *
      * The arena starts out with only one used slot. We expand the
      * effective arena size by tracking collisions; i.e., failed CASes
@@ -274,8 +275,9 @@ public class Exchanger<V> {
 
     /**
      * Nodes hold partially exchanged data, plus other per-thread
-     * bookkeeping.
+     * bookkeeping. Padded via @Contended to reduce memory contention.
      */
+    //@jdk.internal.vm.annotation.Contended // android-removed
     static final class Node {
         int index;              // Arena index
         int bound;              // Last recorded value of Exchanger.bound
@@ -284,10 +286,6 @@ public class Exchanger<V> {
         Object item;            // This thread's current item
         volatile Object match;  // Item provided by releasing thread
         volatile Thread parked; // Set to this thread when parked, else null
-
-        // Padding to ameliorate unfortunate memory placements
-        Object p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, pa, pb, pc, pd, pe, pf;
-        Object q0, q1, q2, q3, q4, q5, q6, q7, q8, q9, qa, qb, qc, qd, qe, qf;
     }
 
     /** The corresponding thread local class */
@@ -296,7 +294,7 @@ public class Exchanger<V> {
     }
 
     /**
-     * Per-thread state
+     * Per-thread state.
      */
     private final Participant participant;
 
@@ -598,37 +596,33 @@ public class Exchanger<V> {
     }
 
     // Unsafe mechanics
-    private static final sun.misc.Unsafe U;
+    private static final sun.misc.Unsafe U = sun.misc.Unsafe.getUnsafe();
     private static final long BOUND;
     private static final long SLOT;
     private static final long MATCH;
     private static final long BLOCKER;
     private static final int ABASE;
     static {
-        int s;
         try {
-            U = sun.misc.Unsafe.getUnsafe();
-            Class<?> ek = Exchanger.class;
-            Class<?> nk = Node.class;
-            Class<?> ak = Node[].class;
-            Class<?> tk = Thread.class;
             BOUND = U.objectFieldOffset
-                (ek.getDeclaredField("bound"));
+                (Exchanger.class.getDeclaredField("bound"));
             SLOT = U.objectFieldOffset
-                (ek.getDeclaredField("slot"));
-            MATCH = U.objectFieldOffset
-                (nk.getDeclaredField("match"));
-            BLOCKER = U.objectFieldOffset
-                (tk.getDeclaredField("parkBlocker"));
-            s = U.arrayIndexScale(ak);
-            // ABASE absorbs padding in front of element 0
-            ABASE = U.arrayBaseOffset(ak) + (1 << ASHIFT);
+                (Exchanger.class.getDeclaredField("slot"));
 
-        } catch (Exception e) {
+            MATCH = U.objectFieldOffset
+                (Node.class.getDeclaredField("match"));
+
+            BLOCKER = U.objectFieldOffset
+                (Thread.class.getDeclaredField("parkBlocker"));
+
+            int scale = U.arrayIndexScale(Node[].class);
+            if ((scale & (scale - 1)) != 0 || scale > (1 << ASHIFT))
+                throw new Error("Unsupported array scale");
+            // ABASE absorbs padding in front of element 0
+            ABASE = U.arrayBaseOffset(Node[].class) + (1 << ASHIFT);
+        } catch (ReflectiveOperationException e) {
             throw new Error(e);
         }
-        if ((s & (s-1)) != 0 || s > (1 << ASHIFT))
-            throw new Error("Unsupported array scale");
     }
 
 }

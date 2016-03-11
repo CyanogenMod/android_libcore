@@ -41,30 +41,32 @@ package java.util;
 /**
  * A {@link SortedMap} extended with navigation methods returning the
  * closest matches for given search targets. Methods
- * {@code lowerEntry}, {@code floorEntry}, {@code ceilingEntry},
- * and {@code higherEntry} return {@code Map.Entry} objects
+ * {@link #lowerEntry}, {@link #floorEntry}, {@link #ceilingEntry},
+ * and {@link #higherEntry} return {@code Map.Entry} objects
  * associated with keys respectively less than, less than or equal,
  * greater than or equal, and greater than a given key, returning
  * {@code null} if there is no such key.  Similarly, methods
- * {@code lowerKey}, {@code floorKey}, {@code ceilingKey}, and
- * {@code higherKey} return only the associated keys. All of these
+ * {@link #lowerKey}, {@link #floorKey}, {@link #ceilingKey}, and
+ * {@link #higherKey} return only the associated keys. All of these
  * methods are designed for locating, not traversing entries.
  *
  * <p>A {@code NavigableMap} may be accessed and traversed in either
- * ascending or descending key order.  The {@code descendingMap}
+ * ascending or descending key order.  The {@link #descendingMap}
  * method returns a view of the map with the senses of all relational
  * and directional methods inverted. The performance of ascending
  * operations and views is likely to be faster than that of descending
- * ones.  Methods {@code subMap}, {@code headMap},
- * and {@code tailMap} differ from the like-named {@code
- * SortedMap} methods in accepting additional arguments describing
- * whether lower and upper bounds are inclusive versus exclusive.
- * Submaps of any {@code NavigableMap} must implement the {@code
- * NavigableMap} interface.
+ * ones.  Methods
+ * {@link #subMap(Object, boolean, Object, boolean) subMap(K, boolean, K, boolean)},
+ * {@link #headMap(Object, boolean) headMap(K, boolean)}, and
+ * {@link #tailMap(Object, boolean) tailMap(K, boolean)}
+ * differ from the like-named {@code SortedMap} methods in accepting
+ * additional arguments describing whether lower and upper bounds are
+ * inclusive versus exclusive.  Submaps of any {@code NavigableMap}
+ * must implement the {@code NavigableMap} interface.
  *
- * <p>This interface additionally defines methods {@code firstEntry},
- * {@code pollFirstEntry}, {@code lastEntry}, and
- * {@code pollLastEntry} that return and/or remove the least and
+ * <p>This interface additionally defines methods {@link #firstEntry},
+ * {@link #pollFirstEntry}, {@link #lastEntry}, and
+ * {@link #pollLastEntry} that return and/or remove the least and
  * greatest mappings, if any exist, else returning {@code null}.
  *
  * <p>Implementations of entry-returning methods are expected to
@@ -83,7 +85,7 @@ package java.util;
  * implement {@code NavigableMap}, but extensions and implementations
  * of this interface are encouraged to override these methods to return
  * {@code NavigableMap}.  Similarly,
- * {@link #keySet()} can be overridden to return {@code NavigableSet}.
+ * {@link #keySet()} can be overridden to return {@link NavigableSet}.
  *
  * @author Doug Lea
  * @author Josh Bloch
@@ -297,7 +299,7 @@ public interface NavigableMap<K,V> extends SortedMap<K,V> {
      * Returns a view of the portion of this map whose keys range from
      * {@code fromKey} to {@code toKey}.  If {@code fromKey} and
      * {@code toKey} are equal, the returned map is empty unless
-     * {@code fromExclusive} and {@code toExclusive} are both true.  The
+     * {@code fromInclusive} and {@code toInclusive} are both true.  The
      * returned map is backed by this map, so changes in the returned map are
      * reflected in this map, and vice-versa.  The returned map supports all
      * optional map operations that this map supports.

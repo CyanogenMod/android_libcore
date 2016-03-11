@@ -6,7 +6,8 @@
 
 package java.util.concurrent.atomic;
 
-import sun.misc.Unsafe;
+import java.util.function.LongBinaryOperator;
+import java.util.function.LongUnaryOperator;
 
 /**
  * A {@code long} value that may be updated atomically.  See the
@@ -24,9 +25,8 @@ import sun.misc.Unsafe;
 public class AtomicLong extends Number implements java.io.Serializable {
     private static final long serialVersionUID = 1927816293512124184L;
 
-    // setup to use Unsafe.compareAndSwapLong for updates
-    private static final Unsafe unsafe = Unsafe.getUnsafe();
-    private static final long valueOffset;
+    private static final sun.misc.Unsafe U = sun.misc.Unsafe.getUnsafe();
+    private static final long VALUE;
 
     /**
      * Records whether the underlying JVM supports lockless
@@ -44,9 +44,11 @@ public class AtomicLong extends Number implements java.io.Serializable {
 
     static {
         try {
-            valueOffset = unsafe.objectFieldOffset
+            VALUE = U.objectFieldOffset
                 (AtomicLong.class.getDeclaredField("value"));
-        } catch (Exception ex) { throw new Error(ex); }
+        } catch (ReflectiveOperationException e) {
+            throw new Error(e);
+        }
     }
 
     private volatile long value;
@@ -81,7 +83,9 @@ public class AtomicLong extends Number implements java.io.Serializable {
      * @param newValue the new value
      */
     public final void set(long newValue) {
-        value = newValue;
+        // Use putLongVolatile instead of ordinary volatile store when
+        // using compareAndSwapLong, for sake of some 32bit systems.
+        U.putLongVolatile(this, VALUE, newValue);
     }
 
     /**
@@ -91,7 +95,7 @@ public class AtomicLong extends Number implements java.io.Serializable {
      * @since 1.6
      */
     public final void lazySet(long newValue) {
-        unsafe.putOrderedLong(this, valueOffset, newValue);
+        U.putOrderedLong(this, VALUE, newValue);
     }
 
     /**
@@ -101,11 +105,7 @@ public class AtomicLong extends Number implements java.io.Serializable {
      * @return the previous value
      */
     public final long getAndSet(long newValue) {
-        while (true) {
-            long current = get();
-            if (compareAndSet(current, newValue))
-                return current;
-        }
+        return U.getAndSetLong(this, VALUE, newValue);
     }
 
     /**
@@ -114,11 +114,11 @@ public class AtomicLong extends Number implements java.io.Serializable {
      *
      * @param expect the expected value
      * @param update the new value
-     * @return true if successful. False return indicates that
+     * @return {@code true} if successful. False return indicates that
      * the actual value was not equal to the expected value.
      */
     public final boolean compareAndSet(long expect, long update) {
-        return unsafe.compareAndSwapLong(this, valueOffset, expect, update);
+        return U.compareAndSwapLong(this, VALUE, expect, update);
     }
 
     /**
@@ -131,10 +131,10 @@ public class AtomicLong extends Number implements java.io.Serializable {
      *
      * @param expect the expected value
      * @param update the new value
-     * @return true if successful
+     * @return {@code true} if successful
      */
     public final boolean weakCompareAndSet(long expect, long update) {
-        return unsafe.compareAndSwapLong(this, valueOffset, expect, update);
+        return U.compareAndSwapLong(this, VALUE, expect, update);
     }
 
     /**
@@ -143,12 +143,7 @@ public class AtomicLong extends Number implements java.io.Serializable {
      * @return the previous value
      */
     public final long getAndIncrement() {
-        while (true) {
-            long current = get();
-            long next = current + 1;
-            if (compareAndSet(current, next))
-                return current;
-        }
+        return U.getAndAddLong(this, VALUE, 1L);
     }
 
     /**
@@ -157,12 +152,7 @@ public class AtomicLong extends Number implements java.io.Serializable {
      * @return the previous value
      */
     public final long getAndDecrement() {
-        while (true) {
-            long current = get();
-            long next = current - 1;
-            if (compareAndSet(current, next))
-                return current;
-        }
+        return U.getAndAddLong(this, VALUE, -1L);
     }
 
     /**
@@ -172,12 +162,7 @@ public class AtomicLong extends Number implements java.io.Serializable {
      * @return the previous value
      */
     public final long getAndAdd(long delta) {
-        while (true) {
-            long current = get();
-            long next = current + delta;
-            if (compareAndSet(current, next))
-                return current;
-        }
+        return U.getAndAddLong(this, VALUE, delta);
     }
 
     /**
@@ -186,12 +171,7 @@ public class AtomicLong extends Number implements java.io.Serializable {
      * @return the updated value
      */
     public final long incrementAndGet() {
-        for (;;) {
-            long current = get();
-            long next = current + 1;
-            if (compareAndSet(current, next))
-                return next;
-        }
+        return U.getAndAddLong(this, VALUE, 1L) + 1L;
     }
 
     /**
@@ -200,12 +180,7 @@ public class AtomicLong extends Number implements java.io.Serializable {
      * @return the updated value
      */
     public final long decrementAndGet() {
-        for (;;) {
-            long current = get();
-            long next = current - 1;
-            if (compareAndSet(current, next))
-                return next;
-        }
+        return U.getAndAddLong(this, VALUE, -1L) - 1L;
     }
 
     /**
@@ -215,12 +190,93 @@ public class AtomicLong extends Number implements java.io.Serializable {
      * @return the updated value
      */
     public final long addAndGet(long delta) {
-        for (;;) {
-            long current = get();
-            long next = current + delta;
-            if (compareAndSet(current, next))
-                return next;
-        }
+        return U.getAndAddLong(this, VALUE, delta) + delta;
+    }
+
+    /**
+     * Atomically updates the current value with the results of
+     * applying the given function, returning the previous value. The
+     * function should be side-effect-free, since it may be re-applied
+     * when attempted updates fail due to contention among threads.
+     *
+     * @param updateFunction a side-effect-free function
+     * @return the previous value
+     * @since 1.8
+     */
+    public final long getAndUpdate(LongUnaryOperator updateFunction) {
+        long prev, next;
+        do {
+            prev = get();
+            next = updateFunction.applyAsLong(prev);
+        } while (!compareAndSet(prev, next));
+        return prev;
+    }
+
+    /**
+     * Atomically updates the current value with the results of
+     * applying the given function, returning the updated value. The
+     * function should be side-effect-free, since it may be re-applied
+     * when attempted updates fail due to contention among threads.
+     *
+     * @param updateFunction a side-effect-free function
+     * @return the updated value
+     * @since 1.8
+     */
+    public final long updateAndGet(LongUnaryOperator updateFunction) {
+        long prev, next;
+        do {
+            prev = get();
+            next = updateFunction.applyAsLong(prev);
+        } while (!compareAndSet(prev, next));
+        return next;
+    }
+
+    /**
+     * Atomically updates the current value with the results of
+     * applying the given function to the current and given values,
+     * returning the previous value. The function should be
+     * side-effect-free, since it may be re-applied when attempted
+     * updates fail due to contention among threads.  The function
+     * is applied with the current value as its first argument,
+     * and the given update as the second argument.
+     *
+     * @param x the update value
+     * @param accumulatorFunction a side-effect-free function of two arguments
+     * @return the previous value
+     * @since 1.8
+     */
+    public final long getAndAccumulate(long x,
+                                       LongBinaryOperator accumulatorFunction) {
+        long prev, next;
+        do {
+            prev = get();
+            next = accumulatorFunction.applyAsLong(prev, x);
+        } while (!compareAndSet(prev, next));
+        return prev;
+    }
+
+    /**
+     * Atomically updates the current value with the results of
+     * applying the given function to the current and given values,
+     * returning the updated value. The function should be
+     * side-effect-free, since it may be re-applied when attempted
+     * updates fail due to contention among threads.  The function
+     * is applied with the current value as its first argument,
+     * and the given update as the second argument.
+     *
+     * @param x the update value
+     * @param accumulatorFunction a side-effect-free function of two arguments
+     * @return the updated value
+     * @since 1.8
+     */
+    public final long accumulateAndGet(long x,
+                                       LongBinaryOperator accumulatorFunction) {
+        long prev, next;
+        do {
+            prev = get();
+            next = accumulatorFunction.applyAsLong(prev, x);
+        } while (!compareAndSet(prev, next));
+        return next;
     }
 
     /**
@@ -234,6 +290,7 @@ public class AtomicLong extends Number implements java.io.Serializable {
     /**
      * Returns the value of this {@code AtomicLong} as an {@code int}
      * after a narrowing primitive conversion.
+     * @jls 5.1.3 Narrowing Primitive Conversions
      */
     public int intValue() {
         return (int)get();
@@ -241,6 +298,7 @@ public class AtomicLong extends Number implements java.io.Serializable {
 
     /**
      * Returns the value of this {@code AtomicLong} as a {@code long}.
+     * Equivalent to {@link #get()}.
      */
     public long longValue() {
         return get();
@@ -249,6 +307,7 @@ public class AtomicLong extends Number implements java.io.Serializable {
     /**
      * Returns the value of this {@code AtomicLong} as a {@code float}
      * after a widening primitive conversion.
+     * @jls 5.1.2 Widening Primitive Conversions
      */
     public float floatValue() {
         return (float)get();
@@ -257,6 +316,7 @@ public class AtomicLong extends Number implements java.io.Serializable {
     /**
      * Returns the value of this {@code AtomicLong} as a {@code double}
      * after a widening primitive conversion.
+     * @jls 5.1.2 Widening Primitive Conversions
      */
     public double doubleValue() {
         return (double)get();
