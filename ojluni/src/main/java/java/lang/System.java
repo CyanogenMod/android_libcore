@@ -245,39 +245,27 @@ public final class System {
     private static native void setErr0(PrintStream err);
 
     /**
-     * Sets the System security.
+     * Throws {@code SecurityException} (except in case {@code sm == null}).
      *
-     * <p> If there is a security manager already installed, this method first
-     * calls the security manager's <code>checkPermission</code> method
-     * with a <code>RuntimePermission("setSecurityManager")</code>
-     * permission to ensure it's ok to replace the existing
-     * security manager.
-     * This may result in throwing a <code>SecurityException</code>.
+     * <p>Security managers do <i>not</i> provide a secure environment for
+     * executing untrusted code and are unsupported on Android. Untrusted code
+     * cannot be safely isolated within a single VM on Android, so this method
+     * <i>always</i> throws a {@code SecurityException} when passed a non-null SecurityManager
      *
-     * <p> Otherwise, the argument is established as the current
-     * security manager. If the argument is <code>null</code> and no
-     * security manager has been established, then no action is taken and
-     * the method simply returns.
-     *
-     * @param      s   the security manager.
-     * @exception  SecurityException  if the security manager has already
-     *             been set and its <code>checkPermission</code> method
-     *             doesn't allow it to be replaced.
-     * @see #getSecurityManager
-     * @see SecurityManager#checkPermission
-     * @see java.lang.RuntimePermission
+     * @param sm a security manager
+     * @throws SecurityException always, unless {@code sm == null}
      */
-    public static  void setSecurityManager(final SecurityManager s) {
-        // No-op on android.
+    public static void setSecurityManager(SecurityManager sm) {
+        if (sm != null) {
+            throw new SecurityException();
+        }
     }
 
+
     /**
-     * Gets the system security interface.
+     * Always returns {@code null} in Android
      *
-     * @return  if a security manager has already been established for the
-     *          current application, then that security manager is returned;
-     *          otherwise, <code>null</code> is returned.
-     * @see     #setSecurityManager
+     * @return  {@code null} in Android
      */
     public static SecurityManager getSecurityManager() {
         // No-op on android.
