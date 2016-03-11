@@ -1130,8 +1130,10 @@ public class ArrayListTest extends junit.framework.TestCase {
         } catch (ConcurrentModificationException expected) {
         }
 
+        ArrayList<Integer> list2 = new ArrayList<>();
+        list2.add(52);
         try {
-            sp.forEachRemaining(value -> list.add(value));
+            sp.forEachRemaining(value -> list2.add(value));
             fail();
         } catch (ConcurrentModificationException expected) {
         }
