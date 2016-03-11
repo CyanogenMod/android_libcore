@@ -1328,6 +1328,12 @@ public class TreeMap<K,V>
      */
     abstract static class NavigableSubMap<K,V> extends AbstractMap<K,V>
         implements NavigableMap<K,V>, java.io.Serializable {
+        // Android-changed: Explicitly add a serialVersionUID so that we're serialization
+        // compatible with the Java-7 version of this class. Several new methods were added
+        // in Java-8 but none of them have any bearing on the serialized format of the class
+        // or require any additional state to be preserved.
+        private static final long serialVersionUID = 2765629423043303731L;
+
         /**
          * The backing map.
          */
