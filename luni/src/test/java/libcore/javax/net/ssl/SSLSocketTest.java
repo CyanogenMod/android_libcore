@@ -1559,7 +1559,23 @@ public class SSLSocketTest extends TestCase {
             @Override
             public void run(SSLSocketFactory sslSocketFactory) throws Exception {
                 ClientHello clientHello = captureTlsHandshakeClientHello(sslSocketFactory);
-                String[] cipherSuites = new String[clientHello.cipherSuites.size()];
+                final String[] cipherSuites;
+
+                // RFC 5746 allows you to send an empty "renegotiation_info" extension *or*
+                // a special signaling cipher suite. The TLS API has no way to check or
+                // indicate that a certain TLS extension should be used.
+                HelloExtension renegotiationInfoExtension = clientHello.findExtensionByType(
+                        HelloExtension.TYPE_RENEGOTIATION_INFO);
+                if (renegotiationInfoExtension != null &&
+                        renegotiationInfoExtension.data.length == 1 &&
+                        renegotiationInfoExtension.data[0] == 0) {
+                    cipherSuites = new String[clientHello.cipherSuites.size() + 1];
+                    cipherSuites[clientHello.cipherSuites.size()] =
+                            StandardNames.CIPHER_SUITE_SECURE_RENEGOTIATION;
+                } else {
+                    cipherSuites = new String[clientHello.cipherSuites.size()];
+                }
+
                 for (int i = 0; i < clientHello.cipherSuites.size(); i++) {
                     CipherSuite cipherSuite = clientHello.cipherSuites.get(i);
                     cipherSuites[i] = cipherSuite.getAndroidName();

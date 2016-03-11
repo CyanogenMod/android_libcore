@@ -69,13 +69,18 @@ public final class FinalizeTest extends TestCase {
 
     static class X {}
 
-    // http://b/issue?id=2136462
-    public void testBackFromTheDead() throws Exception {
+    // Helper function since we do not want a vreg to keep the allocated object live.
+    // For b/25851249
+    private void exceptionInConstructor() {
         try {
             new ConstructionFails();
         } catch (AssertionError expected) {
         }
+    }
 
+    // http://b/issue?id=2136462
+    public void testBackFromTheDead() throws Exception {
+        exceptionInConstructor();
         FinalizationTester.induceFinalization();
         assertTrue("object whose constructor threw was not finalized", ConstructionFails.finalized);
     }
