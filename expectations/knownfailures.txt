@@ -1518,14 +1518,5 @@
     "org.apache.harmony.tests.javax.security.OldSHA1PRNGSecureRandomTest#testNextBytesbyteArray04",
     "org.apache.harmony.tests.javax.security.OldSHA1PRNGSecureRandomTest#testSetSeedbyteArray03"
   ]
-},
-{
-  description: "Failures in spliterator tests",
-  bug: 27539473,
-  result: EXEC_FAILED,
-  names: [
-    "libcore.java.util.SpliteratorsTest#test_primitive_spliterators_NPE",
-    "org.apache.harmony.tests.java.util.ArraysTest#test_primitive_spliterators_NPE"
-  ]
 }
 ]
