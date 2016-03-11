@@ -144,18 +144,31 @@ public final class URLConnectionTest extends AbstractResourceLeakageDetectorTest
         assertEquals("", setAndReturnRequestHeaderValue(""));
         assertForbiddenRequestHeaderValue("\u0000");
 
-        assertForbiddenRequestHeaderValue("\r");
+        // Workaround for http://b/26422335 , http://b/26889631 , http://b/27606665 :
+        // allow (but strip) trailing \n, \r and \r\n
+        // assertForbiddenRequestHeaderValue("\r");
+        // End of workaround
         assertForbiddenRequestHeaderValue("\t");
         assertForbiddenRequestHeaderValue("\u001f");
         assertForbiddenRequestHeaderValue("\u007f");
         assertForbiddenRequestHeaderValue("\u0080");
         assertForbiddenRequestHeaderValue("\ud83c\udf69");
 
-        // Workaround for http://b/26422335: allow (but strip) trailing \n
+        // Workaround for http://b/26422335 , http://b/26889631 , http://b/27606665 :
+        // allow (but strip) trailing \n, \r and \r\n
         assertEquals("", setAndReturnRequestHeaderValue("\n"));
         assertEquals("a", setAndReturnRequestHeaderValue("a\n"));
+        assertEquals("", setAndReturnRequestHeaderValue("\r"));
+        assertEquals("a", setAndReturnRequestHeaderValue("a\r"));
+        assertEquals("", setAndReturnRequestHeaderValue("\r\n"));
+        assertEquals("a", setAndReturnRequestHeaderValue("a\r\n"));
         assertForbiddenRequestHeaderValue("a\nb");
         assertForbiddenRequestHeaderValue("\nb");
+        assertForbiddenRequestHeaderValue("a\rb");
+        assertForbiddenRequestHeaderValue("\rb");
+        assertForbiddenRequestHeaderValue("a\r\nb");
+        assertForbiddenRequestHeaderValue("\r\nb");
+        // End of workaround
     }
 
     private static void assertForbiddenRequestHeaderName(String name) throws Exception {
