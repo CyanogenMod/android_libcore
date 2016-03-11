@@ -528,8 +528,8 @@ public class TreeMapTest extends TestCase {
         SpliteratorTester.runBasicSplitTests(values, expectedValues);
         SpliteratorTester.testSpliteratorNPE(values.spliterator());
 
-        assertTrue(values.spliterator().hasCharacteristics(Spliterator.ORDERED | Spliterator.SORTED));
-        SpliteratorTester.runSortedTests(values);
+        assertTrue(values.spliterator().hasCharacteristics(Spliterator.ORDERED | Spliterator.SIZED));
+        SpliteratorTester.runSizedTests(values, 16);
         SpliteratorTester.runOrderedTests(values);
     }
 
