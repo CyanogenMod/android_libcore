@@ -390,4 +390,10 @@ public final class VMRuntime {
      */
     public static native String getCurrentInstructionSet();
 
+    /**
+     * Return true if the dalvik cache was pruned when booting. This may have happened for
+     * various reasons, e.g., after an OTA. The return value is for the current instruction
+     * set.
+     */
+    public static native boolean didPruneDalvikCache();
 }
