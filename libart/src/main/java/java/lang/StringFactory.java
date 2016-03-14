@@ -28,7 +28,7 @@ import libcore.util.CharsetUtils;
 import libcore.util.EmptyArray;
 
 /**
- * Class used to generate strings instead of calling String.&lt;init>.
+ * Class used to generate strings instead of calling String.&lt;init&gt;.
  *
  * @hide
  */
@@ -218,6 +218,7 @@ outer:
         return newStringFromChars(offset, charCount, data);
     }
 
+    // The char array passed as {@code java_data} must not be a null reference.
     static native String newStringFromChars(int offset, int charCount, char[] data);
 
     public static native String newStringFromString(String toCopy);

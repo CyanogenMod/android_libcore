@@ -110,9 +110,6 @@ LOCAL_SHARED_LIBRARIES += $(core_shared_libraries) libcrypto libdl libexpat libi
 LOCAL_STATIC_LIBRARIES += $(core_static_libraries) libziparchive libbase
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := libjavacore
-# clang has issue with local static vars on mips64
-# b/25928358, illegal instruction on mips64r6 with -O0
-LOCAL_CLANG_mips64 := false
 LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/NativeCode.mk
 LOCAL_CXX_STL := libc++
 include $(BUILD_SHARED_LIBRARY)
