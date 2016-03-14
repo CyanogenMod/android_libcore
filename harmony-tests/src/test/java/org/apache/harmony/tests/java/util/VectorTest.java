@@ -27,11 +27,14 @@ import java.util.Collection;
 import java.util.ConcurrentModificationException;
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Spliterator;
 import java.util.Vector;
+
+import static libcore.java.util.RemoveIfTester.*;
 
 public class VectorTest extends junit.framework.TestCase {
 
@@ -1462,6 +1465,14 @@ public class VectorTest extends junit.framework.TestCase {
             fail();
         } catch (ConcurrentModificationException expected) {
         }
+    }
+
+    public void test_removeIf() {
+        runBasicRemoveIfTests(Vector<Integer>::new);
+        runBasicRemoveIfTestsUnordered(Vector<Integer>::new);
+        runRemoveIfOnEmpty(Vector<Integer>::new);
+        testRemoveIfNPE(Vector<Integer>::new);
+        testRemoveIfCME(Vector<Integer>::new);
     }
 
     /**

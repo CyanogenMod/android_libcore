@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.Spliterator;
-import java.util.Vector;
 
 import libcore.java.util.ForEachRemainingTester;
 import libcore.java.util.SpliteratorTester;
@@ -36,6 +35,8 @@ import org.apache.harmony.testframework.serialization.SerializationTest;
 import org.apache.harmony.testframework.serialization.SerializationTest.SerializableAssert;
 
 import tests.support.Support_ListTest;
+
+import static libcore.java.util.RemoveIfTester.*;
 
 public class LinkedListTest extends junit.framework.TestCase {
 
@@ -980,6 +981,14 @@ public class LinkedListTest extends junit.framework.TestCase {
             fail();
         } catch (ConcurrentModificationException expected) {
         }
+    }
+
+    public void test_removeIf() {
+        runBasicRemoveIfTests(LinkedList<Integer>::new);
+        runBasicRemoveIfTestsUnordered(LinkedList<Integer>::new);
+        runRemoveIfOnEmpty(LinkedList<Integer>::new);
+        testRemoveIfNPE(LinkedList<Integer>::new);
+        testRemoveIfCME(LinkedList<Integer>::new);
     }
 
     /**

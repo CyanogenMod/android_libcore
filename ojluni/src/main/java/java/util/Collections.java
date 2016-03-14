@@ -33,7 +33,7 @@ import java.lang.reflect.Array;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
-
+import java.util.function.Predicate;
 
 /**
  * This class consists exclusively of static methods that operate on or return
@@ -1146,6 +1146,10 @@ public class Collections {
         public void forEach(Consumer<? super E> action) {
             c.forEach(action);
         }
+        @Override
+        public boolean removeIf(Predicate<? super E> filter) {
+            throw new UnsupportedOperationException();
+        }
         @SuppressWarnings("unchecked")
         @Override
         public Spliterator<E> spliterator() {
@@ -1811,6 +1815,10 @@ public class Collections {
         @Override
         public void forEach(Consumer<? super E> consumer) {
             synchronized (mutex) {c.forEach(consumer);}
+        }
+        @Override
+        public boolean removeIf(Predicate<? super E> filter) {
+            synchronized (mutex) {return c.removeIf(filter);}
         }
         @Override
         public Spliterator<E> spliterator() {
@@ -2535,6 +2543,10 @@ public class Collections {
         // Override default methods in Collection
         @Override
         public void forEach(Consumer<? super E> action) {c.forEach(action);}
+        @Override
+        public boolean removeIf(Predicate<? super E> filter) {
+            return c.removeIf(filter);
+        }
         @Override
         public Spliterator<E> spliterator() {return c.spliterator();}
     }
@@ -3356,6 +3368,11 @@ public class Collections {
             Objects.requireNonNull(action);
         }
         @Override
+        public boolean removeIf(Predicate<? super E> filter) {
+            Objects.requireNonNull(filter);
+            return false;
+        }
+        @Override
         public Spliterator<E> spliterator() { return Spliterators.emptySpliterator(); }
 
         // Preserves singleton property
@@ -3434,6 +3451,12 @@ public class Collections {
         }
 
         public int hashCode() { return 1; }
+
+        @Override
+        public boolean removeIf(Predicate<? super E> filter) {
+            Objects.requireNonNull(filter);
+            return false;
+        }
 
         // Override default methods in Collection
         @Override
@@ -3584,6 +3607,10 @@ public class Collections {
         public void forEach(Consumer<? super E> action) {
             action.accept(element);
         }
+        @Override
+        public boolean removeIf(Predicate<? super E> filter) {
+            throw new UnsupportedOperationException();
+        }
     }
 
     /**
@@ -3629,6 +3656,10 @@ public class Collections {
         @Override
         public void forEach(Consumer<? super E> action) {
             action.accept(element);
+        }
+        @Override
+        public boolean removeIf(Predicate<? super E> filter) {
+            throw new UnsupportedOperationException();
         }
     }
 
@@ -4190,6 +4221,10 @@ public class Collections {
         public void forEach(Consumer<? super E> action) {
             s.forEach(action);
         }
+        @Override
+        public boolean removeIf(Predicate<? super E> filter) {
+            return s.removeIf(filter);
+        }
 
         private void readObject(java.io.ObjectInputStream stream)
             throws IOException, ClassNotFoundException
@@ -4251,5 +4286,8 @@ public class Collections {
         // Override default methods in Collection
         @Override
         public void forEach(Consumer<? super E> action) {q.forEach(action);}
+        public boolean removeIf(Predicate<? super E> filter) {
+            return q.removeIf(filter);
+        }
     }
 }

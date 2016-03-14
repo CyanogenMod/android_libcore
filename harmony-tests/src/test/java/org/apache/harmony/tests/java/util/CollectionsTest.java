@@ -1649,6 +1649,13 @@ public class CollectionsTest extends junit.framework.TestCase {
             // Correct
         }
 
+        try {
+            c.removeIf(x -> true);
+            fail("Allowed modification of collection");
+        } catch (UnsupportedOperationException e) {
+            // Correct
+        }
+
         Collection myCollection = new ArrayList();
         myCollection.add(new Integer(20));
         myCollection.add(null);
@@ -1699,6 +1706,13 @@ public class CollectionsTest extends junit.framework.TestCase {
 
         try {
             c.remove(new Object());
+            fail("Allowed modification of list");
+        } catch (UnsupportedOperationException e) {
+            // Correct
+        }
+
+        try {
+            c.removeIf(x -> true);
             fail("Allowed modification of list");
         } catch (UnsupportedOperationException e) {
             // Correct
@@ -1837,6 +1851,12 @@ public class CollectionsTest extends junit.framework.TestCase {
         } catch (UnsupportedOperationException e) {
             // Correct
         }
+        try {
+            c.removeIf(x -> true);
+            fail("Allowed modification of set");
+        } catch (UnsupportedOperationException e) {
+            // Correct
+        }
 
         Set mySet = Collections.unmodifiableSet(new HashSet());
         assertTrue("Should not contain null", !mySet.contains(null));
@@ -1897,20 +1917,18 @@ public class CollectionsTest extends junit.framework.TestCase {
             assertTrue("Returned set missing elements", c.contains(i.next()));
         try {
             c.add(new Object());
-        } catch (UnsupportedOperationException e) {
-            exception = true;
-            // Correct
-        }
-        if (!exception) {
             fail("Allowed modification of set");
-        }
+        } catch (UnsupportedOperationException e) {}
+
         try {
             c.remove(new Object());
-        } catch (UnsupportedOperationException e) {
-            // Correct
-            return;
-        }
-        fail("Allowed modification of set");
+            fail("Allowed modification of set");
+        } catch (UnsupportedOperationException expected) {}
+
+        try {
+            c.removeIf(x -> true);
+            fail("Allowed modification of set");
+        } catch (UnsupportedOperationException expected) {}
     }
 
     /**

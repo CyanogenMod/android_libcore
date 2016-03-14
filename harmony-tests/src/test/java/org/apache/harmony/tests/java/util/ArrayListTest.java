@@ -32,6 +32,8 @@ import libcore.java.util.SpliteratorTester;
 import tests.support.Support_ListTest;
 import libcore.java.util.ForEachRemainingTester;
 
+import static libcore.java.util.RemoveIfTester.*;
+
 public class ArrayListTest extends junit.framework.TestCase {
 
     List alist;
@@ -1137,6 +1139,14 @@ public class ArrayListTest extends junit.framework.TestCase {
             fail();
         } catch (ConcurrentModificationException expected) {
         }
+    }
+
+    public void test_removeIf() {
+        runBasicRemoveIfTests(ArrayList<Integer>::new);
+        runBasicRemoveIfTestsUnordered(ArrayList<Integer>::new);
+        runRemoveIfOnEmpty(ArrayList<Integer>::new);
+        testRemoveIfNPE(ArrayList<Integer>::new);
+        testRemoveIfCME(ArrayList<Integer>::new);
     }
 
     /**
