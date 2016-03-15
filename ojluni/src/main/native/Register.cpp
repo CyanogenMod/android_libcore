@@ -124,6 +124,7 @@ jint JNI_OnLoad(JavaVM* vm, void*) { JNIEnv* env;
     register_java_lang_StrictMath(env);
     register_java_lang_Math(env);
     register_java_lang_ProcessEnvironment(env);
+    register_java_lang_Runtime(env);
     register_java_lang_System(env);
     register_java_lang_Shutdown(env);
     register_java_lang_UNIXProcess(env);
