@@ -1526,11 +1526,5 @@
     "com.android.org.conscrypt.NativeCryptoTest#test_SSL_renegotiate",
     "com.android.org.conscrypt.NativeCryptoTest#test_SSL_do_handshake_clientCertificateRequested_throws_after_renegotiate"
   ]
-},
-{
-    description: "Still investigating this, root cause unknown yet",
-    bug: 27578806,
-    names: ["com.android.cts.cpptools.RunAsHostTest#testRunAs"]
-
 }
 ]
