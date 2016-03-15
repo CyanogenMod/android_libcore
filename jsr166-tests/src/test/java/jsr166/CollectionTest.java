@@ -14,7 +14,7 @@ import junit.framework.Test;
 /**
  * Contains tests applicable to all Collection implementations.
  */
-public class CollectionTest extends JSR166TestCase {
+class CollectionTest extends JSR166TestCase {
     final CollectionImplementation impl;
 
     /** Tests are parameterized by a Collection implementation. */
