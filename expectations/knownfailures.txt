@@ -1518,5 +1518,13 @@
     "org.apache.harmony.tests.javax.security.OldSHA1PRNGSecureRandomTest#testNextBytesbyteArray04",
     "org.apache.harmony.tests.javax.security.OldSHA1PRNGSecureRandomTest#testSetSeedbyteArray03"
   ]
+},
+{
+  description: "libcore.java.util.concurrent.CopyOnWriteArrayListTest.testSubListAtomicAdds fails in openJdk",
+  bug: 27673247,
+  result: EXEC_FAILED,
+  names: [
+    "libcore.java.util.concurrent.CopyOnWriteArrayListTest#testSubListAtomicAdds"
+  ]
 }
 ]
