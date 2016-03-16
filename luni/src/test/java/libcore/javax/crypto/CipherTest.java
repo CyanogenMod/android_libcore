@@ -3131,7 +3131,9 @@ public final class CipherTest extends TestCase {
             if (p.aad != null) {
                 final byte[] largerThanAad = new byte[p.aad.length + 100];
                 System.arraycopy(p.aad, 0, largerThanAad, 50, p.aad.length);
-                c.updateAAD(largerThanAad, 50, p.aad.length);
+                assertTrue(p.aad.length > 1);
+                c.updateAAD(largerThanAad, 50, 1);
+                c.updateAAD(largerThanAad, 51, p.aad.length - 1);
             }
 
             final byte[] actualPlaintext = new byte[c.getOutputSize(p.ciphertext.length)];
