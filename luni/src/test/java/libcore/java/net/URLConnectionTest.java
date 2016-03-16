@@ -40,12 +40,14 @@ import java.net.InetAddress;
 import java.net.PasswordAuthentication;
 import java.net.ProtocolException;
 import java.net.Proxy;
+import java.net.ProxySelector;
 import java.net.ResponseCache;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
@@ -1731,6 +1733,76 @@ public final class URLConnectionTest extends AbstractResourceLeakageDetectorTest
         assertEquals("Expected connection reuse", 1, third.getSequenceNumber());
 
         server2.shutdown();
+    }
+
+    // http://b/27590872 - assert we do not throw a runtime exception if a server responds with
+    // a location that cannot be represented directly by URI.
+    public void testRedirectWithInvalidRedirectUrl() throws Exception {
+        // The first server hosts a redirect to a second. We need two so that the ProxySelector
+        // installed is used for the redirect. Otherwise the second request will be handled via the
+        // existing keep-alive connection.
+        server.play();
+
+        MockWebServer server2 = new MockWebServer();
+        server2.play();
+
+        String targetPath = "/target";
+        // The "%0" in the suffix is invalid without a second digit.
+        String invalidSuffix = "?foo=%0&bar=%00";
+
+        String redirectPath = server2.getUrl(targetPath).toString();
+        String invalidRedirectUri = redirectPath + invalidSuffix;
+
+        // Redirect to the invalid URI.
+        server.enqueue(new MockResponse()
+                .setResponseCode(HttpURLConnection.HTTP_MOVED_TEMP)
+                .addHeader("Location: " + invalidRedirectUri));
+
+        server2.enqueue(new MockResponse().setBody("Target"));
+
+        // Assert the target URI is actually invalid.
+        try {
+            new URI(invalidRedirectUri);
+            fail("Target URL is expected to be invalid");
+        } catch (URISyntaxException expected) {}
+
+        // The ProxySelector requires a URI object, which forces the HttpURLConnectionImpl to create
+        // a URI object containing a string based on the redirect address, regardless of what it is
+        // using internally to hold the target address.
+        ProxySelector originalSelector = ProxySelector.getDefault();
+        final List<URI> proxySelectorUris = new ArrayList<>();
+        ProxySelector.setDefault(new ProxySelector() {
+            @Override
+            public List<Proxy> select(URI uri) {
+                if (uri.getScheme().equals("http")) {
+                    // Ignore socks proxy lookups.
+                    proxySelectorUris.add(uri);
+                }
+                return Collections.singletonList(Proxy.NO_PROXY);
+            }
+
+            @Override
+            public void connectFailed(URI uri, SocketAddress sa, IOException ioe) {
+                // no-op
+            }
+        });
+
+        try {
+            HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+            assertEquals("Target", readAscii(connection.getInputStream(), Integer.MAX_VALUE));
+
+            // Inspect the redirect request to see what request was actually made.
+            RecordedRequest actualRequest = server2.takeRequest();
+            assertEquals(targetPath + invalidSuffix, actualRequest.getPath());
+
+            // The first URI will be the initial request. We want to inspect the redirect.
+            URI uri = proxySelectorUris.get(1);
+            // The HttpURLConnectionImpl converts %0 -> %250. i.e. it escapes the %.
+            assertEquals(redirectPath + "?foo=%250&bar=%00", uri.toString());
+        } finally {
+            ProxySelector.setDefault(originalSelector);
+            server2.shutdown();
+        }
     }
 
     public void testInstanceFollowsRedirects() throws Exception {
