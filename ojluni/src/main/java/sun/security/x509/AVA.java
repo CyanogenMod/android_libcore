@@ -273,16 +273,14 @@ public class AVA implements DerEncoder {
                 break;
             }
 
-            // Android-changed: Add support for parsing hex strings that have
-            // spaces or '\n' in them.
+            // Android-changed: Skip trailing whitespace.
             if (c == ' ' || c == '\n') {
-                c = in.read();
-                // TODO: This code seems bogus, why is there a loop here ?
-                while (!isTerminator(c, format)) {
+                do {
                     if (c != ' ' && c != '\n') {
                         throw new IOException("AVA parse, invalid hex " + "digit: "+ (char)c);
                     }
-                }
+                    c = in.read();
+                } while (!isTerminator(c, format));
                 break;
             }
 

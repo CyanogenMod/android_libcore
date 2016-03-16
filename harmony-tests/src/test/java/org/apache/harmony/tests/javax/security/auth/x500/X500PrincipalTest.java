@@ -2450,7 +2450,13 @@ public class X500PrincipalTest extends TestCase {
         );
         list.add("CN= #0101fF+ST=A", "CN=#0101ff+ST=A", "CN=#0101FF + ST=A",
                 "cn=#0101ff+st=a"); //space
+        list.add("CN=  \n  #0101fF+ST=A", "CN=#0101ff+ST=A", "CN=#0101FF + ST=A",
+                "cn=#0101ff+st=a"); // multiple spaces
         list.add("CN= #0101fF ", "CN=#0101ff", "CN=#0101FF", // space at the end
+                new byte[] { 0x30, 0x0C, 0x31, 0x0A, 0x30, 0x08, 0x06, 0x03,
+                        0x55, 0x04, 0x03, 0x01, 0x01, (byte) 0xFF } // ASN.1 Boolean = TRUE
+                , (byte) 0x00);
+        list.add("CN= #0101fF  \n  ", "CN=#0101ff", "CN=#0101FF", // multiple spaces at the end
                 new byte[] { 0x30, 0x0C, 0x31, 0x0A, 0x30, 0x08, 0x06, 0x03,
                         0x55, 0x04, 0x03, 0x01, 0x01, (byte) 0xFF } // ASN.1 Boolean = TRUE
                 , (byte) 0x00);
