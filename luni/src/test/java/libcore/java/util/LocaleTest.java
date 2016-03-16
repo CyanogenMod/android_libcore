@@ -1250,4 +1250,31 @@ public class LocaleTest extends junit.framework.TestCase {
             Locale l = (Locale) oinput.readObject();
         }
     }
+
+    public void test_setDefault_withCategory() {
+        final Locale defaultLocale = Locale.getDefault();
+        try {
+            Locale.setDefault(Locale.US);
+            assertEquals(Locale.US, Locale.getDefault(Locale.Category.FORMAT));
+            assertEquals(Locale.US, Locale.getDefault(Locale.Category.DISPLAY));
+            assertEquals(Locale.US, Locale.getDefault());
+
+            Locale.setDefault(Locale.Category.FORMAT, Locale.UK);
+            assertEquals(Locale.UK, Locale.getDefault(Locale.Category.FORMAT));
+            assertEquals(Locale.US, Locale.getDefault(Locale.Category.DISPLAY));
+            assertEquals(Locale.US, Locale.getDefault());
+
+            Locale.setDefault(Locale.Category.DISPLAY, Locale.CANADA);
+            assertEquals(Locale.UK, Locale.getDefault(Locale.Category.FORMAT));
+            assertEquals(Locale.CANADA, Locale.getDefault(Locale.Category.DISPLAY));
+            assertEquals(Locale.US, Locale.getDefault());
+
+            Locale.setDefault(Locale.FRANCE);
+            assertEquals(Locale.FRANCE, Locale.getDefault(Locale.Category.FORMAT));
+            assertEquals(Locale.FRANCE, Locale.getDefault(Locale.Category.DISPLAY));
+            assertEquals(Locale.FRANCE, Locale.getDefault());
+        } finally {
+            Locale.setDefault(defaultLocale);
+        }
+    }
 }
