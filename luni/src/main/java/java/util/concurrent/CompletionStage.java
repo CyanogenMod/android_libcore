@@ -128,7 +128,7 @@ public interface CompletionStage<T> {
      *
      * <p>This method is analogous to
      * {@link java.util.Optional#map Optional.map} and
-     * TODO(streams): make a link to java.util.stream.Stream#map Stream.map.
+     * {@link java.util.stream.Stream#map Stream.map}.
      *
      * <p>See the {@link CompletionStage} documentation for rules
      * covering exceptional completion.
@@ -606,7 +606,7 @@ public interface CompletionStage<T> {
      *
      * <p>This method is analogous to
      * {@link java.util.Optional#flatMap Optional.flatMap} and
-     * TODO(streams): make a link to java.util.stream.Stream#flatMap Stream.flatMap.
+     * {@link java.util.stream.Stream#flatMap Stream.flatMap}.
      *
      * <p>See the {@link CompletionStage} documentation for rules
      * covering exceptional completion.

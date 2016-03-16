@@ -753,6 +753,42 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/java/util/jar/JarVerifier.java \
     ojluni/src/main/java/java/util/jar/Manifest.java \
     ojluni/src/main/java/java/util/jar/Pack200.java \
+    ojluni/src/main/java/java/util/stream/AbstractPipeline.java \
+    ojluni/src/main/java/java/util/stream/AbstractShortCircuitTask.java \
+    ojluni/src/main/java/java/util/stream/AbstractSpinedBuffer.java \
+    ojluni/src/main/java/java/util/stream/AbstractTask.java \
+    ojluni/src/main/java/java/util/stream/BaseStream.java \
+    ojluni/src/main/java/java/util/stream/Collector.java \
+    ojluni/src/main/java/java/util/stream/Collectors.java \
+    ojluni/src/main/java/java/util/stream/DistinctOps.java \
+    ojluni/src/main/java/java/util/stream/DoublePipeline.java \
+    ojluni/src/main/java/java/util/stream/DoubleStream.java \
+    ojluni/src/main/java/java/util/stream/FindOps.java \
+    ojluni/src/main/java/java/util/stream/ForEachOps.java \
+    ojluni/src/main/java/java/util/stream/IntPipeline.java \
+    ojluni/src/main/java/java/util/stream/IntStream.java \
+    ojluni/src/main/java/java/util/stream/LongPipeline.java \
+    ojluni/src/main/java/java/util/stream/LongStream.java \
+    ojluni/src/main/java/java/util/stream/MatchOps.java \
+    ojluni/src/main/java/java/util/stream/Node.java \
+    ojluni/src/main/java/java/util/stream/Nodes.java \
+    ojluni/src/main/java/java/util/stream/package-info.java \
+    ojluni/src/main/java/java/util/stream/PipelineHelper.java \
+    ojluni/src/main/java/java/util/stream/ReduceOps.java \
+    ojluni/src/main/java/java/util/stream/ReferencePipeline.java \
+    ojluni/src/main/java/java/util/stream/Sink.java \
+    ojluni/src/main/java/java/util/stream/SliceOps.java \
+    ojluni/src/main/java/java/util/stream/SortedOps.java \
+    ojluni/src/main/java/java/util/stream/SpinedBuffer.java \
+    ojluni/src/main/java/java/util/stream/Stream.java \
+    ojluni/src/main/java/java/util/stream/StreamOpFlag.java \
+    ojluni/src/main/java/java/util/stream/StreamShape.java \
+    ojluni/src/main/java/java/util/stream/Streams.java \
+    ojluni/src/main/java/java/util/stream/StreamSpliterators.java \
+    ojluni/src/main/java/java/util/stream/StreamSupport.java \
+    ojluni/src/main/java/java/util/stream/TerminalOp.java \
+    ojluni/src/main/java/java/util/stream/TerminalSink.java \
+    ojluni/src/main/java/java/util/stream/Tripwire.java \
     ojluni/src/main/java/java/util/JumboEnumSet.java \
     ojluni/src/main/java/java/util/LinkedHashMap.java \
     ojluni/src/main/java/java/util/LinkedHashSet.java \
@@ -821,6 +857,7 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/java/util/SortedSet.java \
     ojluni/src/main/java/java/util/Spliterator.java \
     ojluni/src/main/java/java/util/Spliterators.java \
+    ojluni/src/main/java/java/util/SplittableRandom.java \
     ojluni/src/main/java/java/util/Stack.java \
     ojluni/src/main/java/java/util/StringTokenizer.java \
     ojluni/src/main/java/java/util/Timer.java \
