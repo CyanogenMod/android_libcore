@@ -27,8 +27,12 @@
 package java.util;
 
 import java.lang.reflect.*;
-import java.util.function.Consumer;
 import java.util.concurrent.ForkJoinPool;
+import java.util.function.Consumer;
+import java.util.function.IntFunction;
+import java.util.function.IntToDoubleFunction;
+import java.util.function.IntToLongFunction;
+import java.util.function.IntUnaryOperator;
 
 /**
  * This class contains various methods for manipulating arrays (such as
@@ -4478,6 +4482,83 @@ public class Arrays {
         }
         buf.append(']');
         dejaVu.remove(a);
+    }
+
+    /**
+     * Set all elements of the specified array, using the provided
+     * generator function to compute each element.
+     *
+     * <p>If the generator function throws an exception, it is relayed to
+     * the caller and the array is left in an indeterminate state.
+     *
+     * @param <T> type of elements of the array
+     * @param array array to be initialized
+     * @param generator a function accepting an index and producing the desired
+     *        value for that position
+     * @throws NullPointerException if the generator is null
+     * @since 1.8
+     */
+    public static <T> void setAll(T[] array, IntFunction<? extends T> generator) {
+        Objects.requireNonNull(generator);
+        for (int i = 0; i < array.length; i++)
+            array[i] = generator.apply(i);
+    }
+
+    /**
+     * Set all elements of the specified array, using the provided
+     * generator function to compute each element.
+     *
+     * <p>If the generator function throws an exception, it is relayed to
+     * the caller and the array is left in an indeterminate state.
+     *
+     * @param array array to be initialized
+     * @param generator a function accepting an index and producing the desired
+     *        value for that position
+     * @throws NullPointerException if the generator is null
+     * @since 1.8
+     */
+    public static void setAll(int[] array, IntUnaryOperator generator) {
+        Objects.requireNonNull(generator);
+        for (int i = 0; i < array.length; i++)
+            array[i] = generator.applyAsInt(i);
+    }
+
+    /**
+     * Set all elements of the specified array, using the provided
+     * generator function to compute each element.
+     *
+     * <p>If the generator function throws an exception, it is relayed to
+     * the caller and the array is left in an indeterminate state.
+     *
+     * @param array array to be initialized
+     * @param generator a function accepting an index and producing the desired
+     *        value for that position
+     * @throws NullPointerException if the generator is null
+     * @since 1.8
+     */
+    public static void setAll(long[] array, IntToLongFunction generator) {
+        Objects.requireNonNull(generator);
+        for (int i = 0; i < array.length; i++)
+            array[i] = generator.applyAsLong(i);
+    }
+
+    /**
+     * Set all elements of the specified array, using the provided
+     * generator function to compute each element.
+     *
+     * <p>If the generator function throws an exception, it is relayed to
+     * the caller and the array is left in an indeterminate state.
+     *
+     * @param array array to be initialized
+     * @param generator a function accepting an index and producing the desired
+     *        value for that position
+     * @throws NullPointerException if the generator is null
+     * @since 1.8
+     */
+    public static void setAll(double[] array, IntToDoubleFunction generator) {
+        Objects.requireNonNull(generator);
+        for (int i = 0; i < array.length; i++)
+            array[i] = generator.applyAsDouble(i);
     }
 
     /**
