@@ -38,6 +38,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -45,6 +46,7 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.crypto.Cipher;
+import javax.crypto.EncryptedPrivateKeyInfo;
 import javax.crypto.NoSuchPaddingException;
 import junit.framework.TestCase;
 import libcore.javax.crypto.MockKey;
@@ -545,6 +547,39 @@ public class ProviderTest extends TestCase {
         try {
             Provider.Service service = provider.getService("CertStore", "FOO");
             assertNotNull(service.newInstance(new MyCertStoreParameters()));
+        } finally {
+            Security.removeProvider(provider.getName());
+        }
+    }
+
+    @SuppressWarnings("serial")
+    public void testProviderService_AliasDoesNotEraseCanonical_Success()
+            throws Exception {
+        // Make sure we start with a "known good" alias for this OID.
+        {
+            EncryptedPrivateKeyInfo epki1 = new EncryptedPrivateKeyInfo("OID.1.2.840.113549.1.1.5",
+                    new byte[1]);
+            assertEquals("SHA1WITHRSA", epki1.getAlgName().toUpperCase(Locale.US));
+        }
+
+        Provider provider = new MockProvider("MockProvider") {
+            public void setup() {
+                put("Signature.FOO", MockSpi.class.getName());
+                put("Alg.Alias.Signature.OID.1.2.840.113549.1.1.5", "FOO");
+            }
+        };
+
+        Security.addProvider(provider);
+        try {
+            // This triggers a re-indexing of the algorithm id data:
+            try {
+                new EncryptedPrivateKeyInfo("nonexistent", new byte[1]);
+                fail("Should not find 'nonexistent' algorithm");
+            } catch (NoSuchAlgorithmException expected) {
+            }
+
+            EncryptedPrivateKeyInfo epki2 = new EncryptedPrivateKeyInfo("OID.1.2.840.113549.1.1.5", new byte[1]);
+            assertEquals("SHA1WITHRSA", epki2.getAlgName().toUpperCase(Locale.US));
         } finally {
             Security.removeProvider(provider.getName());
         }
