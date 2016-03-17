@@ -20,7 +20,7 @@ package org.apache.harmony.tests.javax.net.ssl;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.security.KeyStore;
 import java.security.Principal;
 import java.security.cert.Certificate;
@@ -56,7 +56,8 @@ public class SSLSessionTest extends TestCase {
      */
     public void test_getPeerHost() throws Exception {
         SSLSession s = clientSession;
-        assertEquals(InetAddress.getLocalHost().getHostName(), s.getPeerHost());
+        assertEquals(((InetSocketAddress) serverSocket.getLocalSocketAddress()).getHostString(),
+                s.getPeerHost());
         assertEquals(serverSocket.getLocalPort(), s.getPeerPort());
     }
 
