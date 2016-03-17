@@ -1371,9 +1371,14 @@ public class ThreadPoolExecutorTest extends JSR166TestCase {
                 assertEquals(s, p.getMaximumPoolSize());
                 try {
                     p.setCorePoolSize(s + 1);
-                    shouldThrow();
+                    // android-changed: changeset dfec9b5386ca028cc1468f3e2717120ab6274702
+                    // disables this check for compatibility reason.
+                    //    shouldThrow();
                 } catch (IllegalArgumentException success) {}
-                assertEquals(s, p.getCorePoolSize());
+                // android-changed: changeset dfec9b5386ca028cc1468f3e2717120ab6274702
+                // disables maximumpoolsize check for compatibility reason.
+                // assertEquals(s, p.getCorePoolSize());
+                assertEquals(s + 1, p.getCorePoolSize());
                 assertEquals(s, p.getMaximumPoolSize());
             }
         }
