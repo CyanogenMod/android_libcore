@@ -1121,21 +1121,26 @@ public class Vector<E>
      * An optimized version of AbstractList.Itr
      */
     private class Itr implements Iterator<E> {
+        // The "limit" of this iterator. This is the size of the list at the time the
+        // iterator was created. Adding & removing elements will invalidate the iteration
+        // anyway (and cause next() to throw) so saving this value will guarantee that the
+        // value of hasNext() remains stable and won't flap between true and false when elements
+        // are added and removed from the list.
+        protected int limit = Vector.this.elementCount;
+
         int cursor;       // index of next element to return
         int lastRet = -1; // index of last element returned; -1 if no such
         int expectedModCount = modCount;
 
         public boolean hasNext() {
-            // Racy but within spec, since modifications are checked
-            // within or after synchronization in next/previous
-            return cursor != elementCount;
+            return cursor < limit;
         }
 
         public E next() {
             synchronized (Vector.this) {
                 checkForComodification();
                 int i = cursor;
-                if (i >= elementCount)
+                if (i >= limit)
                     throw new NoSuchElementException();
                 cursor = i + 1;
                 return elementData(lastRet = i);
@@ -1149,6 +1154,7 @@ public class Vector<E>
                 checkForComodification();
                 Vector.this.remove(lastRet);
                 expectedModCount = modCount;
+                limit--;
             }
             cursor = lastRet;
             lastRet = -1;
@@ -1158,7 +1164,7 @@ public class Vector<E>
         public void forEachRemaining(Consumer<? super E> action) {
             Objects.requireNonNull(action);
             synchronized (Vector.this) {
-                final int size = elementCount;
+                final int size = limit;
                 int i = cursor;
                 if (i >= size) {
                     return;

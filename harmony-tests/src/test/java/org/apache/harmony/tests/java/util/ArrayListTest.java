@@ -1023,7 +1023,7 @@ public class ArrayListTest extends junit.framework.TestCase {
 
     // http://b/25867131 et al.
     public void testIteratorAddAfterCompleteIteration() {
-        ArrayList<String> strings = new ArrayList<String>();
+        ArrayList<String> strings = new ArrayList<>();
         strings.add("string1");
         Iterator<String> it = strings.iterator();
         assertTrue(it.hasNext());
@@ -1051,6 +1051,16 @@ public class ArrayListTest extends junit.framework.TestCase {
         it.remove();
         assertTrue(it.hasNext());
         assertEquals("string2", it.next());
+    }
+
+    // http://b/27430229
+    public void testRemoveAllDuringIteration() {
+        ArrayList<String> list = new ArrayList<>();
+        list.add("food");
+        Iterator<String> iterator = list.iterator();
+        iterator.next();
+        list.clear();
+        assertFalse(iterator.hasNext());
     }
 
     public void test_forEach() throws Exception {
