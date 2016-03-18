@@ -316,6 +316,7 @@ public final class OsConstants {
     public static final int IP_TOS = placeholder();
     public static final int IP_TTL = placeholder();
     public static final int MAP_FIXED = placeholder();
+    /** @hide */ public static final int MAP_POPULATE = placeholder();
     public static final int MAP_PRIVATE = placeholder();
     public static final int MAP_SHARED = placeholder();
     public static final int MCAST_JOIN_GROUP = placeholder();
