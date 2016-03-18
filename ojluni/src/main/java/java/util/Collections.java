@@ -38,6 +38,7 @@ import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+import java.util.function.UnaryOperator;
 
 
 /**
@@ -1306,6 +1307,14 @@ public class Collections {
         public boolean addAll(int index, Collection<? extends E> c) {
             throw new UnsupportedOperationException();
         }
+        @Override
+        public void replaceAll(UnaryOperator<E> operator) {
+            throw new UnsupportedOperationException();
+        }
+        @Override
+        public void sort(Comparator<? super E> c) {
+            throw new UnsupportedOperationException();
+        }
         public ListIterator<E> listIterator()   {return listIterator(0);}
 
         public ListIterator<E> listIterator(final int index) {
@@ -2174,6 +2183,15 @@ public class Collections {
             }
         }
 
+        @Override
+        public void replaceAll(UnaryOperator<E> operator) {
+            synchronized (mutex) {list.replaceAll(operator);}
+        }
+        @Override
+        public void sort(Comparator<? super E> c) {
+            synchronized (mutex) {list.sort(c);}
+        }
+
         /**
          * SynchronizedRandomAccessList instances are serialized as
          * SynchronizedList instances to allow them to be deserialized
@@ -2865,6 +2883,14 @@ public class Collections {
 
         public boolean addAll(int index, Collection<? extends E> c) {
             return list.addAll(index, checkedCopyOf(c));
+        }
+        @Override
+        public void replaceAll(UnaryOperator<E> operator) {
+            list.replaceAll(operator);
+        }
+        @Override
+        public void sort(Comparator<? super E> c) {
+            list.sort(c);
         }
         public ListIterator<E> listIterator()   { return listIterator(0); }
 
@@ -3606,6 +3632,15 @@ public class Collections {
         @Override
         public Spliterator<E> spliterator() { return Spliterators.emptySpliterator(); }
 
+        @Override
+        public void replaceAll(UnaryOperator<E> operator) {
+            Objects.requireNonNull(operator);
+        }
+        @Override
+        public void sort(Comparator<? super E> c) {
+        }
+
+
         // Preserves singleton property
         private Object readResolve() {
             return EMPTY_LIST;
@@ -3910,6 +3945,12 @@ public class Collections {
         @Override
         public Spliterator<E> spliterator() {
             return singletonSpliterator(element);
+        }
+        public void replaceAll(UnaryOperator<E> operator) {
+            throw new UnsupportedOperationException();
+        }
+        @Override
+        public void sort(Comparator<? super E> c) {
         }
     }
 

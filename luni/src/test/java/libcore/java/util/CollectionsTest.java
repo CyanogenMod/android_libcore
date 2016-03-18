@@ -511,4 +511,92 @@ public final class CollectionsTest extends TestCase {
         } catch (UnsupportedOperationException expected) {
         }
     }
+
+    public void test_SingletonMap_merge() {
+        try {
+            Collections.singletonMap(1, 11.0).merge(1, 5.0, (k, v) -> 5.0);
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
+    }
+
+    public void test_SynchronizedList_replaceAll() {
+        ListDefaultMethodTester.test_replaceAll(Collections.synchronizedList(new ArrayList<>()));
+    }
+
+    public void test_SynchronizedList_sort() {
+        ListDefaultMethodTester.test_sort(Collections.synchronizedList(new ArrayList<>()));
+    }
+
+    public void test_CheckedList_replaceAll() {
+        ListDefaultMethodTester.test_replaceAll(Collections.checkedList(new ArrayList<>(), Integer.class));
+    }
+
+    public void test_CheckedList_sort() {
+        ListDefaultMethodTester.test_sort(Collections.checkedList(new ArrayList<>(), Integer.class));
+    }
+
+    public void test_EmptyList_replaceAll() {
+        Collections.emptyList().replaceAll(k -> 1);
+
+        try {
+            Collections.emptyList().replaceAll(null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+    }
+
+    public void test_EmptyList_sort() {
+        Collections.emptyList().sort((k1, k2) -> 1);
+    }
+
+    public void test_unmodifiableList_replaceAll() {
+        try {
+            Collections.unmodifiableList(new ArrayList<>()).replaceAll(k -> 1);
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
+
+        // with non empty list
+
+        try {
+            ArrayList l = new ArrayList();
+            l.add(1);
+            l.add(2);
+            Collections.unmodifiableList(l).replaceAll(k -> 1);
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
+    }
+
+    public void test_unmodifiableList_sort() {
+        try {
+            Collections.unmodifiableList(new ArrayList<>()).sort((k1, k2) -> 1);
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
+
+        // with non empty list
+
+        try {
+            ArrayList l = new ArrayList();
+            l.add(1);
+            l.add(2);
+            Collections.unmodifiableList(l).sort((k1, k2) -> 1);
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
+    }
+
+    public void test_SingletonList_replaceAll() {
+        try {
+            Collections.singletonList(1).replaceAll(k -> 2);
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
+    }
+
+    public void test_SingletonList_sort() {
+        Collections.singletonList(1).sort((k1, k2) -> 2);
+    }
 }
