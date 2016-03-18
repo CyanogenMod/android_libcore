@@ -26,6 +26,8 @@
 package java.util;
 
 import java.util.function.Predicate;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * The root interface in the <i>collection hierarchy</i>.  A collection
@@ -546,5 +548,45 @@ public interface Collection<E> extends Iterable<E> {
     @Override
     default Spliterator<E> spliterator() {
         return Spliterators.spliterator(this, 0);
+    }
+
+    /**
+     * Returns a sequential {@code Stream} with this collection as its source.
+     *
+     * <p>This method should be overridden when the {@link #spliterator()}
+     * method cannot return a spliterator that is {@code IMMUTABLE},
+     * {@code CONCURRENT}, or <em>late-binding</em>. (See {@link #spliterator()}
+     * for details.)
+     *
+     * @implSpec
+     * The default implementation creates a sequential {@code Stream} from the
+     * collection's {@code Spliterator}.
+     *
+     * @return a sequential {@code Stream} over the elements in this collection
+     * @since 1.8
+     */
+    default Stream<E> stream() {
+        return StreamSupport.stream(spliterator(), false);
+    }
+
+    /**
+     * Returns a possibly parallel {@code Stream} with this collection as its
+     * source.  It is allowable for this method to return a sequential stream.
+     *
+     * <p>This method should be overridden when the {@link #spliterator()}
+     * method cannot return a spliterator that is {@code IMMUTABLE},
+     * {@code CONCURRENT}, or <em>late-binding</em>. (See {@link #spliterator()}
+     * for details.)
+     *
+     * @implSpec
+     * The default implementation creates a parallel {@code Stream} from the
+     * collection's {@code Spliterator}.
+     *
+     * @return a possibly parallel {@code Stream} over the elements in this
+     * collection
+     * @since 1.8
+     */
+    default Stream<E> parallelStream() {
+        return StreamSupport.stream(spliterator(), true);
     }
 }

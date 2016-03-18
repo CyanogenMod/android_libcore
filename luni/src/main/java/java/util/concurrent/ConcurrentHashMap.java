@@ -38,8 +38,7 @@ import java.util.function.ToIntBiFunction;
 import java.util.function.ToIntFunction;
 import java.util.function.ToLongBiFunction;
 import java.util.function.ToLongFunction;
-// TODO(streams):
-//import java.util.stream.Stream;
+import java.util.stream.Stream;
 
 // BEGIN android-note
 // removed link to collections framework docs
@@ -121,7 +120,7 @@ import java.util.function.ToLongFunction;
  * does <em>not</em> allow {@code null} to be used as a key or value.
  *
  * <p>ConcurrentHashMaps support a set of sequential and parallel bulk
- * operations that, unlike most (TODO(streams): link to Stream) methods, are designed
+ * operations that, unlike most {@link Stream} methods, are designed
  * to be safely, and often sensibly, applied even with maps that are
  * being concurrently updated by other threads; for example, when
  * computing a snapshot summary of the values in a shared registry.

@@ -35,7 +35,6 @@ import java.util.stream.LongStream;
 import java.util.stream.StreamSupport;
 
 
-// TODO(streams): Include in openjdk_java_files.mk
 /**
  * A generator of uniform pseudorandom values applicable for use in
  * (among other contexts) isolated parallel computations that may
