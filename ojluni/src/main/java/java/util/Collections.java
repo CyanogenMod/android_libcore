@@ -34,6 +34,9 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * This class consists exclusively of static methods that operate on or return
@@ -1155,6 +1158,16 @@ public class Collections {
         public Spliterator<E> spliterator() {
             return (Spliterator<E>)c.spliterator();
         }
+        @SuppressWarnings("unchecked")
+        @Override
+        public Stream<E> stream() {
+            return (Stream<E>)c.stream();
+        }
+        @SuppressWarnings("unchecked")
+        @Override
+        public Stream<E> parallelStream() {
+            return (Stream<E>)c.parallelStream();
+        }
     }
 
     /**
@@ -1544,6 +1557,16 @@ public class Collections {
                         (Spliterator<Map.Entry<K, V>>) c.spliterator());
             }
 
+            @Override
+            public Stream<Entry<K,V>> stream() {
+                return StreamSupport.stream(spliterator(), false);
+            }
+
+            @Override
+            public Stream<Entry<K,V>> parallelStream() {
+                return StreamSupport.stream(spliterator(), true);
+            }
+
             public Iterator<Map.Entry<K,V>> iterator() {
                 return new Iterator<Map.Entry<K,V>>() {
                     private final Iterator<? extends Map.Entry<? extends K, ? extends V>> i = c.iterator();
@@ -1824,7 +1847,14 @@ public class Collections {
         public Spliterator<E> spliterator() {
             return c.spliterator(); // Must be manually synched by user!
         }
-
+        @Override
+        public Stream<E> stream() {
+            return c.stream(); // Must be manually synched by user!
+        }
+        @Override
+        public Stream<E> parallelStream() {
+            return c.parallelStream(); // Must be manually synched by user!
+        }
         private void writeObject(ObjectOutputStream s) throws IOException {
             synchronized (mutex) {s.defaultWriteObject();}
         }
@@ -2549,6 +2579,11 @@ public class Collections {
         }
         @Override
         public Spliterator<E> spliterator() {return c.spliterator();}
+        @Override
+        public Stream<E> stream()           {return c.stream();}
+        @Override
+        public Stream<E> parallelStream()   {return c.parallelStream();}
+
     }
 
     /**
@@ -3891,6 +3926,22 @@ public class Collections {
                                                    ") > toIndex(" + toIndex + ")");
             return new CopiesList<>(toIndex - fromIndex, element);
         }
+
+        // Override default methods in Collection
+        @Override
+        public Stream<E> stream() {
+            return IntStream.range(0, n).mapToObj(i -> element);
+        }
+
+        @Override
+        public Stream<E> parallelStream() {
+            return IntStream.range(0, n).parallel().mapToObj(i -> element);
+        }
+
+        @Override
+        public Spliterator<E> spliterator() {
+            return stream().spliterator();
+        }
     }
 
     /**
@@ -4286,8 +4337,6 @@ public class Collections {
         public boolean retainAll(Collection<?> c)   {return s.retainAll(c);}
         // addAll is the only inherited implementation
 
-        private static final long serialVersionUID = 2454657854757543876L;
-
         // Override default methods in Collection
         @Override
         public void forEach(Consumer<? super E> action) {
@@ -4297,6 +4346,15 @@ public class Collections {
         public boolean removeIf(Predicate<? super E> filter) {
             return s.removeIf(filter);
         }
+
+        @Override
+        public Spliterator<E> spliterator() {return s.spliterator();}
+        @Override
+        public Stream<E> stream()           {return s.stream();}
+        @Override
+        public Stream<E> parallelStream()   {return s.parallelStream();}
+
+        private static final long serialVersionUID = 2454657854757543876L;
 
         private void readObject(java.io.ObjectInputStream stream)
             throws IOException, ClassNotFoundException
@@ -4363,5 +4421,12 @@ public class Collections {
         public boolean removeIf(Predicate<? super E> filter) {
             return q.removeIf(filter);
         }
+
+        @Override
+        public Spliterator<E> spliterator() {return q.spliterator();}
+        @Override
+        public Stream<E> stream()           {return q.stream();}
+        @Override
+        public Stream<E> parallelStream()   {return q.parallelStream();}
     }
 }
