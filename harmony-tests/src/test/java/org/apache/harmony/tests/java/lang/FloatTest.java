@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -252,9 +252,25 @@ public class FloatTest extends TestCase {
      */
     public void test_isInfiniteF() {
         // Test for method boolean java.lang.Float.isInfinite(float)
+        assertTrue(Float.isInfinite(Float.POSITIVE_INFINITY));
+        assertTrue(Float.isInfinite(Float.NEGATIVE_INFINITY));
+        assertFalse(Float.isInfinite(Float.MAX_VALUE));
+        assertFalse(Float.isInfinite(Float.MIN_VALUE));
+        assertFalse(Float.isInfinite(Float.NaN));
+        assertFalse(Float.isInfinite(1.0f));
+    }
 
-        assertTrue("Infinity check failed", Float.isInfinite(Float.POSITIVE_INFINITY)
-                && (Float.isInfinite(Float.NEGATIVE_INFINITY)) && !(Float.isInfinite(1.0f)));
+    /**
+     * java.lang.Float#isFinite(float)
+     */
+    public void test_isFiniteF() {
+        // Test for method boolean java.lang.Float.isInfinite(float)
+        assertFalse(Float.isFinite(Float.POSITIVE_INFINITY));
+        assertFalse(Float.isFinite(Float.NEGATIVE_INFINITY));
+        assertTrue(Float.isFinite(Float.MAX_VALUE));
+        assertTrue(Float.isFinite(Float.MIN_VALUE));
+        assertFalse(Float.isFinite(Float.NaN));
+        assertTrue(Float.isFinite(1.0f));
     }
 
     /**

@@ -572,6 +572,20 @@ public final class Double extends Number implements Comparable<Double> {
     }
 
     /**
+     * Returns {@code true} if the argument is a finite floating-point
+     * value; returns {@code false} otherwise (for NaN and infinity
+     * arguments).
+     *
+     * @param d the {@code double} value to be tested
+     * @return {@code true} if the argument is a finite
+     * floating-point value, {@code false} otherwise.
+     * @since 1.8
+     */
+    public static boolean isFinite(double d) {
+        return Math.abs(d) <= DoubleConsts.MAX_VALUE;
+    }
+
+    /**
      * The value of the Double.
      *
      * @serial
