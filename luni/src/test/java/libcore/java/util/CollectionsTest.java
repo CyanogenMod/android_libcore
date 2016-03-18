@@ -25,6 +25,8 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
+import java.util.Spliterator;
+
 import junit.framework.TestCase;
 
 public final class CollectionsTest extends TestCase {
@@ -192,12 +194,16 @@ public final class CollectionsTest extends TestCase {
     public void testBinarySearch_emptyCollection() {
         assertEquals(-1, Collections.binarySearch(new ArrayList<Integer>(), 9));
 
-        assertEquals(-1, Collections.binarySearch(new ArrayList<Integer>(), 9,
-                new Comparator<Integer>() {
-                    @Override
-                    public int compare(Integer lhs, Integer rhs) {
-                        return lhs.compareTo(rhs);
-                    }
-                }));
+        assertEquals(-1, Collections.binarySearch(new ArrayList<>(), 9, Integer::compareTo));
+    }
+
+    public void testSingletonSpliterator() {
+        Spliterator<String> sp = Collections.singletonList("spiff").spliterator();
+
+        assertEquals(1, sp.estimateSize());
+        assertEquals(1, sp.getExactSizeIfKnown());
+        assertNull(sp.trySplit());
+        assertEquals(true, sp.tryAdvance(value -> assertEquals("spiff", value)));
+        assertEquals(false, sp.tryAdvance(value -> fail()));
     }
 }

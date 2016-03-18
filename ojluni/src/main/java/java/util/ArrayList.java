@@ -1212,6 +1212,13 @@ public class ArrayList<E> extends AbstractList<E>
         private String outOfBoundsMsg(int index) {
             return "Index: "+index+", Size: "+this.size;
         }
+
+        public Spliterator<E> spliterator() {
+            if (modCount != ArrayList.this.modCount)
+                throw new ConcurrentModificationException();
+            return new ArrayListSpliterator<E>(ArrayList.this, offset,
+                                               offset + this.size, this.modCount);
+        }
     }
 
     @Override
