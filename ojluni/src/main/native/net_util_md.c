@@ -551,41 +551,6 @@ void printAddr (struct in6_addr *addr) {
     printf ("\n");
 }
 
-static jboolean needsLoopbackRoute (struct in6_addr* dest_addr) {
-    int byte_count;
-    int extra_bits, i;
-    struct loopback_route *ptr;
-
-    if (loRoutes == 0) {
-        initLoopbackRoutes();
-    }
-
-    for (ptr = loRoutes, i=0; i<nRoutes; i++, ptr++) {
-        struct in6_addr *target_addr=&ptr->addr;
-        int dest_plen = ptr->plen;
-        byte_count = dest_plen >> 3;
-        extra_bits = dest_plen & 0x3;
-
-        if (byte_count > 0) {
-            if (memcmp(target_addr, dest_addr, byte_count)) {
-                continue;  /* no match */
-            }
-        }
-
-        if (extra_bits > 0) {
-            unsigned char c1 = ((unsigned char *)target_addr)[byte_count];
-            unsigned char c2 = ((unsigned char *)&dest_addr)[byte_count];
-            unsigned char mask = 0xff << (8 - extra_bits);
-            if ((c1 & mask) != (c2 & mask)) {
-                continue;
-            }
-        }
-        return JNI_TRUE;
-    }
-    return JNI_FALSE;
-}
-
-
 static void initLoopbackRoutes() {
     FILE *f;
     char srcp[8][5];
@@ -763,25 +728,6 @@ static void initLocalIfs () {
     fclose (f);
 }
 
-/* return the scope_id (interface index) of the
- * interface corresponding to the given address
- * returns 0 if no match found
- */
-
-static int getLocalScopeID (char *addr) {
-    struct localinterface *lif;
-    int i;
-    if (localifs == 0) {
-        initLocalIfs();
-    }
-    for (i=0, lif=localifs; i<nifs; i++, lif++) {
-        if (memcmp (addr, lif->localaddr, 16) == 0) {
-            return lif->index;
-        }
-    }
-    return 0;
-}
-
 void initLocalAddrTable () {
     initLoopbackRoutes();
     initLocalIfs();
@@ -860,80 +806,17 @@ NET_InetAddressToSockaddr(JNIEnv *env, jobject iaObj, int port, struct sockaddr 
 /* MMM: Come back to this! */
 #endif
 
-        /*
-         * On Linux if we are connecting to a link-local address
-         * we need to specify the interface in the scope_id (2.4 kernel only)
-         *
-         * If the scope was cached the we use the cached value. If not cached but
-         * specified in the Inet6Address we use that, but we first check if the
-         * address needs to be routed via the loopback interface. In this case,
-         * we override the specified value with that of the loopback interface.
-         * If no cached value exists and no value was specified by user, then
-         * we try to determine a value ffrom the routing table. In all these
-         * cases the used value is cached for further use.
-         */
-#ifdef __linux__
-        if (IN6_IS_ADDR_LINKLOCAL(&(him6->sin6_addr))) {
-            int cached_scope_id = 0, scope_id = 0;
-            int old_kernel = kernelIsV22();
-
-            if (ia6_cachedscopeidID && !old_kernel) {
-                cached_scope_id = (int)(*env)->GetIntField(env, iaObj, ia6_cachedscopeidID);
-                /* if cached value exists then use it. Otherwise, check
-                 * if scope is set in the address.
-                 */
-                if (!cached_scope_id) {
-                    if (ia6_scopeidID) {
-                        scope_id = (int)(*env)->GetIntField(env,iaObj,ia6_scopeidID);
-                    }
-                    if (scope_id != 0) {
-                        /* check user-specified value for loopback case
-                         * that needs to be overridden
-                         */
-                        if (kernelIsV24() && needsLoopbackRoute (&him6->sin6_addr)) {
-                            cached_scope_id = lo_scope_id;
-                            (*env)->SetIntField(env, iaObj, ia6_cachedscopeidID, cached_scope_id);
-                        }
-                    } else {
-                        /*
-                         * Otherwise consult the IPv6 routing tables to
-                         * try determine the appropriate interface.
-                         */
-                        if (kernelIsV24()) {
-                            cached_scope_id = getDefaultIPv6Interface( &(him6->sin6_addr) );
-                        } else {
-                            cached_scope_id = getLocalScopeID( (char *)&(him6->sin6_addr) );
-                            if (cached_scope_id == 0) {
-                                cached_scope_id = getDefaultIPv6Interface( &(him6->sin6_addr) );
-                            }
-                        }
-                        (*env)->SetIntField(env, iaObj, ia6_cachedscopeidID, cached_scope_id);
-                    }
-                }
-            }
-
-            /*
-             * If we have a scope_id use the extended form
-             * of sockaddr_in6.
-             */
-
-            if (!old_kernel) {
-                struct sockaddr_in6 *him6 =
-                        (struct sockaddr_in6 *)him;
-                him6->sin6_scope_id = cached_scope_id != 0 ?
-                                            cached_scope_id    : scope_id;
-                *len = sizeof(struct sockaddr_in6);
-            }
-        }
-#else
-        /* handle scope_id for solaris */
-
+        // Android-changed: Don't try and figure out scope_ids for link local
+        // addresses. Use them only if they're set in java (say, if the Inet6Address
+        // was constructed with a specific scope_id or NetworkInterface).
         if (family != IPv4) {
             if (ia6_scopeidID) {
-                him6->sin6_scope_id = (int)(*env)->GetIntField(env, iaObj, ia6_scopeidID);
+                int scope_id = (int)(*env)->GetIntField(env, iaObj, ia6_scopeidID);
+                if (scope_id > 0) {
+                    him6->sin6_scope_id = scope_id;
+                }
             }
         }
-#endif
     } else
 #endif /* AF_INET6 */
         {
@@ -1083,158 +966,6 @@ NET_MapSocketOption(jint cmd, int *level, int *optname) {
     /* not found */
     return -1;
 }
-
-/*
- * Determine the default interface for an IPv6 address.
- *
- * 1. Scans /proc/net/ipv6_route for a matching route
- *    (eg: fe80::/10 or a route for the specific address).
- *    This will tell us the interface to use (eg: "eth0").
- *
- * 2. Lookup /proc/net/if_inet6 to map the interface
- *    name to an interface index.
- *
- * Returns :-
- *      -1 if error
- *       0 if no matching interface
- *      >1 interface index to use for the link-local address.
- */
-#if defined(__linux__) && defined(AF_INET6)
-int getDefaultIPv6Interface(struct in6_addr *target_addr) {
-    FILE *f;
-    char srcp[8][5];
-    char hopp[8][5];
-    int dest_plen, src_plen, use, refcnt, metric;
-    unsigned long flags;
-    char dest_str[40];
-    struct in6_addr dest_addr;
-    char device[16];
-    jboolean match = JNI_FALSE;
-
-    /*
-     * Scan /proc/net/ipv6_route looking for a matching
-     * route.
-     */
-    if ((f = fopen("/proc/net/ipv6_route", "r")) == NULL) {
-        return -1;
-    }
-    while (fscanf(f, "%4s%4s%4s%4s%4s%4s%4s%4s %02x "
-                     "%4s%4s%4s%4s%4s%4s%4s%4s %02x "
-                     "%4s%4s%4s%4s%4s%4s%4s%4s "
-                     "%08x %08x %08x %08lx %8s",
-                     dest_str, &dest_str[5], &dest_str[10], &dest_str[15],
-                     &dest_str[20], &dest_str[25], &dest_str[30], &dest_str[35],
-                     &dest_plen,
-                     srcp[0], srcp[1], srcp[2], srcp[3],
-                     srcp[4], srcp[5], srcp[6], srcp[7],
-                     &src_plen,
-                     hopp[0], hopp[1], hopp[2], hopp[3],
-                     hopp[4], hopp[5], hopp[6], hopp[7],
-                     &metric, &use, &refcnt, &flags, device) == 31) {
-
-        /*
-         * Some routes should be ignored
-         */
-        if ( (dest_plen < 0 || dest_plen > 128)  ||
-             (src_plen != 0) ||
-             (flags & (RTF_POLICY | RTF_FLOW)) ||
-             ((flags & RTF_REJECT) && dest_plen == 0) ) {
-            continue;
-        }
-
-        /*
-         * Convert the destination address
-         */
-        dest_str[4] = ':';
-        dest_str[9] = ':';
-        dest_str[14] = ':';
-        dest_str[19] = ':';
-        dest_str[24] = ':';
-        dest_str[29] = ':';
-        dest_str[34] = ':';
-        dest_str[39] = '\0';
-
-        if (inet_pton(AF_INET6, dest_str, &dest_addr) < 0) {
-            /* not an Ipv6 address */
-            continue;
-        } else {
-            /*
-             * The prefix len (dest_plen) indicates the number of bits we
-             * need to match on.
-             *
-             * dest_plen / 8    => number of bytes to match
-             * dest_plen % 8    => number of additional bits to match
-             *
-             * eg: fe80::/10 => match 1 byte + 2 additional bits in the
-             *                  the next byte.
-             */
-            int byte_count = dest_plen >> 3;
-            int extra_bits = dest_plen & 0x3;
-
-            if (byte_count > 0) {
-                if (memcmp(target_addr, &dest_addr, byte_count)) {
-                    continue;  /* no match */
-                }
-            }
-
-            if (extra_bits > 0) {
-                unsigned char c1 = ((unsigned char *)target_addr)[byte_count];
-                unsigned char c2 = ((unsigned char *)&dest_addr)[byte_count];
-                unsigned char mask = 0xff << (8 - extra_bits);
-                if ((c1 & mask) != (c2 & mask)) {
-                    continue;
-                }
-            }
-
-            /*
-             * We have a match
-             */
-            match = JNI_TRUE;
-            break;
-        }
-    }
-    fclose(f);
-
-    /*
-     * If there's a match then we lookup the interface
-     * index.
-     */
-    if (match) {
-        char devname[21];
-        char addr6p[8][5];
-        int plen, scope, dad_status, if_idx;
-
-        if ((f = fopen("/proc/net/if_inet6", "r")) != NULL) {
-            while (fscanf(f, "%4s%4s%4s%4s%4s%4s%4s%4s %02x %02x %02x %02x %20s\n",
-                      addr6p[0], addr6p[1], addr6p[2], addr6p[3],
-                      addr6p[4], addr6p[5], addr6p[6], addr6p[7],
-                  &if_idx, &plen, &scope, &dad_status, devname) == 13) {
-
-                if (strcmp(devname, device) == 0) {
-                    /*
-                     * Found - so just return the index
-                     */
-                    fclose(f);
-                    return if_idx;
-                }
-            }
-            fclose(f);
-        } else {
-            /*
-             * Couldn't open /proc/net/if_inet6
-             */
-            return -1;
-        }
-    }
-
-    /*
-     * If we get here it means we didn't there wasn't any
-     * route or we couldn't get the index of the interface.
-     */
-    return 0;
-}
-#endif
-
 
 /*
  * Wrapper for getsockopt system routine - does any necessary

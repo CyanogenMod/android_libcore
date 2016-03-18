@@ -177,12 +177,6 @@ class Inet6Address extends InetAddress {
     public static final InetAddress LOOPBACK = new Inet6Address("localhost",
             new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, 0);
 
-
-    /*
-     * cached scope_id - for link-local address use only.
-     */
-    private transient int cached_scope_id = 0;
-
     /**
      * Holds a 128-bit (16 bytes) IPv6 address.
      *

@@ -38,7 +38,6 @@
 jclass ia6_class;
 jfieldID ia6_ipaddressID;
 jfieldID ia6_scopeidID;
-jfieldID ia6_cachedscopeidID;
 jfieldID ia6_scopeidsetID;
 jfieldID ia6_scopeifnameID;
 jfieldID ia6_scopeifnamesetID;
@@ -59,8 +58,6 @@ Inet6Address_init(JNIEnv *env, jclass cls) {
     CHECK_NULL(ia6_ipaddressID);
     ia6_scopeidID = (*env)->GetFieldID(env, ia6_class, "scope_id", "I");
     CHECK_NULL(ia6_scopeidID);
-    ia6_cachedscopeidID = (*env)->GetFieldID(env, ia6_class, "cached_scope_id", "I");
-    CHECK_NULL(ia6_cachedscopeidID);
     ia6_scopeidsetID = (*env)->GetFieldID(env, ia6_class, "scope_id_set", "Z");
     CHECK_NULL(ia6_scopeidID);
     ia6_scopeifnameID = (*env)->GetFieldID(env, ia6_class, "scope_ifname", "Ljava/net/NetworkInterface;");

@@ -77,10 +77,6 @@ extern int NET_Poll(struct pollfd *ufds, unsigned int nfds, int timeout);
 
 #endif
 
-#if defined(__linux__) && defined(AF_INET6)
-int getDefaultIPv6Interface(struct in6_addr *target_addr);
-#endif
-
 
 /* needed from libsocket on Solaris 8 */
 

@@ -95,7 +95,6 @@ extern jfieldID dp_bufLengthID;
 extern jclass ia6_class;
 extern jfieldID ia6_ipaddressID;
 extern jfieldID ia6_scopeidID;
-extern jfieldID ia6_cachedscopeidID;
 extern jfieldID ia6_scopeidsetID;
 extern jfieldID ia6_scopeifnameID;
 extern jfieldID ia6_scopeifnamesetID;

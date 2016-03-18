@@ -291,17 +291,14 @@ Inet6AddressImpl_isReachable0(JNIEnv *env, jobject this,
     (*env)->GetByteArrayRegion(env, addrArray, 0, 16, caddr);
     memcpy((void *)&(him6.sin6_addr), caddr, sizeof(struct in6_addr) );
     him6.sin6_family = AF_INET6;
-#ifdef __linux__
-    if (scope > 0)
-      him6.sin6_scope_id = scope;
-    else
-      him6.sin6_scope_id = getDefaultIPv6Interface( &(him6.sin6_addr));
-    len = sizeof(struct sockaddr_in6);
-#else
+
+    // Android-change: Don't try and figure out a default scope ID if one isn't
+    // set. It's only useful for link local addresses anyway, and callers are
+    // expected to call isReachable with a specific NetworkInterface if they
+    // want to query the reachability of an address that's local to that IF.
     if (scope > 0)
       him6.sin6_scope_id = scope;
     len = sizeof(struct sockaddr_in6);
-#endif
     /*
      * If a network interface was specified, let's create the address
      * for it.
