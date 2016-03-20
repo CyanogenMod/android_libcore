@@ -437,39 +437,31 @@ public final class DexFile {
      */
     public static final int SELF_PATCHOAT_NEEDED = 3;
 
-
     /**
-     * See {@link #getDexOptNeeded(String, String, int)}.
+     * Returns whether the given filter is a valid filter.
      *
      * @hide
      */
-    public static final int COMPILATION_TYPE_FULL = 1;
+    public native static boolean isValidCompilerFilter(String filter);
 
     /**
-     * See {@link #getDexOptNeeded(String, String, int)}.
+     * Returns whether the given filter is based on profiles.
      *
      * @hide
      */
-    public static final int COMPILATION_TYPE_PROFILE_GUIDE = 2;
-
-    /**
-     * See {@link #getDexOptNeeded(String, String, int)}.
-     *
-     * @hide
-     */
-    public static final int COMPILATION_TYPE_EXTRACT_ONLY = 4;
+    public native static boolean isProfileGuidedCompilerFilter(String filter);
 
     /**
      * Returns the VM's opinion of what kind of dexopt is needed to make the
-     * apk/jar file up to date, where {@code targetCompilationTypeMask} is used
-     * to indicate what type of compilation the caller considers up-to-date.
+     * apk/jar file up to date, where {@code targetMode} is used to indicate what
+     * type of compilation the caller considers up-to-date, and {@code newProfile}
+     * is used to indicate whether profile information has changed recently.
      *
      * @param fileName the absolute path to the apk/jar file to examine.
-     * @param targeCompilationTypeMask a mask of compilation types that he
-     *        caller considers up-to-date:
-     *        COMPILATION_TYPE_FULL - the apk is fully compiled.
-     *        COMPILATION_TYPE_PROFILE_GUIDE - the apk is profile guide compiled.
-     *        COMPILATION_TYPE_EXTRACT_ONLY - the apk is extracted but not compiled.
+     * @param compilerFilter a compiler filter to use for what a caller considers up-to-date.
+     * @param newProfile flag that describes whether a profile corresponding
+     *        to the dex file has been recently updated and should be considered
+     *        in the state of the file.
      * @return NO_DEXOPT_NEEDED if the apk/jar is already up to date.
      *         DEX2OAT_NEEDED if dex2oat should be called on the apk/jar file.
      *         PATCHOAT_NEEDED if patchoat should be called on the apk/jar
@@ -485,6 +477,6 @@ public final class DexFile {
      * @hide
      */
     public static native int getDexOptNeeded(String fileName,
-            String instructionSet, int targetCompilationTypeMask)
+            String instructionSet, String compilerFilter, boolean newProfile)
             throws FileNotFoundException, IOException;
 }
