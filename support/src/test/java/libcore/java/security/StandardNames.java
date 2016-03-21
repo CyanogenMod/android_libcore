@@ -550,7 +550,7 @@ public final class StandardNames extends Assert {
             provide("KeyFactory", "EC");
             provide("KeyPairGenerator", "EC");
             provide("Signature", "NONEWITHECDSA");
-            provide("Signature", "ECDSA"); // as opposed to SHA1WITHECDSA
+            provide("Signature", "SHA1WITHECDSA");
             provide("Signature", "SHA224WITHECDSA");
             provide("Signature", "SHA256WITHECDSA");
             provide("Signature", "SHA384WITHECDSA");
