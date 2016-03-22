@@ -191,7 +191,7 @@ import java.util.Vector;
  *         <tr>
  *             <td>SSLv3</td>
  *             <td>1+</td>
- *             <td>1+</td>
+ *             <td>1&ndash;22</td>
  *         </tr>
  *         <tr>
  *             <td>TLSv1</td>
