@@ -131,6 +131,723 @@ import java.util.Vector;
  * socket can not switch between client and server modes, even when
  * performing renegotiations.
  *
+ * <h3>Default configuration for different Android versions</h3>
+ * <p>{@code SSLSocket} instances obtained from default {@link SSLSocketFactory},
+ * {@link SSLServerSocketFactory}, and {@link SSLContext} are configured as follows:
+ *
+ * <style type="text/css">
+ *   tr.deprecated {
+ *     background-color: #ccc;
+ *     color: #999;
+ *     font-style: italic;
+ *   }
+ * </style>
+ *
+ * <h4>Protocols</h4>
+ *
+ * <p>Client socket:
+ * <table>
+ *     <thead>
+ *         <tr>
+ *             <th>Protocol</th>
+ *             <th>Supported (API Levels)</th>
+ *             <th>Enabled by default (API Levels)</th>
+ *         </tr>
+ *     </thead>
+ *     <tbody>
+ *         <tr>
+ *             <td>SSLv3</td>
+ *             <td>1+</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLSv1</td>
+ *             <td>1+</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLSv1.1</td>
+ *             <td>16+</td>
+ *             <td>20+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLSv1.2</td>
+ *             <td>16+</td>
+ *             <td>20+</td>
+ *         </tr>
+ *     </tbody>
+ * </table>
+ *
+ * <p>Server socket:
+ * <table>
+ *     <thead>
+ *         <tr>
+ *             <th>Protocol</th>
+ *             <th>Supported (API Levels)</th>
+ *             <th>Enabled by default (API Levels)</th>
+ *         </tr>
+ *     </thead>
+ *     <tbody>
+ *         <tr>
+ *             <td>SSLv3</td>
+ *             <td>1+</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLSv1</td>
+ *             <td>1+</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLSv1.1</td>
+ *             <td>16+</td>
+ *             <td>16+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLSv1.2</td>
+ *             <td>16+</td>
+ *             <td>16+</td>
+ *         </tr>
+ *     </tbody>
+ * </table>
+ *
+ * <h4>Cipher suites</h4>
+ *
+ * <p>Methods that operate with cipher suite names (for example,
+ * {@link #getSupportedCipherSuites() getSupportedCipherSuites},
+ * {@link #setEnabledCipherSuites(String[]) setEnabledCipherSuites}) have used
+ * standard names for cipher suites since API Level 9, as listed in the table
+ * below. Prior to API Level 9, non-standard (OpenSSL) names had been used (see
+ * the table following this table).
+ * <table>
+ *     <thead>
+ *         <tr>
+ *             <th>Cipher suite</th>
+ *             <th>Supported (API Levels)</th>
+ *             <th>Enabled by default (API Levels)</th>
+ *         </tr>
+ *     </thead>
+ *     <tbody>
+ *         <tr class="deprecated">
+ *             <td>SSL_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA</td>
+ *             <td>9&ndash;22</td>
+ *             <td>9&ndash;19</td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA</td>
+ *             <td>9&ndash;22</td>
+ *             <td>9&ndash;19</td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>SSL_DHE_DSS_WITH_DES_CBC_SHA</td>
+ *             <td>9&ndash;22</td>
+ *             <td>9&ndash;19</td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>SSL_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA</td>
+ *             <td>9&ndash;22</td>
+ *             <td>9&ndash;19</td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA</td>
+ *             <td>9&ndash;22</td>
+ *             <td>9&ndash;19</td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>SSL_DHE_RSA_WITH_DES_CBC_SHA</td>
+ *             <td>9&ndash;22</td>
+ *             <td>9&ndash;19</td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>SSL_DH_anon_EXPORT_WITH_DES40_CBC_SHA</td>
+ *             <td>9&ndash;22</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>SSL_DH_anon_EXPORT_WITH_RC4_40_MD5</td>
+ *             <td>9&ndash;22</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>SSL_DH_anon_WITH_3DES_EDE_CBC_SHA</td>
+ *             <td>9&ndash;22</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>SSL_DH_anon_WITH_DES_CBC_SHA</td>
+ *             <td>9&ndash;22</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>SSL_DH_anon_WITH_RC4_128_MD5</td>
+ *             <td>9&ndash;22</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>SSL_RSA_EXPORT_WITH_DES40_CBC_SHA</td>
+ *             <td>9&ndash;22</td>
+ *             <td>9&ndash;19</td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>SSL_RSA_EXPORT_WITH_RC4_40_MD5</td>
+ *             <td>9&ndash;22</td>
+ *             <td>9&ndash;19</td>
+ *         </tr>
+ *         <tr>
+ *             <td>SSL_RSA_WITH_3DES_EDE_CBC_SHA</td>
+ *             <td>9+</td>
+ *             <td>9&ndash;19</td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>SSL_RSA_WITH_DES_CBC_SHA</td>
+ *             <td>9&ndash;22</td>
+ *             <td>9&ndash;19</td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>SSL_RSA_WITH_NULL_MD5</td>
+ *             <td>9&ndash;22</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>SSL_RSA_WITH_NULL_SHA</td>
+ *             <td>9&ndash;22</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr>
+ *             <td>SSL_RSA_WITH_RC4_128_MD5</td>
+ *             <td>9+</td>
+ *             <td>9&ndash;19</td>
+ *         </tr>
+ *         <tr>
+ *             <td>SSL_RSA_WITH_RC4_128_SHA</td>
+ *             <td>9+</td>
+ *             <td>9+</td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>TLS_DHE_DSS_WITH_AES_128_CBC_SHA</td>
+ *             <td>9&ndash;22</td>
+ *             <td>9&ndash;22</td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>TLS_DHE_DSS_WITH_AES_128_CBC_SHA256</td>
+ *             <td>20&ndash;22</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>TLS_DHE_DSS_WITH_AES_128_GCM_SHA256</td>
+ *             <td>20&ndash;22</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>TLS_DHE_DSS_WITH_AES_256_CBC_SHA</td>
+ *             <td>9&ndash;22</td>
+ *             <td>11&ndash;22</td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>TLS_DHE_DSS_WITH_AES_256_CBC_SHA256</td>
+ *             <td>20&ndash;22</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>TLS_DHE_DSS_WITH_AES_256_GCM_SHA384</td>
+ *             <td>20&ndash;22</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_DHE_RSA_WITH_AES_128_CBC_SHA</td>
+ *             <td>9+</td>
+ *             <td>9+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_DHE_RSA_WITH_AES_128_CBC_SHA256</td>
+ *             <td>20+</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_DHE_RSA_WITH_AES_128_GCM_SHA256</td>
+ *             <td>20+</td>
+ *             <td>20+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_DHE_RSA_WITH_AES_256_CBC_SHA</td>
+ *             <td>9+</td>
+ *             <td>11+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_DHE_RSA_WITH_AES_256_CBC_SHA256</td>
+ *             <td>20+</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_DHE_RSA_WITH_AES_256_GCM_SHA384</td>
+ *             <td>20+</td>
+ *             <td>20+</td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>TLS_DH_anon_WITH_AES_128_CBC_SHA</td>
+ *             <td>9&ndash;22</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>TLS_DH_anon_WITH_AES_128_CBC_SHA256</td>
+ *             <td>20&ndash;22</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>TLS_DH_anon_WITH_AES_128_GCM_SHA256</td>
+ *             <td>20&ndash;22</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>TLS_DH_anon_WITH_AES_256_CBC_SHA</td>
+ *             <td>9&ndash;22</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>TLS_DH_anon_WITH_AES_256_CBC_SHA256</td>
+ *             <td>20&ndash;22</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>TLS_DH_anon_WITH_AES_256_GCM_SHA384</td>
+ *             <td>20&ndash;22</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA</td>
+ *             <td>11&ndash;22</td>
+ *             <td>11&ndash;19</td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA</td>
+ *             <td>11+</td>
+ *             <td>11+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256</td>
+ *             <td>20+</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256</td>
+ *             <td>20+</td>
+ *             <td>20+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA</td>
+ *             <td>11+</td>
+ *             <td>11+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384</td>
+ *             <td>20+</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384</td>
+ *             <td>20+</td>
+ *             <td>20+</td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>TLS_ECDHE_ECDSA_WITH_NULL_SHA</td>
+ *             <td>11&ndash;22</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_ECDHE_ECDSA_WITH_RC4_128_SHA</td>
+ *             <td>11+</td>
+ *             <td>11+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_ECDHE_PSK_WITH_AES_128_CBC_SHA</td>
+ *             <td>21+</td>
+ *             <td>21+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_ECDHE_PSK_WITH_AES_256_CBC_SHA</td>
+ *             <td>21+</td>
+ *             <td>21+</td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA</td>
+ *             <td>11&ndash;22</td>
+ *             <td>11&ndash;19</td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA</td>
+ *             <td>11+</td>
+ *             <td>11+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256</td>
+ *             <td>20+</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256</td>
+ *             <td>20+</td>
+ *             <td>20+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA</td>
+ *             <td>11+</td>
+ *             <td>11+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384</td>
+ *             <td>20+</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384</td>
+ *             <td>20+</td>
+ *             <td>20+</td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>TLS_ECDHE_RSA_WITH_NULL_SHA</td>
+ *             <td>11&ndash;22</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_ECDHE_RSA_WITH_RC4_128_SHA</td>
+ *             <td>11+</td>
+ *             <td>11+</td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA</td>
+ *             <td>11&ndash;22</td>
+ *             <td>11&ndash;19</td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA</td>
+ *             <td>11&ndash;22</td>
+ *             <td>11&ndash;19</td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256</td>
+ *             <td>20&ndash;22</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256</td>
+ *             <td>20&ndash;22</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA</td>
+ *             <td>11&ndash;22</td>
+ *             <td>11&ndash;19</td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384</td>
+ *             <td>20&ndash;22</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384</td>
+ *             <td>20&ndash;22</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>TLS_ECDH_ECDSA_WITH_NULL_SHA</td>
+ *             <td>11&ndash;22</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>TLS_ECDH_ECDSA_WITH_RC4_128_SHA</td>
+ *             <td>11&ndash;22</td>
+ *             <td>11&ndash;19</td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA</td>
+ *             <td>11&ndash;22</td>
+ *             <td>11&ndash;19</td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>TLS_ECDH_RSA_WITH_AES_128_CBC_SHA</td>
+ *             <td>11&ndash;22</td>
+ *             <td>11&ndash;19</td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256</td>
+ *             <td>20&ndash;22</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256</td>
+ *             <td>20&ndash;22</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>TLS_ECDH_RSA_WITH_AES_256_CBC_SHA</td>
+ *             <td>11&ndash;22</td>
+ *             <td>11&ndash;19</td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384</td>
+ *             <td>20&ndash;22</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384</td>
+ *             <td>20&ndash;22</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>TLS_ECDH_RSA_WITH_NULL_SHA</td>
+ *             <td>11&ndash;22</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>TLS_ECDH_RSA_WITH_RC4_128_SHA</td>
+ *             <td>11&ndash;22</td>
+ *             <td>11&ndash;19</td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>TLS_ECDH_anon_WITH_3DES_EDE_CBC_SHA</td>
+ *             <td>11&ndash;22</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>TLS_ECDH_anon_WITH_AES_128_CBC_SHA</td>
+ *             <td>11&ndash;22</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>TLS_ECDH_anon_WITH_AES_256_CBC_SHA</td>
+ *             <td>11&ndash;22</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>TLS_ECDH_anon_WITH_NULL_SHA</td>
+ *             <td>11&ndash;22</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>TLS_ECDH_anon_WITH_RC4_128_SHA</td>
+ *             <td>11&ndash;22</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_EMPTY_RENEGOTIATION_INFO_SCSV</td>
+ *             <td>11+</td>
+ *             <td>11+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_FALLBACK_SCSV</td>
+ *             <td>21+</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>TLS_PSK_WITH_3DES_EDE_CBC_SHA</td>
+ *             <td>21&ndash;22</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_PSK_WITH_AES_128_CBC_SHA</td>
+ *             <td>21+</td>
+ *             <td>21+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_PSK_WITH_AES_256_CBC_SHA</td>
+ *             <td>21+</td>
+ *             <td>21+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_PSK_WITH_RC4_128_SHA</td>
+ *             <td>21+</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_RSA_WITH_AES_128_CBC_SHA</td>
+ *             <td>9+</td>
+ *             <td>9+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_RSA_WITH_AES_128_CBC_SHA256</td>
+ *             <td>20+</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_RSA_WITH_AES_128_GCM_SHA256</td>
+ *             <td>20+</td>
+ *             <td>20+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_RSA_WITH_AES_256_CBC_SHA</td>
+ *             <td>9+</td>
+ *             <td>11+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_RSA_WITH_AES_256_CBC_SHA256</td>
+ *             <td>20+</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_RSA_WITH_AES_256_GCM_SHA384</td>
+ *             <td>20+</td>
+ *             <td>20+</td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>TLS_RSA_WITH_NULL_SHA256</td>
+ *             <td>20&ndash;22</td>
+ *             <td></td>
+ *         </tr>
+ *     </tbody>
+ * </table>
+ *
+ * <p><em>NOTE</em>: PSK cipher suites are enabled by default only if the {@code SSLContext} through
+ * which the socket was created has been initialized with a {@code PSKKeyManager}.
+ *
+ * <p>API Levels 1 to 8 use OpenSSL names for cipher suites. The table below
+ * lists these OpenSSL names and their corresponding standard names used in API
+ * Levels 9 and newer.
+ * <table>
+ *     <thead>
+ *         <tr>
+ *             <th>OpenSSL cipher suite</th>
+ *             <th>Standard cipher suite</th>
+ *             <th>Supported (API Levels)</th>
+ *             <th>Enabled by default (API Levels)</th>
+ *         </tr>
+ *     </thead>
+ *
+ *     <tbody>
+ *         <tr>
+ *             <td>AES128-SHA</td>
+ *             <td>TLS_RSA_WITH_AES_128_CBC_SHA</td>
+ *             <td>1+</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>AES256-SHA</td>
+ *             <td>TLS_RSA_WITH_AES_256_CBC_SHA</td>
+ *             <td>1+</td>
+ *             <td>1&ndash;8, 11+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>DES-CBC-MD5</td>
+ *             <td>SSL_CK_DES_64_CBC_WITH_MD5</td>
+ *             <td>1&ndash;8</td>
+ *             <td>1&ndash;8</td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>DES-CBC-SHA</td>
+ *             <td>SSL_RSA_WITH_DES_CBC_SHA</td>
+ *             <td>1&ndash;22</td>
+ *             <td>1&ndash;19</td>
+ *         </tr>
+ *         <tr>
+ *             <td>DES-CBC3-MD5</td>
+ *             <td>SSL_CK_DES_192_EDE3_CBC_WITH_MD5</td>
+ *             <td>1&ndash;8</td>
+ *             <td>1&ndash;8</td>
+ *         </tr>
+ *         <tr>
+ *             <td>DES-CBC3-SHA</td>
+ *             <td>SSL_RSA_WITH_3DES_EDE_CBC_SHA</td>
+ *             <td>1+</td>
+ *             <td>1&ndash;19</td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>DHE-DSS-AES128-SHA</td>
+ *             <td>TLS_DHE_DSS_WITH_AES_128_CBC_SHA</td>
+ *             <td>1&ndash;22</td>
+ *             <td>1&ndash;22</td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>DHE-DSS-AES256-SHA</td>
+ *             <td>TLS_DHE_DSS_WITH_AES_256_CBC_SHA</td>
+ *             <td>1&ndash;22</td>
+ *             <td>1&ndash;8, 11&ndash;22</td>
+ *         </tr>
+ *         <tr>
+ *             <td>DHE-RSA-AES128-SHA</td>
+ *             <td>TLS_DHE_RSA_WITH_AES_128_CBC_SHA</td>
+ *             <td>1+</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>DHE-RSA-AES256-SHA</td>
+ *             <td>TLS_DHE_RSA_WITH_AES_256_CBC_SHA</td>
+ *             <td>1+</td>
+ *             <td>1&ndash;8, 11+</td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>EDH-DSS-DES-CBC-SHA</td>
+ *             <td>SSL_DHE_DSS_WITH_DES_CBC_SHA</td>
+ *             <td>1&ndash;22</td>
+ *             <td>1&ndash;19</td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>EDH-DSS-DES-CBC3-SHA</td>
+ *             <td>SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA</td>
+ *             <td>1&ndash;22</td>
+ *             <td>1&ndash;19</td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>EDH-RSA-DES-CBC-SHA</td>
+ *             <td>SSL_DHE_RSA_WITH_DES_CBC_SHA</td>
+ *             <td>1&ndash;22</td>
+ *             <td>1&ndash;19</td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>EDH-RSA-DES-CBC3-SHA</td>
+ *             <td>SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA</td>
+ *             <td>1&ndash;22</td>
+ *             <td>1&ndash;19</td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>EXP-DES-CBC-SHA</td>
+ *             <td>SSL_RSA_EXPORT_WITH_DES40_CBC_SHA</td>
+ *             <td>1&ndash;22</td>
+ *             <td>1&ndash;19</td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>EXP-EDH-DSS-DES-CBC-SHA</td>
+ *             <td>SSL_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA</td>
+ *             <td>1&ndash;22</td>
+ *             <td>1&ndash;19</td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>EXP-EDH-RSA-DES-CBC-SHA</td>
+ *             <td>SSL_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA</td>
+ *             <td>1&ndash;22</td>
+ *             <td>1&ndash;19</td>
+ *         </tr>
+ *         <tr>
+ *             <td>EXP-RC2-CBC-MD5</td>
+ *             <td>SSL_RSA_EXPORT_WITH_RC2_CBC_40_MD5</td>
+ *             <td>1&ndash;8</td>
+ *             <td>1&ndash;8</td>
+ *         </tr>
+ *         <tr class="deprecated">
+ *             <td>EXP-RC4-MD5</td>
+ *             <td>SSL_RSA_EXPORT_WITH_RC4_40_MD5</td>
+ *             <td>1&ndash;22</td>
+ *             <td>1&ndash;19</td>
+ *         </tr>
+ *         <tr>
+ *             <td>RC2-CBC-MD5</td>
+ *             <td>SSL_CK_RC2_128_CBC_WITH_MD5</td>
+ *             <td>1&ndash;8</td>
+ *             <td>1&ndash;8</td>
+ *         </tr>
+ *         <tr>
+ *             <td>RC4-MD5</td>
+ *             <td>SSL_RSA_WITH_RC4_128_MD5</td>
+ *             <td>1+</td>
+ *             <td>1&ndash;19</td>
+ *         </tr>
+ *         <tr>
+ *             <td>RC4-SHA</td>
+ *             <td>SSL_RSA_WITH_RC4_128_SHA</td>
+ *             <td>1+</td>
+ *             <td>1+</td>
+ *         </tr>
+ *     </tbody>
+ * </table>
+ *
  * @see java.net.Socket
  * @see SSLServerSocket
  * @see SSLSocketFactory
