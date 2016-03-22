@@ -167,6 +167,7 @@ Java_sun_nio_ch_Net_socket0(JNIEnv *env, jclass cl, jboolean preferIPv6,
 #endif
 
     fd = socket(domain, type, 0);
+    tagSocket(env, fd);
     if (fd < 0) {
         return handleSocketError(env, errno);
     }
@@ -180,6 +181,7 @@ Java_sun_nio_ch_Net_socket0(JNIEnv *env, jclass cl, jboolean preferIPv6,
             JNU_ThrowByNameWithLastError(env,
                                          JNU_JAVANETPKG "SocketException",
                                          "sun.nio.ch.Net.setIntOption");
+            untagSocket(env, fd);
             close(fd);
             return -1;
         }
@@ -193,6 +195,7 @@ Java_sun_nio_ch_Net_socket0(JNIEnv *env, jclass cl, jboolean preferIPv6,
             JNU_ThrowByNameWithLastError(env,
                                          JNU_JAVANETPKG "SocketException",
                                          "sun.nio.ch.Net.setIntOption");
+            untagSocket(env, fd);
             close(fd);
             return -1;
         }
@@ -206,6 +209,7 @@ Java_sun_nio_ch_Net_socket0(JNIEnv *env, jclass cl, jboolean preferIPv6,
             JNU_ThrowByNameWithLastError(env,
                                          JNU_JAVANETPKG "SocketException",
                                          "sun.nio.ch.Net.setIntOption");
+            untagSocket(env, fd);
             close(fd);
             return -1;
         }

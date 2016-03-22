@@ -412,6 +412,7 @@ jint  IPv6_supported()
             /**
              * SIOCGLIFNUM failed - assume IPv6 not configured
              */
+            untagSocket(env, fd);
             close(fd);
             return JNI_FALSE;
         }

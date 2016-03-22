@@ -59,6 +59,9 @@ extern int NET_Select(int s, fd_set *readfds, fd_set *writefds,
 extern int NET_Poll(struct pollfd *ufds, unsigned int nfds, int timeout);
 #endif
 
+extern int tagSocket(JNIEnv* env, int fd);
+extern void untagSocket(JNIEnv* env, int fd);
+
 #else
 
 #define NET_Timeout     JVM_Timeout
@@ -74,6 +77,9 @@ extern int NET_Poll(struct pollfd *ufds, unsigned int nfds, int timeout);
 #define NET_Dup2        dup2
 #define NET_Select      select
 #define NET_Poll        poll
+
+#define tagSocket(env,fd)    (void)0
+#define untagSocket(env,fd)  (void)0
 
 #endif
 

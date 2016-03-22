@@ -66,6 +66,7 @@ LOCAL_SRC_FILES := \
     Bits.c \
     Character.cpp \
     Register.cpp \
+    socket_tagger_util.cpp \
 
 LOCAL_C_INCLUDES += \
        libcore/$(srcdir) \

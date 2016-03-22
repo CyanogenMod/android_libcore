@@ -452,6 +452,7 @@ JNIEXPORT jint JNICALL NetworkInterface_getMTU0(JNIEnv *env, jclass class, jstri
 
   (*env)->ReleaseStringUTFChars(env, name, name_utf);
 
+  untagSocket(env, sock);
   close(sock);
   return ret;
 }
@@ -475,6 +476,7 @@ static int getFlags0(JNIEnv *env, jstring name) {
 
   ret = getFlags(sock, name_utf, &flags);
 
+  untagSocket(env, sock);
   close(sock);
   (*env)->ReleaseStringUTFChars(env, name, name_utf);
 
@@ -705,6 +707,7 @@ static netif *enumInterfaces(JNIEnv *env) {
   }
 
   freeifaddrs(origifa);
+  untagSocket(env, sock);
   close(sock);
 
   return ifs;
@@ -985,6 +988,7 @@ static int  openSocket(JNIEnv *env, int proto){
     return -1;
   }
 
+  tagSocket(env, sock);
   return sock;
 }
 
@@ -1015,6 +1019,7 @@ static int openSocketWithFallback(JNIEnv *env, const char *ifname){
   /* Linux starting from 2.6.? kernel allows ioctl call with either IPv4 or IPv6 socket regardless of type
      of address of an interface */
 
+  tagSocket(env, sock);
   return sock;
 }
 

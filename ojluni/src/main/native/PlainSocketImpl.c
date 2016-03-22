@@ -180,6 +180,7 @@ PlainSocketImpl_socketCreate(JNIEnv *env, jobject this,
         NET_ThrowNew(env, errno, "can't create socket");
         return;
     }
+    tagSocket(env, fd);
 
 #ifdef AF_INET6
     /* Disable IPV6_V6ONLY to ensure dual-socket support */
@@ -188,6 +189,7 @@ PlainSocketImpl_socketCreate(JNIEnv *env, jobject this,
         if (setsockopt(fd, IPPROTO_IPV6, IPV6_V6ONLY, (char*)&arg,
                        sizeof(int)) < 0) {
             NET_ThrowNew(env, errno, "cannot set IPPROTO_IPV6");
+            untagSocket(env, fd);
             close(fd);
             return;
         }
@@ -205,6 +207,7 @@ PlainSocketImpl_socketCreate(JNIEnv *env, jobject this,
         if (JVM_SetSockOpt(fd, SOL_SOCKET, SO_REUSEADDR, (char*)&arg,
                            sizeof(arg)) < 0) {
             NET_ThrowNew(env, errno, "cannot set SO_REUSEADDR");
+            untagSocket(env, fd);
             close(fd);
             return;
         }
@@ -746,6 +749,7 @@ PlainSocketImpl_socketAccept(JNIEnv *env, jobject this,
     socketAddressObj = NET_SockaddrToInetAddress(env, (struct sockaddr *)&him, &port);
     if (socketAddressObj == NULL) {
         /* should be pending exception */
+        untagSocket(env, fd);
         close(newfd);
         return;
     }
@@ -815,6 +819,7 @@ PlainSocketImpl_socketClose0(JNIEnv *env, jobject this) {
     }
     if (fd != -1) {
       (*env)->SetIntField(env, fdObj, IO_fd_fdID, -1);
+      untagSocket(env, fd);
       NET_SocketClose(fd);
     }
 }

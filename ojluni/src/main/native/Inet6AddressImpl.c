@@ -180,6 +180,7 @@ ping6(JNIEnv *env, jint fd, struct sockaddr_in6* him, jint timeout,
     if (netif != NULL) {
       if (bind(fd, (struct sockaddr*)netif, sizeof(struct sockaddr_in6)) <0) {
         NET_ThrowNew(env, errno, "Can't bind socket");
+        untagSocket(env, fd);
         close(fd);
         return JNI_FALSE;
       }
@@ -209,6 +210,7 @@ ping6(JNIEnv *env, jint fd, struct sockaddr_in6* him, jint timeout,
            */
 #endif /*__linux__ */
         NET_ThrowNew(env, errno, "Can't send ICMP packet");
+        untagSocket(env, fd);
         close(fd);
         return JNI_FALSE;
       }
@@ -230,10 +232,12 @@ ping6(JNIEnv *env, jint fd, struct sockaddr_in6* him, jint timeout,
           if (n >= 8 && icmp6->icmp6_type == ICMP6_ECHO_REPLY &&
               (ntohs(icmp6->icmp6_id) == pid)) {
             if (NET_IsEqual(caddr, recv_caddr)) {
+              untagSocket(env, fd);
               close(fd);
               return JNI_TRUE;
             }
             if (NET_IsZeroAddr(caddr)) {
+              untagSocket(env, fd);
               close(fd);
               return JNI_TRUE;
             }
@@ -242,6 +246,7 @@ ping6(JNIEnv *env, jint fd, struct sockaddr_in6* him, jint timeout,
       } while (tmout2 > 0);
       timeout -= 1000;
     } while (timeout > 0);
+    untagSocket(env, fd);
     close(fd);
     return JNI_FALSE;
 }
@@ -322,6 +327,7 @@ Inet6AddressImpl_isReachable0(JNIEnv *env, jobject this,
     fd = JVM_Socket(AF_INET6, SOCK_RAW, IPPROTO_ICMPV6);
 
     if (fd != -1) { /* Good to go, let's do a ping */
+        tagSocket(env, fd);
         return ping6(env, fd, &him6, timeout, netif, ttl);
     }
 
@@ -335,6 +341,8 @@ Inet6AddressImpl_isReachable0(JNIEnv *env, jobject this,
         NET_ThrowNew(env, errno, "Can't create socket");
         return JNI_FALSE;
     }
+    tagSocket(env, fd);
+
     if (ttl > 0) {
       setsockopt(fd, IPPROTO_IPV6, IPV6_UNICAST_HOPS, &ttl, sizeof(ttl));
     }
@@ -345,6 +353,7 @@ Inet6AddressImpl_isReachable0(JNIEnv *env, jobject this,
     if (netif != NULL) {
       if (bind(fd, (struct sockaddr*)netif, sizeof(struct sockaddr_in6)) <0) {
         NET_ThrowNew(env, errno, "Can't bind socket");
+        untagSocket(env, fd);
         close(fd);
         return JNI_FALSE;
       }
@@ -360,6 +369,7 @@ Inet6AddressImpl_isReachable0(JNIEnv *env, jobject this,
      * we were able to reach the host!
      */
     if (connect_rv == 0 || errno == ECONNREFUSED) {
+        untagSocket(env, fd);
         close(fd);
         return JNI_TRUE;
     } else {
@@ -378,6 +388,7 @@ Inet6AddressImpl_isReachable0(JNIEnv *env, jobject this,
            * When that happens, don't throw an exception, just return false.
            */
 #endif /* __linux__ */
+          untagSocket(env, fd);
           close(fd);
           return JNI_FALSE;
         }
@@ -385,6 +396,7 @@ Inet6AddressImpl_isReachable0(JNIEnv *env, jobject this,
         if (errno != EINPROGRESS) {
             NET_ThrowByNameWithLastError(env, JNU_JAVANETPKG "ConnectException",
                                          "connect failed");
+            untagSocket(env, fd);
             close(fd);
             return JNI_FALSE;
         }
@@ -399,10 +411,12 @@ Inet6AddressImpl_isReachable0(JNIEnv *env, jobject this,
             connect_rv = errno;
           }
           if (connect_rv == 0 || ECONNREFUSED) {
+            untagSocket(env, fd);
             close(fd);
             return JNI_TRUE;
           }
         }
+        untagSocket(env, fd);
         close(fd);
         return JNI_FALSE;
     }

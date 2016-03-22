@@ -987,6 +987,7 @@ PlainDatagramSocketImpl_datagramSocketCreate(JNIEnv *env,
                        "Error creating socket");
         return;
     }
+    tagSocket(env, fd);
 
 #ifdef AF_INET6
     /* Disable IPV6_V6ONLY to ensure dual-socket support */
@@ -995,6 +996,7 @@ PlainDatagramSocketImpl_datagramSocketCreate(JNIEnv *env,
         if (setsockopt(fd, IPPROTO_IPV6, IPV6_V6ONLY, (char*)&arg,
                        sizeof(int)) < 0) {
             NET_ThrowNew(env, errno, "cannot set IPPROTO_IPV6");
+            untagSocket(env, fd);
             close(fd);
             return;
         }
@@ -1059,6 +1061,7 @@ PlainDatagramSocketImpl_datagramSocketClose(JNIEnv *env,
         return;
     }
     (*env)->SetIntField(env, fdObj, IO_fd_fdID, -1);
+    untagSocket(env, fd);
     NET_SocketClose(fd);
 }
 

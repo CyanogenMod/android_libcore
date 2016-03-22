@@ -99,6 +99,7 @@ ping4(JNIEnv *env, jint fd, struct sockaddr_in* him, jint timeout,
     if (netif != NULL) {
       if (bind(fd, (struct sockaddr*)netif, sizeof(struct sockaddr_in)) < 0) {
         NET_ThrowNew(env, errno, "Can't bind socket");
+        untagSocket(env, fd);
         close(fd);
         return JNI_FALSE;
       }
@@ -137,6 +138,7 @@ ping4(JNIEnv *env, jint fd, struct sockaddr_in* him, jint timeout,
            */
 #endif /*__linux__ */
           NET_ThrowNew(env, errno, "Can't send ICMP packet");
+        untagSocket(env, fd);
         close(fd);
         return JNI_FALSE;
       }
@@ -158,11 +160,13 @@ ping4(JNIEnv *env, jint fd, struct sockaddr_in* him, jint timeout,
           if (icmplen >= 8 && icmp->icmp_type == ICMP_ECHOREPLY
                && (ntohs(icmp->icmp_id) == pid)) {
             if ((him->sin_addr.s_addr == sa_recv.sin_addr.s_addr)) {
+              untagSocket(env, fd);
               close(fd);
               return JNI_TRUE;
             }
 
             if (him->sin_addr.s_addr == 0) {
+              untagSocket(env, fd);
               close(fd);
               return JNI_TRUE;
             }
@@ -172,6 +176,7 @@ ping4(JNIEnv *env, jint fd, struct sockaddr_in* him, jint timeout,
       } while (tmout2 > 0);
       timeout -= 1000;
     } while (timeout >0);
+    untagSocket(env, fd);
     close(fd);
     return JNI_FALSE;
 }
@@ -240,6 +245,7 @@ Inet4AddressImpl_isReachable0(JNIEnv *env, jobject this,
       /*
        * It didn't fail, so we can use ICMP_ECHO requests.
        */
+      tagSocket(env, fd);
       return ping4(env, fd, &him, timeout, netif, ttl);
     }
 
@@ -255,6 +261,8 @@ Inet4AddressImpl_isReachable0(JNIEnv *env, jobject this,
         NET_ThrowNew(env, errno, "Can't create socket");
         return JNI_FALSE;
     }
+    tagSocket(env, fd);
+
     if (ttl > 0) {
       setsockopt(fd, IPPROTO_IP, IP_TTL, &ttl, sizeof(ttl));
     }
@@ -265,6 +273,7 @@ Inet4AddressImpl_isReachable0(JNIEnv *env, jobject this,
     if (netif != NULL) {
       if (bind(fd, (struct sockaddr*)netif, sizeof(struct sockaddr_in)) < 0) {
         NET_ThrowNew(env, errno, "Can't bind socket");
+        untagSocket(env, fd);
         close(fd);
         return JNI_FALSE;
       }
@@ -284,6 +293,7 @@ Inet4AddressImpl_isReachable0(JNIEnv *env, jobject this,
      * we were able to reach the host!
      */
     if (connect_rv == 0 || errno == ECONNREFUSED) {
+        untagSocket(env, fd);
         close(fd);
         return JNI_TRUE;
     } else {
@@ -302,6 +312,7 @@ Inet4AddressImpl_isReachable0(JNIEnv *env, jobject this,
            * When that happens, don't throw an exception, just return false.
            */
 #endif /* __linux__ */
+          untagSocket(env, fd);
           close(fd);
           return JNI_FALSE;
         }
@@ -309,6 +320,7 @@ Inet4AddressImpl_isReachable0(JNIEnv *env, jobject this,
         if (errno != EINPROGRESS) {
           NET_ThrowByNameWithLastError(env, JNU_JAVANETPKG "ConnectException",
                                        "connect failed");
+          untagSocket(env, fd);
           close(fd);
           return JNI_FALSE;
         }
@@ -322,10 +334,12 @@ Inet4AddressImpl_isReachable0(JNIEnv *env, jobject this,
             connect_rv = errno;
           }
           if (connect_rv == 0 || connect_rv == ECONNREFUSED) {
+            untagSocket(env, fd);
             close(fd);
             return JNI_TRUE;
           }
         }
+        untagSocket(env, fd);
         close(fd);
         return JNI_FALSE;
     }
