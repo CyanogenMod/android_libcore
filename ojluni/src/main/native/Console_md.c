@@ -31,6 +31,11 @@
 #include <unistd.h>
 #include <termios.h>
 
+#include "JNIHelp.h"
+
+#define NATIVE_METHOD(className, functionName, signature) \
+{ #functionName, signature, (void*)(Java_java_io_ ## className ## _ ## functionName) }
+
 JNIEXPORT jboolean JNICALL
 Java_java_io_Console_istty(JNIEnv *env, jclass cls)
 {
@@ -65,4 +70,14 @@ Java_java_io_Console_echo(JNIEnv *env,
         JNU_ThrowIOExceptionWithLastError(env, "tcsetattr failed");
     }
     return old;
+}
+
+static JNINativeMethod gMethods[] = {
+    NATIVE_METHOD(Console, istty, "()Z"),
+    NATIVE_METHOD(Console, encoding, "()Ljava/lang/String;"),
+    NATIVE_METHOD(Console, echo, "(Z)Z"),
+};
+
+void register_java_io_Console(JNIEnv* env) {
+    jniRegisterNativeMethods(env, "java/io/Console", gMethods, NELEM(gMethods));
 }

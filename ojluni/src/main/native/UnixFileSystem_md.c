@@ -42,6 +42,8 @@
 #include "java_io_FileSystem.h"
 #include "java_io_UnixFileSystem.h"
 
+#include "JNIHelp.h"
+
 #if defined(_ALLBSD_SOURCE)
 #define dirent64 dirent
 #define readdir64_r readdir_r
@@ -55,6 +57,9 @@ static struct {
     jfieldID path;
 } ids;
 
+
+#define NATIVE_METHOD(className, functionName, signature) \
+{ #functionName, signature, (void*)(Java_java_io_ ## className ## _ ## functionName) }
 
 JNIEXPORT void JNICALL
 Java_java_io_UnixFileSystem_initIDs(JNIEnv *env, jclass cls)
@@ -458,4 +463,26 @@ Java_java_io_UnixFileSystem_getSpace0(JNIEnv *env, jobject this,
         }
     } END_PLATFORM_STRING(env, path);
     return rv;
+}
+
+static JNINativeMethod gMethods[] = {
+    NATIVE_METHOD(UnixFileSystem, initIDs, "()V"),
+    NATIVE_METHOD(UnixFileSystem, canonicalize0, "(Ljava/lang/String;)Ljava/lang/String;"),
+    NATIVE_METHOD(UnixFileSystem, getBooleanAttributes0, "(Ljava/lang/String;)I"),
+    NATIVE_METHOD(UnixFileSystem, checkAccess0, "(Ljava/io/File;I)Z"),
+    NATIVE_METHOD(UnixFileSystem, setPermission0, "(Ljava/io/File;IZZ)Z"),
+    NATIVE_METHOD(UnixFileSystem, getLastModifiedTime0, "(Ljava/io/File;)J"),
+    NATIVE_METHOD(UnixFileSystem, getLength0, "(Ljava/io/File;)J"),
+    NATIVE_METHOD(UnixFileSystem, createFileExclusively0, "(Ljava/lang/String;)Z"),
+    NATIVE_METHOD(UnixFileSystem, delete0, "(Ljava/io/File;)Z"),
+    NATIVE_METHOD(UnixFileSystem, list0, "(Ljava/io/File;)[Ljava/lang/String;"),
+    NATIVE_METHOD(UnixFileSystem, createDirectory0, "(Ljava/io/File;)Z"),
+    NATIVE_METHOD(UnixFileSystem, rename0, "(Ljava/io/File;Ljava/io/File;)Z"),
+    NATIVE_METHOD(UnixFileSystem, setLastModifiedTime0, "(Ljava/io/File;J)Z"),
+    NATIVE_METHOD(UnixFileSystem, setReadOnly0, "(Ljava/io/File;)Z"),
+    NATIVE_METHOD(UnixFileSystem, getSpace0, "(Ljava/io/File;I)J"),
+};
+
+void register_java_io_UnixFileSystem(JNIEnv* env) {
+    jniRegisterNativeMethods(env, "java/io/UnixFileSystem", gMethods, NELEM(gMethods));
 }

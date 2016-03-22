@@ -35,6 +35,11 @@
 #include <utime.h>
 #include "jni_util.h"
 
+#include "JNIHelp.h"
+
+#define NATIVE_METHOD(className, functionName, signature) \
+{ #functionName, signature, (void*)(Java_java_util_prefs_ ## className ## _ ## functionName) }
+
 JNIEXPORT jint JNICALL
 Java_java_util_prefs_FileSystemPreferences_chmod(JNIEnv *env,
                        jclass thisclass, jstring java_fname, jint permission) {
@@ -138,4 +143,14 @@ Java_java_util_prefs_FileSystemPreferences_unlockFile0(JNIEnv *env,
         return (jint) errno;
     }
     return 0;
+}
+
+static JNINativeMethod gMethods[] = {
+    NATIVE_METHOD(FileSystemPreferences, lockFile0, "(Ljava/lang/String;IZ)[I"),
+    NATIVE_METHOD(FileSystemPreferences, unlockFile0, "(I)I"),
+    NATIVE_METHOD(FileSystemPreferences, chmod, "(Ljava/lang/String;I)I"),
+};
+
+void register_java_util_prefs_FileSystemPreferences(JNIEnv* env) {
+    jniRegisterNativeMethods(env, "java/util/prefs/FileSystemPreferences", gMethods, NELEM(gMethods));
 }

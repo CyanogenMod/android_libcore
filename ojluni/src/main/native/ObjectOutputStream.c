@@ -28,6 +28,11 @@
 #include "jni_util.h"
 #include "jlong.h"
 
+#include "JNIHelp.h"
+
+#define NATIVE_METHOD(className, functionName, signature) \
+{ #functionName, signature, (void*)(Java_java_io_ ## className ## _ ## functionName) }
+
 
 /*
  * Class:     java_io_ObjectOutputStream
@@ -178,3 +183,13 @@ Java_java_io_ObjectOutputStream_doublesToBytes(JNIEnv *env,
     (*env)->ReleasePrimitiveArrayCritical(env, src, doubles, JNI_ABORT);
     (*env)->ReleasePrimitiveArrayCritical(env, dst, bytes, 0);
 }
+
+static JNINativeMethod gMethods[] = {
+    NATIVE_METHOD(ObjectOutputStream, floatsToBytes, "([FI[BII)V"),
+    NATIVE_METHOD(ObjectOutputStream, doublesToBytes, "([DI[BII)V"),
+};
+
+void register_java_io_ObjectOutputStream(JNIEnv* env) {
+    jniRegisterNativeMethods(env, "java/io/ObjectOutputStream", gMethods, NELEM(gMethods));
+}
+

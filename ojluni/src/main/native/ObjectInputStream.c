@@ -28,6 +28,11 @@
 #include "jni_util.h"
 #include "jlong.h"
 
+#include "JNIHelp.h"
+
+#define NATIVE_METHOD(className, functionName, signature) \
+{ #functionName, signature, (void*)(Java_java_io_ ## className ## _ ## functionName) }
+
 
 
 /*
@@ -170,3 +175,11 @@ Java_java_io_ObjectInputStream_bytesToDoubles(JNIEnv *env,
     (*env)->ReleasePrimitiveArrayCritical(env, dst, doubles, 0);
 }
 
+static JNINativeMethod gMethods[] = {
+    NATIVE_METHOD(ObjectInputStream, bytesToFloats, "([BI[FII)V"),
+    NATIVE_METHOD(ObjectInputStream, bytesToDoubles, "([BI[DII)V"),
+};
+
+void register_java_io_ObjectInputStream(JNIEnv* env) {
+    jniRegisterNativeMethods(env, "java/io/ObjectInputStream", gMethods, NELEM(gMethods));
+}

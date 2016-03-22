@@ -31,6 +31,8 @@
 #include "jlong.h"
 #include <string.h>
 
+#include "JNIHelp.h"
+
 /*
  * WARNING:
  *
@@ -66,6 +68,9 @@
                             (SWAPSHORT((jshort)((x) >> 16)) & 0xffff)))
 #define SWAPLONG(x)  ((jlong)(((jlong)SWAPINT((jint)(x)) << 32) | \
                               ((jlong)SWAPINT((jint)((x) >> 32)) & 0xffffffff)))
+
+#define NATIVE_METHOD(className, functionName, signature) \
+{ #functionName, signature, (void*)(Java_java_nio_ ## className ## _ ## functionName) }
 
 JNIEXPORT void JNICALL
 Java_java_nio_Bits_copyFromShortArray(JNIEnv *env, jobject this, jobject src,
@@ -275,4 +280,17 @@ Java_java_nio_Bits_copyToLongArray(JNIEnv *env, jobject this, jlong srcAddr,
         srcAddr += size;
         dstPos += size;
     }
+}
+
+static JNINativeMethod gMethods[] = {
+    NATIVE_METHOD(Bits, copyFromShortArray, "(Ljava/lang/Object;JJJ)V"),
+    NATIVE_METHOD(Bits, copyToShortArray, "(JLjava/lang/Object;JJ)V"),
+    NATIVE_METHOD(Bits, copyFromIntArray, "(Ljava/lang/Object;JJJ)V"),
+    NATIVE_METHOD(Bits, copyToIntArray, "(JLjava/lang/Object;JJ)V"),
+    NATIVE_METHOD(Bits, copyFromLongArray, "(Ljava/lang/Object;JJJ)V"),
+    NATIVE_METHOD(Bits, copyToLongArray, "(JLjava/lang/Object;JJ)V"),
+};
+
+void register_java_nio_Bits(JNIEnv* env) {
+    jniRegisterNativeMethods(env, "java/nio/Bits", gMethods, NELEM(gMethods));
 }
