@@ -321,7 +321,7 @@ import java.util.Vector;
  *         <tr>
  *             <td>SSL_RSA_WITH_RC4_128_SHA</td>
  *             <td>9+</td>
- *             <td>9+</td>
+ *             <td>9&ndash;23</td>
  *         </tr>
  *         <tr class="deprecated">
  *             <td>TLS_DHE_DSS_WITH_AES_128_CBC_SHA</td>
@@ -448,6 +448,11 @@ import java.util.Vector;
  *             <td>20+</td>
  *             <td>20+</td>
  *         </tr>
+ *         <tr>
+ *             <td>TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256</td>
+ *             <td>24+</td>
+ *             <td>24+</td>
+ *         </tr>
  *         <tr class="deprecated">
  *             <td>TLS_ECDHE_ECDSA_WITH_NULL_SHA</td>
  *             <td>11&ndash;22</td>
@@ -456,7 +461,7 @@ import java.util.Vector;
  *         <tr>
  *             <td>TLS_ECDHE_ECDSA_WITH_RC4_128_SHA</td>
  *             <td>11+</td>
- *             <td>11+</td>
+ *             <td>11&ndash;23</td>
  *         </tr>
  *         <tr>
  *             <td>TLS_ECDHE_PSK_WITH_AES_128_CBC_SHA</td>
@@ -467,6 +472,11 @@ import java.util.Vector;
  *             <td>TLS_ECDHE_PSK_WITH_AES_256_CBC_SHA</td>
  *             <td>21+</td>
  *             <td>21+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_ECDHE_PSK_WITH_CHACHA20_POLY1305_SHA256</td>
+ *             <td>24+</td>
+ *             <td>24+</td>
  *         </tr>
  *         <tr class="deprecated">
  *             <td>TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA</td>
@@ -511,7 +521,7 @@ import java.util.Vector;
  *         <tr>
  *             <td>TLS_ECDHE_RSA_WITH_RC4_128_SHA</td>
  *             <td>11+</td>
- *             <td>11+</td>
+ *             <td>11&ndash;23</td>
  *         </tr>
  *         <tr class="deprecated">
  *             <td>TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA</td>
@@ -688,6 +698,11 @@ import java.util.Vector;
  *             <td>20+</td>
  *             <td>20+</td>
  *         </tr>
+ *         <tr>
+ *             <td>TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256</td>
+ *             <td>24+</td>
+ *             <td>24+</td>
+ *         </tr>
  *         <tr class="deprecated">
  *             <td>TLS_RSA_WITH_NULL_SHA256</td>
  *             <td>20&ndash;22</td>
@@ -843,7 +858,7 @@ import java.util.Vector;
  *             <td>RC4-SHA</td>
  *             <td>SSL_RSA_WITH_RC4_128_SHA</td>
  *             <td>1+</td>
- *             <td>1+</td>
+ *             <td>1&ndash;23</td>
  *         </tr>
  *     </tbody>
  * </table>
