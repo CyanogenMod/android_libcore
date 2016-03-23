@@ -4510,6 +4510,26 @@ public class Arrays {
     }
 
     /**
+     * Set all elements of the specified array, in parallel, using the
+     * provided generator function to compute each element.
+     *
+     * <p>If the generator function throws an exception, an unchecked exception
+     * is thrown from {@code parallelSetAll} and the array is left in an
+     * indeterminate state.
+     *
+     * @param <T> type of elements of the array
+     * @param array array to be initialized
+     * @param generator a function accepting an index and producing the desired
+     *        value for that position
+     * @throws NullPointerException if the generator is null
+     * @since 1.8
+     */
+    public static <T> void parallelSetAll(T[] array, IntFunction<? extends T> generator) {
+        Objects.requireNonNull(generator);
+        IntStream.range(0, array.length).parallel().forEach(i -> { array[i] = generator.apply(i); });
+    }
+
+    /**
      * Set all elements of the specified array, using the provided
      * generator function to compute each element.
      *
@@ -4526,6 +4546,25 @@ public class Arrays {
         Objects.requireNonNull(generator);
         for (int i = 0; i < array.length; i++)
             array[i] = generator.applyAsInt(i);
+    }
+
+    /**
+     * Set all elements of the specified array, in parallel, using the
+     * provided generator function to compute each element.
+     *
+     * <p>If the generator function throws an exception, an unchecked exception
+     * is thrown from {@code parallelSetAll} and the array is left in an
+     * indeterminate state.
+     *
+     * @param array array to be initialized
+     * @param generator a function accepting an index and producing the desired
+     * value for that position
+     * @throws NullPointerException if the generator is null
+     * @since 1.8
+     */
+    public static void parallelSetAll(int[] array, IntUnaryOperator generator) {
+        Objects.requireNonNull(generator);
+        IntStream.range(0, array.length).parallel().forEach(i -> { array[i] = generator.applyAsInt(i); });
     }
 
     /**
@@ -4548,6 +4587,25 @@ public class Arrays {
     }
 
     /**
+     * Set all elements of the specified array, in parallel, using the
+     * provided generator function to compute each element.
+     *
+     * <p>If the generator function throws an exception, an unchecked exception
+     * is thrown from {@code parallelSetAll} and the array is left in an
+     * indeterminate state.
+     *
+     * @param array array to be initialized
+     * @param generator a function accepting an index and producing the desired
+     *        value for that position
+     * @throws NullPointerException if the generator is null
+     * @since 1.8
+     */
+    public static void parallelSetAll(long[] array, IntToLongFunction generator) {
+        Objects.requireNonNull(generator);
+        IntStream.range(0, array.length).parallel().forEach(i -> { array[i] = generator.applyAsLong(i); });
+    }
+
+    /**
      * Set all elements of the specified array, using the provided
      * generator function to compute each element.
      *
@@ -4564,6 +4622,25 @@ public class Arrays {
         Objects.requireNonNull(generator);
         for (int i = 0; i < array.length; i++)
             array[i] = generator.applyAsDouble(i);
+    }
+
+    /**
+     * Set all elements of the specified array, in parallel, using the
+     * provided generator function to compute each element.
+     *
+     * <p>If the generator function throws an exception, an unchecked exception
+     * is thrown from {@code parallelSetAll} and the array is left in an
+     * indeterminate state.
+     *
+     * @param array array to be initialized
+     * @param generator a function accepting an index and producing the desired
+     *        value for that position
+     * @throws NullPointerException if the generator is null
+     * @since 1.8
+     */
+    public static void parallelSetAll(double[] array, IntToDoubleFunction generator) {
+        Objects.requireNonNull(generator);
+        IntStream.range(0, array.length).parallel().forEach(i -> { array[i] = generator.applyAsDouble(i); });
     }
 
     /**
