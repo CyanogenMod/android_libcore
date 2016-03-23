@@ -174,12 +174,14 @@ public class URLDecoder {
                             (c=='%')) {
                         // ----- BEGIN android -----
                         if (!isValidHexChar(s.charAt(i+1)) || !isValidHexChar(s.charAt(i+2))) {
-                            throw new IllegalArgumentException("URLDecoder: Illegal hex characters in escape (%) pattern");
+                            throw new IllegalArgumentException("URLDecoder: Illegal hex characters in escape (%) pattern : "
+                                    + s.substring(i, i + 3));
                         }
                         // ----- END android -----
                         int v = Integer.parseInt(s.substring(i+1,i+3),16);
                         if (v < 0)
-                            throw new IllegalArgumentException("URLDecoder: Illegal hex characters in escape (%) pattern - negative value");
+                            throw new IllegalArgumentException("URLDecoder: Illegal hex characters in escape (%) pattern - negative value : "
+                                    + s.substring(i, i + 3));
                         bytes[pos++] = (byte) v;
                         i+= 3;
                         if (i < numChars)
