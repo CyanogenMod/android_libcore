@@ -395,53 +395,6 @@ class Thread implements Runnable {
      *        zero to indicate that this parameter is to be ignored.
      */
     private void init(ThreadGroup g, Runnable target, String name, long stackSize) {
-        // Android changed : Reimplemented.
-        /*
-        if (name == null) {
-            throw new NullPointerException("name cannot be null");
-        }
-
-        Thread parent = currentThread();
-        SecurityManager security = System.getSecurityManager();
-        if (g == null) {
-            // Determine if it's an applet or not
-
-            // If there is a security manager, ask the security manager what to do.
-            if (security != null) {
-                g = security.getThreadGroup();
-            }
-
-            // If the security doesn't have a strong opinion of the matter
-            // use the parent thread group.
-            if (g == null) {
-                g = parent.getThreadGroup();
-            }
-        }
-
-        // checkAccess regardless of whether or not threadgroup is explicitly passed in.
-        g.checkAccess();
-
-        // Do we have the required permissions?
-        if (security != null) {
-            if (isCCLOverridden(getClass())) {
-                security.checkPermission(SUBCLASS_IMPLEMENTATION_PERMISSION);
-            }
-        }
-        if (g == null) {
-          g = parent.getThreadGroup();
-        }
-        g.checkAccess();
-        this.daemon = parent.isDaemon();
-        this.priority = parent.getPriority();
-        this.name = name.toCharArray();
-        if (security == null || isCCLOverridden(parent.getClass()))
-            this.contextClassLoader = parent.getContextClassLoader();
-        else
-            this.contextClassLoader = parent.contextClassLoader;
-        tid = nextThreadID();
-        */
-        // ----- END android -----
-
         Thread parent = currentThread();
         if (g == null) {
             g = parent.getThreadGroup();
@@ -574,7 +527,12 @@ class Thread implements Runnable {
         if (name == null) {
             name = "Thread-" + nextThreadNum();
         }
-        setName(name);
+
+        // NOTE: Resist the temptation to call setName() here. This constructor is only called
+        // by the runtime to construct peers for threads that have attached via JNI and it's
+        // undesirable to clobber their natively set name.
+        this.name = name;
+
         this.priority = priority;
         this.daemon = daemon;
         init2(currentThread());

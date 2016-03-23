@@ -94,6 +94,7 @@ openjdk_cflags := $(libart_cflags) \
 core_test_files := \
   luni/src/test/native/dalvik_system_JniTest.cpp \
   luni/src/test/native/libcore_java_io_FileTest.cpp \
+  luni/src/test/native/libcore_java_lang_ThreadTest.cpp \
   luni/src/test/native/libcore_java_nio_BufferTest.cpp \
   luni/src/test/native/libcore_util_NativeAllocationRegistryTest.cpp \
 
