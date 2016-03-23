@@ -57,42 +57,32 @@ class UnixFileSystem extends FileSystem {
         return colon;
     }
 
-    /* A normal Unix pathname contains no duplicate slashes and does not end
-       with a slash.  It may be the empty string. */
-
-    /* Normalize the given pathname, whose length is len, starting at the given
-       offset; everything before this offset is already normal. */
-    private String normalize(String pathname, int len, int off) {
-        if (len == 0) return pathname;
-        int n = len;
-        while ((n > 0) && (pathname.charAt(n - 1) == '/')) n--;
-        if (n == 0) return "/";
-        StringBuffer sb = new StringBuffer(pathname.length());
-        if (off > 0) sb.append(pathname.substring(0, off));
-        char prevChar = 0;
-        for (int i = off; i < n; i++) {
-            char c = pathname.charAt(i);
-            if ((prevChar == '/') && (c == '/')) continue;
-            sb.append(c);
-            prevChar = c;
-        }
-        return sb.toString();
-    }
-
-    /* Check that the given pathname is normal.  If not, invoke the real
-       normalizer on the part of the pathname that requires normalization.
-       This way we iterate through the whole pathname string only once. */
+    /*
+     * A normal Unix pathname does not contain consecutive slashes and does not end
+     * with a slash. The empty string and "/" are special cases that are also
+     * considered normal.
+     */
     public String normalize(String pathname) {
         int n = pathname.length();
+        char[] normalized = pathname.toCharArray();
+        int index = 0;
         char prevChar = 0;
         for (int i = 0; i < n; i++) {
-            char c = pathname.charAt(i);
-            if ((prevChar == '/') && (c == '/'))
-                return normalize(pathname, n, i - 1);
-            prevChar = c;
+            char current = normalized[i];
+            // Remove duplicate slashes.
+            if (!(current == '/' && prevChar == '/')) {
+                normalized[index++] = current;
+            }
+
+            prevChar = current;
         }
-        if (prevChar == '/') return normalize(pathname, n, n - 1);
-        return pathname;
+
+        // Omit the trailing slash, except when pathname == "/".
+        if (prevChar == '/' && n > 1) {
+            index--;
+        }
+
+        return (index != n) ? new String(normalized, 0, index) : pathname;
     }
 
     public int prefixLength(String pathname) {
@@ -100,12 +90,17 @@ class UnixFileSystem extends FileSystem {
         return (pathname.charAt(0) == '/') ? 1 : 0;
     }
 
+    // Invariant: Both |parent| and |child| are normalized paths.
     public String resolve(String parent, String child) {
-        if (child.equals("")) return parent;
+        if (child.isEmpty() || child.equals("/")) {
+            return parent;
+        }
+
         if (child.charAt(0) == '/') {
             if (parent.equals("/")) return child;
             return parent + child;
         }
+
         if (parent.equals("/")) return parent + child;
         return parent + '/' + child;
     }
