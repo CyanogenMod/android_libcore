@@ -54,6 +54,7 @@ core_resource_dirs := \
   ojluni/src/main/resources/
 test_resource_dirs := $(call all-core-resource-dirs,test)
 test_src_files := $(call all-test-java-files-under,dalvik dom harmony-tests json luni xml)
+ojtest_src_files := $(call all-test-java-files-under,ojluni)
 
 ifeq ($(EMMA_INSTRUMENT),true)
 ifneq ($(EMMA_INSTRUMENT_STATIC),true)
@@ -321,6 +322,21 @@ ifeq ($(LIBCORE_SKIP_TESTS),)
     LOCAL_JAVACFLAGS := $(local_javac_flags)
     LOCAL_MODULE_TAGS := optional
     LOCAL_MODULE := core-tests-support-hostdex
+    LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
+    include $(BUILD_HOST_DALVIK_JAVA_LIBRARY)
+endif
+
+# Make the core-ojtests library.
+ifeq ($(LIBCORE_SKIP_TESTS),)
+    include $(CLEAR_VARS)
+    LOCAL_SRC_FILES := $(ojtest_src_files)
+    LOCAL_NO_STANDARD_LIBRARIES := true
+    LOCAL_JAVA_LIBRARIES := core-oj-hostdex core-libart-hostdex core-lambda-stubs-hostdex okhttp-hostdex bouncycastle-hostdex
+    LOCAL_STATIC_JAVA_LIBRARIES := testng-hostdex
+    LOCAL_JAVACFLAGS := $(local_javac_flags)
+    LOCAL_MODULE_TAGS := optional
+    LOCAL_JAVA_LANGUAGE_VERSION := 1.8
+    LOCAL_MODULE := core-ojtests-hostdex
     LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
     include $(BUILD_HOST_DALVIK_JAVA_LIBRARY)
 endif

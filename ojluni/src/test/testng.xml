@@ -1,0 +1,72 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<suite name="OpenJDK8 java.util.stream test suite" verbose="1" >
+  <test name="java util stream test">
+    <!-- classes have to be provided one at a time because "packages" doesn't work on Android
+    -->
+
+   <classes>
+     <!--
+      <class name="org.openjdk.tests.java.lang.invoke.DeserializeMethodTest" />
+      <class name="org.openjdk.tests.java.lang.invoke.SerializedLambdaTest" />
+      -->
+
+      <class name="org.openjdk.tests.java.util.FillableStringTest" />
+      <class name="org.openjdk.tests.java.util.MapTest" />
+      <class name="org.openjdk.tests.java.util.NullArgsTestCase" />
+      <class name="org.openjdk.tests.java.util.stream.GroupByOpTest" />
+      <class name="org.openjdk.tests.java.util.stream.SequentialOpTest" />
+      <class name="org.openjdk.tests.java.util.stream.SummaryStatisticsTest" />
+      <class name="org.openjdk.tests.java.util.stream.StreamBuilderTest" />
+      <class name="org.openjdk.tests.java.util.stream.CollectionAndMapModifyStreamTest" />
+      <class name="org.openjdk.tests.java.util.stream.CountLargeTest" />
+      <class name="org.openjdk.tests.java.util.stream.StreamCloseTest" />
+      <class name="org.openjdk.tests.java.util.stream.MinMaxTest" />
+      <class name="org.openjdk.tests.java.util.stream.StreamLinkTest" />
+      <class name="org.openjdk.tests.java.util.stream.ForEachOpTest" />
+      <class name="org.openjdk.tests.java.util.stream.CountTest" />
+      <class name="org.openjdk.tests.java.util.stream.ConcatTest" />
+      <class name="org.openjdk.tests.java.util.stream.ReduceTest" />
+      <class name="org.openjdk.tests.java.util.stream.DoublePrimitiveOpsTests" />
+      <class name="org.openjdk.tests.java.util.stream.IntUniqOpTest" />
+      <class name="org.openjdk.tests.java.util.stream.SpliteratorTest" />
+      <class name="org.openjdk.tests.java.util.stream.ReduceByOpTest" />
+      <class name="org.openjdk.tests.java.util.stream.FindFirstOpTest" />
+      <class name="org.openjdk.tests.java.util.stream.SortedOpTest" />
+      <class name="org.openjdk.tests.java.util.stream.ToArrayOpTest" />
+      <class name="org.openjdk.tests.java.util.stream.TeeOpTest" />
+      <class name="org.openjdk.tests.java.util.stream.IntPrimitiveOpsTests" />
+      <class name="org.openjdk.tests.java.util.stream.LongPrimitiveOpsTests" />
+      <class name="org.openjdk.tests.java.util.stream.SliceOpTest" />
+      <class name="org.openjdk.tests.java.util.stream.InfiniteStreamWithLimitOpTest" />
+      <class name="org.openjdk.tests.java.util.stream.DistinctOpTest" />
+      <class name="org.openjdk.tests.java.util.stream.ConcatOpTest" />
+      <class name="org.openjdk.tests.java.util.stream.TabulatorsTest" />
+      <class name="org.openjdk.tests.java.util.stream.StreamParSeqTest" />
+      <class name="org.openjdk.tests.java.util.stream.FindAnyOpTest" />
+      <class name="org.openjdk.tests.java.util.stream.PrimitiveAverageOpTest" />
+      <class name="org.openjdk.tests.java.util.stream.IntReduceTest" />
+      <class name="org.openjdk.tests.java.util.stream.FilterOpTest" />
+      <class name="org.openjdk.tests.java.util.stream.IntSliceOpTest" />
+      <class name="org.openjdk.tests.java.util.stream.StreamSpliteratorTest" />
+      <class name="org.openjdk.tests.java.util.stream.RangeTest" />
+      <class name="org.openjdk.tests.java.util.stream.MatchOpTest" />
+      <class name="org.openjdk.tests.java.util.stream.ExplodeOpTest" />
+      <class name="org.openjdk.tests.java.util.stream.MapOpTest" />
+      <class name="org.openjdk.tests.java.util.stream.PrimitiveSumTest" />
+      <class name="java.util.stream.SpinedBufferTest" />
+      <class name="java.util.stream.NodeTest" />
+      <class name="java.util.stream.FlagOpTest" />
+      <class name="java.util.stream.SliceSpliteratorTest" />
+      <class name="java.util.stream.LongNodeTest" />
+      <class name="java.util.stream.StreamFlagsTest" />
+      <class name="java.util.stream.StreamReuseTest" />
+      <class name="java.util.stream.DoubleNodeTest" />
+      <class name="java.util.stream.NodeBuilderTest" />
+      <class name="java.util.stream.IntNodeTest" />
+      <class name="java.util.stream.StreamOpFlagsTest" />
+    </classes>
+  </test>
+
+</suite>
+
