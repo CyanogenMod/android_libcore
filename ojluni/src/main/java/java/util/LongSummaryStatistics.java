@@ -27,14 +27,12 @@ package java.util;
 import java.util.function.IntConsumer;
 import java.util.function.LongConsumer;
 
-// TODO: Revert changes from {@linkplain} and {@link} to {@code} once
-// the streams changes have landed.
 /**
  * A state object for collecting statistics such as count, min, max, sum, and
  * average.
  *
  * <p>This class is designed to work with (though does not require)
- * {@code java.util.stream streams}. For example, you can compute
+ * {@linkplain java.util.stream streams}. For example, you can compute
  * summary statistics on a stream of longs with:
  * <pre> {@code
  * LongSummaryStatistics stats = longStream.collect(LongSummaryStatistics::new,
@@ -43,8 +41,8 @@ import java.util.function.LongConsumer;
  * }</pre>
  *
  * <p>{@code LongSummaryStatistics} can be used as a
- * {@code java.util.stream.Stream#collect(Collector)} reduction}
- * target for a {@code java.util.stream.Stream stream}. For example:
+ * {@linkplain java.util.stream.Stream#collect(Collector)} reduction}
+ * target for a {@linkplain java.util.stream.Stream stream}. For example:
  *
  * <pre> {@code
  * LongSummaryStatistics stats = people.stream()
@@ -55,9 +53,9 @@ import java.util.function.LongConsumer;
  * maximum, sum, and average of their ages.
  *
  * @implNote This implementation is not thread safe. However, it is safe to use
- * {@code java.util.stream.Collectors#summarizingLong(java.util.function.ToLongFunction)
+ * {@link java.util.stream.Collectors#summarizingLong(java.util.function.ToLongFunction)
  * Collectors.toLongStatistics()} on a parallel stream, because the parallel
- * implementation of {@code java.util.stream.Stream#collect Stream.collect()}
+ * implementation of {@link java.util.stream.Stream#collect Stream.collect()}
  * provides the necessary partitioning, isolation, and merging of results for
  * safe and efficient parallel execution.
  *
