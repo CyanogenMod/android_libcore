@@ -56,10 +56,6 @@ import java.io.*;
  * to promptly write the input stream or read the output stream of
  * the subprocess may cause the subprocess to block, or even deadlock.
  *
- * <p>Where desired, <a href="ProcessBuilder.html#redirect-input">
- * subprocess I/O can also be redirected</a>
- * using methods of the {@link ProcessBuilder} class.
- *
  * <p>The subprocess is not killed when there are no more references to
  * the {@code Process} object, but rather the subprocess
  * continues executing asynchronously.
@@ -79,12 +75,6 @@ public abstract class Process {
      * subprocess.  Output to the stream is piped into the standard
      * input of the process represented by this {@code Process} object.
      *
-     * <p>If the standard input of the subprocess has been redirected using
-     * {@link ProcessBuilder#redirectInput(Redirect)
-     * ProcessBuilder.redirectInput}
-     * then this method will return a
-     * <a href="ProcessBuilder.html#redirect-input">null output stream</a>.
-     *
      * <p>Implementation note: It is a good idea for the returned
      * output stream to be buffered.
      *
@@ -98,19 +88,6 @@ public abstract class Process {
      * subprocess.  The stream obtains data piped from the standard
      * output of the process represented by this {@code Process} object.
      *
-     * <p>If the standard output of the subprocess has been redirected using
-     * {@link ProcessBuilder#redirectOutput(Redirect)
-     * ProcessBuilder.redirectOutput}
-     * then this method will return a
-     * <a href="ProcessBuilder.html#redirect-output">null input stream</a>.
-     *
-     * <p>Otherwise, if the standard error of the subprocess has been
-     * redirected using
-     * {@link ProcessBuilder#redirectErrorStream(boolean)
-     * ProcessBuilder.redirectErrorStream}
-     * then the input stream returned by this method will receive the
-     * merged standard output and the standard error of the subprocess.
-     *
      * <p>Implementation note: It is a good idea for the returned
      * input stream to be buffered.
      *
@@ -123,14 +100,6 @@ public abstract class Process {
      * Returns the input stream connected to the error output of the
      * subprocess.  The stream obtains data piped from the error output
      * of the process represented by this {@code Process} object.
-     *
-     * <p>If the standard error of the subprocess has been redirected using
-     * {@link ProcessBuilder#redirectError(Redirect)
-     * ProcessBuilder.redirectError} or
-     * {@link ProcessBuilder#redirectErrorStream(boolean)
-     * ProcessBuilder.redirectErrorStream}
-     * then this method will return a
-     * <a href="ProcessBuilder.html#redirect-output">null input stream</a>.
      *
      * <p>Implementation note: It is a good idea for the returned
      * input stream to be buffered.
