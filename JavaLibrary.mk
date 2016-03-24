@@ -124,6 +124,12 @@ LOCAL_JAVA_LANGUAGE_VERSION := 1.8
 LOCAL_MODULE := core-libart
 LOCAL_ADDITIONAL_DEPENDENCIES += $(LOCAL_PATH)/JavaLibrary.mk
 LOCAL_JAVA_LIBRARIES := core-all
+ifeq ($(EMMA_INSTRUMENT),true)
+ifneq ($(EMMA_INSTRUMENT_STATIC),true)
+    # For instrumented build, include Jacoco classes into core-libart.
+    LOCAL_STATIC_JAVA_LIBRARIES := jacocoagent
+endif # EMMA_INSTRUMENT_STATIC
+endif # EMMA_INSTRUMENT
 LOCAL_CORE_LIBRARY := true
 LOCAL_REQUIRED_MODULES := tzdata
 include $(BUILD_JAVA_LIBRARY)
