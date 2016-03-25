@@ -1416,7 +1416,18 @@ public class SimpleDateFormat extends DateFormat {
      *         error, returns null.
      * @exception NullPointerException if <code>text</code> or <code>pos</code> is null.
      */
-    public Date parse(String text, ParsePosition pos)
+    public Date parse(String text, ParsePosition pos) {
+        // Make sure the timezone associated with this dateformat instance (set via
+        // {@code setTimeZone} isn't change as a side-effect of parsing a date.
+        final TimeZone tz = getTimeZone();
+        try {
+            return parseInternal(text, pos);
+        } finally {
+            setTimeZone(tz);
+        }
+    }
+
+    private Date parseInternal(String text, ParsePosition pos)
     {
         checkNegativeNumberExpression();
 

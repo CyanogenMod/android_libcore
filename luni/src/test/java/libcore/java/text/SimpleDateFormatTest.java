@@ -423,4 +423,13 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
         } catch (ParseException expected) {
         }
     }
+
+    // http://b/27760434
+    public void testTimeZoneNotChangedByParse() throws Exception {
+        TimeZone tz = TimeZone.getTimeZone("UTC");
+        SimpleDateFormat df = new SimpleDateFormat("dd MMM yyyy HH:mm:ss zzz");
+        df.setTimeZone(tz);
+        df.parse("22 Jul 1977 12:23:45 HST");
+        assertEquals(tz, df.getTimeZone());
+    }
 }
