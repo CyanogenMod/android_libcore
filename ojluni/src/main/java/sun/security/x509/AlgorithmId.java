@@ -250,6 +250,13 @@ public class AlgorithmId implements Serializable, DerEncoder {
                 // ignore
             }
         }
+
+        // Try to update the name <-> OID mapping table.
+        synchronized (oidTable) {
+            reinitializeMappingTableLocked();
+            algName = nameTable.get(algid);
+        }
+
         return (algName == null) ? algid.toString() : algName;
     }
 
@@ -547,81 +554,83 @@ public class AlgorithmId implements Serializable, DerEncoder {
 
         // See if any of the installed providers supply a mapping from
         // the given algorithm name to an OID string
-        String oidString;
         synchronized (oidTable) {
-            // Android-changed: Update the table only if the OID changed. Also synchronize
-            // on oidTable for thread safety.
-            int currentVersion = Security.getVersion();
-            if (initOidTableVersion != currentVersion) {
-                Provider[] provs = Security.getProviders();
-                for (int i=0; i<provs.length; i++) {
-                    for (Enumeration<Object> enum_ = provs[i].keys();
-                         enum_.hasMoreElements(); ) {
-                        String alias = (String)enum_.nextElement();
-                        String upperCaseAlias = alias.toUpperCase(Locale.ENGLISH);
-                        int index;
-                        if (upperCaseAlias.startsWith("ALG.ALIAS")) {
-                            if ((index=upperCaseAlias.indexOf("OID.", 0)) != -1) {
-                                index += "OID.".length();
-                                if (index == alias.length()) {
-                                    // invalid alias entry
-                                    break;
-                                }
-                                oidString = alias.substring(index);
-                                String stdAlgName = provs[i].getProperty(alias);
-                                if (stdAlgName != null) {
-                                    stdAlgName = stdAlgName.toUpperCase(Locale.ENGLISH);
+            reinitializeMappingTableLocked();
+            return oidTable.get(name.toUpperCase(Locale.ENGLISH));
+        }
+    }
 
-                                    ObjectIdentifier oid = null;
-                                    try {
-                                        oid = new ObjectIdentifier(oidString);
-                                    } catch (IOException e) {
-                                        // Not an OID.
-                                    }
-
-                                    if (oid != null) {
-                                        if (!oidTable.containsKey(stdAlgName)) {
-                                            oidTable.put(stdAlgName, oid);
-                                        }
-                                        if (!nameTable.containsKey(oid)) {
-                                            nameTable.put(oid, stdAlgName);
-                                        }
-                                    }
-                                }
-                            } else {
-                                // Android-changed: If the alias isn't specified with an explicit
-                                // "OID." in the name, we still attempt to parse it as one.
-                                final int sep = alias.indexOf('.', "ALG.ALIAS.".length());
-                                String suffix = alias.substring(sep + 1);
+    private static void reinitializeMappingTableLocked() {
+        // Android-changed: Update the table only if the OID changed. Also synchronize
+        // on oidTable for thread safety.
+        int currentVersion = Security.getVersion();
+        if (initOidTableVersion != currentVersion) {
+            Provider[] provs = Security.getProviders();
+            for (int i=0; i<provs.length; i++) {
+                for (Enumeration<Object> enum_ = provs[i].keys();
+                     enum_.hasMoreElements(); ) {
+                    String alias = (String)enum_.nextElement();
+                    String upperCaseAlias = alias.toUpperCase(Locale.ENGLISH);
+                    int index;
+                    if (upperCaseAlias.startsWith("ALG.ALIAS")) {
+                        if ((index=upperCaseAlias.indexOf("OID.", 0)) != -1) {
+                            index += "OID.".length();
+                            if (index == alias.length()) {
+                                // invalid alias entry
+                                break;
+                            }
+                            String oidString = alias.substring(index);
+                            String stdAlgName = provs[i].getProperty(alias);
+                            if (stdAlgName != null) {
+                                stdAlgName = stdAlgName.toUpperCase(Locale.ENGLISH);
 
                                 ObjectIdentifier oid = null;
                                 try {
-                                    oid = new ObjectIdentifier(suffix);
+                                    oid = new ObjectIdentifier(oidString);
                                 } catch (IOException e) {
                                     // Not an OID.
                                 }
 
                                 if (oid != null) {
-                                    String stdAlgName = provs[i].getProperty(alias);
-                                    if (stdAlgName != null) {
-                                        stdAlgName = stdAlgName.toUpperCase(Locale.ENGLISH);
-                                        if (!oidTable.containsKey(stdAlgName)) {
-                                            oidTable.put(stdAlgName, oid);
-                                        }
-                                        if (!nameTable.containsKey(oid)) {
-                                            nameTable.put(oid, stdAlgName);
-                                        }
+                                    if (!oidTable.containsKey(stdAlgName)) {
+                                        oidTable.put(stdAlgName, oid);
+                                    }
+                                    if (!nameTable.containsKey(oid)) {
+                                        nameTable.put(oid, stdAlgName);
+                                    }
+                                }
+                            }
+                        } else {
+                            // Android-changed: If the alias isn't specified with an explicit
+                            // "OID." in the name, we still attempt to parse it as one.
+                            final int sep = alias.indexOf('.', "ALG.ALIAS.".length());
+                            String suffix = alias.substring(sep + 1);
+
+                            ObjectIdentifier oid = null;
+                            try {
+                                oid = new ObjectIdentifier(suffix);
+                            } catch (IOException e) {
+                                // Not an OID.
+                            }
+
+                            if (oid != null) {
+                                String stdAlgName = provs[i].getProperty(alias);
+                                if (stdAlgName != null) {
+                                    stdAlgName = stdAlgName.toUpperCase(Locale.ENGLISH);
+                                    if (!oidTable.containsKey(stdAlgName)) {
+                                        oidTable.put(stdAlgName, oid);
+                                    }
+                                    if (!nameTable.containsKey(oid)) {
+                                        nameTable.put(oid, stdAlgName);
                                     }
                                 }
                             }
                         }
                     }
                 }
-
-                initOidTableVersion = currentVersion;
             }
 
-            return oidTable.get(name.toUpperCase(Locale.ENGLISH));
+            initOidTableVersion = currentVersion;
         }
     }
 

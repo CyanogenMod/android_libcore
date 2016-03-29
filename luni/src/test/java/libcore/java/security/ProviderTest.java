@@ -585,6 +585,25 @@ public class ProviderTest extends TestCase {
         }
     }
 
+    @SuppressWarnings("serial")
+    public void testProviderService_CanFindNewOID_Success()
+            throws Exception {
+        Provider provider = new MockProvider("MockProvider") {
+            public void setup() {
+                put("Signature.NEWALG", MockSpi.class.getName());
+                put("Alg.Alias.Signature.OID.1.2.9999.9999.9999", "NEWALG");
+            }
+        };
+
+        Security.addProvider(provider);
+        try {
+            EncryptedPrivateKeyInfo epki2 = new EncryptedPrivateKeyInfo("OID.1.2.9999.9999.9999", new byte[1]);
+            assertEquals("NEWALG", epki2.getAlgName().toUpperCase(Locale.US));
+        } finally {
+            Security.removeProvider(provider.getName());
+        }
+    }
+
     public void testProvider_removeProvider_Success() throws Exception {
         MockProvider provider = new MockProvider("MockProvider");
         assertNull(Security.getProvider(provider.getName()));
