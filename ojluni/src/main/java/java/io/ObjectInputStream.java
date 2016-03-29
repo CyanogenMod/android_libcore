@@ -209,9 +209,6 @@ public class ObjectInputStream
     extends InputStream implements ObjectInput, ObjectStreamConstants
 {
 
-    private static final ClassLoader bootstrapLoader = Object.class.getClassLoader();
-    private static final ClassLoader systemLoader = ClassLoader.getSystemClassLoader();
-
     /** handle value representing null */
     private static final int NULL_HANDLE = -1;
 
