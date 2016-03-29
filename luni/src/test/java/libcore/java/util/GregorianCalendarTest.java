@@ -188,6 +188,85 @@ public class GregorianCalendarTest extends TestCase {
 
     }
 
+    public void test_isWeekDateSupported() {
+        assertTrue(new GregorianCalendar().isWeekDateSupported());
+    }
+
+    public void test_setWeekDate() {
+        GregorianCalendar cal = new GregorianCalendar();
+
+        // When first week should have at least 4 days
+        cal.setMinimalDaysInFirstWeek(4);
+        cal.setWeekDate(2016, 13, Calendar.TUESDAY);
+        assertEquals(Calendar.TUESDAY, cal.get(Calendar.DAY_OF_WEEK));
+        assertEquals(29, cal.get(Calendar.DAY_OF_MONTH));
+
+        // When first week can have single day
+        cal.setMinimalDaysInFirstWeek(1);
+        cal.setWeekDate(2016, 13, Calendar.TUESDAY);
+        assertEquals(Calendar.TUESDAY, cal.get(Calendar.DAY_OF_WEEK));
+        assertEquals(22, cal.get(Calendar.DAY_OF_MONTH));
+
+        try {
+            cal.setWeekDate(2016, 13, Calendar.SATURDAY + 1);
+            fail();
+        } catch (IllegalArgumentException expected) {
+        }
+
+        try {
+            cal.setWeekDate(2016, 13, Calendar.SUNDAY - 1);
+            fail();
+        } catch (IllegalArgumentException expected) {
+        }
+
+        // in non-lenient mode
+        cal.setLenient(false);
+        try {
+            cal.setWeekDate(2016, 60, Calendar.SATURDAY);
+            fail();
+        } catch (IllegalArgumentException expected) {}
+
+        try {
+            cal.setWeekDate(-1, 60, Calendar.SATURDAY);
+            fail();
+        } catch (IllegalArgumentException expected) {}
+    }
+
+    public void test_getWeekYear() {
+        GregorianCalendar cal = new GregorianCalendar();
+
+        cal.set(2016, Calendar.MARCH, 29);
+        assertEquals(2016, cal.getWeekYear());
+
+        // With minimal days in first week is set to 4
+        cal.setMinimalDaysInFirstWeek(4);
+        cal.set(2016, Calendar.JANUARY, 1);
+        assertEquals(2015, cal.getWeekYear());
+        cal.set(2015, Calendar.DECEMBER, 31);
+        assertEquals(2015, cal.getWeekYear());
+
+        // With minimal days in first week is set to 1
+        cal.setMinimalDaysInFirstWeek(1);
+        cal.set(2016, Calendar.JANUARY, 1);
+        assertEquals(2016, cal.getWeekYear());
+        cal.set(2015, Calendar.DECEMBER, 31);
+        assertEquals(2016, cal.getWeekYear());
+    }
+
+    public void test_getWeeksInWeekYear() {
+        GregorianCalendar cal = new GregorianCalendar();
+
+        // With minimal days in first week is set to 1
+        cal.setMinimalDaysInFirstWeek(1);
+        cal.set(2016, Calendar.JANUARY, 10);
+        assertEquals(53, cal.getWeeksInWeekYear());
+
+        // With minimal days in first week is set to 4
+        cal.setMinimalDaysInFirstWeek(4);
+        cal.set(2016, Calendar.JANUARY, 10);
+        assertEquals(52, cal.getWeeksInWeekYear());
+    }
+
     private long getDstLosAngeles2014(TimeZone timeZone) {
         GregorianCalendar cal = new GregorianCalendar(timeZone, Locale.ENGLISH);
         cal.set(Calendar.MILLISECOND, 0);

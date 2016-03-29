@@ -314,6 +314,31 @@ public class CalendarTest extends junit.framework.TestCase {
         assertEquals(1,calendar.get(Calendar.HOUR_OF_DAY));
     }
 
+    public void testGetWeekYear() {
+        try {
+            new FakeCalendar().getWeekYear();
+            fail();
+        } catch (UnsupportedOperationException expected) {}
+    }
+
+    public void testGetWeeksInWeekYear() {
+        try {
+            new FakeCalendar().getWeeksInWeekYear();
+            fail();
+        } catch (UnsupportedOperationException expected) {}
+    }
+
+    public void testIsWeekDateSupported() {
+        assertFalse(new FakeCalendar().isWeekDateSupported());
+    }
+
+    public void testSetWeekDate() {
+        try {
+            new FakeCalendar().setWeekDate(1, 1, 1);
+            fail();
+        } catch (UnsupportedOperationException expected) {}
+    }
+
     public static class FakeCalendar extends Calendar {
 
         private int[] subclassFields;
