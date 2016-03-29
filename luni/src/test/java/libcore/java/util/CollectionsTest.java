@@ -533,7 +533,7 @@ public final class CollectionsTest extends TestCase {
     }
 
     public void test_CheckedList_sort() {
-        ListDefaultMethodTester.test_sort(Collections.checkedList(new ArrayList<>(), Integer.class));
+        ListDefaultMethodTester.test_sort(Collections.checkedList(new ArrayList<>(), Double.class));
     }
 
     public void test_EmptyList_replaceAll() {
