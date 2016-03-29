@@ -157,16 +157,18 @@ public class DatagramChannelTest extends junit.framework.TestCase {
 
     public void test_setOption() throws Exception {
         DatagramChannel dc = DatagramChannel.open();
-        dc.setOption(StandardSocketOptions.SO_SNDBUF, 1024);
+        // There were problems in the past as the number used here was below the minimum for
+        // some platforms (b/27821554). It was increased from 1024 to 4096.
+        dc.setOption(StandardSocketOptions.SO_SNDBUF, 4096);
 
         // Assert that we can read back the option from the channel...
-        assertEquals(1024, (int) dc.getOption(StandardSocketOptions.SO_SNDBUF));
+        assertEquals(4096, (int) dc.getOption(StandardSocketOptions.SO_SNDBUF));
         // ... and its socket adaptor.
-        assertEquals(1024, dc.socket().getSendBufferSize());
+        assertEquals(4096, dc.socket().getSendBufferSize());
 
         dc.close();
         try {
-            dc.setOption(StandardSocketOptions.SO_SNDBUF, 1024);
+            dc.setOption(StandardSocketOptions.SO_SNDBUF, 4096);
             fail();
         } catch (ClosedChannelException expected) {
         }
