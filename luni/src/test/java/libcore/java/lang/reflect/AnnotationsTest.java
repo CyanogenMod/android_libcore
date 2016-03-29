@@ -19,6 +19,7 @@ package libcore.java.lang.reflect;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Inherited;
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.AnnotatedElement;
@@ -37,11 +38,15 @@ import junit.framework.TestCase;
 public final class AnnotationsTest extends TestCase {
 
     public void testClassDirectAnnotations() {
-        assertAnnotatedElement(Type.class, AnnotationA.class, AnnotationB.class);
+        assertAnnotatedElement(Type.class,
+                AnnotationA.class, AnnotationB.class, RepeatableAnnotation.class);
+        assertAnnotatedElementDeclared(Type.class,
+                AnnotationA.class, AnnotationB.class, RepeatableAnnotation.class);
     }
 
     public void testClassInheritedAnnotations() {
         assertAnnotatedElement(ExtendsType.class, AnnotationB.class);
+        assertAnnotatedElementDeclared(ExtendsType.class);
     }
 
     public void testConstructorAnnotations() throws Exception {
@@ -255,6 +260,44 @@ public final class AnnotationsTest extends TestCase {
         assertTrue(staticAnonymous.getClass().isAnonymousClass());
     }
 
+    public void testRepeatableAnnotation() {
+        RepeatableAnnotation[] annotations = TypeWithMultipleRepeatableAnnotations.class
+                .getDeclaredAnnotationsByType(RepeatableAnnotation.class);
+        assertNotNull(annotations);
+        assertEquals(2, annotations.length);
+
+        // The non-"WithType" methods will see the wrapper annotation
+        assertAnnotatedElement(TypeWithMultipleRepeatableAnnotations.class,
+                RepeatableAnnotations.class);
+        assertAnnotatedElementDeclared(TypeWithMultipleRepeatableAnnotations.class,
+                RepeatableAnnotations.class);
+    }
+
+    public void testRepeatableAnnotationExplicit() {
+        RepeatableAnnotation[] annotations = TypeWithExplicitRepeatableAnnotations.class
+                .getDeclaredAnnotationsByType(RepeatableAnnotation.class);
+        assertNotNull(annotations);
+        assertEquals(2, annotations.length);
+
+        // The non-"WithType" methods will see the wrapper annotation
+        assertAnnotatedElement(TypeWithExplicitRepeatableAnnotations.class,
+                RepeatableAnnotations.class);
+        assertAnnotatedElementDeclared(TypeWithExplicitRepeatableAnnotations.class,
+                RepeatableAnnotations.class);
+    }
+
+    public void testRepeatableAnnotationOnPackage() {
+        Package aPackage = AnnotationsTest.class.getPackage();
+        RepeatableAnnotation[] annotations = aPackage
+                .getDeclaredAnnotationsByType(RepeatableAnnotation.class);
+        assertNotNull(annotations);
+        assertEquals(2, annotations.length);
+
+        // The non-"WithType" methods will see the wrapper annotation
+        assertPresent(true, aPackage, RepeatableAnnotations.class);
+        assertDeclared(true, aPackage, RepeatableAnnotations.class);
+    }
+
     private static final Object staticAnonymous = new Object() {};
 
     private static class Foo {
@@ -288,7 +331,16 @@ public final class AnnotationsTest extends TestCase {
     @Retention(RetentionPolicy.RUNTIME)
     public @interface AnnotationD {}
 
-    @AnnotationA @AnnotationB
+    @Retention(RetentionPolicy.RUNTIME)
+    @Repeatable(RepeatableAnnotations.class)
+    public @interface RepeatableAnnotation {}
+
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface RepeatableAnnotations {
+        RepeatableAnnotation[] value();
+    }
+
+    @AnnotationA @AnnotationB @RepeatableAnnotation
     public static class Type {
         @AnnotationA @AnnotationC public Type() {}
         @AnnotationA @AnnotationD public String field;
@@ -298,6 +350,13 @@ public final class AnnotationsTest extends TestCase {
     }
 
     public static class ExtendsType extends Type {}
+
+    @RepeatableAnnotation
+    @RepeatableAnnotation
+    public static class TypeWithMultipleRepeatableAnnotations {}
+
+    @RepeatableAnnotations({ @RepeatableAnnotation, @RepeatableAnnotation})
+    public static class TypeWithExplicitRepeatableAnnotations {}
 
     static enum Breakfast { WAFFLES, PANCAKES }
 
@@ -365,6 +424,8 @@ public final class AnnotationsTest extends TestCase {
         assertPresent(expectedTypes.contains(AnnotationA.class), element, AnnotationA.class);
         assertPresent(expectedTypes.contains(AnnotationB.class), element, AnnotationB.class);
         assertPresent(expectedTypes.contains(AnnotationC.class), element, AnnotationC.class);
+        assertPresent(expectedTypes.contains(RepeatableAnnotation.class),
+                element, RepeatableAnnotation.class);
 
         try {
             element.isAnnotationPresent(null);
@@ -374,6 +435,26 @@ public final class AnnotationsTest extends TestCase {
 
         try {
             element.getAnnotation(null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+    }
+
+    private void assertAnnotatedElementDeclared(
+            AnnotatedElement element,
+            Class<? extends Annotation>... expectedDeclaredAnnotations) {
+        Set<Class<? extends Annotation>> actualTypes = annotationsToTypes(element.getDeclaredAnnotations());
+        Set<Class<? extends Annotation>> expectedTypes = set(expectedDeclaredAnnotations);
+        assertEquals(expectedTypes, actualTypes);
+
+        assertDeclared(expectedTypes.contains(AnnotationA.class), element, AnnotationA.class);
+        assertDeclared(expectedTypes.contains(AnnotationB.class), element, AnnotationB.class);
+        assertDeclared(expectedTypes.contains(AnnotationC.class), element, AnnotationC.class);
+        assertDeclared(expectedTypes.contains(RepeatableAnnotation.class),
+                element, RepeatableAnnotation.class);
+
+        try {
+            element.getDeclaredAnnotation(null);
             fail();
         } catch (NullPointerException expected) {
         }
@@ -395,6 +476,15 @@ public final class AnnotationsTest extends TestCase {
         } else {
             assertNull(element.getAnnotation(annotation));
             assertFalse(element.isAnnotationPresent(annotation));
+        }
+    }
+
+    private void assertDeclared(boolean present, AnnotatedElement element,
+            Class<? extends Annotation> annotation) {
+        if (present) {
+            assertNotNull(element.getDeclaredAnnotation(annotation));
+        } else {
+            assertNull(element.getDeclaredAnnotation(annotation));
         }
     }
 
