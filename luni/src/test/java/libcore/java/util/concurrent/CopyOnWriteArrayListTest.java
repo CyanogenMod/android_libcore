@@ -18,7 +18,6 @@ package libcore.java.util.concurrent;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.List;
@@ -32,7 +31,6 @@ import java.util.concurrent.Future;
 import junit.framework.TestCase;
 import libcore.java.util.ForEachRemainingTester;
 import libcore.util.SerializationTester;
-
 public final class CopyOnWriteArrayListTest extends TestCase {
 
     public void testIteratorAndNonStructuralChanges() {
@@ -297,5 +295,142 @@ public final class CopyOnWriteArrayListTest extends TestCase {
         list.add("baz");
         // Shouldn't throw a CME.
         list.iterator().forEachRemaining(s -> list.add(s));
+    }
+
+    public void test_replaceAll() {
+        List<Double> l = new CopyOnWriteArrayList<>(new Double[] {5.0, 2.0, -3.0});
+        l.replaceAll(v -> v * 2);
+        assertEquals(10.0, l.get(0));
+        assertEquals(4.0, l.get(1));
+        assertEquals(-6.0, l.get(2));
+
+        // check for null operator
+        try {
+            l.replaceAll(null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+    }
+
+    public void test_sort() {
+        List<Double> l = new CopyOnWriteArrayList<>(new Double[] {5.0, 2.0, -3.0});
+        l.sort((v1, v2) -> v1.compareTo(v2));
+        assertEquals(-3.0, l.get(0));
+        assertEquals(2.0, l.get(1));
+        assertEquals(5.0, l.get(2));
+
+        try {
+            l.sort((v1, v2) -> v1.compareTo(v2));
+        } catch (NullPointerException expected) {
+        }
+    }
+
+    public void test_forEach() {
+        List<Double> l = new CopyOnWriteArrayList<>(new Double[] {10.0, 5.0, 2.0});
+        List<Double> replica = new ArrayList<>();
+        l.forEach(k -> replica.add(k));
+        assertEquals(10.0, replica.get(0));
+        assertEquals(5.0, replica.get(1));
+        assertEquals(2.0, replica.get(2));
+        assertEquals(3, replica.size());
+
+        // Verifying the original content of the list
+        assertEquals(10.0, l.get(0));
+        assertEquals(5.0, l.get(1));
+        assertEquals(2.0, l.get(2));
+
+        try {
+            l.forEach(null);
+        } catch (NullPointerException expected) {
+        }
+    }
+
+    public void test_subList_replaceAll() {
+        List<Double> l = new CopyOnWriteArrayList<>(new Double[] {5.0, 2.0, -3.0}).subList(0, 3);
+        l.replaceAll(v -> v * 2);
+        assertEquals(10.0, l.get(0));
+        assertEquals(4.0, l.get(1));
+        assertEquals(-6.0, l.get(2));
+
+        // check for null operator
+        try {
+            l.replaceAll(null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+
+        CopyOnWriteArrayList completeList = new CopyOnWriteArrayList<Integer>();
+        completeList.add(1);
+        completeList.add(2);
+        completeList.add(3);
+        completeList.add(4);
+        completeList.add(5);
+        List<Integer> subList = completeList.subList(1, 3);
+        subList.replaceAll(k -> k + 10);
+        assertEquals(12, (int)subList.get(0));
+        assertEquals(13, (int)subList.get(1));
+        assertEquals(1, (int)completeList.get(0));
+        assertEquals(12, (int)completeList.get(1));
+        assertEquals(13, (int)completeList.get(2));
+        assertEquals(4, (int)completeList.get(3));
+        assertEquals(5, (int)completeList.get(4));
+    }
+
+    public void test_subList_sort() {
+        List<Double> l = new CopyOnWriteArrayList<>(new Double[] {5.0, 2.0, -3.0}).subList(0, 3);
+        l.sort((v1, v2) -> v1.compareTo(v2));
+        assertEquals(-3.0, l.get(0));
+        assertEquals(2.0, l.get(1));
+        assertEquals(5.0, l.get(2));
+
+        CopyOnWriteArrayList completeList = new CopyOnWriteArrayList<Integer>();
+        completeList.add(10);
+        completeList.add(56);
+        completeList.add(22);
+        completeList.add(2);
+        completeList.add(9);
+        completeList.add(12);
+
+        List<Integer> subList = completeList.subList(2, 5);
+        subList.sort((k1, k2) -> k1.compareTo(k2));
+
+        //subList before sort -> 56, 22, 2, 9
+        //subList after sort -> 2, 9, 22, 56
+
+        assertEquals(2, (int)subList.get(0));
+        assertEquals(9, (int)subList.get(1));
+        assertEquals(22, (int)subList.get(2));
+        assertEquals(10, (int)completeList.get(0));
+        assertEquals(56, (int)completeList.get(1));
+        assertEquals(2, (int)completeList.get(2));
+        assertEquals(9, (int)completeList.get(3));
+        assertEquals(22, (int)completeList.get(4));
+        assertEquals(12, (int)completeList.get(5));
+
+        try {
+            l.sort((v1, v2) -> v1.compareTo(v2));
+        } catch (NullPointerException expected) {
+        }
+    }
+
+    public void test_subList_forEach() {
+        List<Double> l = new CopyOnWriteArrayList<>(new Double[]{10.0, 5.0, 2.0, -3.0, 7.0, 12.0})
+                .subList(1, 4);
+        List<Double> replica = new ArrayList<>();
+        l.forEach(k -> replica.add(k));
+        assertEquals(5.0, replica.get(0));
+        assertEquals(2.0, replica.get(1));
+        assertEquals(-3.0, replica.get(2));
+        assertEquals(3, replica.size());
+
+        // Verifying the original content of the list
+        assertEquals(5.0, l.get(0));
+        assertEquals(2.0, l.get(1));
+        assertEquals(-3.0, l.get(2));
+
+        try {
+            l.forEach(null);
+        } catch (NullPointerException expected) {
+        }
     }
 }

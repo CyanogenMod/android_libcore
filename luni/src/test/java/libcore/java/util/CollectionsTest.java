@@ -20,10 +20,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.ConcurrentModificationException;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.ListIterator;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Spliterator;
 
@@ -205,5 +206,397 @@ public final class CollectionsTest extends TestCase {
         assertNull(sp.trySplit());
         assertEquals(true, sp.tryAdvance(value -> assertEquals("spiff", value)));
         assertEquals(false, sp.tryAdvance(value -> fail()));
+    }
+
+    public void test_unmodifiableMap_getOrDefault() {
+        HashMap<Integer, Double> hashMap = new HashMap<>();
+        hashMap.put(2, 12.0);
+        hashMap.put(3, null);
+        Map<Integer, Double> m = Collections.unmodifiableMap(hashMap);
+        assertEquals(-1.0, m.getOrDefault(1, -1.0));
+        assertEquals(12.0, m.getOrDefault(2, -1.0));
+        assertEquals(null, m.getOrDefault(3, -1.0));
+    }
+
+    public void test_unmodifiableMap_forEach() {
+        Map<Integer, Double> hashMap = new HashMap<>();
+        Map<Integer, Double> replica = new HashMap<>();
+        hashMap.put(1, 10.0);
+        hashMap.put(2, 20.0);
+        Collections.unmodifiableMap(hashMap).forEach(replica::put);
+        assertEquals(10.0, replica.get(1));
+        assertEquals(20.0, replica.get(2));
+        assertEquals(2, replica.size());
+    }
+
+    public void test_unmodifiableMap_putIfAbsent() {
+        try {
+            Collections.unmodifiableMap(new HashMap<>()).putIfAbsent(1, 5.0);
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
+
+        // For existing key
+        HashMap<Integer, Double> m = new HashMap<>();
+        m.put(1, 5.0);
+        try {
+            Collections.unmodifiableMap(m).putIfAbsent(1, 5.0);
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
+    }
+
+    public void test_unmodifiableMap_remove() {
+        try {
+            Collections.unmodifiableMap(new HashMap<>()).remove(1, 5.0);
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
+
+        // For existing key
+        HashMap<Integer, Double> m = new HashMap<>();
+        m.put(1, 5.0);
+        try {
+            Collections.unmodifiableMap(m).remove(1, 5.0);
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
+    }
+
+    public void test_unmodifiableMap_replace$K$V$V() {
+        try {
+            Collections.unmodifiableMap(new HashMap<>()).replace(1, 5.0, 1.0);
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
+
+        // For existing key
+        HashMap<Integer, Double> m = new HashMap<>();
+        m.put(1, 5.0);
+        try {
+            Collections.unmodifiableMap(m).replace(1, 5.0, 1.0);
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
+    }
+
+    public void test_unmodifiableMap_replace$K$V() {
+        try {
+            Collections.unmodifiableMap(new HashMap<>()).replace(1, 5.0);
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
+
+        // For existing key
+        HashMap<Integer, Double> m = new HashMap<>();
+        m.put(1, 5.0);
+        try {
+            Collections.unmodifiableMap(m).replace(1, 5.0);
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
+    }
+
+    public void test_unmodifiableMap_computeIfAbsent() {
+        try {
+            Collections.unmodifiableMap(new HashMap<>()).computeIfAbsent(1, k -> 1.0);
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
+
+        // For existing key
+        HashMap<Integer, Double> m = new HashMap<>();
+        m.put(1, 5.0);
+        try {
+            Collections.unmodifiableMap(m).computeIfAbsent(1, k -> 1.0);
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
+    }
+
+    public void test_unmodifiableMap_computeIfPresent() {
+        try {
+            Collections.unmodifiableMap(new HashMap<>()).computeIfPresent(1, (k, v) -> 1.0);
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
+
+        // For existing key
+        HashMap<Integer, Double> m = new HashMap<>();
+        m.put(1, 5.0);
+        try {
+            Collections.unmodifiableMap(m).computeIfPresent(1, (k, v) -> 1.0);
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
+    }
+
+    public void test_unmodifiableMap_compute() {
+        try {
+            Collections.unmodifiableMap(new HashMap<>()).compute(1, (k, v) -> 1.0);
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
+
+        // For existing key
+        HashMap<Integer, Double> m = new HashMap<>();
+        m.put(1, 5.0);
+        try {
+            Collections.unmodifiableMap(m).compute(1, (k, v) -> 1.0);
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
+    }
+
+    public void test_unmodifiableMap_merge() {
+        try {
+            Collections.unmodifiableMap(new HashMap<>()).merge(1, 2.0, (k, v) -> 1.0);
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
+
+        // For existing key
+        HashMap<Integer, Double> m = new HashMap<>();
+        m.put(1, 5.0);
+        try {
+            Collections.unmodifiableMap(m).merge(1, 2.0, (k, v) -> 1.0);
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
+    }
+
+    public void test_EmptyMap_getOrDefault() {
+        Map<Integer, Double> m = Collections.emptyMap();
+        assertEquals(-1.0, m.getOrDefault(1, -1.0));
+        assertEquals(-1.0, m.getOrDefault(2, -1.0));
+    }
+
+    public void test_EmptyMap_forEach() {
+        try {
+            Collections.emptyMap().forEach(null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+    }
+
+    public void test_EmptyMap_putIfAbsent() {
+        try {
+            Collections.emptyMap().putIfAbsent(1, 5.0);
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
+    }
+
+    public void test_EmptyMap_remove() {
+        try {
+            Collections.emptyMap().remove(1, 5.0);
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
+    }
+
+    public void test_EmptyMap_replace$K$V$V() {
+        try {
+            Collections.emptyMap().replace(1, 5.0, 5.0);
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
+    }
+
+    public void test_EmptyMap_replace$K$V() {
+        try {
+            Collections.emptyMap().replace(1, 5.0);
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
+    }
+
+    public void test_EmptyMap_computeIfAbsent() {
+        try {
+            Collections.emptyMap().computeIfAbsent(1, k -> 5.0);
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
+    }
+
+    public void test_EmptyMap_computeIfPresent() {
+        try {
+            Collections.emptyMap().computeIfPresent(1, (k, v) -> 5.0);
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
+    }
+
+    public void test_EmptyMap_compute() {
+        try {
+            Collections.emptyMap().compute(1, (k, v) -> 5.0);
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
+    }
+
+    public void test_EmptyMap_merge() {
+        try {
+            Collections.emptyMap().merge(1, 5.0, (k, v) -> 5.0);
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
+    }
+
+    public void test_SingletonMap_getOrDefault() {
+        Map<Integer, Double> m = Collections.singletonMap(1, 11.0);
+        assertEquals(11.0, m.getOrDefault(1, -1.0));
+        assertEquals(-1.0, m.getOrDefault(2, -1.0));
+    }
+
+    public void test_SingletonMap_forEach() {
+        Map<Integer, Double> m = new HashMap<>();
+        Collections.singletonMap(1, 11.0).forEach(m::put);
+        assertEquals(11.0, m.getOrDefault(1, -1.0));
+        assertEquals(1, m.size());
+    }
+
+    public void test_SingletonMap_putIfAbsent() {
+        try {
+            Collections.singletonMap(1, 11.0).putIfAbsent(1, 5.0);
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
+    }
+
+    public void test_SingletonMap_remove() {
+        try {
+            Collections.singletonMap(1, 11.0).remove(1, 5.0);
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
+    }
+
+    public void test_SingletonMap_replace$K$V$V() {
+        try {
+            Collections.singletonMap(1, 11.0).replace(1, 5.0, 5.0);
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
+    }
+
+    public void test_SingletonMap_replace$K$V() {
+        try {
+            Collections.singletonMap(1, 11.0).replace(1, 5.0);
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
+    }
+
+    public void test_SingletonMap_computeIfAbsent() {
+        try {
+            Collections.singletonMap(1, 11.0).computeIfAbsent(1, k -> 5.0);
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
+    }
+
+    public void test_SingletonMap_computeIfPresent() {
+        try {
+            Collections.singletonMap(1, 11.0).computeIfPresent(1, (k, v) -> 5.0);
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
+    }
+
+    public void test_SingletonMap_compute() {
+        try {
+            Collections.singletonMap(1, 11.0).compute(1, (k, v) -> 5.0);
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
+    }
+
+    public void test_SingletonMap_merge() {
+        try {
+            Collections.singletonMap(1, 11.0).merge(1, 5.0, (k, v) -> 5.0);
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
+    }
+
+    public void test_SynchronizedList_replaceAll() {
+        ListDefaultMethodTester.test_replaceAll(Collections.synchronizedList(new ArrayList<>()));
+    }
+
+    public void test_SynchronizedList_sort() {
+        ListDefaultMethodTester.test_sort(Collections.synchronizedList(new ArrayList<>()));
+    }
+
+    public void test_CheckedList_replaceAll() {
+        ListDefaultMethodTester.test_replaceAll(Collections.checkedList(new ArrayList<>(), Integer.class));
+    }
+
+    public void test_CheckedList_sort() {
+        ListDefaultMethodTester.test_sort(Collections.checkedList(new ArrayList<>(), Integer.class));
+    }
+
+    public void test_EmptyList_replaceAll() {
+        Collections.emptyList().replaceAll(k -> 1);
+
+        try {
+            Collections.emptyList().replaceAll(null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+    }
+
+    public void test_EmptyList_sort() {
+        Collections.emptyList().sort((k1, k2) -> 1);
+    }
+
+    public void test_unmodifiableList_replaceAll() {
+        try {
+            Collections.unmodifiableList(new ArrayList<>()).replaceAll(k -> 1);
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
+
+        // with non empty list
+
+        try {
+            ArrayList l = new ArrayList();
+            l.add(1);
+            l.add(2);
+            Collections.unmodifiableList(l).replaceAll(k -> 1);
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
+    }
+
+    public void test_unmodifiableList_sort() {
+        try {
+            Collections.unmodifiableList(new ArrayList<>()).sort((k1, k2) -> 1);
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
+
+        // with non empty list
+
+        try {
+            ArrayList l = new ArrayList();
+            l.add(1);
+            l.add(2);
+            Collections.unmodifiableList(l).sort((k1, k2) -> 1);
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
+    }
+
+    public void test_SingletonList_replaceAll() {
+        try {
+            Collections.singletonList(1).replaceAll(k -> 2);
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
+    }
+
+    public void test_SingletonList_sort() {
+        Collections.singletonList(1).sort((k1, k2) -> 2);
     }
 }

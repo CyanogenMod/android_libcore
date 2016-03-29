@@ -1542,6 +1542,18 @@ public class HashMap<K,V>
         }
     }
 
+    @Override
+    public boolean replace(K key, V oldValue, V newValue) {
+        HashMapEntry<K,V> e; V v;
+        if ((e = (HashMapEntry)getEntry(key)) != null &&
+                ((v = e.value) == oldValue || (v != null && v.equals(oldValue)))) {
+            e.value = newValue;
+            e.recordAccess(this);
+            return true;
+        }
+        return false;
+    }
+
     // These methods are used when serializing HashSets
     int   capacity()     { return table.length; }
     float loadFactor()   { return loadFactor;   }

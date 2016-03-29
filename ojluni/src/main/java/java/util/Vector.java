@@ -27,6 +27,7 @@ package java.util;
 
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
 
 /**
  * The {@code Vector} class implements a growable array of
@@ -1405,5 +1406,31 @@ public class Vector<E>
         }
 
         return anyToRemove;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public synchronized void replaceAll(UnaryOperator<E> operator) {
+        Objects.requireNonNull(operator);
+        final int expectedModCount = modCount;
+        final int size = elementCount;
+        for (int i=0; modCount == expectedModCount && i < size; i++) {
+            elementData[i] = operator.apply((E) elementData[i]);
+        }
+        if (modCount != expectedModCount) {
+            throw new ConcurrentModificationException();
+        }
+        modCount++;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public synchronized void sort(Comparator<? super E> c) {
+        final int expectedModCount = modCount;
+        Arrays.sort((E[]) elementData, 0, elementCount, c);
+        if (modCount != expectedModCount) {
+            throw new ConcurrentModificationException();
+        }
+        modCount++;
     }
 }
