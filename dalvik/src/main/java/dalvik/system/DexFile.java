@@ -452,6 +452,15 @@ public final class DexFile {
     public native static boolean isProfileGuidedCompilerFilter(String filter);
 
     /**
+     * Returns the version of the compiler filter that is not based on profiles.
+     * If the input is not a valid filter, or the filter is already not based on
+     * profiles, this returns the input.
+     *
+     * @hide
+     */
+    public native static String getNonProfileGuidedCompilerFilter(String filter);
+
+    /**
      * Returns the VM's opinion of what kind of dexopt is needed to make the
      * apk/jar file up to date, where {@code targetMode} is used to indicate what
      * type of compilation the caller considers up-to-date, and {@code newProfile}
