@@ -32,7 +32,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.io.*;
 
-import sun.security.jca.*;
+import sun.security.jca.GetInstance;
+import sun.security.jca.ProviderList;
+import sun.security.jca.Providers;
 
 /**
  * <p>This class centralizes all security properties and common security
@@ -57,32 +59,32 @@ public final class Security {
     static {
         props = new Properties();
         boolean loadedProps = false;
-        InputStream is = null;
+        Reader input = null;
         try {
-            /*
-             * Android keeps the property file in a jar resource.
-             */
-            InputStream propStream = Security.class.getResourceAsStream("security.properties");
-            if (propStream == null) {
-                System.logE("Could not find 'security.properties'.");
-            } else {
-                is  = new BufferedInputStream(propStream);
-                props.load(is);
-                loadedProps = true;
-            }
-        } catch (IOException ex) {
+            input = getSecurityPropertiesReader();
+            props.load(input);
+            loadedProps = true;
+        } catch (Exception ex) {
             System.logE("Could not load 'security.properties'", ex);
         } finally {
-            if (is != null) {
+            if (input != null) {
                 try {
-                    is.close();
-                } catch (IOException ignored) {}
+                    input.close();
+                } catch (IOException ignored) {
+                }
             }
         }
 
         if (!loadedProps) {
             initializeStatic();
         }
+    }
+
+    // Do not refactor or change this name. The runtime provides a cutout for this method
+    // to let this class be compile time initializable.
+    private static Reader getSecurityPropertiesReader() throws Exception {
+        InputStream configStream = Security.class.getResourceAsStream("security.properties");
+        return new InputStreamReader(new BufferedInputStream(configStream), "ISO-8859-1");
     }
 
     /*
@@ -100,14 +102,6 @@ public final class Security {
      * Don't let anyone instantiate this.
      */
     private Security() {
-    }
-
-    private static File securityPropFile(String filename) {
-        // maybe check for a system property which will specify where to
-        // look. Someday.
-        String sep = File.separator;
-        return new File(System.getProperty("java.home") + sep + "lib" + sep +
-                        "security" + sep + filename);
     }
 
     /**
