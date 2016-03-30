@@ -34,10 +34,12 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.ServerSocket;
+import java.net.SocketOptions;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.concurrent.atomic.AtomicReference;
 import junit.framework.TestCase;
 import static android.system.OsConstants.*;
 
@@ -455,6 +457,42 @@ public class OsTest extends TestCase {
     } catch (ErrnoException e) {
       assertEquals(OsConstants.ENOENT, e.errno);
     }
+  }
+
+  // b/27294715
+  public void test_recvfrom_concurrentShutdown() throws Exception {
+      final FileDescriptor serverFd = Libcore.os.socket(AF_INET, SOCK_DGRAM, 0);
+      Libcore.os.bind(serverFd, InetAddress.getByName("127.0.0.1"), 0);
+      // Set 4s timeout
+      IoBridge.setSocketOption(serverFd, SocketOptions.SO_TIMEOUT, new Integer(4000));
+
+      final AtomicReference<Exception> killerThreadException = new AtomicReference<Exception>(null);
+      final Thread killer = new Thread(new Runnable() {
+          public void run() {
+              try {
+                  Thread.sleep(2000);
+                  try {
+                      Libcore.os.shutdown(serverFd, SHUT_RDWR);
+                  } catch (ErrnoException expected) {
+                      if (OsConstants.ENOTCONN != expected.errno) {
+                          killerThreadException.set(expected);
+                      }
+                  }
+              } catch (Exception ex) {
+                  killerThreadException.set(ex);
+              }
+          }
+      });
+      killer.start();
+
+      ByteBuffer buffer = ByteBuffer.allocate(16);
+      InetSocketAddress srcAddress = new InetSocketAddress();
+      int received = Libcore.os.recvfrom(serverFd, buffer, 0, srcAddress);
+      assertTrue(received == 0);
+      Libcore.os.close(serverFd);
+
+      killer.join();
+      assertNull(killerThreadException.get());
   }
 
   public void test_xattr() throws Exception {

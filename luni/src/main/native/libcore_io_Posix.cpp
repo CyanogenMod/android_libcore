@@ -376,8 +376,8 @@ static jobject makeSocketAddress(JNIEnv* env, const sockaddr_storage& ss, const 
         const struct sockaddr_nl* nl_addr = reinterpret_cast<const struct sockaddr_nl*>(&ss);
         static jmethodID ctor = env->GetMethodID(JniConstants::netlinkSocketAddressClass,
                 "<init>", "(II)V");
-        return env->NewObject(JniConstants::netlinkSocketAddressClass, ctor, 
-                static_cast<jint>(nl_addr->nl_pid), 
+        return env->NewObject(JniConstants::netlinkSocketAddressClass, ctor,
+                static_cast<jint>(nl_addr->nl_pid),
                 static_cast<jint>(nl_addr->nl_groups));
     } else if (ss.ss_family == AF_PACKET) {
         const struct sockaddr_ll* sll = reinterpret_cast<const struct sockaddr_ll*>(&ss);
@@ -1516,10 +1516,9 @@ static jint Posix_recvfromBytes(JNIEnv* env, jobject, jobject javaFd, jobject ja
     sockaddr* from = (javaInetSocketAddress != NULL) ? reinterpret_cast<sockaddr*>(&ss) : NULL;
     socklen_t* fromLength = (javaInetSocketAddress != NULL) ? &sl : 0;
     jint recvCount = NET_FAILURE_RETRY(env, ssize_t, recvfrom, javaFd, bytes.get() + byteOffset, byteCount, flags, from, fromLength);
-    if (recvCount == -1) {
-        return recvCount;
+    if (recvCount > 0) {
+        fillInetSocketAddress(env, javaInetSocketAddress, ss);
     }
-    fillInetSocketAddress(env, javaInetSocketAddress, ss);
     return recvCount;
 }
 

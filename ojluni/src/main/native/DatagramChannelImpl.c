@@ -169,6 +169,15 @@ Java_sun_nio_ch_DatagramChannelImpl_receive0(JNIEnv *env, jobject this,
         }
     } while (retry == JNI_TRUE);
 
+    // Peer (or other thread) has performed an orderly shutdown, sockaddr will be
+    // invalid.
+    if (n == 0) {
+        // zero the sender field, so receive() returns null and not
+        // random garbage
+        (*env)->SetObjectField(env, this, dci_senderID, NULL);
+        return n;
+    }
+
     /*
      * If the source address and port match the cached address
      * and port in DatagramChannelImpl then we don't need to
