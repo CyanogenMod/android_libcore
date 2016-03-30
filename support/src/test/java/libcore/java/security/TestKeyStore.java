@@ -18,6 +18,7 @@ package libcore.java.security;
 
 import com.android.org.bouncycastle.asn1.DEROctetString;
 import com.android.org.bouncycastle.asn1.x509.BasicConstraints;
+import com.android.org.bouncycastle.asn1.x509.CRLReason;
 import com.android.org.bouncycastle.asn1.x509.ExtendedKeyUsage;
 import com.android.org.bouncycastle.asn1.x509.GeneralName;
 import com.android.org.bouncycastle.asn1.x509.GeneralNames;
@@ -25,13 +26,28 @@ import com.android.org.bouncycastle.asn1.x509.GeneralSubtree;
 import com.android.org.bouncycastle.asn1.x509.KeyPurposeId;
 import com.android.org.bouncycastle.asn1.x509.KeyUsage;
 import com.android.org.bouncycastle.asn1.x509.NameConstraints;
+import com.android.org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import com.android.org.bouncycastle.asn1.x509.X509Extensions;
+import com.android.org.bouncycastle.cert.X509CertificateHolder;
+import com.android.org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
+import com.android.org.bouncycastle.cert.ocsp.BasicOCSPResp;
+import com.android.org.bouncycastle.cert.ocsp.BasicOCSPRespBuilder;
+import com.android.org.bouncycastle.cert.ocsp.CertificateID;
+import com.android.org.bouncycastle.cert.ocsp.CertificateStatus;
+import com.android.org.bouncycastle.cert.ocsp.OCSPException;
+import com.android.org.bouncycastle.cert.ocsp.OCSPResp;
+import com.android.org.bouncycastle.cert.ocsp.OCSPRespBuilder;
+import com.android.org.bouncycastle.cert.ocsp.RevokedStatus;
 import com.android.org.bouncycastle.jce.provider.BouncyCastleProvider;
+import com.android.org.bouncycastle.operator.DigestCalculatorProvider;
+import com.android.org.bouncycastle.operator.OperatorCreationException;
+import com.android.org.bouncycastle.operator.bc.BcDigestCalculatorProvider;
+import com.android.org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import com.android.org.bouncycastle.x509.X509V3CertificateGenerator;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.math.BigInteger;
-import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
@@ -48,16 +64,14 @@ import java.security.Security;
 import java.security.UnrecoverableEntryException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.security.interfaces.ECPrivateKey;
-import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Vector;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.TrustManager;
@@ -431,9 +445,9 @@ public final class TestKeyStore extends Assert {
          * name.
          *
          * If a CA is provided, it will be used to sign the generated
-         * certificate. Otherwise, the certificate will be self
-         * signed. The certificate will be valid for one day before and
-         * one day after the time of creation.
+         * certificate and OCSP responses. Otherwise, the certificate
+         * will be self signed. The certificate will be valid for one
+         * day before and one day after the time of creation.
          *
          * Based on:
          * org.bouncycastle.jce.provider.test.SigTest
@@ -581,7 +595,11 @@ public final class TestKeyStore extends Assert {
         long now = System.currentTimeMillis();
         Date start = new Date(now - millisPerDay);
         Date end = new Date(now + millisPerDay);
-        BigInteger serial = BigInteger.valueOf(1);
+
+        // Generate a random serial number.
+        byte[] serialBytes = new byte[16];
+        new SecureRandom().nextBytes(serialBytes);
+        BigInteger serial = new BigInteger(1, serialBytes);
 
         String keyAlgorithm = privateKey.getAlgorithm();
         String signatureAlgorithm;
@@ -806,6 +824,53 @@ public final class TestKeyStore extends Assert {
      */
     public X509Certificate getRootCertificate(String algorithm)  {
         return rootCertificate(keyStore, algorithm);
+    }
+
+    private static OCSPResp generateOCSPResponse(PrivateKeyEntry server, PrivateKeyEntry issuer,
+            CertificateStatus status) throws CertificateException {
+        try {
+            X509Certificate serverCertJca = (X509Certificate) server.getCertificate();
+            X509Certificate caCertJca = (X509Certificate) issuer.getCertificate();
+
+            X509CertificateHolder caCert = new JcaX509CertificateHolder(caCertJca);
+
+            DigestCalculatorProvider digCalcProv = new BcDigestCalculatorProvider();
+            BasicOCSPRespBuilder basicBuilder = new BasicOCSPRespBuilder(
+                    SubjectPublicKeyInfo.getInstance(caCertJca.getPublicKey().getEncoded()),
+                    digCalcProv.get(CertificateID.HASH_SHA1));
+
+            CertificateID certId = new CertificateID(digCalcProv.get(CertificateID.HASH_SHA1),
+                    caCert, serverCertJca.getSerialNumber());
+
+            basicBuilder.addResponse(certId, status);
+
+            BasicOCSPResp resp = basicBuilder.build(
+                    new JcaContentSignerBuilder("SHA256withRSA").build(issuer.getPrivateKey()),
+                    null, new Date());
+
+            OCSPRespBuilder builder = new OCSPRespBuilder();
+            return builder.build(OCSPRespBuilder.SUCCESSFUL, resp);
+        } catch (Exception e) {
+            throw new CertificateException("cannot generate OCSP response", e);
+        }
+    }
+
+    public static byte[] getOCSPResponseForGood(PrivateKeyEntry server, PrivateKeyEntry issuer) throws CertificateException {
+        try {
+            return generateOCSPResponse(server, issuer, CertificateStatus.GOOD).getEncoded();
+        } catch (IOException e) {
+            throw new CertificateException(e);
+        }
+    }
+
+    public static byte[] getOCSPResponseForRevoked(PrivateKeyEntry server, PrivateKeyEntry issuer)
+            throws CertificateException {
+        try {
+            return generateOCSPResponse(server, issuer,
+                    new RevokedStatus(new Date(), CRLReason.keyCompromise)).getEncoded();
+        } catch (IOException e) {
+            throw new CertificateException(e);
+        }
     }
 
     /**
