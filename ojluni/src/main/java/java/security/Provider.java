@@ -627,7 +627,7 @@ public abstract class Provider extends Properties {
             if (typeAndAlg == null) {
                 return;
             }
-            String type = getEngineName(typeAndAlg[0]);
+            String type = typeAndAlg[0];
             String aliasAlg = typeAndAlg[1].intern();
             ServiceKey key = new ServiceKey(type, stdAlg, true);
             Service s = legacyMap.get(key);
@@ -647,7 +647,7 @@ public abstract class Provider extends Properties {
             int i = typeAndAlg[1].indexOf(' ');
             if (i == -1) {
                 // e.g. put("MessageDigest.SHA-1", "sun.security.provider.SHA");
-                String type = getEngineName(typeAndAlg[0]);
+                String type = typeAndAlg[0];
                 String stdAlg = typeAndAlg[1].intern();
                 String className = value;
                 ServiceKey key = new ServiceKey(type, stdAlg, true);
@@ -662,7 +662,7 @@ public abstract class Provider extends Properties {
             } else { // attribute
                 // e.g. put("MessageDigest.SHA-1 ImplementedIn", "Software");
                 String attributeValue = value;
-                String type = getEngineName(typeAndAlg[0]);
+                String type = typeAndAlg[0];
                 String attributeString = typeAndAlg[1];
                 String stdAlg = attributeString.substring(0, i).intern();
                 String attributeName = attributeString.substring(i + 1);
@@ -974,8 +974,10 @@ public abstract class Provider extends Properties {
 
     private static void addEngine(String name, boolean sp, String paramName) {
         EngineDescription ed = new EngineDescription(name, sp, paramName);
-        // also index by canonical name to avoid toLowerCase() for some lookups
-        knownEngines.put(name.toLowerCase(ENGLISH), ed);
+        // NOTE: The original OpenJDK code supported case-insensitive lookups on the list
+        // of known engines.
+        //
+        // knownEngines.put(name.toLowerCase(ENGLISH), ed);
         knownEngines.put(name, ed);
     }
 
@@ -1024,17 +1026,6 @@ public abstract class Provider extends Properties {
         // Smart Card I/O
         addEngine("TerminalFactory",                    false,
                             "java.lang.Object");
-    }
-
-    // get the "standard" (mixed-case) engine name for arbitary case engine name
-    // if there is no known engine by that name, return s
-    private static String getEngineName(String s) {
-        // try original case first, usually correct
-        EngineDescription e = knownEngines.get(s);
-        if (e == null) {
-            e = knownEngines.get(s.toLowerCase(ENGLISH));
-        }
-        return (e == null) ? s : e.name;
     }
 
     /**
@@ -1140,7 +1131,8 @@ public abstract class Provider extends Properties {
                 throw new NullPointerException();
             }
             this.provider = provider;
-            this.type = getEngineName(type);
+            // Android-changed.
+            this.type = type;
             this.algorithm = algorithm;
             this.className = className;
             if (aliases == null) {
@@ -1530,5 +1522,4 @@ public abstract class Provider extends Properties {
     public boolean isRegistered() {
         return registered;
     }
-
 }
