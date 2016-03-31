@@ -130,6 +130,10 @@ public class CertificateRevocationExceptionTest extends TestCase implements Seri
         assertTrue(firstDate.compareTo(exception.getInvalidityDate()) > 0);
     }
 
+    public void testGetAuthorityName() throws Exception {
+        CertificateRevokedException exception = getTestException();
+        assertEquals(new X500Principal("CN=test1"), exception.getAuthorityName());
+    }
 
     /**
      * serialization/deserialization compatibility.
@@ -160,6 +164,8 @@ public class CertificateRevocationExceptionTest extends TestCase implements Seri
         assertEquals(expected.getRevocationDate(), actual.getRevocationDate());
         assertNotSame(expected.getRevocationDate(), actual.getRevocationDate());
         assertEquals(expected.getRevocationReason(), expected.getRevocationReason());
+        assertEquals(expected.getAuthorityName(), actual.getAuthorityName());
+        assertNotSame(expected.getAuthorityName(), actual.getAuthorityName());
 
         assertEquals(expected.getExtensions().size(), actual.getExtensions().size());
         assertEquals(expected.getExtensions().keySet(), actual.getExtensions().keySet());
