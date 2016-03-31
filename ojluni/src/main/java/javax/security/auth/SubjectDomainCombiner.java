@@ -28,19 +28,14 @@ package javax.security.auth;
 import java.security.ProtectionDomain;
 
 /**
- * Unsupported on Android, do not use.
+ * Legacy security code; do not use.
  */
 public class SubjectDomainCombiner implements java.security.DomainCombiner {
 
-    public SubjectDomainCombiner(Subject subject) {
-    }
+    public SubjectDomainCombiner(Subject subject) { }
 
-    public Subject getSubject() {
-        return null;
-    }
+    public Subject getSubject() { return null; }
 
     public ProtectionDomain[] combine(ProtectionDomain[] currentDomains,
-                                ProtectionDomain[] assignedDomains) {
-        return null;
-    }
+                                ProtectionDomain[] assignedDomains) { return null; }
 }
