@@ -1169,8 +1169,9 @@ import sun.misc.FormattedFloatingDecimal;
  *     that 1 &lt;= <i>a</i> &lt; 10. The magnitude is then represented as the
  *     integer part of <i>a</i>, as a single decimal digit, followed by the
  *     decimal separator followed by decimal digits representing the fractional
- *     part of <i>a</i>, followed by the exponent symbol {@code 'e'}
- *     (<tt>'&#92;u0065'</tt>), followed by the sign of the exponent, followed
+ *     part of <i>a</i>, followed by the lower-case locale-specific {@linkplain
+ *     java.text.DecimalFormatSymbols#getExponentSeparator exponent separator}
+ *     (e.g. {@code 'e'}), followed by the sign of the exponent, followed
  *     by a representation of <i>n</i> as a decimal integer, as produced by the
  *     method {@link Long#toString(long, int)}, and zero-padded to include at
  *     least two digits.
@@ -1193,7 +1194,9 @@ import sun.misc.FormattedFloatingDecimal;
  * <tr><td valign="top"> {@code 'E'}
  *     <td valign="top"> <tt>'&#92;u0045'</tt>
  *     <td> The upper-case variant of {@code 'e'}.  The exponent symbol
- *     will be {@code 'E'} (<tt>'&#92;u0045'</tt>).
+ *     will be the upper-case locale-specific {@linkplain
+ *     java.text.DecimalFormatSymbols#getExponentSeparator exponent separator}
+ *     (e.g. {@code 'E'}).
  *
  * <tr><td valign="top"> {@code 'g'}
  *     <td valign="top"> <tt>'&#92;u0067'</tt>
@@ -3321,7 +3324,7 @@ public final class Formatter implements Closeable, Flushable {
                 LocaleData localeData = LocaleData.get(separatorLocale);
                 sb.append(f.contains(Flags.UPPERCASE) ?
                         localeData.exponentSeparator.toUpperCase(separatorLocale) :
-                        localeData.exponentSeparator);
+                        localeData.exponentSeparator.toLowerCase(separatorLocale));
 
                 Flags flags = f.dup().remove(Flags.GROUP);
                 char sign = exp[0];

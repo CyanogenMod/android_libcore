@@ -54,6 +54,18 @@ public class FormatterTest extends junit.framework.TestCase {
         assertEquals("0x1.0p0", String.format(arabic, "%a", 1.0));
     }
 
+    // http://b/27566754
+    public void test_internationalizedExponent() {
+        assertEquals("1E+02", String.format(Locale.ENGLISH, "%.0E", 100.0));
+        assertEquals("1e+02", String.format(Locale.ENGLISH, "%.0e", 100.0));
+
+        assertEquals("\u0661\u0627\u0633+\u0660\u0662", String.format(new Locale("ar"), "%.0E", 100.0));
+        assertEquals("\u0661\u0627\u0633+\u0660\u0662", String.format(new Locale("ar"), "%.0e", 100.0));
+
+        assertEquals("1\u00d710^+02", String.format(new Locale("et"), "%.0E", 100.0));
+        assertEquals("1\u00d710^+02", String.format(new Locale("et"), "%.0e", 100.0));
+    }
+
     // http://b/2301938
     public void test_uppercaseConversions() throws Exception {
         // In most locales, the upper-case equivalent of "i" is "I".
