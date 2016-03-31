@@ -24,9 +24,14 @@ package tests.security.cert;
 
 import junit.framework.TestCase;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.doReturn;
+
 import java.security.cert.CertPath;
 import java.security.cert.CertPathValidatorException;
+import java.security.cert.CertPathValidatorException.BasicReason;
 import java.security.cert.Certificate;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -429,6 +434,27 @@ public class CertPathValidatorExceptionTest extends TestCase {
                         + e.getMessage());
             }
         }
+    }
+
+    public void testCertPathValidatorException_constructsCorrectlyWithReason() throws Exception {
+        Throwable cause = mock(Throwable.class);
+        CertPath certPath = mock(CertPath.class);
+
+        Certificate cert1 = mock(Certificate.class);
+        Certificate cert2 = mock(Certificate.class);
+        List<Certificate> certList = new ArrayList<Certificate>();
+        certList.add(cert1);
+        certList.add(cert2);
+        doReturn(certList).when(certPath).getCertificates();
+
+        CertPathValidatorException exception = new CertPathValidatorException("Test exception",
+                cause, certPath, 1, BasicReason.REVOKED);
+
+        assertEquals("Test exception", exception.getMessage());
+        assertEquals(cause, exception.getCause());
+        assertEquals(certPath, exception.getCertPath());
+        assertEquals(1, exception.getIndex());
+        assertEquals(BasicReason.REVOKED, exception.getReason());
     }
 
     class myCertPath extends CertPath {
