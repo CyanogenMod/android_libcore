@@ -288,6 +288,11 @@ public final class VMRuntime {
     public native boolean isDebuggerActive();
 
     /**
+     * Returns true if native debugging is on.
+     */
+    public native boolean isNativeDebuggable();
+
+    /**
      * Registers a native allocation so that the heap knows about it and performs GC as required.
      * If the number of native allocated bytes exceeds the native allocation watermark, the
      * function requests a concurrent GC. If the native bytes allocated exceeds a second higher
