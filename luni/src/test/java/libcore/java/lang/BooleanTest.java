@@ -33,4 +33,9 @@ public class BooleanTest extends junit.framework.TestCase {
         assertTrue(Boolean.compare(false, true) < 0);
         assertTrue(Boolean.compare(true, false) > 0);
     }
+
+    public void testStaticHashCode() {
+        assertEquals(Boolean.TRUE.hashCode(), Boolean.hashCode(true));
+        assertEquals(Boolean.FALSE.hashCode(), Boolean.hashCode(false));
+    }
 }

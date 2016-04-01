@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2014 The Android Open Source Project
- * Copyright (c) 1996, 2009, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1996, 2013, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -390,6 +390,18 @@ public final class Short extends Number implements Comparable<Short> {
      * @return a hash code value for this {@code Short}
      */
     public int hashCode() {
+        return Short.hashCode(value);
+    }
+
+    /**
+     * Returns a hash code for a {@code short} value; compatible with
+     * {@code Short.hashCode()}.
+     *
+     * @param value the value to hash
+     * @return a hash code value for a {@code short} value.
+     * @since 1.8
+     */
+    public static int hashCode(short value) {
         return (int)value;
     }
 
@@ -451,6 +463,14 @@ public final class Short extends Number implements Comparable<Short> {
      * @since 1.5
      */
     public static final int SIZE = 16;
+
+    /**
+     * The number of bytes used to represent a {@code short} value in two's
+     * complement binary form.
+     *
+     * @since 1.8
+     */
+    public static final int BYTES = SIZE / Byte.SIZE;
 
     /**
      * Returns the value obtained by reversing the order of the bytes in the

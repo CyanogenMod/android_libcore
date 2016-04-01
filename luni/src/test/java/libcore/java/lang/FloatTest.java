@@ -137,4 +137,30 @@ public class FloatTest extends junit.framework.TestCase {
         assertEquals(1.1754944e-38f, Float.parseFloat("11754942807573644E-54"));
         assertEquals(1.1754944e-38f, Float.parseFloat("11754942807573645E-54"));
     }
+
+    public void testStaticHashCode() {
+        assertEquals(Float.valueOf(567.0f).hashCode(), Float.hashCode(567.0f));
+    }
+
+    public void testMax() {
+        float a = 567.0f;
+        float b = 578.0f;
+        assertEquals(Math.max(a, b), Float.max(a, b));
+    }
+
+    public void testMin() {
+        float a = 567.0f;
+        float b = 578.0f;
+        assertEquals(Math.min(a, b), Float.min(a, b));
+    }
+
+    public void testSum() {
+        float a = 567.0f;
+        float b = 578.0f;
+        assertEquals(a + b, Float.sum(a, b));
+    }
+
+    public void testBYTES() {
+        assertEquals(4, Float.BYTES);
+    }
 }

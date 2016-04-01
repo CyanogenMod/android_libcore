@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2014 The Android Open Source Project
- * Copyright (c) 2002, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2002, 2013, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -4433,6 +4433,19 @@ class Character implements java.io.Serializable, Comparable<Character> {
      * @return a hash code value for this {@code Character}
      */
     public int hashCode() {
+        return Character.hashCode(value);
+    }
+
+    /**
+     * Returns a hash code for a {@code char} value; compatible with
+     * {@code Character.hashCode()}.
+     *
+     * @since 1.8
+     *
+     * @param value The {@code char} for which to return a hash code.
+     * @return a hash code value for a {@code char} value.
+     */
+    public static int hashCode(char value) {
         return (int)value;
     }
 
@@ -7099,6 +7112,14 @@ class Character implements java.io.Serializable, Comparable<Character> {
      * @since 1.5
      */
     public static final int SIZE = 16;
+
+    /**
+     * The number of bytes used to represent a {@code char} value in unsigned
+     * binary form.
+     *
+     * @since 1.8
+     */
+    public static final int BYTES = SIZE / Byte.SIZE;
 
     /**
      * Returns the value obtained by reversing the order of the bytes in the

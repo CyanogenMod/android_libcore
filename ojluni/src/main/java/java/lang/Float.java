@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2014 The Android Open Source Project
- * Copyright (c) 1994, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1994, 2013, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -120,6 +120,13 @@ public final class Float extends Number implements Comparable<Float> {
      * @since 1.5
      */
     public static final int SIZE = 32;
+
+    /**
+     * The number of bytes used to represent a {@code float} value.
+     *
+     * @since 1.8
+     */
+    public static final int BYTES = SIZE / Byte.SIZE;
 
     /**
      * The {@code Class} instance representing the primitive type
@@ -648,6 +655,18 @@ public final class Float extends Number implements Comparable<Float> {
     }
 
     /**
+     * Returns a hash code for a {@code float} value; compatible with
+     * {@code Float.hashCode()}.
+     *
+     * @param value the value to hash
+     * @return a hash code value for a {@code float} value.
+     * @since 1.8
+     */
+    public static int hashCode(float value) {
+        return floatToIntBits(value);
+    }
+
+    /**
 
      * Compares this object against the specified object.  The result
      * is {@code true} if and only if the argument is not
@@ -899,6 +918,48 @@ public final class Float extends Number implements Comparable<Float> {
         return (thisBits == anotherBits ?  0 : // Values are equal
                 (thisBits < anotherBits ? -1 : // (-0.0, 0.0) or (!NaN, NaN)
                  1));                          // (0.0, -0.0) or (NaN, !NaN)
+    }
+
+    /**
+     * Adds two {@code float} values together as per the + operator.
+     *
+     * @param a the first operand
+     * @param b the second operand
+     * @return the sum of {@code a} and {@code b}
+     * @jls 4.2.4 Floating-Point Operations
+     * @see java.util.function.BinaryOperator
+     * @since 1.8
+     */
+    public static float sum(float a, float b) {
+        return a + b;
+    }
+
+    /**
+     * Returns the greater of two {@code float} values
+     * as if by calling {@link Math#max(float, float) Math.max}.
+     *
+     * @param a the first operand
+     * @param b the second operand
+     * @return the greater of {@code a} and {@code b}
+     * @see java.util.function.BinaryOperator
+     * @since 1.8
+     */
+    public static float max(float a, float b) {
+        return Math.max(a, b);
+    }
+
+    /**
+     * Returns the smaller of two {@code float} values
+     * as if by calling {@link Math#min(float, float) Math.min}.
+     *
+     * @param a the first operand
+     * @param b the second operand
+     * @return the smaller of {@code a} and {@code b}
+     * @see java.util.function.BinaryOperator
+     * @since 1.8
+     */
+    public static float min(float a, float b) {
+        return Math.min(a, b);
     }
 
     /** use serialVersionUID from JDK 1.0.2 for interoperability */

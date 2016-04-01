@@ -153,4 +153,8 @@ public class IntegerTest extends junit.framework.TestCase {
         int b = 578;
         assertEquals(a + b, Integer.sum(a, b));
     }
+
+    public void testBYTES() {
+      assertEquals(4, Integer.BYTES);
+    }
 }

@@ -31,4 +31,12 @@ public class ShortTest extends junit.framework.TestCase {
         assertTrue(Short.compare(min,  zero) < 0);
         assertTrue(Short.compare(min,  max)  < 0);
     }
+
+    public void testStaticHashCode() {
+        assertEquals(Short.valueOf((short) 567).hashCode(), Short.hashCode((short) 567));
+    }
+
+    public void testBYTES() {
+        assertEquals(2, Short.BYTES);
+    }
 }

@@ -159,4 +159,8 @@ public class LongTest extends junit.framework.TestCase {
         long b = 578L;
         assertEquals(a + b, Long.sum(a, b));
     }
+
+    public void testBYTES() {
+        assertEquals(8, Long.BYTES);
+    }
 }

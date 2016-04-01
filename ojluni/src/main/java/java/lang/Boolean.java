@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2014 The Android Open Source Project
- * Copyright (c) 1994, 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1994, 2013, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -201,6 +201,18 @@ public final class Boolean implements java.io.Serializable,
     }
 
     /**
+     * Returns a hash code for a {@code boolean} value; compatible with
+     * {@code Boolean.hashCode()}.
+     *
+     * @param value the value to hash
+     * @return a hash code value for a {@code boolean} value.
+     * @since 1.8
+     */
+    public static int hashCode(boolean value) {
+        return value ? 1231 : 1237;
+    }
+
+   /**
      * Returns {@code true} if and only if the argument is not
      * {@code null} and is a {@code Boolean} object that
      * represents the same {@code boolean} value as this object.

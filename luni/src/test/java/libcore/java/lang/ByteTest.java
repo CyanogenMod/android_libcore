@@ -31,4 +31,12 @@ public class ByteTest extends junit.framework.TestCase {
         assertTrue(Byte.compare(min,  zero) < 0);
         assertTrue(Byte.compare(min,  max)  < 0);
     }
+
+    public void testStaticHashCode() {
+        assertEquals(new Byte((byte) 567).hashCode(), Byte.hashCode((byte) 567));
+    }
+
+    public void testBYTES() {
+        assertEquals(1, Byte.BYTES);
+    }
 }

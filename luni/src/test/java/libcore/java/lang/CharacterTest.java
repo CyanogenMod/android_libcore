@@ -289,4 +289,12 @@ public class CharacterTest extends junit.framework.TestCase {
     assertEquals(Character.DIRECTIONALITY_UNDEFINED, Character.getDirectionality(0x2068));
     assertEquals(Character.DIRECTIONALITY_UNDEFINED, Character.getDirectionality(0x2069));
   }
+
+  public void testStaticHashCode() {
+    assertEquals(new Character('A').hashCode(), Character.hashCode('A'));
+  }
+
+  public void testBYTES() {
+    assertEquals(2, Character.BYTES);
+  }
 }

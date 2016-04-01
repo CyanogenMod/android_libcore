@@ -164,4 +164,8 @@ public class DoubleTest extends TestCase {
         double b = 578.0;
         assertEquals(a + b, Double.sum(a, b));
     }
+
+    public void testBYTES() {
+        assertEquals(8, Double.BYTES);
+    }
 }
