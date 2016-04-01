@@ -22,10 +22,13 @@ import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.SocketException;
+import java.net.StandardSocketOptions;
+import java.nio.channels.AlreadyBoundException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.UnresolvedAddressException;
+import java.nio.channels.UnsupportedAddressTypeException;
 import java.util.Enumeration;
 import java.util.Set;
 
@@ -134,6 +137,58 @@ public class ServerSocketChannelTest extends junit.framework.TestCase {
         }
 
         ssc.close();
+    }
+
+    public void test_bind$SocketAddress() throws IOException {
+        ServerSocketChannel ssc = ServerSocketChannel.open();
+        ssc.bind(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0));
+        assertEquals(InetAddress.getLoopbackAddress(),
+                ((InetSocketAddress)(ssc.getLocalAddress())).getAddress());
+        assertTrue(((InetSocketAddress)(ssc.getLocalAddress())).getPort() > 0);
+
+        try {
+            ssc.bind(new InetSocketAddress(InetAddress.getLoopbackAddress(),
+                    ((InetSocketAddress)(ssc.getLocalAddress())).getPort()));
+            fail();
+        } catch (AlreadyBoundException expected) {
+        }
+
+        try {
+            ServerSocketChannel ssc1 = ServerSocketChannel.open();
+            ssc1.bind(new InetSocketAddress("1.1.1.1.1.1.1", 0));
+            fail();
+        } catch (UnresolvedAddressException expected) {
+        }
+
+        ssc.close();
+        try {
+            ssc.bind(new InetSocketAddress("1.1.1.1.1.1.1", 0));
+            fail();
+        } catch (ClosedChannelException expected) {
+        }
+    }
+
+    public void test_setOption() throws Exception {
+        ServerSocketChannel sc = ServerSocketChannel.open();
+        sc.setOption(StandardSocketOptions.SO_REUSEADDR, true);
+
+        // Assert that we can read back the option from the channel...
+        assertTrue(sc.getOption(StandardSocketOptions.SO_REUSEADDR));
+
+        sc.setOption(StandardSocketOptions.SO_REUSEADDR, false);
+
+        // Assert that we can read back the option from the channel...
+        assertEquals(false, (boolean)sc.getOption(StandardSocketOptions.SO_REUSEADDR));
+
+        sc.setOption(StandardSocketOptions.SO_RCVBUF, 1120);
+        assertEquals((Integer)1120, sc.getOption(StandardSocketOptions.SO_RCVBUF));
+
+        sc.close();
+        try {
+            sc.setOption(StandardSocketOptions.SO_RCVBUF, 2000);
+            fail();
+        } catch (ClosedChannelException expected) {
+        }
     }
 
     private static boolean canConnect(InetSocketAddress address) {

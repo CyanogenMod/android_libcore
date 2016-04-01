@@ -17,6 +17,7 @@
 package libcore.java.nio.channels;
 
 import java.io.IOException;
+import java.net.BindException;
 import java.net.DatagramSocket;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
@@ -25,10 +26,9 @@ import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.StandardSocketOptions;
 import java.nio.ByteBuffer;
+import java.nio.channels.AlreadyBoundException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.DatagramChannel;
-import java.nio.channels.SocketChannel;
-import java.nio.channels.UnresolvedAddressException;
 import java.util.Enumeration;
 import java.util.Set;
 
@@ -179,6 +179,49 @@ public class DatagramChannelTest extends junit.framework.TestCase {
         DatagramSocket socket = DatagramChannel.open().socket();
         socket.getReuseAddress();
         assertNotNull(socket.getFileDescriptor$());
+    }
+
+    public void test_bind() throws IOException {
+        InetSocketAddress socketAddress = new InetSocketAddress(Inet4Address.LOOPBACK, 0);
+        DatagramChannel channel = DatagramChannel.open();
+        channel.bind(socketAddress);
+        assertEquals(socketAddress.getAddress(),
+                ((InetSocketAddress)(channel.getLocalAddress())).getAddress());
+        assertTrue(((InetSocketAddress)(channel.getLocalAddress())).getPort() > 0);
+
+        try {
+            channel.bind(socketAddress);
+            fail();
+        } catch (AlreadyBoundException expected) {
+        }
+
+        socketAddress = new InetSocketAddress(Inet4Address.LOOPBACK,
+                ((InetSocketAddress)(channel.getLocalAddress())).getPort());
+        try {
+            DatagramChannel.open().bind(socketAddress);
+            fail();
+        } catch (BindException expected) {}
+
+        channel.close();
+        socketAddress = new InetSocketAddress(Inet4Address.LOOPBACK, 0);
+        try {
+            channel.bind(socketAddress);
+        } catch (ClosedChannelException expected) {}
+    }
+
+    public void test_getRemoteAddress() throws IOException {
+        InetSocketAddress socketAddress = new InetSocketAddress(Inet4Address.LOOPBACK, 0);
+        DatagramChannel clientChannel = DatagramChannel.open();
+        DatagramChannel serverChannel = DatagramChannel.open();
+        serverChannel.bind(socketAddress);
+
+        assertNull(clientChannel.getRemoteAddress());
+
+        clientChannel.connect(serverChannel.getLocalAddress());
+        assertEquals(socketAddress.getAddress(),
+                ((InetSocketAddress)(clientChannel.getRemoteAddress())).getAddress());
+        assertEquals(((InetSocketAddress)(serverChannel.getLocalAddress())).getPort(),
+                ((InetSocketAddress)(clientChannel.getRemoteAddress())).getPort());
     }
 
     private static InetAddress getNonLoopbackNetworkInterfaceAddress(boolean ipv4) throws IOException {
