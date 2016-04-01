@@ -138,7 +138,7 @@ public abstract class ServerSocketChannel
      * @return  This channel
      *
      * @throws  AlreadyBoundException               {@inheritDoc}
-     * @throws  UnsupportedAddressTypeException     {@inheritDoc}
+     * @throws  UnresolvedAddressException
      * @throws  ClosedChannelException              {@inheritDoc}
      * @throws  IOException                         {@inheritDoc}
      * @throws  SecurityException
