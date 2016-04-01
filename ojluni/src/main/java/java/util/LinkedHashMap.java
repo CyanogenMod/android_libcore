@@ -440,13 +440,27 @@ public class LinkedHashMap<K,V>
      * removes the eldest entry if appropriate.
      */
     void addEntry(int hash, K key, V value, int bucketIndex) {
-        super.addEntry(hash, key, value, bucketIndex);
+        // Previous Android releases called removeEldestEntry() before actually
+        // inserting a value but after increasing the size.
+        // The RI is documented to call it afterwards.
+        // **** THIS CHANGE WILL BE REVERTED IN A FUTURE ANDROID RELEASE ****
 
         // Remove eldest entry if instructed
         LinkedHashMapEntry<K,V> eldest = header.after;
-        if (removeEldestEntry(eldest)) {
-            removeEntryForKey(eldest.key);
+        if (eldest != header) {
+            boolean removeEldest;
+            size++;
+            try {
+                removeEldest = removeEldestEntry(eldest);
+            } finally {
+                size--;
+            }
+            if (removeEldest) {
+                removeEntryForKey(eldest.key);
+            }
         }
+
+        super.addEntry(hash, key, value, bucketIndex);
     }
 
     /**
@@ -473,7 +487,12 @@ public class LinkedHashMap<K,V>
         size++;
     }
 
-    /**
+    // Intentionally make this not JavaDoc, as the we don't conform to
+    // the behaviour documented here (we call removeEldestEntry before
+    // inserting the new value to be consistent with previous Android
+    // releases).
+    // **** THIS CHANGE WILL BE REVERTED IN A FUTURE ANDROID RELEASE ****
+    /*
      * Returns <tt>true</tt> if this map should remove its eldest entry.
      * This method is invoked by <tt>put</tt> and <tt>putAll</tt> after
      * inserting a new entry into the map.  It provides the implementor

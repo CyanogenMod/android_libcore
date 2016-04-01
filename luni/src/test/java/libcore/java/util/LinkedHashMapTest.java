@@ -18,6 +18,8 @@ package libcore.java.util;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class LinkedHashMapTest extends junit.framework.TestCase {
 
@@ -204,5 +206,32 @@ public class LinkedHashMapTest extends junit.framework.TestCase {
         }
         assertEquals("key1", newest.getKey());
         assertEquals("value3", newest.getValue());
+    }
+
+    // http://b/27929722
+    // This tests the behaviour is consistent with earlier Android releases.
+    // This behaviour is NOT consistent with the RI. Future Android releases
+    // might change this.
+    public void test_removeEldestEntry() {
+        final AtomicBoolean removeEldestEntryReturnValue = new AtomicBoolean(false);
+        final AtomicInteger removeEldestEntryCallCount = new AtomicInteger(0);
+        LinkedHashMap<String, String> m = new LinkedHashMap<String, String>() {
+            @Override
+            protected boolean removeEldestEntry(Entry eldest) {
+                removeEldestEntryCallCount.incrementAndGet();
+                return removeEldestEntryReturnValue.get();
+            }
+        };
+
+        m.put("foo", "bar");
+        assertEquals(0, removeEldestEntryCallCount.get());
+        m.put("baz", "quux");
+        assertEquals(1, removeEldestEntryCallCount.get());
+
+        removeEldestEntryReturnValue.set(true);
+        m.put("foob", "faab");
+        assertEquals(2, removeEldestEntryCallCount.get());
+        assertEquals(2, m.size());
+        assertFalse(m.containsKey("foo"));
     }
 }
