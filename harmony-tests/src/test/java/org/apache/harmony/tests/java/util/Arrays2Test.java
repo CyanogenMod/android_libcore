@@ -486,4 +486,21 @@ public class Arrays2Test extends TestCase {
             fail();
         } catch(NullPointerException expected) {}
     }
+
+    public void test_replaceAll() throws Exception {
+        List<Integer> list = Arrays.asList(0, 1, 2);
+        list.replaceAll(k -> k + 1);
+        assertEquals((Integer)1, list.get(0));
+        assertEquals((Integer)2, list.get(1));
+        assertEquals((Integer)3, list.get(2));
+        assertEquals(3, list.size());
+    }
+
+    public void test_replaceAll_NPE() throws Exception {
+        List<Integer> list = Arrays.asList(0, 1, 2);
+        try {
+            list.replaceAll(null);
+            fail();
+        } catch(NullPointerException expected) {}
+    }
 }
