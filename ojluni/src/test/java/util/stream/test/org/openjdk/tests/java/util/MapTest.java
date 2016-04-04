@@ -23,11 +23,12 @@
 
 package org.openjdk.tests.java.util;
 
+import org.openjdk.testlib.java.util.stream.LambdaTestHelpers;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.LambdaTestHelpers;
 
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;

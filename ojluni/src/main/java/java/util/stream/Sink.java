@@ -113,8 +113,9 @@ import java.util.function.LongConsumer;
  *
  * @param <T> type of elements for value streams
  * @since 1.8
+ * @hide Visible for CTS testing only (OpenJDK8 tests).
  */
-interface Sink<T> extends Consumer<T> {
+public interface Sink<T> extends Consumer<T> {
     /**
      * Resets the sink state to receive a fresh data set.  This must be called
      * before sending any data to the sink.  After calling {@link #end()},

@@ -22,17 +22,18 @@
  */
 package org.openjdk.tests.java.util.stream;
 
+import org.openjdk.testlib.java.util.stream.OpTestCase;
+
 import java.util.ArrayList;
 import java.util.DoubleSummaryStatistics;
 import java.util.IntSummaryStatistics;
 import java.util.List;
 import java.util.LongSummaryStatistics;
 import java.util.stream.Collectors;
-import java.util.stream.OpTestCase;
 
 import org.testng.annotations.Test;
 
-import static java.util.stream.LambdaTestHelpers.countTo;
+import static org.openjdk.testlib.java.util.stream.LambdaTestHelpers.countTo;
 
 /**
  * TestSummaryStatistics
