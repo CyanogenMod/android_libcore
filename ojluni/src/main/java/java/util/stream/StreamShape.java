@@ -45,8 +45,9 @@ package java.util.stream;
  * primitive type.
  *
  * @since 1.8
+ * @hide Visible for CTS testing only (OpenJDK8 tests).
  */
-enum StreamShape {
+public enum StreamShape {
     /**
      * The shape specialization corresponding to {@code Stream} and elements
      * that are object references.

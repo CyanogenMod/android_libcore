@@ -22,6 +22,14 @@
  */
 package org.openjdk.tests.java.util.stream;
 
+import org.openjdk.testlib.java.util.stream.DoubleStreamTestDataProvider;
+import org.openjdk.testlib.java.util.stream.IntStreamTestDataProvider;
+import org.openjdk.testlib.java.util.stream.LambdaTestHelpers;
+import org.openjdk.testlib.java.util.stream.LongStreamTestDataProvider;
+import org.openjdk.testlib.java.util.stream.OpTestCase;
+import org.openjdk.testlib.java.util.stream.StreamTestDataProvider;
+import org.openjdk.testlib.java.util.stream.TestData;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -36,36 +44,30 @@ import java.util.function.LongPredicate;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.DoubleStream;
-import java.util.stream.DoubleStreamTestDataProvider;
 import java.util.stream.IntStream;
-import java.util.stream.IntStreamTestDataProvider;
 import java.util.stream.LongStream;
-import java.util.stream.LongStreamTestDataProvider;
-import java.util.stream.OpTestCase;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-import java.util.stream.StreamTestDataProvider;
-import java.util.stream.TestData;
 
 import org.testng.annotations.Test;
 
-import static java.util.stream.LambdaTestHelpers.countTo;
-import static java.util.stream.LambdaTestHelpers.dpEven;
-import static java.util.stream.LambdaTestHelpers.dpFalse;
-import static java.util.stream.LambdaTestHelpers.dpOdd;
-import static java.util.stream.LambdaTestHelpers.dpTrue;
-import static java.util.stream.LambdaTestHelpers.ipEven;
-import static java.util.stream.LambdaTestHelpers.ipFalse;
-import static java.util.stream.LambdaTestHelpers.ipOdd;
-import static java.util.stream.LambdaTestHelpers.ipTrue;
-import static java.util.stream.LambdaTestHelpers.lpEven;
-import static java.util.stream.LambdaTestHelpers.lpFalse;
-import static java.util.stream.LambdaTestHelpers.lpOdd;
-import static java.util.stream.LambdaTestHelpers.lpTrue;
-import static java.util.stream.LambdaTestHelpers.pEven;
-import static java.util.stream.LambdaTestHelpers.pFalse;
-import static java.util.stream.LambdaTestHelpers.pOdd;
-import static java.util.stream.LambdaTestHelpers.pTrue;
+import static org.openjdk.testlib.java.util.stream.LambdaTestHelpers.countTo;
+import static org.openjdk.testlib.java.util.stream.LambdaTestHelpers.dpEven;
+import static org.openjdk.testlib.java.util.stream.LambdaTestHelpers.dpFalse;
+import static org.openjdk.testlib.java.util.stream.LambdaTestHelpers.dpOdd;
+import static org.openjdk.testlib.java.util.stream.LambdaTestHelpers.dpTrue;
+import static org.openjdk.testlib.java.util.stream.LambdaTestHelpers.ipEven;
+import static org.openjdk.testlib.java.util.stream.LambdaTestHelpers.ipFalse;
+import static org.openjdk.testlib.java.util.stream.LambdaTestHelpers.ipOdd;
+import static org.openjdk.testlib.java.util.stream.LambdaTestHelpers.ipTrue;
+import static org.openjdk.testlib.java.util.stream.LambdaTestHelpers.lpEven;
+import static org.openjdk.testlib.java.util.stream.LambdaTestHelpers.lpFalse;
+import static org.openjdk.testlib.java.util.stream.LambdaTestHelpers.lpOdd;
+import static org.openjdk.testlib.java.util.stream.LambdaTestHelpers.lpTrue;
+import static org.openjdk.testlib.java.util.stream.LambdaTestHelpers.pEven;
+import static org.openjdk.testlib.java.util.stream.LambdaTestHelpers.pFalse;
+import static org.openjdk.testlib.java.util.stream.LambdaTestHelpers.pOdd;
+import static org.openjdk.testlib.java.util.stream.LambdaTestHelpers.pTrue;
 
 /**
  * MatchOpTest

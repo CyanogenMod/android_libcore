@@ -200,8 +200,9 @@ import java.util.Spliterator;
  * For specific details see the {@link AbstractPipeline} constructors.
  *
  * @since 1.8
+ * @hide Visible for CTS testing only (OpenJDK8 tests).
  */
-enum StreamOpFlag {
+public enum StreamOpFlag {
 
     /*
      * Each characteristic takes up 2 bits in a bit set to accommodate
@@ -457,7 +458,7 @@ enum StreamOpFlag {
      *
      * @return the bitmap for setting this characteristic
      */
-    int set() {
+    public int set() {
         return set;
     }
 
@@ -466,7 +467,7 @@ enum StreamOpFlag {
      *
      * @return the bitmap for clearing this characteristic
      */
-    int clear() {
+    public int clear() {
         return clear;
     }
 
@@ -475,7 +476,7 @@ enum StreamOpFlag {
      *
      * @return true if a stream-based flag, otherwise false.
      */
-    boolean isStreamFlag() {
+    public boolean isStreamFlag() {
         return maskTable.get(Type.STREAM) > 0;
     }
 
@@ -487,7 +488,7 @@ enum StreamOpFlag {
      *        operation flags
      * @return true if this flag is known, otherwise false.
      */
-    boolean isKnown(int flags) {
+    public boolean isKnown(int flags) {
         return (flags & preserve) == set;
     }
 
@@ -498,7 +499,7 @@ enum StreamOpFlag {
      * @param flags the operation flags or combined stream and operations flags.
      * @return true if this flag is preserved, otherwise false.
      */
-    boolean isCleared(int flags) {
+    public boolean isCleared(int flags) {
         return (flags & preserve) == clear;
     }
 
@@ -508,7 +509,7 @@ enum StreamOpFlag {
      * @param flags the combined stream and operations flags.
      * @return true if this flag is preserved, otherwise false.
      */
-    boolean isPreserved(int flags) {
+    public boolean isPreserved(int flags) {
         return (flags & preserve) == preserve;
     }
 
@@ -518,34 +519,34 @@ enum StreamOpFlag {
      * @param t the flag type.
      * @return true if this flag can be set for the flag type, otherwise false.
      */
-    boolean canSet(Type t) {
+    public boolean canSet(Type t) {
         return (maskTable.get(t) & SET_BITS) > 0;
     }
 
     /**
      * The bit mask for spliterator characteristics
      */
-    static final int SPLITERATOR_CHARACTERISTICS_MASK = createMask(Type.SPLITERATOR);
+    public static final int SPLITERATOR_CHARACTERISTICS_MASK = createMask(Type.SPLITERATOR);
 
     /**
      * The bit mask for source stream flags.
      */
-    static final int STREAM_MASK = createMask(Type.STREAM);
+    public static final int STREAM_MASK = createMask(Type.STREAM);
 
     /**
      * The bit mask for intermediate operation flags.
      */
-    static final int OP_MASK = createMask(Type.OP);
+    public static final int OP_MASK = createMask(Type.OP);
 
     /**
      * The bit mask for terminal operation flags.
      */
-    static final int TERMINAL_OP_MASK = createMask(Type.TERMINAL_OP);
+    public static final int TERMINAL_OP_MASK = createMask(Type.TERMINAL_OP);
 
     /**
      * The bit mask for upstream terminal operation flags.
      */
-    static final int UPSTREAM_TERMINAL_OP_MASK = createMask(Type.UPSTREAM_TERMINAL_OP);
+    public static final int UPSTREAM_TERMINAL_OP_MASK = createMask(Type.UPSTREAM_TERMINAL_OP);
 
     private static int createMask(Type t) {
         int mask = 0;
@@ -582,52 +583,52 @@ enum StreamOpFlag {
      * The initial value to be combined with the stream flags of the first
      * stream in the pipeline.
      */
-    static final int INITIAL_OPS_VALUE = FLAG_MASK_IS | FLAG_MASK_NOT;
+    public static final int INITIAL_OPS_VALUE = FLAG_MASK_IS | FLAG_MASK_NOT;
 
     /**
      * The bit value to set or inject {@link #DISTINCT}.
      */
-    static final int IS_DISTINCT = DISTINCT.set;
+    public static final int IS_DISTINCT = DISTINCT.set;
 
     /**
      * The bit value to clear {@link #DISTINCT}.
      */
-    static final int NOT_DISTINCT = DISTINCT.clear;
+    public static final int NOT_DISTINCT = DISTINCT.clear;
 
     /**
      * The bit value to set or inject {@link #SORTED}.
      */
-    static final int IS_SORTED = SORTED.set;
+    public static final int IS_SORTED = SORTED.set;
 
     /**
      * The bit value to clear {@link #SORTED}.
      */
-    static final int NOT_SORTED = SORTED.clear;
+    public static final int NOT_SORTED = SORTED.clear;
 
     /**
      * The bit value to set or inject {@link #ORDERED}.
      */
-    static final int IS_ORDERED = ORDERED.set;
+    public static final int IS_ORDERED = ORDERED.set;
 
     /**
      * The bit value to clear {@link #ORDERED}.
      */
-    static final int NOT_ORDERED = ORDERED.clear;
+    public static final int NOT_ORDERED = ORDERED.clear;
 
     /**
      * The bit value to set {@link #SIZED}.
      */
-    static final int IS_SIZED = SIZED.set;
+    public static final int IS_SIZED = SIZED.set;
 
     /**
      * The bit value to clear {@link #SIZED}.
      */
-    static final int NOT_SIZED = SIZED.clear;
+    public static final int NOT_SIZED = SIZED.clear;
 
     /**
      * The bit value to inject {@link #SHORT_CIRCUIT}.
      */
-    static final int IS_SHORT_CIRCUIT = SHORT_CIRCUIT.set;
+    public static final int IS_SHORT_CIRCUIT = SHORT_CIRCUIT.set;
 
     private static int getMask(int flags) {
         return (flags == 0)
@@ -683,7 +684,7 @@ enum StreamOpFlag {
      *        The value {#link INITIAL_OPS_VALUE} must be used as the seed value.
      * @return the updated combined stream and operation flags.
      */
-    static int combineOpFlags(int newStreamOrOpFlags, int prevCombOpFlags) {
+    public static int combineOpFlags(int newStreamOrOpFlags, int prevCombOpFlags) {
         // 0x01 or 0x10 nibbles are transformed to 0x11
         // 0x00 nibbles remain unchanged
         // Then all the bits are flipped
@@ -700,7 +701,7 @@ enum StreamOpFlag {
      * @param combOpFlags the combined stream and operation flags.
      * @return the stream flags.
      */
-    static int toStreamFlags(int combOpFlags) {
+    public static int toStreamFlags(int combOpFlags) {
         // By flipping the nibbles 0x11 become 0x00 and 0x01 become 0x10
         // Shift left 1 to restore set flags and mask off anything other than the set flags
         return ((~combOpFlags) >> 1) & FLAG_MASK_IS & combOpFlags;
@@ -712,7 +713,7 @@ enum StreamOpFlag {
      * @param streamFlags the stream flags.
      * @return the spliterator characteristic bit set.
      */
-    static int toCharacteristics(int streamFlags) {
+    public static int toCharacteristics(int streamFlags) {
         return streamFlags & SPLITERATOR_CHARACTERISTICS_MASK;
     }
 
@@ -729,7 +730,7 @@ enum StreamOpFlag {
      *        bit set.
      * @return the stream flags.
      */
-    static int fromCharacteristics(Spliterator<?> spliterator) {
+    public static int fromCharacteristics(Spliterator<?> spliterator) {
         int characteristics = spliterator.characteristics();
         if ((characteristics & Spliterator.SORTED) != 0 && spliterator.getComparator() != null) {
             // Do not propagate the SORTED characteristic if it does not correspond
@@ -747,7 +748,7 @@ enum StreamOpFlag {
      * @param characteristics the spliterator characteristic bit set.
      * @return the stream flags.
      */
-    static int fromCharacteristics(int characteristics) {
+    public static int fromCharacteristics(int characteristics) {
         return characteristics & SPLITERATOR_CHARACTERISTICS_MASK;
     }
 }

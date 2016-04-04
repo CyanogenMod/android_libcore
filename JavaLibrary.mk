@@ -334,7 +334,7 @@ ifeq ($(LIBCORE_SKIP_TESTS),)
     include $(BUILD_HOST_DALVIK_JAVA_LIBRARY)
 endif
 
-# Make the core-ojtests library.
+# Make the core-ojtests-hostdex library.
 ifeq ($(LIBCORE_SKIP_TESTS),)
     include $(CLEAR_VARS)
     LOCAL_SRC_FILES := $(ojtest_src_files)
@@ -348,6 +348,43 @@ ifeq ($(LIBCORE_SKIP_TESTS),)
     LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
     include $(BUILD_HOST_DALVIK_JAVA_LIBRARY)
 endif
+
+# Make the core-ojtests library.
+ifeq ($(LIBCORE_SKIP_TESTS),)
+    include $(CLEAR_VARS)
+    LOCAL_NO_STANDARD_LIBRARIES := true
+    LOCAL_JAVA_LIBRARIES := core-oj core-libart core-lambda-stubs okhttp bouncycastle
+    LOCAL_STATIC_JAVA_LIBRARIES := testng
+    LOCAL_JAVACFLAGS := $(local_javac_flags)
+    LOCAL_MODULE_TAGS := optional
+    LOCAL_JAVA_LANGUAGE_VERSION := 1.8
+    LOCAL_MODULE := core-ojtests
+    LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
+    # jack bug workaround: int[] java.util.stream.StatefulTestOp.-getjava-util-stream-StreamShapeSwitchesValues() is a private synthetic method in an interface which causes a hard verifier error
+    LOCAL_DEX_PREOPT := false # disable AOT preverification which breaks the build. it will still throw VerifyError at runtime.
+    include $(BUILD_JAVA_LIBRARY)
+endif
+
+
+# Make the core-ojtests-public library. Excludes any private API tests.
+ifeq ($(LIBCORE_SKIP_TESTS),)
+    include $(CLEAR_VARS)
+    # Filter out SerializedLambdaTest because it depends on stub classes and won't actually run.
+    LOCAL_SRC_FILES := $(filter-out %/SerializedLambdaTest.java ojluni/src/test/java/util/stream/boot%,$(ojtest_src_files))) # Do not include anything from the boot* directories. Those directories need a custom bootclasspath to run.
+    # Include source code as part of JAR
+    LOCAL_JAVA_RESOURCE_DIRS := ojluni/src/test/dist
+    LOCAL_NO_STANDARD_LIBRARIES := true
+    LOCAL_JAVA_LIBRARIES := core-oj core-libart core-lambda-stubs okhttp bouncycastle testng
+    LOCAL_JAVACFLAGS := $(local_javac_flags)
+    LOCAL_MODULE_TAGS := optional
+    LOCAL_JAVA_LANGUAGE_VERSION := 1.8
+    LOCAL_MODULE := core-ojtests-public
+    LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
+    # jack bug workaround: int[] java.util.stream.StatefulTestOp.-getjava-util-stream-StreamShapeSwitchesValues() is a private synthetic method in an interface which causes a hard verifier error
+    LOCAL_DEX_PREOPT := false # disable AOT preverification which breaks the build. it will still throw VerifyError at runtime.
+    include $(BUILD_JAVA_LIBRARY)
+endif
+
 
 endif # HOST_OS == linux
 

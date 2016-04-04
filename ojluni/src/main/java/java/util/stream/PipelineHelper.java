@@ -51,8 +51,9 @@ import java.util.function.IntFunction;
  *
  * @param <P_OUT> type of output elements from the pipeline
  * @since 1.8
+ * @hide Visible for CTS testing only (OpenJDK8 tests).
  */
-abstract class PipelineHelper<P_OUT> {
+public abstract class PipelineHelper<P_OUT> {
 
     /**
      * Gets the stream shape for the source of the pipeline segment.
@@ -69,7 +70,7 @@ abstract class PipelineHelper<P_OUT> {
      * @return the combined stream and operation flags
      * @see StreamOpFlag
      */
-    abstract int getStreamAndOpFlags();
+    public abstract int getStreamAndOpFlags();
 
     /**
      * Returns the exact output size of the portion of the output resulting from
@@ -150,7 +151,7 @@ abstract class PipelineHelper<P_OUT> {
      * @return a {@code Sink} that implements the pipeline stages and sends
      *         results to the provided {@code Sink}
      */
-    abstract<P_IN> Sink<P_IN> wrapSink(Sink<P_OUT> sink);
+    public abstract<P_IN> Sink<P_IN> wrapSink(Sink<P_OUT> sink);
 
     /**
      *
@@ -197,7 +198,7 @@ abstract class PipelineHelper<P_OUT> {
      * @param generator a factory function for array instances
      * @return the {@code Node} containing all output elements
      */
-    abstract<P_IN> Node<P_OUT> evaluate(Spliterator<P_IN> spliterator,
+    public abstract<P_IN> Node<P_OUT> evaluate(Spliterator<P_IN> spliterator,
                                         boolean flatten,
                                         IntFunction<P_OUT[]> generator);
 }

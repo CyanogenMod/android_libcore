@@ -22,6 +22,11 @@
  */
 package org.openjdk.tests.java.util.stream;
 
+import org.openjdk.testlib.java.util.stream.LambdaTestHelpers;
+import org.openjdk.testlib.java.util.stream.OpTestCase;
+import org.openjdk.testlib.java.util.stream.StreamTestDataProvider;
+import org.openjdk.testlib.java.util.stream.TestData;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -33,22 +38,18 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import java.util.stream.LambdaTestHelpers;
-import java.util.stream.OpTestCase;
 import java.util.stream.Stream;
-import java.util.stream.StreamTestDataProvider;
-import java.util.stream.TestData;
 
 import org.testng.annotations.Test;
 
-import static java.util.stream.LambdaTestHelpers.countTo;
-import static java.util.stream.LambdaTestHelpers.mDoubler;
-import static java.util.stream.LambdaTestHelpers.mId;
-import static java.util.stream.LambdaTestHelpers.mZero;
-import static java.util.stream.LambdaTestHelpers.pEven;
-import static java.util.stream.LambdaTestHelpers.pFalse;
-import static java.util.stream.LambdaTestHelpers.pOdd;
-import static java.util.stream.LambdaTestHelpers.pTrue;
+import static org.openjdk.testlib.java.util.stream.LambdaTestHelpers.countTo;
+import static org.openjdk.testlib.java.util.stream.LambdaTestHelpers.mDoubler;
+import static org.openjdk.testlib.java.util.stream.LambdaTestHelpers.mId;
+import static org.openjdk.testlib.java.util.stream.LambdaTestHelpers.mZero;
+import static org.openjdk.testlib.java.util.stream.LambdaTestHelpers.pEven;
+import static org.openjdk.testlib.java.util.stream.LambdaTestHelpers.pFalse;
+import static org.openjdk.testlib.java.util.stream.LambdaTestHelpers.pOdd;
+import static org.openjdk.testlib.java.util.stream.LambdaTestHelpers.pTrue;
 
 /**
  * GroupByOpTest
