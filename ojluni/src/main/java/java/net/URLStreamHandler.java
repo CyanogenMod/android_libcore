@@ -337,6 +337,10 @@ public abstract class URLStreamHandler {
             // Remove trailing .
             if (path.endsWith("/."))
                 path = path.substring(0, path.length() -1);
+
+            // Remove trailing ?
+            if (path.endsWith("?"))
+                path = path.substring(0, path.length() -1);
         }
 
         setURL(u, protocol, host, port, authority, userInfo, path, query, ref);
