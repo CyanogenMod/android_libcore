@@ -750,4 +750,11 @@ public final class URLTest extends TestCase {
             BlockGuard.setThreadPolicy(oldPolicy);
         }
     }
+
+    // http://27444667
+    public void testEmptyQueryAndAnchor() throws Exception {
+        assertEquals("/some/path", new URL("http://foobar.com/some/path?").getFile());
+        assertEquals("/some/path", new URL("http://foobar.com/some/path#").getFile());
+        assertEquals("/some/path", new URL("http://foobar.com/some/path?#").getFile());
+    }
 }

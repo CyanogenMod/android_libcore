@@ -708,7 +708,7 @@ public final class URL implements java.io.Serializable {
             this.protocol = protocol;
             this.host = host;
             this.port = port;
-            this.file = query == null ? path : path + "?" + query;
+            this.file = (query == null || query.isEmpty()) ? path : path + "?" + query;
             this.userInfo = userInfo;
             this.path = path;
             this.ref = ref;
