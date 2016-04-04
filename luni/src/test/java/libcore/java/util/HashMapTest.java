@@ -16,6 +16,7 @@
 
 package libcore.java.util;
 
+import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 
 public class HashMapTest extends junit.framework.TestCase {
@@ -67,5 +68,34 @@ public class HashMapTest extends junit.framework.TestCase {
     public void test_merge() {
         MapDefaultMethodTester
                 .test_merge(new HashMap<>(), true /*acceptsNullKey*/);
+    }
+
+    public void test_replaceAll() throws Exception {
+        HashMap<String, String> map = new HashMap<>();
+        map.put("one", "1");
+        map.put("two", "2");
+        map.put("three", "3");
+
+        map.replaceAll((k, v) -> k + v);
+        assertEquals("one1", map.get("one"));
+        assertEquals("two2", map.get("two"));
+        assertEquals("three3", map.get("three"));
+        assertEquals(3, map.size());
+
+        try {
+            map.replaceAll(new java.util.function.BiFunction<String, String, String>() {
+                @Override
+                public String apply(String k, String v) {
+                    map.put("foo1", v);
+                    return v;
+                }
+            });
+            fail();
+        } catch(ConcurrentModificationException expected) {}
+
+        try {
+            map.replaceAll(null);
+            fail();
+        } catch(NullPointerException expected) {}
     }
 }

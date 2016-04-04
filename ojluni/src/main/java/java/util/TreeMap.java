@@ -1010,6 +1010,19 @@ public class TreeMap<K,V>
         }
     }
 
+    @Override
+    public void replaceAll(BiFunction<? super K, ? super V, ? extends V> function) {
+        Objects.requireNonNull(function);
+        int expectedModCount = modCount;
+        for (TreeMapEntry<K, V> e = getFirstEntry(); e != null; e = successor(e)) {
+            e.value = function.apply(e.key, e.value);
+
+            if (expectedModCount != modCount) {
+                throw new ConcurrentModificationException();
+            }
+        }
+    }
+
     // View class support
 
     class Values extends AbstractCollection<V> {

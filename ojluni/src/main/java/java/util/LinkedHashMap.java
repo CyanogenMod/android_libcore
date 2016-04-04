@@ -27,6 +27,7 @@
 package java.util;
 
 import java.io.*;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.BiConsumer;
 
@@ -545,6 +546,17 @@ public class LinkedHashMap<K,V>
         // Android modified - breaks from the loop when modCount != mc
         for (LinkedHashMapEntry<K,V> e = header.after; modCount == mc && e != header; e = e.after)
             action.accept(e.key, e.value);
+        if (modCount != mc)
+            throw new ConcurrentModificationException();
+    }
+
+    public void replaceAll(BiFunction<? super K, ? super V, ? extends V> function) {
+        if (function == null)
+            throw new NullPointerException();
+        int mc = modCount;
+        // Android modified - breaks from the loop when modCount != mc
+        for (LinkedHashMapEntry<K,V> e = header.after; modCount == mc && e != header; e = e.after)
+            e.value = function.apply(e.key, e.value);
         if (modCount != mc)
             throw new ConcurrentModificationException();
     }

@@ -16,6 +16,7 @@
 
 package libcore.java.util;
 
+import java.util.ConcurrentModificationException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -233,5 +234,34 @@ public class LinkedHashMapTest extends junit.framework.TestCase {
         assertEquals(2, removeEldestEntryCallCount.get());
         assertEquals(2, m.size());
         assertFalse(m.containsKey("foo"));
+    }
+
+    public void test_replaceAll() {
+        LinkedHashMap<String, String> map = new LinkedHashMap<>();
+        map.put("one", "1");
+        map.put("two", "2");
+        map.put("three", "3");
+
+        map.replaceAll((k, v) -> k + v);
+        assertEquals("one1", map.get("one"));
+        assertEquals("two2", map.get("two"));
+        assertEquals("three3", map.get("three"));
+        assertEquals(3, map.size());
+
+        try {
+            map.replaceAll(new java.util.function.BiFunction<String, String, String>() {
+                @Override
+                public String apply(String k, String v) {
+                    map.put("foo1", v);
+                    return v;
+                }
+            });
+            fail();
+        } catch(ConcurrentModificationException expected) {}
+
+        try {
+            map.replaceAll(null);
+            fail();
+        } catch(NullPointerException expected) {}
     }
 }

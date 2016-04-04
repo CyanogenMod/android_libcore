@@ -27,6 +27,7 @@
 package java.util;
 
 import java.io.*;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.BiConsumer;
 
@@ -1452,6 +1453,23 @@ public class HashMap<K,V>
                     }
                 }
             }
+        }
+    }
+
+    @Override
+    public void replaceAll(BiFunction<? super K, ? super V, ? extends V> function) {
+        HashMapEntry<K,V>[] tab;
+        if (function == null)
+            throw new NullPointerException();
+        if (size > 0 && (tab = table) != null) {
+            int mc = modCount;
+            for (int i = 0; i < tab.length; ++i) {
+                for (HashMapEntry<K,V> e = tab[i]; e != null; e = e.next) {
+                    e.value = function.apply(e.key, e.value);
+                }
+            }
+            if (modCount != mc)
+                throw new ConcurrentModificationException();
         }
     }
 
