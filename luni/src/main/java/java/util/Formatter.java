@@ -73,7 +73,7 @@ import libcore.io.IoUtils;
  * <td width="5%">{@code ,}</td>
  * <td width="25%">Use grouping separators for large numbers. (Decimal only.)</td>
  * <td width="30%">{@code format("%,d", 1024);}</td>
- * <td width="30%">{@code 1,234}</td>
+ * <td width="30%">{@code 1,024}</td>
  * </tr>
  * <tr>
  * <td width="5%">{@code +}</td>
