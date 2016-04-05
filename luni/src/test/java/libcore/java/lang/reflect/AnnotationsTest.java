@@ -298,6 +298,12 @@ public final class AnnotationsTest extends TestCase {
         assertDeclared(true, aPackage, RepeatableAnnotations.class);
     }
 
+    public void testRetentionPolicy() {
+        assertNull(RetentionAnnotations.class.getAnnotation(ClassRetentionAnnotation.class));
+        assertNotNull(RetentionAnnotations.class.getAnnotation(RuntimeRetentionAnnotation.class));
+        assertNull(RetentionAnnotations.class.getAnnotation(SourceRetentionAnnotation.class));
+    }
+
     private static final Object staticAnonymous = new Object() {};
 
     private static class Foo {
@@ -340,6 +346,15 @@ public final class AnnotationsTest extends TestCase {
         RepeatableAnnotation[] value();
     }
 
+    @Retention(RetentionPolicy.CLASS)
+    public @interface ClassRetentionAnnotation {}
+
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface RuntimeRetentionAnnotation {}
+
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface SourceRetentionAnnotation {}
+
     @AnnotationA @AnnotationB @RepeatableAnnotation
     public static class Type {
         @AnnotationA @AnnotationC public Type() {}
@@ -357,6 +372,9 @@ public final class AnnotationsTest extends TestCase {
 
     @RepeatableAnnotations({ @RepeatableAnnotation, @RepeatableAnnotation})
     public static class TypeWithExplicitRepeatableAnnotations {}
+
+    @ClassRetentionAnnotation @RuntimeRetentionAnnotation @SourceRetentionAnnotation
+    public static class RetentionAnnotations {}
 
     static enum Breakfast { WAFFLES, PANCAKES }
 

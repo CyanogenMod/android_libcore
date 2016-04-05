@@ -29,7 +29,6 @@ package java.lang.reflect;
 import sun.reflect.CallerSensitive;
 import java.util.Comparator;
 import java.util.List;
-import libcore.reflect.AnnotationAccess;
 import libcore.reflect.Types;
 
 import java.lang.annotation.Annotation;

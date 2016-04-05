@@ -391,7 +391,6 @@ non_openjdk_java_files := \
   luni/src/main/java/libcore/net/http/HttpDate.java \
   luni/src/main/java/libcore/net/http/ResponseUtils.java \
   luni/src/main/java/libcore/reflect/AnnotatedElements.java \
-  luni/src/main/java/libcore/reflect/AnnotationAccess.java \
   luni/src/main/java/libcore/reflect/AnnotationFactory.java \
   luni/src/main/java/libcore/reflect/AnnotationMember.java \
   luni/src/main/java/libcore/reflect/GenericArrayTypeImpl.java \
