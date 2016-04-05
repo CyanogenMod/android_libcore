@@ -21,9 +21,9 @@ echo $test_packages | tr " " "\n"
 
 $VOGAR \
   --vm-arg -Xmx32M \
-  --classpath out/target/common/obj/JAVA_LIBRARIES/core-tests_intermediates/javalib.jar \
-  --classpath out/target/common/obj/JAVA_LIBRARIES/sqlite-jdbc_intermediates/classes.jar \
-  --classpath out/target/common/obj/JAVA_LIBRARIES/bouncycastle_intermediates/classes.jar \
-  --classpath out/target/common/obj/JAVA_LIBRARIES/okhttp_intermediates/classes.jar \
+  --classpath out/target/common/obj/JAVA_LIBRARIES/core-tests_intermediates/classes.jack \
+  --classpath out/target/common/obj/JAVA_LIBRARIES/sqlite-jdbc_intermediates/classes.jack \
+  --classpath out/target/common/obj/JAVA_LIBRARIES/bouncycastle_intermediates/classes.jack \
+  --classpath out/target/common/obj/JAVA_LIBRARIES/okhttp_intermediates/classes.jack \
   $test_packages \
   || true
