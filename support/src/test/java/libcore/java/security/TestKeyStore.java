@@ -174,6 +174,7 @@ public final class TestKeyStore extends Assert {
                 .aliasPrefix("RootCA")
                 .subject("CN=Test Root Certificate Authority")
                 .ca(true)
+                .certificateSerialNumber(BigInteger.valueOf(1))
                 .build();
         INTERMEDIATE_CA = new Builder()
                 .aliasPrefix("IntermediateCA")
@@ -181,12 +182,14 @@ public final class TestKeyStore extends Assert {
                 .ca(true)
                 .signer(ROOT_CA.getPrivateKey("RSA", "RSA"))
                 .rootCa(ROOT_CA.getRootCertificate("RSA"))
+                .certificateSerialNumber(BigInteger.valueOf(2))
                 .build();
         SERVER = new Builder()
                 .aliasPrefix("server")
                 .signer(INTERMEDIATE_CA.getPrivateKey("RSA", "RSA"))
                 .rootCa(INTERMEDIATE_CA.getRootCertificate("RSA"))
                 .addSubjectAltNameIpAddress(LOCAL_HOST_ADDRESS)
+                .certificateSerialNumber(BigInteger.valueOf(3))
                 .build();
         CLIENT = new TestKeyStore(createClient(INTERMEDIATE_CA.keyStore), null, null);
         CLIENT_CERTIFICATE = new Builder()
@@ -293,6 +296,8 @@ public final class TestKeyStore extends Assert {
                 = new ArrayList<GeneralSubtree>();
         private final List<GeneralSubtree> excludedNameConstraints
                 = new ArrayList<GeneralSubtree>();
+        // Generated randomly if not set
+        private BigInteger certificateSerialNumber = null;
 
         public Builder() {
             subject = localhost();
@@ -384,6 +389,11 @@ public final class TestKeyStore extends Assert {
         public Builder addNameConstraint(boolean permitted, byte[] ipAddress) {
             return addNameConstraint(permitted,
                     new GeneralName(GeneralName.iPAddress, new DEROctetString(ipAddress)));
+        }
+
+        public Builder certificateSerialNumber(BigInteger certificateSerialNumber) {
+            this.certificateSerialNumber = certificateSerialNumber;
+            return this;
         }
 
         public TestKeyStore build() {
@@ -523,7 +533,8 @@ public final class TestKeyStore extends Assert {
                 x509c = createCertificate(publicKey, signingKey, subject, issuer, keyUsage, ca,
                                           extendedKeyUsages, criticalExtendedKeyUsages,
                                           subjectAltNames,
-                                          permittedNameConstraints, excludedNameConstraints);
+                                          permittedNameConstraints, excludedNameConstraints,
+                                          certificateSerialNumber);
             }
 
             X509Certificate[] x509cc;
@@ -565,7 +576,8 @@ public final class TestKeyStore extends Assert {
                                      new ArrayList<Boolean>(),
                                      new ArrayList<GeneralName>(),
                                      new ArrayList<GeneralSubtree>(),
-                                     new ArrayList<GeneralSubtree>());
+                                     new ArrayList<GeneralSubtree>(),
+                                     null /* serialNumber, generated randomly */);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -582,7 +594,8 @@ public final class TestKeyStore extends Assert {
             List<Boolean> criticalExtendedKeyUsages,
             List<GeneralName> subjectAltNames,
             List<GeneralSubtree> permittedNameConstraints,
-            List<GeneralSubtree> excludedNameConstraints) throws Exception {
+            List<GeneralSubtree> excludedNameConstraints,
+            BigInteger serialNumber) throws Exception {
         // Note that there is no way to programmatically make a
         // Certificate using java.* or javax.* APIs. The
         // CertificateFactory interface assumes you want to read
@@ -595,11 +608,6 @@ public final class TestKeyStore extends Assert {
         long now = System.currentTimeMillis();
         Date start = new Date(now - millisPerDay);
         Date end = new Date(now + millisPerDay);
-
-        // Generate a random serial number.
-        byte[] serialBytes = new byte[16];
-        new SecureRandom().nextBytes(serialBytes);
-        BigInteger serial = new BigInteger(1, serialBytes);
 
         String keyAlgorithm = privateKey.getAlgorithm();
         String signatureAlgorithm;
@@ -622,7 +630,12 @@ public final class TestKeyStore extends Assert {
         x509cg.setNotAfter(end);
         x509cg.setPublicKey(publicKey);
         x509cg.setSignatureAlgorithm(signatureAlgorithm);
-        x509cg.setSerialNumber(serial);
+        if (serialNumber == null) {
+            byte[] serialBytes = new byte[16];
+            new SecureRandom().nextBytes(serialBytes);
+            serialNumber = new BigInteger(1, serialBytes);
+        }
+        x509cg.setSerialNumber(serialNumber);
         if (keyUsage != 0) {
             x509cg.addExtension(X509Extensions.KeyUsage,
                                 true,

@@ -1929,8 +1929,8 @@ public final class URLConnectionTest extends AbstractResourceLeakageDetectorTest
 
             assertEquals(Arrays.asList("verify " + hostName), hostnameVerifier.calls);
             assertEquals(Arrays.asList("checkServerTrusted ["
-                    + "CN=" + hostName + " 1, "
-                    + "CN=Test Intermediate Certificate Authority 1, "
+                    + "CN=" + hostName + " 3, "
+                    + "CN=Test Intermediate Certificate Authority 2, "
                     + "CN=Test Root Certificate Authority 1"
                     + "] ECDHE_RSA"),
                     trustManager.calls);
