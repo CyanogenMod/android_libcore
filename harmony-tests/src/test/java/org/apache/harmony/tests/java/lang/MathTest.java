@@ -1057,6 +1057,68 @@ public class MathTest extends junit.framework.TestCase {
     }
 
     /**
+     * {@link java.lang.Math#nextDown(double)}
+     * @since 1.8
+     */
+    @SuppressWarnings("boxing")
+    public void test_nextDown_D() {
+        // This method is semantically equivalent to nextAfter(d,
+        // Double.NEGATIVE_INFINITY),
+        // so we use the data of test_nextAfter_DD
+        for (int i = 0; i < NEXTAFTER_DD_START_CASES.length; i++) {
+            final double start = NEXTAFTER_DD_START_CASES[i][0];
+            final long nextDownBits = Double
+                    .doubleToLongBits(NEXTAFTER_DD_START_CASES[i][2]);
+            final long resultBits = Double.doubleToLongBits(Math.nextDown(start));
+            assertEquals("Result should be next down-number.", nextDownBits,
+                    resultBits);
+        }
+
+        // test for cases with NaN
+        assertTrue("The result should be NaN.", Double.isNaN(Math
+                .nextDown(Double.NaN)));
+
+        // test for exception
+        try {
+            Math.nextDown((Double) null);
+            fail("Should throw NullPointerException");
+        } catch (NullPointerException e) {
+            // Expected
+        }
+    }
+
+    /**
+     * {@link java.lang.Math#nextDown(float)}
+     * @since 1.8
+     */
+    @SuppressWarnings("boxing")
+    public void test_nextDown_F() {
+        // This method is semantically equivalent to nextAfter(f,
+        // Float.NEGATIVE_INFINITY),
+        // so we use the data of test_nextAfter_FD
+        for (int i = 0; i < NEXTAFTER_FD_START_CASES.length; i++) {
+            final float start = NEXTAFTER_FD_START_CASES[i][0];
+            final int nextDownBits = Float
+                    .floatToIntBits(NEXTAFTER_FD_START_CASES[i][2]);
+            final int resultBits = Float.floatToIntBits(Math.nextDown(start));
+            assertEquals("Result should be next down-number.", nextDownBits,
+                    resultBits);
+        }
+
+        // test for cases with NaN
+        assertTrue("The result should be NaN.", Float.isNaN(Math
+                .nextDown(Float.NaN)));
+
+        // test for exception
+        try {
+            Math.nextDown((Float) null);
+            fail("Should throw NullPointerException");
+        } catch (NullPointerException e) {
+            // Expected
+        }
+    }
+
+    /**
      * java.lang.Math#pow(double, double)
      */
     public void test_powDD() {

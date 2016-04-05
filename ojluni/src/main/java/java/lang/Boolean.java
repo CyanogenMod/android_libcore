@@ -292,4 +292,46 @@ public final class Boolean implements java.io.Serializable,
     private static boolean toBoolean(String name) {
         return ((name != null) && name.equalsIgnoreCase("true"));
     }
+
+    /**
+     * Returns the result of applying the logical AND operator to the
+     * specified {@code boolean} operands.
+     *
+     * @param a the first operand
+     * @param b the second operand
+     * @return the logical AND of {@code a} and {@code b}
+     * @see java.util.function.BinaryOperator
+     * @since 1.8
+     */
+    public static boolean logicalAnd(boolean a, boolean b) {
+        return a && b;
+    }
+
+    /**
+     * Returns the result of applying the logical OR operator to the
+     * specified {@code boolean} operands.
+     *
+     * @param a the first operand
+     * @param b the second operand
+     * @return the logical OR of {@code a} and {@code b}
+     * @see java.util.function.BinaryOperator
+     * @since 1.8
+     */
+    public static boolean logicalOr(boolean a, boolean b) {
+        return a || b;
+    }
+
+    /**
+     * Returns the result of applying the logical XOR operator to the
+     * specified {@code boolean} operands.
+     *
+     * @param a the first operand
+     * @param b the second operand
+     * @return  the logical XOR of {@code a} and {@code b}
+     * @see java.util.function.BinaryOperator
+     * @since 1.8
+     */
+    public static boolean logicalXor(boolean a, boolean b) {
+        return a ^ b;
+    }
 }

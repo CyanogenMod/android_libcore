@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2011, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1999, 2013, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -693,6 +693,211 @@ public final class StrictMath {
         Random rnd = randomNumberGenerator;
         if (rnd == null) rnd = initRNG();
         return rnd.nextDouble();
+    }
+
+    /**
+     * Returns the sum of its arguments,
+     * throwing an exception if the result overflows an {@code int}.
+     *
+     * @param x the first value
+     * @param y the second value
+     * @return the result
+     * @throws ArithmeticException if the result overflows an int
+     * @see Math#addExact(int,int)
+     * @since 1.8
+     */
+    public static int addExact(int x, int y) {
+        return Math.addExact(x, y);
+    }
+
+    /**
+     * Returns the sum of its arguments,
+     * throwing an exception if the result overflows a {@code long}.
+     *
+     * @param x the first value
+     * @param y the second value
+     * @return the result
+     * @throws ArithmeticException if the result overflows a long
+     * @see Math#addExact(long,long)
+     * @since 1.8
+     */
+    public static long addExact(long x, long y) {
+        return Math.addExact(x, y);
+    }
+
+    /**
+     * Returns the difference of the arguments,
+     * throwing an exception if the result overflows an {@code int}.
+     *
+     * @param x the first value
+     * @param y the second value to subtract from the first
+     * @return the result
+     * @throws ArithmeticException if the result overflows an int
+     * @see Math#subtractExact(int,int)
+     * @since 1.8
+     */
+    public static int subtractExact(int x, int y) {
+        return Math.subtractExact(x, y);
+    }
+
+    /**
+     * Returns the difference of the arguments,
+     * throwing an exception if the result overflows a {@code long}.
+     *
+     * @param x the first value
+     * @param y the second value to subtract from the first
+     * @return the result
+     * @throws ArithmeticException if the result overflows a long
+     * @see Math#subtractExact(long,long)
+     * @since 1.8
+     */
+    public static long subtractExact(long x, long y) {
+        return Math.subtractExact(x, y);
+    }
+
+    /**
+     * Returns the product of the arguments,
+     * throwing an exception if the result overflows an {@code int}.
+     *
+     * @param x the first value
+     * @param y the second value
+     * @return the result
+     * @throws ArithmeticException if the result overflows an int
+     * @see Math#multiplyExact(int,int)
+     * @since 1.8
+     */
+    public static int multiplyExact(int x, int y) {
+        return Math.multiplyExact(x, y);
+    }
+
+    /**
+     * Returns the product of the arguments,
+     * throwing an exception if the result overflows a {@code long}.
+     *
+     * @param x the first value
+     * @param y the second value
+     * @return the result
+     * @throws ArithmeticException if the result overflows a long
+     * @see Math#multiplyExact(long,long)
+     * @since 1.8
+     */
+    public static long multiplyExact(long x, long y) {
+        return Math.multiplyExact(x, y);
+    }
+
+    /**
+     * Returns the value of the {@code long} argument;
+     * throwing an exception if the value overflows an {@code int}.
+     *
+     * @param value the long value
+     * @return the argument as an int
+     * @throws ArithmeticException if the {@code argument} overflows an int
+     * @see Math#toIntExact(long)
+     * @since 1.8
+     */
+    public static int toIntExact(long value) {
+        return Math.toIntExact(value);
+    }
+
+    /**
+     * Returns the largest (closest to positive infinity)
+     * {@code int} value that is less than or equal to the algebraic quotient.
+     * There is one special case, if the dividend is the
+     * {@linkplain Integer#MIN_VALUE Integer.MIN_VALUE} and the divisor is {@code -1},
+     * then integer overflow occurs and
+     * the result is equal to the {@code Integer.MIN_VALUE}.
+     * <p>
+     * See {@link Math#floorDiv(int, int) Math.floorDiv} for examples and
+     * a comparison to the integer division {@code /} operator.
+     *
+     * @param x the dividend
+     * @param y the divisor
+     * @return the largest (closest to positive infinity)
+     * {@code int} value that is less than or equal to the algebraic quotient.
+     * @throws ArithmeticException if the divisor {@code y} is zero
+     * @see Math#floorDiv(int, int)
+     * @see Math#floor(double)
+     * @since 1.8
+     */
+    public static int floorDiv(int x, int y) {
+        return Math.floorDiv(x, y);
+    }
+
+    /**
+     * Returns the largest (closest to positive infinity)
+     * {@code long} value that is less than or equal to the algebraic quotient.
+     * There is one special case, if the dividend is the
+     * {@linkplain Long#MIN_VALUE Long.MIN_VALUE} and the divisor is {@code -1},
+     * then integer overflow occurs and
+     * the result is equal to the {@code Long.MIN_VALUE}.
+     * <p>
+     * See {@link Math#floorDiv(int, int) Math.floorDiv} for examples and
+     * a comparison to the integer division {@code /} operator.
+     *
+     * @param x the dividend
+     * @param y the divisor
+     * @return the largest (closest to positive infinity)
+     * {@code long} value that is less than or equal to the algebraic quotient.
+     * @throws ArithmeticException if the divisor {@code y} is zero
+     * @see Math#floorDiv(long, long)
+     * @see Math#floor(double)
+     * @since 1.8
+     */
+    public static long floorDiv(long x, long y) {
+        return Math.floorDiv(x, y);
+    }
+
+    /**
+     * Returns the floor modulus of the {@code int} arguments.
+     * <p>
+     * The floor modulus is {@code x - (floorDiv(x, y) * y)},
+     * has the same sign as the divisor {@code y}, and
+     * is in the range of {@code -abs(y) < r < +abs(y)}.
+     * <p>
+     * The relationship between {@code floorDiv} and {@code floorMod} is such that:
+     * <ul>
+     *   <li>{@code floorDiv(x, y) * y + floorMod(x, y) == x}
+     * </ul>
+     * <p>
+     * See {@link Math#floorMod(int, int) Math.floorMod} for examples and
+     * a comparison to the {@code %} operator.
+     *
+     * @param x the dividend
+     * @param y the divisor
+     * @return the floor modulus {@code x - (floorDiv(x, y) * y)}
+     * @throws ArithmeticException if the divisor {@code y} is zero
+     * @see Math#floorMod(int, int)
+     * @see StrictMath#floorDiv(int, int)
+     * @since 1.8
+     */
+    public static int floorMod(int x, int y) {
+        return Math.floorMod(x , y);
+    }
+    /**
+     * Returns the floor modulus of the {@code long} arguments.
+     * <p>
+     * The floor modulus is {@code x - (floorDiv(x, y) * y)},
+     * has the same sign as the divisor {@code y}, and
+     * is in the range of {@code -abs(y) < r < +abs(y)}.
+     * <p>
+     * The relationship between {@code floorDiv} and {@code floorMod} is such that:
+     * <ul>
+     *   <li>{@code floorDiv(x, y) * y + floorMod(x, y) == x}
+     * </ul>
+     * <p>
+     * See {@link Math#floorMod(int, int) Math.floorMod} for examples and
+     * a comparison to the {@code %} operator.
+     *
+     * @param x the dividend
+     * @param y the divisor
+     * @return the floor modulus {@code x - (floorDiv(x, y) * y)}
+     * @throws ArithmeticException if the divisor {@code y} is zero
+     * @see Math#floorMod(long, long)
+     * @see StrictMath#floorDiv(long, long)
+     * @since 1.8
+     */
+    public static long floorMod(long x, long y) {
+        return Math.floorMod(x, y);
     }
 
     /**
@@ -1397,6 +1602,63 @@ public final class StrictMath {
         return sun.misc.FpUtils.nextUp(f);
     }
 
+    /**
+     * Returns the floating-point value adjacent to {@code d} in
+     * the direction of negative infinity.  This method is
+     * semantically equivalent to {@code nextAfter(d,
+     * Double.NEGATIVE_INFINITY)}; however, a
+     * {@code nextDown} implementation may run faster than its
+     * equivalent {@code nextAfter} call.
+     *
+     * <p>Special Cases:
+     * <ul>
+     * <li> If the argument is NaN, the result is NaN.
+     *
+     * <li> If the argument is negative infinity, the result is
+     * negative infinity.
+     *
+     * <li> If the argument is zero, the result is
+     * {@code -Double.MIN_VALUE}
+     *
+     * </ul>
+     *
+     * @param d  starting floating-point value
+     * @return The adjacent floating-point value closer to negative
+     * infinity.
+     * @since 1.8
+     */
+    public static double nextDown(double d) {
+        return Math.nextDown(d);
+    }
+
+    /**
+     * Returns the floating-point value adjacent to {@code f} in
+     * the direction of negative infinity.  This method is
+     * semantically equivalent to {@code nextAfter(f,
+     * Float.NEGATIVE_INFINITY)}; however, a
+     * {@code nextDown} implementation may run faster than its
+     * equivalent {@code nextAfter} call.
+     *
+     * <p>Special Cases:
+     * <ul>
+     * <li> If the argument is NaN, the result is NaN.
+     *
+     * <li> If the argument is negative infinity, the result is
+     * negative infinity.
+     *
+     * <li> If the argument is zero, the result is
+     * {@code -Float.MIN_VALUE}
+     *
+     * </ul>
+     *
+     * @param f  starting floating-point value
+     * @return The adjacent floating-point value closer to negative
+     * infinity.
+     * @since 1.8
+     */
+    public static float nextDown(float f) {
+        return Math.nextDown(f);
+    }
 
     /**
      * Return {@code d} &times;
