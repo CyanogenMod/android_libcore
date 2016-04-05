@@ -210,10 +210,7 @@ public class ObjectOutputStream
      * value of "sun.io.serialization.extendedDebugInfo" property,
      * as true or false for extended information about exception's place
      */
-    private static final boolean extendedDebugInfo =
-        java.security.AccessController.doPrivileged(
-            new sun.security.action.GetBooleanAction(
-                "sun.io.serialization.extendedDebugInfo")).booleanValue();
+    private static final boolean extendedDebugInfo = false;
 
     /**
      * Creates an ObjectOutputStream that writes to the specified OutputStream.
