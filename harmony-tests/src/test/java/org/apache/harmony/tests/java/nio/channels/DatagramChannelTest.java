@@ -17,6 +17,8 @@
 
 package org.apache.harmony.tests.java.nio.channels;
 
+import android.system.ErrnoException;
+import android.system.OsConstants;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -33,8 +35,10 @@ import java.nio.channels.NotYetConnectedException;
 import java.nio.channels.UnresolvedAddressException;
 import java.nio.channels.UnsupportedAddressTypeException;
 import java.nio.channels.spi.SelectorProvider;
+import java.util.concurrent.atomic.AtomicReference;
 import junit.framework.TestCase;
 import libcore.io.IoUtils;
+import libcore.io.Libcore;
 
 /**
  * Test for DatagramChannel
@@ -2517,5 +2521,41 @@ public class DatagramChannelTest extends TestCase {
         assertFalse(dc.isOpen());
 
         dc.socket().getLocalSocketAddress();
+    }
+
+    // b/27294715
+    public void test_concurrentShutdown() throws Exception {
+        DatagramChannel dc = DatagramChannel.open();
+        dc.configureBlocking(true);
+        dc.bind(new InetSocketAddress(Inet6Address.LOOPBACK, 0));
+        // Set 4s timeout
+        dc.socket().setSoTimeout(4000);
+
+        final AtomicReference<Exception> killerThreadException = new AtomicReference<Exception>(null);
+        final Thread killer = new Thread(new Runnable() {
+            public void run() {
+                try {
+                    Thread.sleep(2000);
+                    try {
+                        Libcore.os.shutdown(dc.socket().getFileDescriptor$(), OsConstants.SHUT_RDWR);
+                    } catch (ErrnoException expected) {
+                        if (OsConstants.ENOTCONN != expected.errno) {
+                            killerThreadException.set(expected);
+                        }
+                    }
+                } catch (Exception ex) {
+                    killerThreadException.set(ex);
+                }
+            }
+        });
+        killer.start();
+
+        ByteBuffer dst = ByteBuffer.allocate(CAPACITY_NORMAL);
+        assertEquals(null, dc.receive(dst));
+        assertEquals(0, dst.position());
+        dc.close();
+
+        killer.join();
+        assertNull(killerThreadException.get());
     }
 }
