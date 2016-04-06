@@ -180,8 +180,8 @@ public class ServerSocketChannelTest extends junit.framework.TestCase {
         // Assert that we can read back the option from the channel...
         assertEquals(false, (boolean)sc.getOption(StandardSocketOptions.SO_REUSEADDR));
 
-        sc.setOption(StandardSocketOptions.SO_RCVBUF, 1120);
-        assertEquals((Integer)1120, sc.getOption(StandardSocketOptions.SO_RCVBUF));
+        sc.setOption(StandardSocketOptions.SO_RCVBUF, 1100);
+        assertTrue(1100 <= sc.getOption(StandardSocketOptions.SO_RCVBUF));
 
         sc.close();
         try {
