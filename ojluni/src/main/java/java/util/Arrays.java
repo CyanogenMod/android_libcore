@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2014 The Android Open Source Project
- * Copyright (c) 1997, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2014, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -28,11 +28,15 @@ package java.util;
 
 import java.lang.reflect.*;
 import java.util.concurrent.ForkJoinPool;
+import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
+import java.util.function.DoubleBinaryOperator;
+import java.util.function.IntBinaryOperator;
 import java.util.function.IntFunction;
 import java.util.function.IntToDoubleFunction;
 import java.util.function.IntToLongFunction;
 import java.util.function.IntUnaryOperator;
+import java.util.function.LongBinaryOperator;
 import java.util.function.UnaryOperator;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
@@ -1593,6 +1597,194 @@ public class Arrays {
         if (toIndex > length) {
             throw new ArrayIndexOutOfBoundsException(toIndex);
         }
+    }
+
+
+    // Parallel prefix
+
+    /**
+     * Cumulates, in parallel, each element of the given array in place,
+     * using the supplied function. For example if the array initially
+     * holds {@code [2, 1, 0, 3]} and the operation performs addition,
+     * then upon return the array holds {@code [2, 3, 3, 6]}.
+     * Parallel prefix computation is usually more efficient than
+     * sequential loops for large arrays.
+     *
+     * @param <T> the class of the objects in the array
+     * @param array the array, which is modified in-place by this method
+     * @param op a side-effect-free, associative function to perform the
+     * cumulation
+     * @throws NullPointerException if the specified array or function is null
+     * @since 1.8
+     */
+    public static <T> void parallelPrefix(T[] array, BinaryOperator<T> op) {
+        Objects.requireNonNull(op);
+        if (array.length > 0)
+            new ArrayPrefixHelpers.CumulateTask<>
+                    (null, op, array, 0, array.length).invoke();
+    }
+
+    /**
+     * Performs {@link #parallelPrefix(Object[], BinaryOperator)}
+     * for the given subrange of the array.
+     *
+     * @param <T> the class of the objects in the array
+     * @param array the array
+     * @param fromIndex the index of the first element, inclusive
+     * @param toIndex the index of the last element, exclusive
+     * @param op a side-effect-free, associative function to perform the
+     * cumulation
+     * @throws IllegalArgumentException if {@code fromIndex > toIndex}
+     * @throws ArrayIndexOutOfBoundsException
+     *     if {@code fromIndex < 0} or {@code toIndex > array.length}
+     * @throws NullPointerException if the specified array or function is null
+     * @since 1.8
+     */
+    public static <T> void parallelPrefix(T[] array, int fromIndex,
+                                          int toIndex, BinaryOperator<T> op) {
+        Objects.requireNonNull(op);
+        rangeCheck(array.length, fromIndex, toIndex);
+        if (fromIndex < toIndex)
+            new ArrayPrefixHelpers.CumulateTask<>
+                    (null, op, array, fromIndex, toIndex).invoke();
+    }
+
+    /**
+     * Cumulates, in parallel, each element of the given array in place,
+     * using the supplied function. For example if the array initially
+     * holds {@code [2, 1, 0, 3]} and the operation performs addition,
+     * then upon return the array holds {@code [2, 3, 3, 6]}.
+     * Parallel prefix computation is usually more efficient than
+     * sequential loops for large arrays.
+     *
+     * @param array the array, which is modified in-place by this method
+     * @param op a side-effect-free, associative function to perform the
+     * cumulation
+     * @throws NullPointerException if the specified array or function is null
+     * @since 1.8
+     */
+    public static void parallelPrefix(long[] array, LongBinaryOperator op) {
+        Objects.requireNonNull(op);
+        if (array.length > 0)
+            new ArrayPrefixHelpers.LongCumulateTask
+                    (null, op, array, 0, array.length).invoke();
+    }
+
+    /**
+     * Performs {@link #parallelPrefix(long[], LongBinaryOperator)}
+     * for the given subrange of the array.
+     *
+     * @param array the array
+     * @param fromIndex the index of the first element, inclusive
+     * @param toIndex the index of the last element, exclusive
+     * @param op a side-effect-free, associative function to perform the
+     * cumulation
+     * @throws IllegalArgumentException if {@code fromIndex > toIndex}
+     * @throws ArrayIndexOutOfBoundsException
+     *     if {@code fromIndex < 0} or {@code toIndex > array.length}
+     * @throws NullPointerException if the specified array or function is null
+     * @since 1.8
+     */
+    public static void parallelPrefix(long[] array, int fromIndex,
+                                      int toIndex, LongBinaryOperator op) {
+        Objects.requireNonNull(op);
+        rangeCheck(array.length, fromIndex, toIndex);
+        if (fromIndex < toIndex)
+            new ArrayPrefixHelpers.LongCumulateTask
+                    (null, op, array, fromIndex, toIndex).invoke();
+    }
+
+    /**
+     * Cumulates, in parallel, each element of the given array in place,
+     * using the supplied function. For example if the array initially
+     * holds {@code [2.0, 1.0, 0.0, 3.0]} and the operation performs addition,
+     * then upon return the array holds {@code [2.0, 3.0, 3.0, 6.0]}.
+     * Parallel prefix computation is usually more efficient than
+     * sequential loops for large arrays.
+     *
+     * <p> Because floating-point operations may not be strictly associative,
+     * the returned result may not be identical to the value that would be
+     * obtained if the operation was performed sequentially.
+     *
+     * @param array the array, which is modified in-place by this method
+     * @param op a side-effect-free function to perform the cumulation
+     * @throws NullPointerException if the specified array or function is null
+     * @since 1.8
+     */
+    public static void parallelPrefix(double[] array, DoubleBinaryOperator op) {
+        Objects.requireNonNull(op);
+        if (array.length > 0)
+            new ArrayPrefixHelpers.DoubleCumulateTask
+                    (null, op, array, 0, array.length).invoke();
+    }
+
+    /**
+     * Performs {@link #parallelPrefix(double[], DoubleBinaryOperator)}
+     * for the given subrange of the array.
+     *
+     * @param array the array
+     * @param fromIndex the index of the first element, inclusive
+     * @param toIndex the index of the last element, exclusive
+     * @param op a side-effect-free, associative function to perform the
+     * cumulation
+     * @throws IllegalArgumentException if {@code fromIndex > toIndex}
+     * @throws ArrayIndexOutOfBoundsException
+     *     if {@code fromIndex < 0} or {@code toIndex > array.length}
+     * @throws NullPointerException if the specified array or function is null
+     * @since 1.8
+     */
+    public static void parallelPrefix(double[] array, int fromIndex,
+                                      int toIndex, DoubleBinaryOperator op) {
+        Objects.requireNonNull(op);
+        rangeCheck(array.length, fromIndex, toIndex);
+        if (fromIndex < toIndex)
+            new ArrayPrefixHelpers.DoubleCumulateTask
+                    (null, op, array, fromIndex, toIndex).invoke();
+    }
+
+    /**
+     * Cumulates, in parallel, each element of the given array in place,
+     * using the supplied function. For example if the array initially
+     * holds {@code [2, 1, 0, 3]} and the operation performs addition,
+     * then upon return the array holds {@code [2, 3, 3, 6]}.
+     * Parallel prefix computation is usually more efficient than
+     * sequential loops for large arrays.
+     *
+     * @param array the array, which is modified in-place by this method
+     * @param op a side-effect-free, associative function to perform the
+     * cumulation
+     * @throws NullPointerException if the specified array or function is null
+     * @since 1.8
+     */
+    public static void parallelPrefix(int[] array, IntBinaryOperator op) {
+        Objects.requireNonNull(op);
+        if (array.length > 0)
+            new ArrayPrefixHelpers.IntCumulateTask
+                    (null, op, array, 0, array.length).invoke();
+    }
+
+    /**
+     * Performs {@link #parallelPrefix(int[], IntBinaryOperator)}
+     * for the given subrange of the array.
+     *
+     * @param array the array
+     * @param fromIndex the index of the first element, inclusive
+     * @param toIndex the index of the last element, exclusive
+     * @param op a side-effect-free, associative function to perform the
+     * cumulation
+     * @throws IllegalArgumentException if {@code fromIndex > toIndex}
+     * @throws ArrayIndexOutOfBoundsException
+     *     if {@code fromIndex < 0} or {@code toIndex > array.length}
+     * @throws NullPointerException if the specified array or function is null
+     * @since 1.8
+     */
+    public static void parallelPrefix(int[] array, int fromIndex,
+                                      int toIndex, IntBinaryOperator op) {
+        Objects.requireNonNull(op);
+        rangeCheck(array.length, fromIndex, toIndex);
+        if (fromIndex < toIndex)
+            new ArrayPrefixHelpers.IntCumulateTask
+                    (null, op, array, fromIndex, toIndex).invoke();
     }
 
     // Searching

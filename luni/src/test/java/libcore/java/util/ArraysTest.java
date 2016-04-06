@@ -17,6 +17,7 @@
 package libcore.java.util;
 
 import java.util.Arrays;
+import java.util.Random;
 
 public class ArraysTest extends junit.framework.TestCase {
 
@@ -233,6 +234,304 @@ public class ArraysTest extends junit.framework.TestCase {
             Arrays.parallelSetAll((String[]) null, x -> "a" + x);
             fail();
         } catch (NullPointerException expected) {
+        }
+    }
+
+    /**
+     * java.util.Array#parallelPrefix(int[], java.util.function.IntBinaryOperator)
+     */
+    public void test_parallelPrefix$I() {
+        // Get an arbitrary array of ints.
+        Random rand = new Random(0);
+        int[] list = new int[1000];
+        for(int i = 0; i < list.length; ++i) {
+            list[i] = rand.nextInt() % 1000; // Prevent overflow
+        }
+
+        int[] seqResult = list.clone();
+
+        // Sequential solution
+        for(int i = 0; i < seqResult.length - 1; ++i) {
+            seqResult[i + 1] += seqResult[i];
+        }
+
+        Arrays.parallelPrefix(list, (x, y) -> x + y);
+        assertTrue(Arrays.equals(seqResult, list));
+
+        try {
+            Arrays.parallelPrefix(list, null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+
+        try {
+            Arrays.parallelPrefix((int[]) null, (x, y) -> x + y);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+    }
+
+    /**
+     * java.util.Array#parallelPrefix(int[], int, int, java.util.function.IntBinaryOperator)
+     */
+    public void test_parallelPrefix$III() {
+        // Get an arbitrary array of ints.
+        Random rand = new Random(0);
+        int[] list = new int[1000];
+        for(int i = 0; i < list.length; ++i) {
+            list[i] = rand.nextInt() % 1000; // Prevent overflow
+        }
+
+        int begin = 100, end = 500;
+        int[] seqResult = list.clone();
+
+        // Sequential solution
+        for(int i = begin; i < end - 1; ++i) {
+            seqResult[i + 1] += seqResult[i];
+        }
+
+        Arrays.parallelPrefix(list, begin, end, (x, y) -> x + y);
+        assertTrue(Arrays.equals(seqResult, list));
+
+        try {
+            Arrays.parallelPrefix(list, begin, end, null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+
+        try {
+            Arrays.parallelPrefix((int[]) null, begin, end, (x, y) -> x + y);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+
+        try {
+            Arrays.parallelPrefix(list, end, begin, (x, y) -> x + y);
+            fail();
+        } catch (IllegalArgumentException expected) {
+        }
+    }
+
+    /**
+     * java.util.Array#parallelPrefix(long[], java.util.function.LongBinaryOperator)
+     */
+    public void test_parallelPrefix$L() {
+        // Get an arbitrary array of ints.
+        Random rand = new Random(0);
+        long[] list = new long[1000];
+        for(int i = 0; i < list.length; ++i) {
+            list[i] = rand.nextLong() % 1000000; // Prevent overflow
+        }
+
+        long[] seqResult = list.clone();
+
+        // Sequential solution
+        for(int i = 0; i < seqResult.length - 1; ++i) {
+            seqResult[i + 1] += seqResult[i];
+        }
+
+        Arrays.parallelPrefix(list, (x, y) -> x + y);
+        assertTrue(Arrays.equals(seqResult, list));
+
+        try {
+            Arrays.parallelPrefix(list, null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+
+        try {
+            Arrays.parallelPrefix((long[]) null, (x, y) -> x + y);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+    }
+
+    /**
+     * java.util.Array#parallelPrefix(long[], int, int, java.util.function.LongBinaryOperator)
+     */
+    public void test_parallelPrefix$LII() {
+        // Get an arbitrary array of ints.
+        Random rand = new Random(0);
+        long[] list = new long[1000];
+        for(int i = 0; i < list.length; ++i) {
+            list[i] = rand.nextLong() % 1000000; // Prevent overflow
+        }
+
+        int begin = 100, end = 500;
+        long[] seqResult = list.clone();
+
+        // Sequential solution
+        for(int i = begin; i < end - 1; ++i) {
+            seqResult[i + 1] += seqResult[i];
+        }
+
+        Arrays.parallelPrefix(list, begin, end, (x, y) -> x + y);
+        assertTrue(Arrays.equals(seqResult, list));
+
+        try {
+            Arrays.parallelPrefix(list, begin, end, null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+
+        try {
+            Arrays.parallelPrefix((long[]) null, begin, end, (x, y) -> x + y);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+
+        try {
+            Arrays.parallelPrefix(list, end, begin, (x, y) -> x + y);
+            fail();
+        } catch (IllegalArgumentException expected) {
+        }
+    }
+
+    /**
+     * java.util.Array#parallelPrefix(double[], java.util.function.DoubleBinaryOperator)
+     */
+    public void test_parallelPrefix$D() {
+        // Get an arbitrary array of ints.
+        Random rand = new Random(0);
+        double[] list = new double[1000];
+        for(int i = 0; i < list.length; ++i) {
+            list[i] = rand.nextDouble() * 1000;
+        }
+
+        double[] seqResult = list.clone();
+
+        // Sequential solution
+        for(int i = 0; i < seqResult.length - 1; ++i) {
+            seqResult[i + 1] += seqResult[i];
+        }
+
+        Arrays.parallelPrefix(list, (x, y) -> x + y);
+
+        // Parallel double arithmetic contains error, reduce to integer for comparison.
+        int[] listInInt = Arrays.stream(list).mapToInt(x -> (int) x).toArray();
+        int[] seqResultInInt = Arrays.stream(seqResult).mapToInt(x -> (int) x).toArray();
+        assertTrue(Arrays.equals(seqResultInInt, listInInt));
+
+        try {
+            Arrays.parallelPrefix(list, null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+
+        try {
+            Arrays.parallelPrefix((double[]) null, (x, y) -> x + y);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+    }
+
+    /**
+     * java.util.Array#parallelPrefix(double[], int, int, java.util.function.DoubleBinaryOperator)
+     */
+    public void test_parallelPrefix$DII() {
+        // Get an arbitrary array of ints.
+        Random rand = new Random(0);
+        double[] list = new double[1000];
+        for(int i = 0; i < list.length; ++i) {
+            list[i] = rand.nextDouble() * 1000;
+        }
+
+        int begin = 100, end = 500;
+        double[] seqResult = list.clone();
+
+        // Sequential solution
+        for(int i = begin; i < end - 1; ++i) {
+            seqResult[i + 1] += seqResult[i];
+        }
+
+        Arrays.parallelPrefix(list, begin, end, (x, y) -> x + y);
+
+        // Parallel double arithmetic contains error, reduce to integer for comparison.
+        int[] listInInt = Arrays.stream(list).mapToInt(x -> (int) x).toArray();
+        int[] seqResultInInt = Arrays.stream(seqResult).mapToInt(x -> (int) x).toArray();
+        assertTrue(Arrays.equals(seqResultInInt, listInInt));
+
+        try {
+            Arrays.parallelPrefix(list, begin, end, null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+
+        try {
+            Arrays.parallelPrefix((double[]) null, begin, end, (x, y) -> x + y);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+
+        try {
+            Arrays.parallelPrefix(list, end, begin, (x, y) -> x + y);
+            fail();
+        } catch (IllegalArgumentException expected) {
+        }
+    }
+
+    /**
+     * java.util.Array#parallelPrefix(T[], java.util.function.BinaryOperator<T>)
+     */
+    public void test_parallelPrefix$T() {
+        String[] strings = new String[3];
+        strings[0] = "a";
+        strings[1] = "b";
+        strings[2] = "c";
+
+        Arrays.parallelPrefix(strings, (x, y) -> x + y);
+        assertEquals("a", strings[0]);
+        assertEquals("ab", strings[1]);
+        assertEquals("abc", strings[2]);
+
+        try {
+            Arrays.parallelPrefix(strings, null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+
+        try {
+            Arrays.parallelPrefix((String[]) null, (x, y) -> x + y);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+    }
+
+    /**
+     * java.util.Array#parallelPrefix(T[], int, int, java.util.function.BinaryOperator<T>)
+     */
+    public void test_parallelPrefix$TII() {
+        String[] strings = new String[5];
+        strings[0] = "a";
+        strings[1] = "b";
+        strings[2] = "c";
+        strings[3] = "d";
+        strings[4] = "e";
+        int begin = 1, end = 4;
+
+        Arrays.parallelPrefix(strings, begin, end, (x, y) -> x + y);
+        assertEquals("a", strings[0]);
+        assertEquals("b", strings[1]);
+        assertEquals("bc", strings[2]);
+        assertEquals("bcd", strings[3]);
+        assertEquals("e", strings[4]);
+
+        try {
+            Arrays.parallelPrefix(strings, begin, end, null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+
+        try {
+            Arrays.parallelPrefix((String[]) null, begin, end, (x, y) -> x + y);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+
+        try {
+            Arrays.parallelPrefix(strings, end, begin, (x, y) -> x + y);
+            fail();
+        } catch (IllegalArgumentException expected) {
         }
     }
 }
