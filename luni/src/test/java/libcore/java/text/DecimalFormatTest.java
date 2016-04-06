@@ -283,13 +283,6 @@ public class DecimalFormatTest extends junit.framework.TestCase {
         assertEquals(expected, numberFormat.format(2.01));
     }
 
-    // http://b/27855939
-    public void testBug27855939() {
-        DecimalFormat df = new DecimalFormat("00");
-        assertEquals("01", df.format(BigDecimal.ONE));
-        assertEquals("00", df.format(BigDecimal.ZERO));
-    }
-
     // Confirm the currency symbol used by a format is determined by the locale of the format
     // not the current default Locale.
     public void testSetCurrency_symbolOrigin() {
