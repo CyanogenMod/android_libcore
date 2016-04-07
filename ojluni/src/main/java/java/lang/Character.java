@@ -6458,6 +6458,21 @@ class Character implements java.io.Serializable, Comparable<Character> {
      * @since   1.5
      */
     public static int digit(int codePoint, int radix) {
+        if (radix < MIN_RADIX || radix > MAX_RADIX) {
+            return -1;
+        }
+        if (codePoint < 128) {
+            // Optimized for ASCII
+            int result = -1;
+            if ('0' <= codePoint && codePoint <= '9') {
+                result = codePoint - '0';
+            } else if ('a' <= codePoint && codePoint <= 'z') {
+                result = 10 + (codePoint - 'a');
+            } else if ('A' <= codePoint && codePoint <= 'Z') {
+                result = 10 + (codePoint - 'A');
+            }
+            return result < radix ? result : -1;
+        }
         return digitImpl(codePoint, radix);
     }
 
