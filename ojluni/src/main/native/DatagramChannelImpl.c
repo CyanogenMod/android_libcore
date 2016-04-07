@@ -145,6 +145,8 @@ Java_sun_nio_ch_DatagramChannelImpl_receive0(JNIEnv *env, jobject this,
         len = MAX_PACKET_LEN;
     }
 
+    memset(&sa, 0, sa_len);
+
     do {
         retry = JNI_FALSE;
         n = recvfrom(fd, buf, len, 0, (struct sockaddr *)&sa, &sa_len);
@@ -171,7 +173,7 @@ Java_sun_nio_ch_DatagramChannelImpl_receive0(JNIEnv *env, jobject this,
 
     // Peer (or other thread) has performed an orderly shutdown, sockaddr will be
     // invalid.
-    if (n == 0) {
+    if (n == 0 && ((struct sockaddr *)&sa)->sa_family == 0) {
         // zero the sender field, so receive() returns null and not
         // random garbage
         (*env)->SetObjectField(env, this, dci_senderID, NULL);
