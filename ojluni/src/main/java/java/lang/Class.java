@@ -66,7 +66,6 @@ import java.lang.reflect.AccessibleObject;
 import com.android.dex.Dex;
 import dalvik.system.VMStack;
 import libcore.reflect.AnnotatedElements;
-import libcore.reflect.AnnotationAccess;
 import libcore.reflect.InternalNames;
 import libcore.reflect.GenericSignatureParser;
 import libcore.reflect.Types;
@@ -753,7 +752,7 @@ public final
      * @since 1.5
      */
     @Override public synchronized TypeVariable<Class<T>>[] getTypeParameters() {
-        String annotationSignature = AnnotationAccess.getSignature(this);
+        String annotationSignature = getSignatureAttribute();
         if (annotationSignature == null) {
             return EmptyArray.TYPE_VARIABLE;
         }
@@ -820,7 +819,7 @@ public final
             return null;
         }
 
-        String annotationSignature = AnnotationAccess.getSignature(this);
+        String annotationSignature = getSignatureAttribute();
         if (annotationSignature != null) {
             GenericSignatureParser parser = new GenericSignatureParser(getClassLoader());
             parser.parseForClass(this, annotationSignature);
@@ -981,7 +980,7 @@ public final
         synchronized (Caches.genericInterfaces) {
             result = Caches.genericInterfaces.get(this);
             if (result == null) {
-                String annotationSignature = AnnotationAccess.getSignature(this);
+                String annotationSignature = getSignatureAttribute();
                 if (annotationSignature == null) {
                     result = getInterfaces();
                 } else {
@@ -1052,7 +1051,7 @@ public final
             return Modifier.ABSTRACT | Modifier.FINAL | componentModifiers;
         }
         int JAVA_FLAGS_MASK = 0xffff;
-        int modifiers = AnnotationAccess.getInnerClassFlags(this, accessFlags & JAVA_FLAGS_MASK);
+        int modifiers = this.getInnerClassFlags(accessFlags & JAVA_FLAGS_MASK);
         return modifiers & JAVA_FLAGS_MASK;
     }
 
@@ -1242,8 +1241,7 @@ public final
      * @since 1.5
      */
     public boolean isLocalClass() {
-        return !classNameImpliesTopLevel()
-                && AnnotationAccess.getEnclosingMethodOrConstructor(this) != null
+        return (getEnclosingMethod() != null || getEnclosingConstructor() != null)
                 && !isAnonymousClass();
     }
 
@@ -2421,7 +2419,6 @@ public final
         return false;
     }
 
-
     /**
      * Returns an array containing all the annotations of this class. If there are no annotations
      * then an empty array is returned.
@@ -2533,6 +2530,20 @@ public final
     public AnnotationType getAnnotationType() {
         return annotationType;
     }
+
+    private String getSignatureAttribute() {
+        String[] annotation = getSignatureAnnotation();
+        if (annotation == null) {
+            return null;
+        }
+        StringBuilder result = new StringBuilder();
+        for (String s : annotation) {
+            result.append(s);
+        }
+        return result.toString();
+    }
+
+    private native String[] getSignatureAnnotation();
 
     /**
      * Is this a runtime created proxy class?

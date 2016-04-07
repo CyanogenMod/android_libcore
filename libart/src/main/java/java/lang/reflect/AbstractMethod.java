@@ -35,7 +35,6 @@ package java.lang.reflect;
 import com.android.dex.Dex;
 import java.lang.annotation.Annotation;
 import java.util.List;
-import libcore.reflect.AnnotationAccess;
 import libcore.reflect.GenericSignatureParser;
 import libcore.reflect.ListOfTypes;
 import libcore.reflect.Types;
@@ -198,17 +197,16 @@ public abstract class AbstractMethod extends AccessibleObject {
         return Types.getTypeArray(getMethodOrConstructorGenericInfo().genericExceptionTypes, false);
     }
 
-    @Override public Annotation[] getDeclaredAnnotations() {
-        List<Annotation> result = AnnotationAccess.getDeclaredAnnotations(this);
-        return result.toArray(new Annotation[result.size()]);
-    }
+    @Override public native Annotation[] getDeclaredAnnotations();
 
     @Override public boolean isAnnotationPresent(Class<? extends Annotation> annotationType) {
         if (annotationType == null) {
             throw new NullPointerException("annotationType == null");
         }
-        return AnnotationAccess.isDeclaredAnnotationPresent(this, annotationType);
+        return isAnnotationPresentNative(annotationType);
     }
+
+    private native boolean isAnnotationPresentNative(Class<? extends Annotation> annotationType);
 
     public Annotation[] getAnnotations() {
         return super.getAnnotations();
@@ -253,7 +251,7 @@ public abstract class AbstractMethod extends AccessibleObject {
      * Returns generic information associated with this method/constructor member.
      */
     final GenericInfo getMethodOrConstructorGenericInfo() {
-        String signatureAttribute = AnnotationAccess.getSignature(this);
+        String signatureAttribute = getSignatureAttribute();
         Member member;
         Class<?>[] exceptionTypes;
         boolean method = this instanceof Method;
@@ -278,6 +276,20 @@ public abstract class AbstractMethod extends AccessibleObject {
         return new GenericInfo(parser.exceptionTypes, parser.parameterTypes,
                                parser.returnType, parser.formalTypeParameters);
     }
+
+    private String getSignatureAttribute() {
+        String[] annotation = getSignatureAnnotation();
+        if (annotation == null) {
+            return null;
+        }
+        StringBuilder result = new StringBuilder();
+        for (String s : annotation) {
+            result.append(s);
+        }
+        return result.toString();
+    }
+
+    private native String[] getSignatureAnnotation();
 
     protected boolean equalMethodParameters(Class<?>[] params) {
         Dex dex = declaringClassOfOverriddenMethod.getDex();

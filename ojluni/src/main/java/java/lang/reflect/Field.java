@@ -31,7 +31,6 @@ import sun.reflect.Reflection;
 import java.lang.annotation.Annotation;
 import java.util.Map;
 import com.android.dex.Dex;
-import libcore.reflect.AnnotationAccess;
 import libcore.reflect.GenericSignatureParser;
 import java.util.List;
 
@@ -181,7 +180,7 @@ class Field extends AccessibleObject implements Member {
         }
         StringBuilder result = new StringBuilder();
         for (String s : annotation) {
-          result.append(s);
+            result.append(s);
         }
         return result.toString();
     }

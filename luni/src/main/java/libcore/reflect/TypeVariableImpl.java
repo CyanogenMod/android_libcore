@@ -84,7 +84,8 @@ public final class TypeVariableImpl<D extends GenericDeclaration> implements Typ
         if (decl instanceof Class) {
             // FIXME: Is the following hierarchy correct?:
             Class cl = (Class)decl;
-            decl = (GenericDeclaration) AnnotationAccess.getEnclosingMethodOrConstructor(cl);
+            Method m = cl.getEnclosingMethod();
+            decl = (GenericDeclaration) m != null ? m : cl.getEnclosingConstructor();
             if (decl != null) {
                 return decl;
             }
