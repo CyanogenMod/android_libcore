@@ -465,10 +465,7 @@ public class DecimalFormat extends NumberFormat {
     private void init(String pattern) {
         this.icuDecimalFormat =  new android.icu.text.DecimalFormat(pattern,
                 symbols.getIcuDecimalFormatSymbols());
-        maximumIntegerDigits = icuDecimalFormat.getMaximumIntegerDigits();
-        minimumIntegerDigits = icuDecimalFormat.getMinimumIntegerDigits();
-        maximumFractionDigits = icuDecimalFormat.getMaximumFractionDigits();
-        minimumFractionDigits = icuDecimalFormat.getMinimumFractionDigits();
+        updateFieldsFromIcu();
     }
 
     /**
@@ -1169,6 +1166,12 @@ public class DecimalFormat extends NumberFormat {
     }
 
     private void updateFieldsFromIcu() {
+        // Imitate behaviour of ICU4C NumberFormat that Android used up to M.
+        // If the pattern doesn't enforce a different value (some exponential
+        // patterns do), then set the maximum integer digits to 2 billion.
+        if (icuDecimalFormat.getMaximumIntegerDigits() == DOUBLE_INTEGER_DIGITS) {
+            icuDecimalFormat.setMaximumIntegerDigits(2000000000);
+        }
         maximumIntegerDigits = icuDecimalFormat.getMaximumIntegerDigits();
         minimumIntegerDigits = icuDecimalFormat.getMinimumIntegerDigits();
         maximumFractionDigits = icuDecimalFormat.getMaximumFractionDigits();
