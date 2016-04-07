@@ -766,7 +766,7 @@ public abstract class Provider extends Properties {
      * it is replaced by the new service.
      * This method also places information about this service
      * in the provider's Hashtable values in the format described in the
-     * <a href="../../../technotes/guides/security/crypto/CryptoSpec.html">
+     * <a href="{@docRoot}/../technotes/guides/security/crypto/CryptoSpec.html">
      * Java Cryptography Architecture API Specification &amp; Reference </a>.
      *
      * <p>Also, if there is a security manager, its
@@ -1045,7 +1045,7 @@ public abstract class Provider extends Properties {
      * suitable services and instantes them. The valid arguments to those
      * methods depend on the type of service. For the service types defined
      * within Java SE, see the
-     * <a href="../../../technotes/guides/security/crypto/CryptoSpec.html">
+     * <a href="{@docRoot}/../technotes/guides/security/crypto/CryptoSpec.html">
      * Java Cryptography Architecture API Specification &amp; Reference </a>
      * for the valid values.
      * Note that components outside of Java SE can define additional types of
@@ -1222,7 +1222,7 @@ public abstract class Provider extends Properties {
          * instantiation in a different way.
          * For details and the values of constructorParameter that are
          * valid for the various types of services see the
-         * <a href="../../../technotes/guides/security/crypto/CryptoSpec.html">
+         * <a href="{@docRoot}/../technotes/guides/security/crypto/CryptoSpec.html">
          * Java Cryptography Architecture API Specification &amp;
          * Reference</a>.
          *
@@ -1359,7 +1359,7 @@ public abstract class Provider extends Properties {
          *
          * <p>For details and the values of parameter that are valid for the
          * various types of services see the top of this class and the
-         * <a href="../../../technotes/guides/security/crypto/CryptoSpec.html">
+         * <a href="{@docRoot}/../technotes/guides/security/crypto/CryptoSpec.html">
          * Java Cryptography Architecture API Specification &amp;
          * Reference</a>.
          * Security providers can override it to implement their own test.

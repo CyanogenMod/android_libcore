@@ -44,7 +44,7 @@ import java.util.Locale;
  * <p>
  * <h4>Packaging of Locale Sensitive Service Provider Implementations</h4>
  * Implementations of these locale sensitive services are packaged using the
- * <a href="../../../../technotes/guides/extensions/index.html">Java Extension Mechanism</a>
+ * <a href="{@docRoot}/../technotes/guides/extensions/index.html">Java Extension Mechanism</a>
  * as installed extensions.  A provider identifies itself with a
  * provider-configuration file in the resource directory META-INF/services,
  * using the fully qualified provider interface class name as the file name.

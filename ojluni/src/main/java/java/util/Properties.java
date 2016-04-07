@@ -106,8 +106,8 @@ import java.io.BufferedWriter;
  * <p>This class is thread-safe: multiple threads can share a single
  * <tt>Properties</tt> object without the need for external synchronization.
  *
- * @see <a href="../../../technotes/tools/solaris/native2ascii.html">native2ascii tool for Solaris</a>
- * @see <a href="../../../technotes/tools/windows/native2ascii.html">native2ascii tool for Windows</a>
+ * @see <a href="{@docRoot}/../technotes/tools/solaris/native2ascii.html">native2ascii tool for Solaris</a>
+ * @see <a href="{@docRoot}/../technotes/tools/windows/native2ascii.html">native2ascii tool for Windows</a>
  *
  * @author  Arthur van Hoff
  * @author  Michael McCloskey

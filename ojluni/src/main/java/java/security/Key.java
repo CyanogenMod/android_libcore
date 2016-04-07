@@ -83,7 +83,7 @@ package java.security;
  * <p> A Key should use KeyRep as its serialized representation.
  * Note that a serialized Key may contain sensitive information
  * which should not be exposed in untrusted environments.  See the
- * <a href="../../../platform/serialization/spec/security.html">
+ * <a href="{@docRoot}/../platform/serialization/spec/security.html">
  * Security Appendix</a>
  * of the Serialization Specification for more information.
  *
