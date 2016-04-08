@@ -848,7 +848,7 @@ public abstract class ResourceBundle {
      * Gets a resource bundle using the specified base name, locale, and class
      * loader.
      *
-     * <p><a name="default_behavior"/>This method behaves the same as calling
+     * <p><a name="default_behavior"></a>This method behaves the same as calling
      * {@link #getBundle(String, Locale, ClassLoader, Control)} passing a
      * default instance of {@link Control}. The following describes this behavior.
      *
@@ -945,7 +945,7 @@ public abstract class ResourceBundle {
      * <p>If still no result bundle is found, the base name alone is looked up. If
      * this still fails, a <code>MissingResourceException</code> is thrown.
      *
-     * <p><a name="parent_chain"/> Once a result resource bundle has been found,
+     * <p><a name="parent_chain"></a> Once a result resource bundle has been found,
      * its <em>parent chain</em> is instantiated.  If the result bundle already
      * has a parent (perhaps because it was returned from a cache) the chain is
      * complete.
@@ -975,7 +975,7 @@ public abstract class ResourceBundle {
      * path name (using "/") instead of a fully qualified class name (using
      * ".").
      *
-     * <p><a name="default_behavior_example"/>
+     * <p><a name="default_behavior_example"></a>
      * <strong>Example:</strong>
      * <p>
      * The following class and property files are provided:
