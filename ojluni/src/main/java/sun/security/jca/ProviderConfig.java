@@ -208,56 +208,66 @@ final class ProviderConfig {
                 if (debug != null) {
                     debug.println("Loading provider: " + ProviderConfig.this);
                 }
+
                 try {
-                    ClassLoader cl = ClassLoader.getSystemClassLoader();
-                    Class<?> provClass;
-                    if (cl != null) {
-                        provClass = cl.loadClass(className);
-                    } else {
-                        provClass = Class.forName(className);
-                    }
-                    Object obj;
-                    if (hasArgument() == false) {
-                        obj = provClass.newInstance();
-                    } else {
-                        Constructor<?> cons = provClass.getConstructor(CL_STRING);
-                        obj = cons.newInstance(argument);
-                    }
-                    if (obj instanceof Provider) {
-                        if (debug != null) {
-                            debug.println("Loaded provider " + obj);
+                    // First try with the boot classloader.
+                    return initProvider(className, Object.class.getClassLoader());
+                } catch (Exception e1) {
+                    // If that fails, try with the system classloader.
+                    try {
+                        return initProvider(className, ClassLoader.getSystemClassLoader());
+                    } catch (Exception e) {
+                        Throwable t;
+                        if (e instanceof InvocationTargetException) {
+                            t = ((InvocationTargetException)e).getCause();
+                        } else {
+                            t = e;
                         }
-                        return (Provider)obj;
-                    } else {
                         if (debug != null) {
-                            debug.println(className + " is not a provider");
+                            debug.println("Error loading provider " + ProviderConfig.this);
+                            t.printStackTrace();
                         }
-                        disableLoad();
+                        // provider indicates fatal error, pass through exception
+                        if (t instanceof ProviderException) {
+                            throw (ProviderException)t;
+                        }
+                        // provider indicates that loading should not be retried
+                        if (t instanceof UnsupportedOperationException) {
+                            disableLoad();
+                        }
                         return null;
                     }
-                } catch (Exception e) {
-                    Throwable t;
-                    if (e instanceof InvocationTargetException) {
-                        t = ((InvocationTargetException)e).getCause();
-                    } else {
-                        t = e;
-                    }
-                    if (debug != null) {
-                        debug.println("Error loading provider " + ProviderConfig.this);
-                        t.printStackTrace();
-                    }
-                    // provider indicates fatal error, pass through exception
-                    if (t instanceof ProviderException) {
-                        throw (ProviderException)t;
-                    }
-                    // provider indicates that loading should not be retried
-                    if (t instanceof UnsupportedOperationException) {
-                        disableLoad();
-                    }
-                    return null;
                 }
             }
         });
+    }
+
+    private Provider initProvider(String className, ClassLoader cl) throws Exception {
+        Class<?> provClass;
+        if (cl != null) {
+            provClass = cl.loadClass(className);
+        } else {
+            provClass = Class.forName(className);
+        }
+        Object obj;
+        if (hasArgument() == false) {
+            obj = provClass.newInstance();
+        } else {
+            Constructor<?> cons = provClass.getConstructor(CL_STRING);
+            obj = cons.newInstance(argument);
+        }
+        if (obj instanceof Provider) {
+            if (debug != null) {
+                debug.println("Loaded provider " + obj);
+            }
+            return (Provider)obj;
+        } else {
+            if (debug != null) {
+                debug.println(className + " is not a provider");
+            }
+            disableLoad();
+            return null;
+        }
     }
 
     /**

@@ -56,6 +56,15 @@ public class Providers {
         // triggers a getInstance() call (although that should not happen)
         providerList = ProviderList.EMPTY;
         providerList = ProviderList.fromSecurityProperties();
+
+        // removeInvalid is specified to try initializing all configured providers
+        // and removing those that aren't instantiable. This has the side effect
+        // of eagerly initializing all providers.
+        final int numConfiguredProviders = providerList.size();
+        providerList = providerList.removeInvalid();
+        if (numConfiguredProviders != providerList.size()) {
+            throw new AssertionError("Unable to configure default providers");
+        }
     }
 
     private Providers() {
