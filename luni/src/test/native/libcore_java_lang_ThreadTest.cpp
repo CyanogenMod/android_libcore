@@ -36,6 +36,8 @@ static void* TestThreadNaming(void* arg) {
     args.group = nullptr;
     if (attach_with_name) {
         args.name = native_thread_name.c_str();
+    } else {
+        args.name = nullptr;
     }
 
     if (javaVm->AttachCurrentThread(&env, &args) != JNI_OK) {
