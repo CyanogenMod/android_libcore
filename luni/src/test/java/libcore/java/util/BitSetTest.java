@@ -20,6 +20,7 @@ import java.nio.ByteBuffer;
 import java.nio.LongBuffer;
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.Random;
 
 public class BitSetTest extends junit.framework.TestCase {
     public void test_toString() throws Exception {
@@ -230,5 +231,18 @@ public class BitSetTest extends junit.framework.TestCase {
         result = small();
         result.xor(big());
         assertEquals("{10, 1000}", result.toString());
+    }
+
+    public void test_stream() {
+        final int size = 128;
+
+        // Generate an arbitrary array of bytes.
+        byte[] bytes = new byte[size];
+        new Random(0).nextBytes(bytes);
+
+        BitSet bs = BitSet.valueOf(bytes);
+
+        assertEquals(bs.cardinality(), bs.stream().count());
+        bs.stream().forEach(x -> assertTrue(bs.get(x)));
     }
 }

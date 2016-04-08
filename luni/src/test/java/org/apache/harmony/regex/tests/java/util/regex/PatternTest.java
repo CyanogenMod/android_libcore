@@ -1840,4 +1840,44 @@ public class PatternTest extends TestCase {
         mat = pat.matcher(testString);
         assertTrue(mat.matches());
     }
+
+    public void testAsPredicate() {
+        String[][] posSeq = {
+                { "abb", "ababb", "abababbababb", "abababbababbabababbbbbabb" },
+                { "213567", "12324567", "1234567", "213213567",
+                        "21312312312567", "444444567" },
+                { "abcdaab", "aab", "abaab", "cdaab", "acbdadcbaab" },
+                { "213234567", "3458", "0987654", "7689546432", "0398576",
+                        "98432", "5" },
+                {
+                        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
+                        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                + "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" },
+                { "ababbaAabababblice", "ababbaAliceababab", "ababbAabliceaaa",
+                        "abbbAbbbliceaaa", "Alice" },
+                { "a123", "bnxnvgds156", "for", "while", "if", "struct" },
+                { "xy" }, { "xy" }, { "xcy" }
+        };
+
+        for (int i = 0; i < testPatterns.length; i++) {
+            Pattern p = Pattern.compile(testPatterns[i]);
+            for (int j = 0; j < posSeq[i].length; j++) {
+                assertTrue(p.asPredicate().test(posSeq[i][j]));
+            }
+        }
+    }
+
+    public void testSplitAsStream() {
+        String s[];
+        Pattern pat = Pattern.compile("b");
+        s = pat.splitAsStream("abccbadfebb").toArray(String[]::new);
+        assertEquals(s.length, 3);
+        s = pat.splitAsStream("").toArray(String[]::new);
+        assertEquals(s.length, 0);
+        pat = Pattern.compile("");
+        s = pat.splitAsStream("").toArray(String[]::new);
+        assertEquals(s.length, 0);
+        s = pat.splitAsStream("abccbadfe").toArray(String[]::new);
+        assertEquals(s.length, 9);
+    }
 }

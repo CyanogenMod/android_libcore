@@ -573,6 +573,16 @@ public class BufferedReaderTest extends TestCase {
 	}
 
 	/**
+	 * @tests java.io.BufferedReader#lines()
+	 */
+	public void test_lines() {
+		// Test for method java.util.stream.Stream java.io.BufferedReader.lines()
+		br = new BufferedReader(new Support_StringReader(testString));
+		String[] r = br.lines().toArray(String[]::new);
+		assertEquals(107, r.length);
+	}
+
+	/**
 	 * Sets up the fixture, for example, open a network connection. This method
 	 * is called before a test is executed.
 	 */

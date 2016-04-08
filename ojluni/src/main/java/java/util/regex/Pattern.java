@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2014 The Android Open Source Project
- * Copyright (c) 1999, 2011, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1999, 2013, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -26,7 +26,14 @@
 
 package java.util.regex;
 
+import java.util.Iterator;
 import java.util.ArrayList;
+import java.util.NoSuchElementException;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 
 /**
@@ -1255,4 +1262,113 @@ public final class Pattern implements java.io.Serializable
 
     private static native void closeImpl(long addr);
     private static native long compileImpl(String regex, int flags);
+
+
+    /**
+     * Creates a predicate which can be used to match a string.
+     *
+     * @return  The predicate which can be used for matching on a string
+     * @since   1.8
+     */
+    public Predicate<String> asPredicate() {
+        return s -> matcher(s).find();
+    }
+
+    /**
+     * Creates a stream from the given input sequence around matches of this
+     * pattern.
+     *
+     * <p> The stream returned by this method contains each substring of the
+     * input sequence that is terminated by another subsequence that matches
+     * this pattern or is terminated by the end of the input sequence.  The
+     * substrings in the stream are in the order in which they occur in the
+     * input. Trailing empty strings will be discarded and not encountered in
+     * the stream.
+     *
+     * <p> If this pattern does not match any subsequence of the input then
+     * the resulting stream has just one element, namely the input sequence in
+     * string form.
+     *
+     * <p> When there is a positive-width match at the beginning of the input
+     * sequence then an empty leading substring is included at the beginning
+     * of the stream. A zero-width match at the beginning however never produces
+     * such empty leading substring.
+     *
+     * <p> If the input sequence is mutable, it must remain constant during the
+     * execution of the terminal stream operation.  Otherwise, the result of the
+     * terminal stream operation is undefined.
+     *
+     * @param   input
+     *          The character sequence to be split
+     *
+     * @return  The stream of strings computed by splitting the input
+     *          around matches of this pattern
+     * @see     #split(CharSequence)
+     * @since   1.8
+     */
+    public Stream<String> splitAsStream(final CharSequence input) {
+        class MatcherIterator implements Iterator<String> {
+            private final Matcher matcher;
+            // The start position of the next sub-sequence of input
+            // when current == input.length there are no more elements
+            private int current;
+            // null if the next element, if any, needs to obtained
+            private String nextElement;
+            // > 0 if there are N next empty elements
+            private int emptyElementCount;
+
+            MatcherIterator() {
+                this.matcher = matcher(input);
+            }
+
+            public String next() {
+                if (!hasNext())
+                    throw new NoSuchElementException();
+
+                if (emptyElementCount == 0) {
+                    String n = nextElement;
+                    nextElement = null;
+                    return n;
+                } else {
+                    emptyElementCount--;
+                    return "";
+                }
+            }
+
+            public boolean hasNext() {
+                if (nextElement != null || emptyElementCount > 0)
+                    return true;
+
+                if (current == input.length())
+                    return false;
+
+                // Consume the next matching element
+                // Count sequence of matching empty elements
+                while (matcher.find()) {
+                    nextElement = input.subSequence(current, matcher.start()).toString();
+                    current = matcher.end();
+                    if (!nextElement.isEmpty()) {
+                        return true;
+                    } else if (current > 0) { // no empty leading substring for zero-width
+                                              // match at the beginning of the input
+                        emptyElementCount++;
+                    }
+                }
+
+                // Consume last matching element
+                nextElement = input.subSequence(current, input.length()).toString();
+                current = input.length();
+                if (!nextElement.isEmpty()) {
+                    return true;
+                } else {
+                    // Ignore a terminal sequence of matching empty elements
+                    emptyElementCount = 0;
+                    nextElement = null;
+                    return false;
+                }
+            }
+        }
+        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(
+                new MatcherIterator(), Spliterator.ORDERED | Spliterator.NONNULL), false);
+    }
 }

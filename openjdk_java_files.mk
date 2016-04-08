@@ -85,6 +85,7 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/java/io/StringReader.java \
     ojluni/src/main/java/java/io/StringWriter.java \
     ojluni/src/main/java/java/io/SyncFailedException.java \
+    ojluni/src/main/java/java/io/UncheckedIOException.java \
     ojluni/src/main/java/java/io/UnixFileSystem.java \
     ojluni/src/main/java/java/io/UnsupportedEncodingException.java \
     ojluni/src/main/java/java/io/UTFDataFormatException.java \
