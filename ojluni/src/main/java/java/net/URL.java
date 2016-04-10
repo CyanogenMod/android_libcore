@@ -988,6 +988,7 @@ public final class URL implements java.io.Serializable {
      *             int, java.lang.String)
      */
     public URLConnection openConnection() throws java.io.IOException {
+        java.util.SeempLog.record_str(91, "URL:"+query);
         return handler.openConnection(this);
     }
 

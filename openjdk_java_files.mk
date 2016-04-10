@@ -859,6 +859,7 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/java/util/RegularEnumSet.java \
     ojluni/src/main/java/java/util/ResourceBundle.java \
     ojluni/src/main/java/java/util/Scanner.java \
+    ojluni/src/main/java/java/util/SeempLog.java \
     ojluni/src/main/java/java/util/ServiceConfigurationError.java \
     ojluni/src/main/java/java/util/ServiceLoader.java \
     ojluni/src/main/java/java/util/Set.java \
