@@ -1595,11 +1595,7 @@ public final class String
      * is the string being searched for.
      *
      * @param   source       the characters being searched.
-     * @param   sourceOffset offset of the source string.
-     * @param   sourceCount  count of the source string.
      * @param   target       the characters being searched for.
-     * @param   targetOffset offset of the target string.
-     * @param   targetCount  count of the target string.
      * @param   fromIndex    the index to begin searching from.
      */
     static int indexOf(String source,
@@ -2167,8 +2163,64 @@ public final class String
      * @since 1.5
      */
     public String replace(CharSequence target, CharSequence replacement) {
-        return Pattern.compile(target.toString(), Pattern.LITERAL).matcher(
-                this).replaceAll(Matcher.quoteReplacement(replacement.toString()));
+        if (target == null) {
+            throw new NullPointerException("target == null");
+        }
+
+        if (replacement == null) {
+            throw new NullPointerException("replacement == null");
+        }
+
+        String replacementStr = replacement.toString();
+        String targetStr = target.toString();
+
+        // Special case when target == "". This is a pretty nonsensical transformation and nobody
+        // should be hitting this.
+        //
+        // See commit 870b23b3febc85 and http://code.google.com/p/android/issues/detail?id=8807
+        // An empty target is inserted at the start of the string, the end of the string and
+        // between all characters.
+        if (targetStr.isEmpty()) {
+            // Note that overallocates by |replacement.size()| if |this| is the empty string, but
+            // that should be a rare case within an already nonsensical case.
+            StringBuilder sb = new StringBuilder(replacementStr.length() * (count + 2) + count);
+            sb.append(replacementStr);
+            for (int i = 0; i < count; ++i) {
+                sb.append(charAt(i));
+                sb.append(replacementStr);
+            }
+
+            return sb.toString();
+        }
+
+        // This is the "regular" case.
+        int lastMatch = 0;
+        StringBuilder sb = null;
+        for (;;) {
+            int currentMatch = indexOf(this, targetStr, lastMatch);
+            if (currentMatch == -1) {
+                break;
+            }
+
+            if (sb == null) {
+                sb = new StringBuilder(count);
+            }
+
+            for (int i = lastMatch; i < currentMatch; ++i) {
+                sb.append(charAt(i));
+            }
+            sb.append(replacementStr);
+            lastMatch = currentMatch + targetStr.count;
+        }
+
+        if (sb != null) {
+            for (int i = lastMatch; i < count; ++i) {
+                sb.append(charAt(i));
+            }
+            return sb.toString();
+        } else {
+            return this;
+        }
     }
 
     /**
