@@ -1994,29 +1994,18 @@ public final class String
      *          occurrence of <code>oldChar</code> with <code>newChar</code>.
      */
     public String replace(char oldChar, char newChar) {
+        String replaced = this;
         if (oldChar != newChar) {
-            int len = count;
-            int i = -1;
-
-            while (++i < len) {
+            for (int i = 0; i < count; ++i) {
                 if (charAt(i) == oldChar) {
-                    break;
+                    if (replaced == this) {
+                        replaced = StringFactory.newStringFromString(this);
+                    }
+                    replaced.setCharAt(i, newChar);
                 }
-            }
-            if (i < len) {
-                char buf[] = new char[len];
-                for (int j = 0; j < i; j++) {
-                    buf[j] = charAt(j);
-                }
-                while (i < len) {
-                    char c = charAt(i);
-                    buf[i] = (c == oldChar) ? newChar : c;
-                    i++;
-                }
-                return StringFactory.newStringFromChars(buf);
             }
         }
-        return this;
+        return replaced;
     }
 
     /**
