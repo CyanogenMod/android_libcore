@@ -53,15 +53,6 @@ import sun.util.logging.PlatformLogger;
 // Android changed: @hide.
 public class FileSystemPreferences extends AbstractPreferences {
     /**
-     * Sync interval in seconds.
-     */
-    private static final int SYNC_INTERVAL = Math.max(1,
-        Integer.parseInt(
-            AccessController.doPrivileged(
-                new sun.security.action.GetPropertyAction(
-                    "java.util.prefs.syncInterval", "30"))));
-
-    /**
      * Returns logger for error messages. Backing store exceptions are logged at
      * WARNING level.
      */
@@ -427,26 +418,11 @@ public class FileSystemPreferences extends AbstractPreferences {
             changeLog.get(i).replay();
     }
 
-    private static Timer syncTimer = new Timer(true); // Daemon Thread
-
     static {
-        // Add periodic timer task to periodically sync cached prefs
-        syncTimer.schedule(new TimerTask() {
+        // Add shutdown hook to flush cached prefs on normal termination
+        Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
                 syncWorld();
-            }
-        }, SYNC_INTERVAL*1000, SYNC_INTERVAL*1000);
-
-        // Add shutdown hook to flush cached prefs on normal termination
-        AccessController.doPrivileged(new PrivilegedAction<Void>() {
-            public Void run() {
-                Runtime.getRuntime().addShutdownHook(new Thread() {
-                    public void run() {
-                        syncTimer.cancel();
-                        syncWorld();
-                    }
-                });
-                return null;
             }
         });
     }
