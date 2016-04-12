@@ -357,17 +357,25 @@ public class Package implements java.lang.reflect.AnnotatedElement {
      * @return the string representation of the package.
      */
     public String toString() {
-        String spec = specTitle;
-        String ver =  specVersion;
-        if (spec != null && spec.length() > 0)
-            spec = ", " + spec;
-        else
-            spec = "";
-        if (ver != null && ver.length() > 0)
-            ver = ", version " + ver;
-        else
-            ver = "";
-        return "package " + pkgName + spec + ver;
+        // Android changed: Several apps try to parse the output of toString(). This is a really
+        // bad idea - especially when there's a Package.getName() function as well as a
+        // Class.getName() function that can be used instead.
+        //
+        // *** THIS CHANGE WILL BE REVERTED IN A FUTURE ANDROID RELEASE ***
+        //
+        // String spec = specTitle;
+        // String ver =  specVersion;
+        // if (spec != null && spec.length() > 0)
+        //     spec = ", " + spec;
+        // else
+        //     spec = "";
+        // if (ver != null && ver.length() > 0)
+        //     ver = ", version " + ver;
+        // else
+        //     ver = "";
+        // return "package " + pkgName + spec + ver;
+
+        return "package " + pkgName;
     }
 
     private Class<?> getPackageInfo() {

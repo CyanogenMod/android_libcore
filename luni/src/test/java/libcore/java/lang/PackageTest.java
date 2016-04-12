@@ -37,6 +37,12 @@ public final class PackageTest extends TestCase {
         assertEquals(getClass().getPackage(), libcoreJavaLang);
     }
 
+    // http://b/28057303
+    public void test_toString() throws Exception {
+        Package libcoreJavaLang = Package.getPackage("libcore.java.lang");
+        assertEquals("package libcore.java.lang", libcoreJavaLang.toString());
+    }
+
     // http://b/5171136
     public void testGetPackages() {
         assertTrue(packages.contains(getClass().getPackage()));
