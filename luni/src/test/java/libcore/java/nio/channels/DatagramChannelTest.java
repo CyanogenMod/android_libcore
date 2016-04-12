@@ -24,13 +24,16 @@ import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
+import java.net.ProtocolFamily;
+import java.net.StandardProtocolFamily;
 import java.net.StandardSocketOptions;
 import java.nio.ByteBuffer;
 import java.nio.channels.AlreadyBoundException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.DatagramChannel;
+import java.nio.channels.UnsupportedAddressTypeException;
+import java.nio.channels.spi.SelectorProvider;
 import java.util.Enumeration;
-import java.util.Set;
 
 public class DatagramChannelTest extends junit.framework.TestCase {
     public void test_read_intoReadOnlyByteArrays() throws Exception {
@@ -224,6 +227,32 @@ public class DatagramChannelTest extends junit.framework.TestCase {
                 ((InetSocketAddress)(clientChannel.getRemoteAddress())).getPort());
     }
 
+    public void test_open$java_net_ProtocolFamily() throws IOException {
+        DatagramChannel channel = DatagramChannel.open(StandardProtocolFamily.INET);
+
+        channel.bind(new InetSocketAddress(Inet4Address.LOOPBACK, 0));
+        assertEquals(SelectorProvider.provider(), channel.provider());
+
+        try {
+            // Should not support IPv6 Address
+            // InetSocketAddress(int) returns IPv6 ANY  address
+            DatagramChannel.open(StandardProtocolFamily.INET).bind(new InetSocketAddress(0));
+            fail();
+        } catch (UnsupportedAddressTypeException expected) {}
+
+        DatagramChannel.open(StandardProtocolFamily.INET6).bind(new InetSocketAddress(0));
+
+        try {
+            DatagramChannel.open(MockProtocolFamily.MOCK);
+            fail();
+        } catch (UnsupportedOperationException expected) {}
+
+        try {
+            DatagramChannel.open(null);
+            fail();
+        } catch (NullPointerException expected) {}
+    }
+
     private static InetAddress getNonLoopbackNetworkInterfaceAddress(boolean ipv4) throws IOException {
         Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
         while (networkInterfaces.hasMoreElements()) {
@@ -241,5 +270,9 @@ public class DatagramChannelTest extends junit.framework.TestCase {
             }
         }
         return null;
+    }
+
+    enum MockProtocolFamily implements ProtocolFamily {
+        MOCK,
     }
 }
