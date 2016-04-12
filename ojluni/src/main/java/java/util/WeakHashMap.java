@@ -28,6 +28,7 @@ package java.util;
 import java.lang.ref.WeakReference;
 import java.lang.ref.ReferenceQueue;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 
@@ -1113,6 +1114,29 @@ public class WeakHashMap<K,V>
             }
         }
     }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public void replaceAll(BiFunction<? super K, ? super V, ? extends V> function) {
+        Objects.requireNonNull(function);
+        int expectedModCount = modCount;
+
+        Entry<K, V>[] tab = getTable();
+        for (Entry<K, V> entry : tab) {
+            while (entry != null) {
+                Object key = entry.get();
+                if (key != null) {
+                    entry.value = function.apply((K)WeakHashMap.unmaskNull(key), entry.value);
+                }
+                entry = entry.next;
+
+                if (expectedModCount != modCount) {
+                    throw new ConcurrentModificationException();
+                }
+            }
+        }
+    }
+
 
     /**
      * Similar form as other hash Spliterators, but skips dead

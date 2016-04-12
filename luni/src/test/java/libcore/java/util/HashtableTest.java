@@ -16,6 +16,7 @@
 
 package libcore.java.util;
 
+import java.util.ConcurrentModificationException;
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -67,5 +68,38 @@ public class HashtableTest extends junit.framework.TestCase {
 
     public void test_merge() {
         MapDefaultMethodTester.test_merge(new Hashtable<>(), false /*doesNotAcceptNullKey*/);
+    }
+
+    public void test_replaceAll() throws Exception {
+        Hashtable<String, String> ht = new Hashtable<>();
+        ht.put("one", "1");
+        ht.put("two", "2");
+        ht.put("three", "3");
+
+        ht.replaceAll((k, v) -> k + v);
+        assertEquals("one1", ht.get("one"));
+        assertEquals("two2", ht.get("two"));
+        assertEquals("three3", ht.get("three"));
+        assertEquals(3, ht.size());
+
+        try {
+            ht.replaceAll(new java.util.function.BiFunction<String, String, String>() {
+                @Override
+                public String apply(String k, String v) {
+                    ht.put("foo", v);
+                    return v;
+                }
+            });
+            fail();
+        } catch(ConcurrentModificationException expected) {}
+
+        try {
+            ht.replaceAll(null);
+            fail();
+        } catch(NullPointerException expected) {}
+
+        try {
+            ht.replaceAll((k, v) -> null);
+        } catch (NullPointerException expected) {}
     }
 }

@@ -567,4 +567,33 @@ public class TreeMapTest extends TestCase {
         SpliteratorTester.runSortedTests(values, (a, b) -> (a.getKey().compareTo(b.getKey())));
         SpliteratorTester.runOrderedTests(values);
     }
+
+    public void test_replaceAll() throws Exception {
+        TreeMap<String, String> map = new TreeMap<>();
+        map.put("one", "1");
+        map.put("two", "2");
+        map.put("three", "3");
+
+        TreeMap<String, String> output = new TreeMap<>();
+        map.replaceAll((k, v) -> k + v);
+        assertEquals("one1", map.get("one"));
+        assertEquals("two2", map.get("two"));
+        assertEquals("three3", map.get("three"));
+
+        try {
+            map.replaceAll(null);
+            fail();
+        } catch(NullPointerException expected) {}
+
+        try {
+            map.replaceAll(new java.util.function.BiFunction<String, String, String>() {
+                @Override
+                public String apply(String k, String v) {
+                    map.put("foo", v);
+                    return v;
+                }
+            });
+            fail();
+        } catch(ConcurrentModificationException expected) {}
+    }
 }

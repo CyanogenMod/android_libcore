@@ -944,6 +944,27 @@ public class Hashtable<K,V>
             }
         }
     }
+    @SuppressWarnings("unchecked")
+    @Override
+    public synchronized void replaceAll(BiFunction<? super K, ? super V, ? extends V> function) {
+        Objects.requireNonNull(function);     // explicit check required in case
+        // table is empty.
+        final int expectedModCount = modCount;
+
+        HashtableEntry<K, V>[] tab = table;
+        for (HashtableEntry<K, V> entry : tab) {
+            while (entry != null) {
+                entry.value = Objects.requireNonNull(
+                        function.apply(entry.key, entry.value));
+                entry = entry.next;
+
+                if (expectedModCount != modCount) {
+                    throw new ConcurrentModificationException();
+                }
+            }
+        }
+    }
+
 
     // Overrides Java8 default methods(added method synchronization)
 
