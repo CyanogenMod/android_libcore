@@ -28,6 +28,18 @@ public final class ZygoteHooks {
     private long token;
 
     /**
+     * Called by the zygote when starting up. It marks the point when any thread
+     * start should be an error, as only internal daemon threads are allowed there.
+     */
+    public static native void startZygoteNoThreadCreation();
+
+    /**
+     * Called by the zygote when startup is finished. It marks the point when it is
+     * conceivable that threads would be started again, e.g., restarting daemons.
+     */
+    public static native void stopZygoteNoThreadCreation();
+
+    /**
      * Called by the zygote prior to every fork. Each call to {@code preFork}
      * is followed by a matching call to {@link #postForkChild(int, String)} on the child
      * process and {@link #postForkCommon()} on both the parent and the child
