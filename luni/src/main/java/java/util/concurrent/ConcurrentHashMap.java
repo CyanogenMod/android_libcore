@@ -1201,6 +1201,9 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
      * operations.  It does not support the {@code add} or
      * {@code addAll} operations.
      *
+     * <p> The set returned by this method is guaranteed to an instance of
+     * {@link KeySetView}.
+     *
      * <p>The view's iterators and spliterators are
      * <a href="package-summary.html#Weakly"><i>weakly consistent</i></a>.
      *
@@ -1209,7 +1212,8 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
      *
      * @return the set view
      */
-    public KeySetView<K,V> keySet() {
+    // NOTE: The upstream version of this function returns KeySetView (See http://b/28099367).
+    public Set<K> keySet() {
         KeySetView<K,V> ks;
         return (ks = keySet) != null ? ks : (keySet = new KeySetView<K,V>(this, null));
     }
@@ -4553,8 +4557,7 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
      * A view of a ConcurrentHashMap as a {@link Set} of keys, in
      * which additions may optionally be enabled by mapping to a
      * common value.  This class cannot be directly instantiated.
-     * See {@link #keySet() keySet()},
-     * {@link #keySet(Object) keySet(V)},
+     * See {@link #keySet(Object) keySet(V)},
      * {@link #newKeySet() newKeySet()},
      * {@link #newKeySet(int) newKeySet(int)}.
      *
