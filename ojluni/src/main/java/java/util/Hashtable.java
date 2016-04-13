@@ -168,80 +168,8 @@ public class Hashtable<K,V>
     /** use serialVersionUID from JDK 1.0.2 for interoperability */
     private static final long serialVersionUID = 1421746759512286392L;
 
-    /**
-     * The default threshold of map capacity above which alternative hashing is
-     * used for String keys. Alternative hashing reduces the incidence of
-     * collisions due to weak hash code calculation for String keys.
-     * <p>
-     * This value may be overridden by defining the system property
-     * {@code jdk.map.althashing.threshold}. A property value of {@code 1}
-     * forces alternative hashing to be used at all times whereas
-     * {@code -1} value ensures that alternative hashing is never used.
-     */
-    static final int ALTERNATIVE_HASHING_THRESHOLD_DEFAULT = Integer.MAX_VALUE;
-
-    /**
-     * holds values which can't be initialized until after VM is booted.
-     */
-    private static class Holder {
-
-        /**
-         * Table capacity above which to switch to use alternative hashing.
-         */
-        static final int ALTERNATIVE_HASHING_THRESHOLD;
-
-        static {
-            String altThreshold = java.security.AccessController.doPrivileged(
-                new sun.security.action.GetPropertyAction(
-                    "jdk.map.althashing.threshold"));
-
-            int threshold;
-            try {
-                threshold = (null != altThreshold)
-                        ? Integer.parseInt(altThreshold)
-                        : ALTERNATIVE_HASHING_THRESHOLD_DEFAULT;
-
-                // disable alternative hashing if -1
-                if (threshold == -1) {
-                    threshold = Integer.MAX_VALUE;
-                }
-
-                if (threshold < 0) {
-                    throw new IllegalArgumentException("value must be positive integer.");
-                }
-            } catch(IllegalArgumentException failed) {
-                throw new Error("Illegal value for 'jdk.map.althashing.threshold'", failed);
-            }
-
-            ALTERNATIVE_HASHING_THRESHOLD = threshold;
-        }
-    }
-
-    /**
-     * A randomizing value associated with this instance that is applied to
-     * hash code of keys to make hash collisions harder to find.
-     */
-    transient int hashSeed;
-
-    /**
-     * Initialize the hashing mask value.
-     */
-    final boolean initHashSeedAsNeeded(int capacity) {
-        boolean currentAltHashing = hashSeed != 0;
-        boolean useAltHashing = sun.misc.VM.isBooted() &&
-                (capacity >= Holder.ALTERNATIVE_HASHING_THRESHOLD);
-        boolean switching = currentAltHashing ^ useAltHashing;
-        if (switching) {
-            hashSeed = useAltHashing
-                ? sun.misc.Hashing.randomHashSeed(this)
-                : 0;
-        }
-        return switching;
-    }
-
-    private int hash(Object k) {
-        // hashSeed will be zero if alternative hashing is disabled.
-        return hashSeed ^ k.hashCode();
+    private static int hash(Object k) {
+        return k.hashCode();
     }
 
     /**
@@ -265,7 +193,6 @@ public class Hashtable<K,V>
         this.loadFactor = loadFactor;
         table = new HashtableEntry[initialCapacity];
         threshold = (initialCapacity <= MAX_ARRAY_SIZE + 1) ? initialCapacity : MAX_ARRAY_SIZE + 1;
-        initHashSeedAsNeeded(initialCapacity);
     }
 
     /**
@@ -477,7 +404,6 @@ public class Hashtable<K,V>
 
         modCount++;
         threshold = (int)Math.min(newCapacity * loadFactor, MAX_ARRAY_SIZE + 1);
-        boolean rehash = initHashSeedAsNeeded(newCapacity);
 
         table = newMap;
 
@@ -486,9 +412,6 @@ public class Hashtable<K,V>
                 HashtableEntry<K,V> e = old;
                 old = old.next;
 
-                if (rehash) {
-                    e.hash = hash(e.key);
-                }
                 int index = (e.hash & 0x7FFFFFFF) % newCapacity;
                 e.next = newMap[index];
                 newMap[index] = e;
@@ -1086,7 +1009,6 @@ public class Hashtable<K,V>
         HashtableEntry<K,V>[] newTable = new HashtableEntry[length];
         threshold = (int) Math.min(length * loadFactor, MAX_ARRAY_SIZE + 1);
         count = 0;
-        initHashSeedAsNeeded(length);
 
         // Read the number of elements and then all the key/value objects
         for (; elements > 0; elements--) {
