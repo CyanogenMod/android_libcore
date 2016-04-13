@@ -16,8 +16,9 @@
 
 package libcore.javax.net.ssl;
 
+import java.util.Arrays;
 import javax.net.ssl.SNIHostName;
-
+import javax.net.ssl.StandardConstants;
 import junit.framework.TestCase;
 
 public class SNIHostNameTest extends TestCase {
@@ -33,5 +34,7 @@ public class SNIHostNameTest extends TestCase {
 
         SNIHostName hostName = new SNIHostName(idnEncoded);
         assertEquals("xn--ihqwcrb4cv8a8dqg056pqjye", hostName.getAsciiName());
+        assertEquals(StandardConstants.SNI_HOST_NAME, hostName.getType());
+        assertEquals(Arrays.toString(idnEncoded), Arrays.toString(hostName.getEncoded()));
     }
 }
