@@ -174,7 +174,7 @@ class JarFile extends ZipFile {
         return getManifestFromReference();
     }
 
-    private Manifest getManifestFromReference() throws IOException {
+    private synchronized Manifest getManifestFromReference() throws IOException {
         Manifest man = manRef != null ? manRef.get() : null;
 
         if (man == null) {
@@ -474,7 +474,7 @@ class JarFile extends ZipFile {
         optoSft[9]=1;
     }
 
-    private JarEntry getManEntry() {
+    private synchronized JarEntry getManEntry() {
         if (manEntry == null) {
             // First look up manifest entry using standard name
             manEntry = getJarEntry(MANIFEST_NAME);
@@ -591,100 +591,6 @@ class JarFile extends ZipFile {
         return new JarFileEntry(ze);
     }
 
-    Enumeration<String> entryNames(CodeSource[] cs) {
-        ensureInitialization();
-        if (jv != null) {
-            return jv.entryNames(this, cs);
-        }
-
-        /*
-         * JAR file has no signed content. Is there a non-signing
-         * code source?
-         */
-        boolean includeUnsigned = false;
-        for (int i = 0; i < cs.length; i++) {
-            if (cs[i].getCodeSigners() == null) {
-                includeUnsigned = true;
-                break;
-            }
-        }
-        if (includeUnsigned) {
-            return unsignedEntryNames();
-        } else {
-            return new Enumeration<String>() {
-
-                public boolean hasMoreElements() {
-                    return false;
-                }
-
-                public String nextElement() {
-                    throw new NoSuchElementException();
-                }
-            };
-        }
-    }
-
-    /**
-     * Returns an enumeration of the zip file entries
-     * excluding internal JAR mechanism entries and including
-     * signed entries missing from the ZIP directory.
-     */
-    Enumeration<JarEntry> entries2() {
-        ensureInitialization();
-        if (jv != null) {
-            return jv.entries2(this, super.entries());
-        }
-
-        // screen out entries which are never signed
-        final Enumeration enum_ = super.entries();
-        return new Enumeration<JarEntry>() {
-
-            ZipEntry entry;
-
-            public boolean hasMoreElements() {
-                if (entry != null) {
-                    return true;
-                }
-                while (enum_.hasMoreElements()) {
-                    ZipEntry ze = (ZipEntry) enum_.nextElement();
-                    if (JarVerifier.isSigningRelated(ze.getName())) {
-                        continue;
-                    }
-                    entry = ze;
-                    return true;
-                }
-                return false;
-            }
-
-            public JarFileEntry nextElement() {
-                if (hasMoreElements()) {
-                    ZipEntry ze = entry;
-                    entry = null;
-                    return new JarFileEntry(ze);
-                }
-                throw new NoSuchElementException();
-            }
-        };
-    }
-
-    CodeSource[] getCodeSources(URL url) {
-        ensureInitialization();
-        if (jv != null) {
-            return jv.getCodeSources(this, url);
-        }
-
-        /*
-         * JAR file has no signed content. Is there a non-signing
-         * code source?
-         */
-        Enumeration unsigned = unsignedEntryNames();
-        if (unsigned.hasMoreElements()) {
-            return new CodeSource[]{JarVerifier.getUnsignedCS(url)};
-        } else {
-            return null;
-        }
-    }
-
     private Enumeration<String> unsignedEntryNames() {
         final Enumeration entries = entries();
         return new Enumeration<String>() {
@@ -721,44 +627,5 @@ class JarFile extends ZipFile {
                 throw new NoSuchElementException();
             }
         };
-    }
-
-    CodeSource getCodeSource(URL url, String name) {
-        ensureInitialization();
-        if (jv != null) {
-            if (jv.eagerValidation) {
-                CodeSource cs = null;
-                JarEntry je = getJarEntry(name);
-                if (je != null) {
-                    cs = jv.getCodeSource(url, this, je);
-                } else {
-                    cs = jv.getCodeSource(url, name);
-                }
-                return cs;
-            } else {
-                return jv.getCodeSource(url, name);
-            }
-        }
-
-        return JarVerifier.getUnsignedCS(url);
-    }
-
-    void setEagerValidation(boolean eager) {
-        try {
-            maybeInstantiateVerifier();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        if (jv != null) {
-            jv.setEagerValidation(eager);
-        }
-    }
-
-    List getManifestDigests() {
-        ensureInitialization();
-        if (jv != null) {
-            return jv.getManifestDigests();
-        }
-        return new ArrayList();
     }
 }

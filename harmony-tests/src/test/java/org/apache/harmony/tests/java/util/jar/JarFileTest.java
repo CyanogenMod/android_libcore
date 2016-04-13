@@ -300,27 +300,6 @@ public class JarFileTest extends TestCase {
         assertEquals(6, i);
     }
 
-    public void test_entries2() throws Exception {
-        Support_Resources.copyFile(resources, null, jarName);
-        JarFile jarFile = new JarFile(new File(resources, jarName));
-        Enumeration<JarEntry> enumeration = jarFile.entries();
-        jarFile.close();
-        try {
-            enumeration.hasMoreElements();
-            fail("hasMoreElements() did not detect a closed jar file");
-        } catch (IllegalStateException e) {
-        }
-        Support_Resources.copyFile(resources, null, jarName);
-        jarFile = new JarFile(new File(resources, jarName));
-        enumeration = jarFile.entries();
-        jarFile.close();
-        try {
-            enumeration.nextElement();
-            fail("nextElement() did not detect closed jar file");
-        } catch (IllegalStateException e) {
-        }
-    }
-
     /**
      * @throws IOException
      * java.util.jar.JarFile#getJarEntry(java.lang.String)
