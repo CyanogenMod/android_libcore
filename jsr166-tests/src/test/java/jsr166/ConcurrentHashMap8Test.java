@@ -300,7 +300,7 @@ public class ConcurrentHashMap8Test extends JSR166TestCase {
      */
     public void testGetMappedValue() {
         ConcurrentHashMap map = map5();
-        assertNull(map.keySet().getMappedValue());
+        assertNull(((ConcurrentHashMap.KeySetView) map.keySet()).getMappedValue());
         try {
             map.keySet(null);
             shouldThrow();
