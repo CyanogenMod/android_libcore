@@ -39,17 +39,18 @@ import libcore.java.security.TestKeyStore;
 
 public class KeyManagerFactoryTest extends TestCase {
 
-    private static TestKeyStore TEST_KEY_STORE;
+    private TestKeyStore testKeyStore;
 
-    // note the rare usage of DSA keys here in addition to RSA
-    private static TestKeyStore getTestKeyStore() throws Exception {
-        if (TEST_KEY_STORE == null) {
-            TEST_KEY_STORE = new TestKeyStore.Builder()
-                    .keyAlgorithms("RSA", "DH_RSA", "DSA", "DH_DSA", "EC", "EC_RSA")
-                    .aliasPrefix("rsa-dsa-ec-dh")
-                    .build();
-        }
-        return TEST_KEY_STORE;
+    protected void setUp() throws Exception {
+        // note the rare usage of DSA keys here in addition to RSA
+        testKeyStore = new TestKeyStore.Builder()
+                .keyAlgorithms("RSA", "DH_RSA", "DSA", "DH_DSA", "EC", "EC_RSA")
+                .aliasPrefix("rsa-dsa-ec-dh")
+                .build();
+    }
+
+    private TestKeyStore getTestKeyStore() throws Exception {
+        return testKeyStore;
     }
 
     public void test_KeyManagerFactory_getDefaultAlgorithm() throws Exception {
