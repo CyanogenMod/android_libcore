@@ -90,6 +90,10 @@ public final class AndroidHardcodedSystemProperties {
         { "http.keepAlive", null },
         { "http.keepAliveDuration", null },
         { "http.maxConnections", null },
+
+        // Hardcode "os.name" to "Linux." Aids compile-time initialization, checked in System.
+        // b/28174137
+        { "os.name", "Linux" },
     };
 }
 

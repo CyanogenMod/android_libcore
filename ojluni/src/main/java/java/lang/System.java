@@ -960,7 +960,11 @@ public final class System {
 
         StructUtsname info = Libcore.os.uname();
         p.put("os.arch", info.machine);
-        p.put("os.name", info.sysname);
+        if (p.get("os.name") != null && !p.get("os.name").equals(info.sysname)) {
+            logE("Wrong compile-time assumption for os.name: " + p.get("os.name") + " vs " +
+                    info.sysname);
+            p.put("os.name", info.sysname);
+        }
         p.put("os.version", info.release);
 
         // Undocumented Android-only properties.
