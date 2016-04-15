@@ -31,6 +31,22 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
     private static final TimeZone AMERICA_LOS_ANGELES = TimeZone.getTimeZone("America/Los_Angeles");
     private static final TimeZone AUSTRALIA_LORD_HOWE = TimeZone.getTimeZone("Australia/Lord_Howe");
 
+    private Locale defaultLocale;
+
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+        defaultLocale = Locale.getDefault();
+        // Locale affects timezone names / abbreviations so can affect formatting and parsing.
+        Locale.setDefault(Locale.US);
+    }
+
+    @Override
+    public void tearDown() throws Exception {
+        Locale.setDefault(defaultLocale);
+        super.tearDown();
+    }
+
     // The RI fails this test.
     public void test2DigitYearStartIsCloned() throws Exception {
         // Test that get2DigitYearStart returns a clone.
