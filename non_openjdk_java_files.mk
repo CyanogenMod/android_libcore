@@ -56,6 +56,7 @@ non_openjdk_javadoc_files := \
   libart/src/main/java/dalvik/system/VMStack.java \
   libart/src/main/java/dalvik/system/TransactionAbortError.java \
   dalvik/src/main/java/dalvik/system/ZygoteHooks.java \
+  libart/src/main/java/java/lang/AndroidHardcodedSystemProperties.java \
   libart/src/main/java/java/lang/Daemons.java \
   libart/src/main/java/java/lang/DexCache.java \
   luni/src/main/java/java/lang/FindBugsSuppressWarnings.java \
