@@ -31,7 +31,7 @@ public class Version {
     // Android-changed : launcher_name, java_version,
     // java_runtime_name and java_runtime_version.
     private static final String launcher_name = "";
-    private static final String java_version = "0";
+    private static final String java_version = AndroidHardcodedSystemProperties.JAVA_VERSION;
     private static final String java_runtime_name = "Android Runtime";
     private static final String java_runtime_version = "0.9";
 

@@ -41,13 +41,18 @@ import java.util.Properties;
  *
  * @hide
  */
-final class AndroidHardcodedSystemProperties {
+public final class AndroidHardcodedSystemProperties {
+
+    // This value is shared with sun.misc.Version. It is defined here so that the compiler
+    // can use it.
+    public final static String JAVA_VERSION = "0";
 
     final static String[][] STATIC_PROPERTIES = {
         // None of these four are meaningful on Android, but these keys are guaranteed
         // to be present for System.getProperty. For java.class.version, we use the maximum
         // class file version that dx currently supports.
         { "java.class.version", "50.0" },
+        { "java.version", JAVA_VERSION },
         { "java.compiler", "" },
         { "java.ext.dirs", "" },
 
