@@ -23,6 +23,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import junit.framework.TestCase;
@@ -176,9 +178,12 @@ public class OldManifestTest extends TestCase {
 
         // The Manifest-Version takes precedence,
         // and the Signature-Version gets no special treatment.
-        String[] lines = new String(os.toByteArray(), "UTF-8").split("\r\n");
-        assertEquals("Manifest-Version: 1.0", lines[0]);
-        assertEquals("Aardvark-Version: 3.0", lines[1]);
-        assertEquals("Signature-Version: 2.0", lines[2]);
+        List<String> lines = Arrays.asList(new String(os.toByteArray(), "UTF-8").split("\r\n"));
+        // The first line must always contain the Manifest-Version (or the Signature-Version if
+        // the ManifestVersion is missing.
+        assertEquals("Manifest-Version: 1.0", lines.get(0));
+
+        assertTrue(lines.contains("Aardvark-Version: 3.0"));
+        assertTrue(lines.contains("Signature-Version: 2.0"));
     }
 }
