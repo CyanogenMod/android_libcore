@@ -85,6 +85,11 @@ public final class AndroidHardcodedSystemProperties {
         // Hardcode "sun.io.useCanonCaches" to use the default (on). b/28174137
         { "sun.io.useCanonCaches", null },
         { "sun.io.useCanonPrefixCache", null },
+
+        // Hardcode some http properties to use the default. b/28174137
+        { "http.keepAlive", null },
+        { "http.keepAliveDuration", null },
+        { "http.maxConnections", null },
     };
 }
 
