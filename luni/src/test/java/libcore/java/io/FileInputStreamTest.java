@@ -223,6 +223,28 @@ public final class FileInputStreamTest extends TestCase {
         assertTrue(getOpenFdsForPrefix("test_bug_25695227").isEmpty());
     }
 
+    // http://b/28192631
+    public void testSkipOnLargeFiles() throws Exception {
+        File largeFile = File.createTempFile("FileInputStreamTest_testSkipOnLargeFiles", "");
+        FileOutputStream fos = new FileOutputStream(largeFile);
+        try {
+            byte[] buffer = new byte[1024 * 1024]; // 1 MB
+            for (int i = 0; i < 3 * 1024; i++) { // 3 GB
+                fos.write(buffer);
+            }
+        } finally {
+            fos.close();
+        }
+
+        FileInputStream fis = new FileInputStream(largeFile);
+        long lastByte = 3 * 1024 * 1024 * 1024L - 1;
+        assertEquals(0, Libcore.os.lseek(fis.getFD(), 0, OsConstants.SEEK_CUR));
+        assertEquals(lastByte, fis.skip(lastByte));
+
+        // Proactively cleanup - it's a pretty large file.
+        assertTrue(largeFile.delete());
+    }
+
     private static List<Integer> getOpenFdsForPrefix(String path) throws Exception {
         File[] fds = new File("/proc/self/fd").listFiles();
         List<Integer> list = new ArrayList<>();
