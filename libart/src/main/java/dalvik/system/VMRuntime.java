@@ -401,4 +401,10 @@ public final class VMRuntime {
      * set.
      */
     public static native boolean didPruneDalvikCache();
+
+    /**
+     * Register the current execution thread to the runtime as sensitive thread.
+     * Should be called just once. Subsequent calls are ignored.
+     */
+    public static native void registerSensitiveThread();
 }
