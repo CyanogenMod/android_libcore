@@ -76,7 +76,11 @@ public final class AndroidHardcodedSystemProperties {
 
         { "file.separator", "/" },
         { "line.separator", "\n" },
-        { "path.separator", ":" }
+        { "path.separator", ":" },
+
+        // Turn off ICU debugging. This allows compile-time initialization of a range of
+        // classes. b/28039175
+        { "ICUDebug", null },
     };
 }
 
