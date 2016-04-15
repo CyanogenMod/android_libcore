@@ -81,6 +81,10 @@ public final class AndroidHardcodedSystemProperties {
         // Turn off ICU debugging. This allows compile-time initialization of a range of
         // classes. b/28039175
         { "ICUDebug", null },
+
+        // Hardcode "sun.io.useCanonCaches" to use the default (on). b/28174137
+        { "sun.io.useCanonCaches", null },
+        { "sun.io.useCanonPrefixCache", null },
     };
 }
 
