@@ -37,6 +37,8 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+
+import libcore.util.CharsetUtils;
 import libcore.util.EmptyArray;
 
 /**
@@ -857,7 +859,21 @@ public final class String
      * @since  1.6
      */
     public byte[] getBytes(Charset charset) {
-        if (charset == null) throw new NullPointerException();
+        if (charset == null) {
+            throw new NullPointerException("charset == null");
+        }
+
+        final String name = charset.name();
+        if ("UTF-8".equals(name)) {
+            return CharsetUtils.toUtf8Bytes(this, 0, count);
+        } else if ("ISO-8859-1".equals(name)) {
+            return CharsetUtils.toIsoLatin1Bytes(this, 0, count);
+        } else if ("US-ASCII".equals(name)) {
+            return CharsetUtils.toAsciiBytes(this, 0, count);
+        } else if ("UTF-16BE".equals(name)) {
+            return CharsetUtils.toBigEndianUtf16Bytes(this, 0, count);
+        }
+
         return StringCoding.encode(charset, this);
     }
 
