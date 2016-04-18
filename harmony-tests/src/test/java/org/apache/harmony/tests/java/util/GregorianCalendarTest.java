@@ -37,6 +37,8 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
     public void setUp() throws Exception {
         super.setUp();
         defaultLocale = Locale.getDefault();
+        // Most tests are locale independent, but locale does affect start-of-week.
+        Locale.setDefault(Locale.US);
     }
 
     @Override
@@ -537,8 +539,6 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
      * java.util.GregorianCalendar#roll(int, boolean)
      */
     public void test_rollIZ() {
-        Locale.setDefault(Locale.US);
-
         // Test for method void java.util.GregorianCalendar.roll(int, boolean)
         GregorianCalendar gc = new GregorianCalendar(1972, Calendar.OCTOBER,
                 13, 19, 9, 59);
