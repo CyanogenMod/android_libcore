@@ -189,68 +189,6 @@ public class WeakHashMap<K,V>
      */
     int modCount;
 
-    /**
-     * The default threshold of map capacity above which alternative hashing is
-     * used for String keys. Alternative hashing reduces the incidence of
-     * collisions due to weak hash code calculation for String keys.
-     * <p/>
-     * This value may be overridden by defining the system property
-     * {@code jdk.map.althashing.threshold}. A property value of {@code 1}
-     * forces alternative hashing to be used at all times whereas
-     * {@code -1} value ensures that alternative hashing is never used.
-     */
-    static final int ALTERNATIVE_HASHING_THRESHOLD_DEFAULT = Integer.MAX_VALUE;
-
-    /**
-     * holds values which can't be initialized until after VM is booted.
-     */
-    private static class Holder {
-
-        /**
-         * Table capacity above which to switch to use alternative hashing.
-         */
-        static final int ALTERNATIVE_HASHING_THRESHOLD;
-
-        static {
-            String altThreshold = java.security.AccessController.doPrivileged(
-                new sun.security.action.GetPropertyAction(
-                    "jdk.map.althashing.threshold"));
-
-            int threshold;
-            try {
-                threshold = (null != altThreshold)
-                        ? Integer.parseInt(altThreshold)
-                        : ALTERNATIVE_HASHING_THRESHOLD_DEFAULT;
-
-                // disable alternative hashing if -1
-                if (threshold == -1) {
-                    threshold = Integer.MAX_VALUE;
-                }
-
-                if (threshold < 0) {
-                    throw new IllegalArgumentException("value must be positive integer.");
-                }
-            } catch(IllegalArgumentException failed) {
-                throw new Error("Illegal value for 'jdk.map.althashing.threshold'", failed);
-            }
-            ALTERNATIVE_HASHING_THRESHOLD = threshold;
-        }
-    }
-
-    /**
-     * If {@code true} then perform alternate hashing to reduce the incidence of
-     * collisions due to weak hash code calculation.
-     */
-    transient boolean useAltHashing;
-
-    /**
-     * A randomizing value associated with this instance that is applied to
-     * hash code of keys to make hash collisions harder to find.
-     *
-     * This hash seed is only used if {@code useAltHashing} is true.
-     */
-    transient int hashSeed;
-
     @SuppressWarnings("unchecked")
     private Entry<K,V>[] newTable(int n) {
         return (Entry<K,V>[]) new Entry[n];
@@ -281,13 +219,6 @@ public class WeakHashMap<K,V>
         table = newTable(capacity);
         this.loadFactor = loadFactor;
         threshold = (int)(capacity * loadFactor);
-        useAltHashing = sun.misc.VM.isBooted() &&
-                (capacity >= Holder.ALTERNATIVE_HASHING_THRESHOLD);
-        if (useAltHashing) {
-            hashSeed = sun.misc.Hashing.randomHashSeed(this);
-        } else {
-            hashSeed = 0;
-        }
     }
 
     /**
@@ -353,34 +284,6 @@ public class WeakHashMap<K,V>
      */
     private static boolean eq(Object x, Object y) {
         return x == y || x.equals(y);
-    }
-
-    /**
-     * Retrieve object hash code and applies a supplemental hash function to the
-     * result hash, which defends against poor quality hash functions.  This is
-     * critical because HashMap uses power-of-two length hash tables, that
-     * otherwise encounter collisions for hashCodes that do not differ
-     * in lower bits.
-     */
-    int hash(Object k) {
-
-        int h;
-        if (useAltHashing) {
-            h = hashSeed;
-            if (k instanceof String) {
-                return sun.misc.Hashing.stringHash32((String) k);
-            } else {
-                h ^= k.hashCode();
-            }
-        } else  {
-            h = k.hashCode();
-        }
-
-        // This function ensures that hashCodes that differ only by
-        // constant multiples at each bit position have a bounded
-        // number of collisions (approximately 8 at default load factor).
-        h ^= (h >>> 20) ^ (h >>> 12);
-        return h ^ (h >>> 7) ^ (h >>> 4);
     }
 
     /**
@@ -472,7 +375,7 @@ public class WeakHashMap<K,V>
      */
     public V get(Object key) {
         Object k = maskNull(key);
-        int h = hash(k);
+        int h = sun.misc.Hashing.singleWordWangJenkinsHash(k);
         Entry<K,V>[] tab = getTable();
         int index = indexFor(h, tab.length);
         Entry<K,V> e = tab[index];
@@ -502,7 +405,7 @@ public class WeakHashMap<K,V>
      */
     Entry<K,V> getEntry(Object key) {
         Object k = maskNull(key);
-        int h = hash(k);
+        int h = sun.misc.Hashing.singleWordWangJenkinsHash(k);
         Entry<K,V>[] tab = getTable();
         int index = indexFor(h, tab.length);
         Entry<K,V> e = tab[index];
@@ -525,7 +428,7 @@ public class WeakHashMap<K,V>
      */
     public V put(K key, V value) {
         Object k = maskNull(key);
-        int h = hash(k);
+        int h = sun.misc.Hashing.singleWordWangJenkinsHash(k);
         Entry<K,V>[] tab = getTable();
         int i = indexFor(h, tab.length);
 
@@ -569,14 +472,7 @@ public class WeakHashMap<K,V>
         }
 
         Entry<K,V>[] newTable = newTable(newCapacity);
-        boolean oldAltHashing = useAltHashing;
-        useAltHashing |= sun.misc.VM.isBooted() &&
-                (newCapacity >= Holder.ALTERNATIVE_HASHING_THRESHOLD);
-        boolean rehash = oldAltHashing ^ useAltHashing;
-        if (rehash) {
-            hashSeed = sun.misc.Hashing.randomHashSeed(this);
-        }
-        transfer(oldTable, newTable, rehash);
+        transfer(oldTable, newTable);
         table = newTable;
 
         /*
@@ -588,13 +484,13 @@ public class WeakHashMap<K,V>
             threshold = (int)(newCapacity * loadFactor);
         } else {
             expungeStaleEntries();
-            transfer(newTable, oldTable, false);
+            transfer(newTable, oldTable);
             table = oldTable;
         }
     }
 
     /** Transfers all entries from src to dest tables */
-    private void transfer(Entry<K,V>[] src, Entry<K,V>[] dest, boolean rehash) {
+    private void transfer(Entry<K,V>[] src, Entry<K,V>[] dest) {
         for (int j = 0; j < src.length; ++j) {
             Entry<K,V> e = src[j];
             src[j] = null;
@@ -606,9 +502,6 @@ public class WeakHashMap<K,V>
                     e.value = null; //  "   "
                     size--;
                 } else {
-                    if (rehash) {
-                        e.hash = hash(key);
-                    }
                     int i = indexFor(e.hash, dest.length);
                     e.next = dest[i];
                     dest[i] = e;
@@ -677,7 +570,7 @@ public class WeakHashMap<K,V>
      */
     public V remove(Object key) {
         Object k = maskNull(key);
-        int h = hash(k);
+        int h = sun.misc.Hashing.singleWordWangJenkinsHash(k);
         Entry<K,V>[] tab = getTable();
         int i = indexFor(h, tab.length);
         Entry<K,V> prev = tab[i];
@@ -708,7 +601,7 @@ public class WeakHashMap<K,V>
         Entry<K,V>[] tab = getTable();
         Map.Entry<?,?> entry = (Map.Entry<?,?>)o;
         Object k = maskNull(entry.getKey());
-        int h = hash(k);
+        int h = sun.misc.Hashing.singleWordWangJenkinsHash(k);
         int i = indexFor(h, tab.length);
         Entry<K,V> prev = tab[i];
         Entry<K,V> e = prev;
