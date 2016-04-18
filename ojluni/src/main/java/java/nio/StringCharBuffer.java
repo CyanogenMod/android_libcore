@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2013, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -74,6 +74,10 @@ class StringCharBuffer                                  // package-private
 
     public final char get(int index) {
         return str.charAt(checkIndex(index) + offset);
+    }
+
+    char getUnchecked(int index) {
+        return str.charAt(index + offset);
     }
 
     // ## Override bulk get methods for better performance

@@ -319,6 +319,7 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/java/nio/ByteBufferAsShortBuffer.java \
     ojluni/src/main/java/java/nio/ByteOrder.java \
     ojluni/src/main/java/java/nio/CharBuffer.java \
+    ojluni/src/main/java/java/nio/CharBufferSpliterator.java \
     ojluni/src/main/java/java/nio/DirectByteBuffer.java \
     ojluni/src/main/java/java/nio/DoubleBuffer.java \
     ojluni/src/main/java/java/nio/FloatBuffer.java \

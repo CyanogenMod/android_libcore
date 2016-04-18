@@ -453,4 +453,34 @@ public class StringTest extends TestCase {
         } catch (StringIndexOutOfBoundsException expected) {
         }
     }
+
+    public void testChars() {
+        String s = "Hello\n\tworld";
+        int[] expected = new int[s.length()];
+        for (int i = 0; i < s.length(); ++i) {
+            expected[i] = (int) s.charAt(i);
+        }
+        assertTrue(Arrays.equals(expected, s.chars().toArray()));
+
+        // Surrogate code point
+        char high = '\uD83D', low = '\uDE02';
+        String surrogateCP = new String(new char[]{high, low, low});
+        assertTrue(Arrays.equals(new int[]{high, low, low}, surrogateCP.chars().toArray()));
+    }
+
+    public void testCodePoints() {
+        String s = "Hello\n\tworld";
+        int[] expected = new int[s.length()];
+        for (int i = 0; i < s.length(); ++i) {
+            expected[i] = (int) s.charAt(i);
+        }
+        assertTrue(Arrays.equals(expected, s.codePoints().toArray()));
+
+        // Surrogate code point
+        char high = '\uD83D', low = '\uDE02';
+        String surrogateCP = new String(new char[]{high, low, low, '0'});
+        assertEquals(Character.toCodePoint(high, low), surrogateCP.codePoints().toArray()[0]);
+        assertEquals((int) low, surrogateCP.codePoints().toArray()[1]); // Unmatched surrogate.
+        assertEquals((int) '0', surrogateCP.codePoints().toArray()[2]);
+    }
 }
