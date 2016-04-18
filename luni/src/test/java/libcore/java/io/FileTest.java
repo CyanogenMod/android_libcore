@@ -337,13 +337,14 @@ public class FileTest extends junit.framework.TestCase {
     // http://b/27273930
     public void testJavaIoTmpdirMutable() throws Exception {
         final String oldTmpDir = System.getProperty("java.io.tmpdir");
-        final String newTmpDir = oldTmpDir + "/newTemp";
-        File subDir = new File(oldTmpDir, "newTemp");
+        final String directoryName = "/newTemp" + Integer.toString(Math.randomIntInternal());
+        final String newTmpDir = oldTmpDir + directoryName;
+        File subDir = new File(oldTmpDir, directoryName);
         assertTrue(subDir.mkdir());
         try {
             System.setProperty("java.io.tmpdir", newTmpDir);
             File tempFile = File.createTempFile("foo", ".bar");
-            assertTrue(tempFile.getAbsolutePath().contains("/newTemp/"));
+            assertTrue(tempFile.getAbsolutePath().contains(directoryName));
         } finally {
             System.setProperty("java.io.tmpdir", oldTmpDir);
         }
