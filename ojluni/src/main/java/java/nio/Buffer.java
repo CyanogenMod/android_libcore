@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2014 The Android Open Source Project
- * Copyright (c) 2000, 2011, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2013, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -26,6 +26,7 @@
 
 package java.nio;
 
+import java.util.Spliterator;
 
 /**
  * A container for data of a specific primitive type.
@@ -172,6 +173,13 @@ package java.nio;
  */
 
 public abstract class Buffer {
+
+    /**
+     * The characteristics of Spliterators that traverse and split elements
+     * maintained in Buffers.
+     */
+    static final int SPLITERATOR_CHARACTERISTICS =
+        Spliterator.SIZED | Spliterator.SUBSIZED | Spliterator.ORDERED;
 
     // Invariants: mark <= position <= limit <= capacity
     private int mark = -1;

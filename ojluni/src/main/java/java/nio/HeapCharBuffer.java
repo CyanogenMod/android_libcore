@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2014 The Android Open Source Project
- * Copyright (c) 2000, 2008, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2013, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -113,6 +113,10 @@ class HeapCharBuffer extends CharBuffer {
 
     public char get(int i) {
         return hb[ix(checkIndex(i))];
+    }
+
+    char getUnchecked(int i) {
+        return hb[ix(i)];
     }
 
     public CharBuffer get(char[] dst, int offset, int length) {

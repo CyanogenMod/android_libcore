@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2014 The Android Open Source Project
- * Copyright (c) 2000, 2008, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2013, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -30,6 +30,9 @@ package java.nio;
 
 
 import java.io.IOException;
+import java.util.Spliterator;
+import java.util.stream.StreamSupport;
+import java.util.stream.IntStream;
 
 
 /**
@@ -375,6 +378,17 @@ public abstract class CharBuffer
      *                                   or not smaller than the buffer's limit
      */
     public abstract char get(int index);
+
+    /**
+     * Absolute <i>get</i> method.  Reads the char at the given
+     * index without any validation of the index.
+     *
+     * @param  index
+     *         The index from which the char will be read
+     *
+     * @return  The char at the given index
+     */
+    abstract char getUnchecked(int index);   // package-private
 
     /**
      * Absolute <i>put</i> method&nbsp;&nbsp;<i>(optional operation)</i>.
@@ -1049,5 +1063,10 @@ public abstract class CharBuffer
      */
     public abstract ByteOrder order();
 
-
+    @Override
+    public IntStream chars() {
+        CharBuffer self = this;
+        return StreamSupport.intStream(() -> new CharBufferSpliterator(self),
+            Buffer.SPLITERATOR_CHARACTERISTICS, false);
+    }
 }
