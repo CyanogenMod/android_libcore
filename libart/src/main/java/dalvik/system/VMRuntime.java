@@ -39,7 +39,7 @@ public final class VMRuntime {
     // instruction set name should not exceed 7 characters. See installd
     // and the package manager for the actual propeties.
     private static final Map<String, String> ABI_TO_INSTRUCTION_SET_MAP
-            = new HashMap<String, String>();
+            = new HashMap<String, String>(16);
     static {
         ABI_TO_INSTRUCTION_SET_MAP.put("armeabi", "arm");
         ABI_TO_INSTRUCTION_SET_MAP.put("armeabi-v7a", "arm");
