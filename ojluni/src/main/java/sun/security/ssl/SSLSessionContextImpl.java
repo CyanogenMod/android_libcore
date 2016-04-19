@@ -207,7 +207,7 @@ final class SSLSessionContextImpl implements SSLSessionContext {
                         "javax.net.ssl.sessionCacheSize");
                 }
             });
-            cacheLimit = (s != null) ? Integer.valueOf(s).intValue() : 0;
+            cacheLimit = (s != null) ? Integer.parseInt(s) : 0;
         } catch (Exception e) {
         }
 
