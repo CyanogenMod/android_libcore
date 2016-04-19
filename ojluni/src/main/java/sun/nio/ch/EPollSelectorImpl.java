@@ -159,7 +159,7 @@ class EPollSelectorImpl
         if (closed)
             throw new ClosedSelectorException();
         SelChImpl ch = ski.channel;
-        int fd = Integer.valueOf(ch.getFDVal());
+        Integer fd = Integer.valueOf(ch.getFDVal());
         fdToKey.put(fd, ski);
         pollWrapper.add(fd);
         keys.add(ski);
