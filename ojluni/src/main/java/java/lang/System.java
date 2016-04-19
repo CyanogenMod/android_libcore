@@ -1072,92 +1072,54 @@ public final class System {
 
     /**
      * Determines the current system properties.
-     * <p>
-     * First, if there is a security manager, its
-     * <code>checkPropertiesAccess</code> method is called with no
-     * arguments. This may result in a security exception.
-     * <p>
-     * The current set of system properties for use by the
-     * {@link #getProperty(String)} method is returned as a
-     * <code>Properties</code> object. If there is no current set of
-     * system properties, a set of system properties is first created and
-     * initialized. This set of system properties always includes values
-     * for the following keys:
-     * <table summary="Shows property keys and associated values">
-     * <tr><th>Key</th>
-     *     <th>Description of Associated Value</th></tr>
-     * <tr><td><code>java.version</code></td>
-     *     <td>Java Runtime Environment version</td></tr>
-     * <tr><td><code>java.vendor</code></td>
-     *     <td>Java Runtime Environment vendor</td></tr
-     * <tr><td><code>java.vendor.url</code></td>
-     *     <td>Java vendor URL</td></tr>
-     * <tr><td><code>java.home</code></td>
-     *     <td>Java installation directory</td></tr>
-     * <tr><td><code>java.vm.specification.version</code></td>
-     *     <td>Java Virtual Machine specification version</td></tr>
-     * <tr><td><code>java.vm.specification.vendor</code></td>
-     *     <td>Java Virtual Machine specification vendor</td></tr>
-     * <tr><td><code>java.vm.specification.name</code></td>
-     *     <td>Java Virtual Machine specification name</td></tr>
-     * <tr><td><code>java.vm.version</code></td>
-     *     <td>Java Virtual Machine implementation version</td></tr>
-     * <tr><td><code>java.vm.vendor</code></td>
-     *     <td>Java Virtual Machine implementation vendor</td></tr>
-     * <tr><td><code>java.vm.name</code></td>
-     *     <td>Java Virtual Machine implementation name</td></tr>
-     * <tr><td><code>java.specification.version</code></td>
-     *     <td>Java Runtime Environment specification  version</td></tr>
-     * <tr><td><code>java.specification.vendor</code></td>
-     *     <td>Java Runtime Environment specification  vendor</td></tr>
-     * <tr><td><code>java.specification.name</code></td>
-     *     <td>Java Runtime Environment specification  name</td></tr>
-     * <tr><td><code>java.class.version</code></td>
-     *     <td>Java class format version number</td></tr>
-     * <tr><td><code>java.class.path</code></td>
-     *     <td>Java class path</td></tr>
-     * <tr><td><code>java.library.path</code></td>
-     *     <td>List of paths to search when loading libraries</td></tr>
-     * <tr><td><code>java.io.tmpdir</code></td>
-     *     <td>Default temp file path</td></tr>
-     * <tr><td><code>java.compiler</code></td>
-     *     <td>Name of JIT compiler to use</td></tr>
-     * <tr><td><code>java.ext.dirs</code></td>
-     *     <td>Path of extension directory or directories</td></tr>
-     * <tr><td><code>os.name</code></td>
-     *     <td>Operating system name</td></tr>
-     * <tr><td><code>os.arch</code></td>
-     *     <td>Operating system architecture</td></tr>
-     * <tr><td><code>os.version</code></td>
-     *     <td>Operating system version</td></tr>
-     * <tr><td><code>file.separator</code></td>
-     *     <td>File separator ("/" on UNIX)</td></tr>
-     * <tr><td><code>path.separator</code></td>
-     *     <td>Path separator (":" on UNIX)</td></tr>
-     * <tr><td><code>line.separator</code></td>
-     *     <td>Line separator ("\n" on UNIX)</td></tr>
-     * <tr><td><code>user.name</code></td>
-     *     <td>User's account name</td></tr>
-     * <tr><td><code>user.home</code></td>
-     *     <td>User's home directory</td></tr>
-     * <tr><td><code>user.dir</code></td>
-     *     <td>User's current working directory</td></tr>
+     *
+     *
+     * <p>The following properties are always provided by the Dalvik VM:</p>
+     * <p><table BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+     * <tr BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+     *     <td><b>Name</b></td>        <td><b>Meaning</b></td>                    <td><b>Example</b></td></tr>
+     * <tr><td>file.separator</td>     <td>{@link java.io.File#separator}</td>    <td>{@code /}</td></tr>
+     *
+     * <tr><td>java.class.path</td>    <td>System class path</td>                 <td>{@code .}</td></tr>
+     * <tr><td>java.class.version</td> <td>(Not useful on Android)</td>           <td>{@code 50.0}</td></tr>
+     * <tr><td>java.compiler</td>      <td>(Not useful on Android)</td>           <td>Empty</td></tr>
+     * <tr><td>java.ext.dirs</td>      <td>(Not useful on Android)</td>           <td>Empty</td></tr>
+     * <tr><td>java.home</td>          <td>Location of the VM on the file system</td> <td>{@code /system}</td></tr>
+     * <tr><td>java.io.tmpdir</td>     <td>See {@link java.io.File#createTempFile}</td> <td>{@code /sdcard}</td></tr>
+     * <tr><td>java.library.path</td>  <td>Search path for JNI libraries</td>     <td>{@code /vendor/lib:/system/lib}</td></tr>
+     * <tr><td>java.vendor</td>        <td>Human-readable VM vendor</td>          <td>{@code The Android Project}</td></tr>
+     * <tr><td>java.vendor.url</td>    <td>URL for VM vendor's web site</td>      <td>{@code http://www.android.com/}</td></tr>
+     * <tr><td>java.version</td>       <td>(Not useful on Android)</td>           <td>{@code 0}</td></tr>
+     *
+     * <tr><td>java.specification.version</td>    <td>VM libraries version</td>        <td>{@code 0.9}</td></tr>
+     * <tr><td>java.specification.vendor</td>     <td>VM libraries vendor</td>         <td>{@code The Android Project}</td></tr>
+     * <tr><td>java.specification.name</td>       <td>VM libraries name</td>           <td>{@code Dalvik Core Library}</td></tr>
+     * <tr><td>java.vm.version</td>               <td>VM implementation version</td>   <td>{@code 1.2.0}</td></tr>
+     * <tr><td>java.vm.vendor</td>                <td>VM implementation vendor</td>    <td>{@code The Android Project}</td></tr>
+     * <tr><td>java.vm.name</td>                  <td>VM implementation name</td>      <td>{@code Dalvik}</td></tr>
+     * <tr><td>java.vm.specification.version</td> <td>VM specification version</td>    <td>{@code 0.9}</td></tr>
+     * <tr><td>java.vm.specification.vendor</td>  <td>VM specification vendor</td>     <td>{@code The Android Project}</td></tr>
+     * <tr><td>java.vm.specification.name</td>    <td>VM specification name</td>       <td>{@code Dalvik Virtual Machine Specification}</td></tr>
+     *
+     * <tr><td>line.separator</td>     <td>The system line separator</td>         <td>{@code \n}</td></tr>
+     *
+     * <tr><td>os.arch</td>            <td>OS architecture</td>                   <td>{@code armv7l}</td></tr>
+     * <tr><td>os.name</td>            <td>OS (kernel) name</td>                  <td>{@code Linux}</td></tr>
+     * <tr><td>os.version</td>         <td>OS (kernel) version</td>               <td>{@code 2.6.32.9-g103d848}</td></tr>
+     *
+     * <tr><td>path.separator</td>     <td>See {@link java.io.File#pathSeparator}</td> <td>{@code :}</td></tr>
+     *
+     * <tr><td>user.dir</td>           <td>Base of non-absolute paths</td>        <td>{@code /}</td></tr>
+     * <tr><td>user.home</td>          <td>(Not useful on Android)</td>           <td>Empty</td></tr>
+     * <tr><td>user.name</td>          <td>(Not useful on Android)</td>           <td>Empty</td></tr>
+     *
      * </table>
      * <p>
      * Multiple paths in a system property value are separated by the path
      * separator character of the platform.
-     * <p>
-     * Note that even if the security manager does not permit the
-     * <code>getProperties</code> operation, it may choose to permit the
-     * {@link #getProperty(String)} operation.
      *
      * @return     the system properties
-     * @exception  SecurityException  if a security manager exists and its
-     *             <code>checkPropertiesAccess</code> method doesn't allow access
-     *              to the system properties.
      * @see        #setProperties
-     * @see        java.lang.SecurityException
-     * @see        java.lang.SecurityManager#checkPropertiesAccess()
      * @see        java.util.Properties
      */
     public static Properties getProperties() {
@@ -1198,11 +1160,7 @@ public final class System {
 
     /**
      * Gets the system property indicated by the specified key.
-     * <p>
-     * First, if there is a security manager, its
-     * <code>checkPropertyAccess</code> method is called with the key as
-     * its argument. This may result in a SecurityException.
-     * <p>
+     *
      * If there is no current set of system properties, a set of system
      * properties is first created and initialized in the same manner as
      * for the <code>getProperties</code> method.
@@ -1211,15 +1169,10 @@ public final class System {
      * @return     the string value of the system property,
      *             or <code>null</code> if there is no property with that key.
      *
-     * @exception  SecurityException  if a security manager exists and its
-     *             <code>checkPropertyAccess</code> method doesn't allow
-     *              access to the specified system property.
      * @exception  NullPointerException if <code>key</code> is
      *             <code>null</code>.
      * @exception  IllegalArgumentException if <code>key</code> is empty.
      * @see        #setProperty
-     * @see        java.lang.SecurityException
-     * @see        java.lang.SecurityManager#checkPropertyAccess(java.lang.String)
      * @see        java.lang.System#getProperties()
      */
     public static String getProperty(String key) {
@@ -1244,14 +1197,10 @@ public final class System {
      * @return     the string value of the system property,
      *             or the default value if there is no property with that key.
      *
-     * @exception  SecurityException  if a security manager exists and its
-     *             <code>checkPropertyAccess</code> method doesn't allow
-     *             access to the specified system property.
      * @exception  NullPointerException if <code>key</code> is
      *             <code>null</code>.
      * @exception  IllegalArgumentException if <code>key</code> is empty.
      * @see        #setProperty
-     * @see        java.lang.SecurityManager#checkPropertyAccess(java.lang.String)
      * @see        java.lang.System#getProperties()
      */
     public static String getProperty(String key, String def) {
@@ -1262,31 +1211,18 @@ public final class System {
 
     /**
      * Sets the system property indicated by the specified key.
-     * <p>
-     * First, if a security manager exists, its
-     * <code>SecurityManager.checkPermission</code> method
-     * is called with a <code>PropertyPermission(key, "write")</code>
-     * permission. This may result in a SecurityException being thrown.
-     * If no exception is thrown, the specified property is set to the given
-     * value.
-     * <p>
      *
      * @param      key   the name of the system property.
      * @param      value the value of the system property.
      * @return     the previous value of the system property,
      *             or <code>null</code> if it did not have one.
      *
-     * @exception  SecurityException  if a security manager exists and its
-     *             <code>checkPermission</code> method doesn't allow
-     *             setting of the specified property.
      * @exception  NullPointerException if <code>key</code> or
      *             <code>value</code> is <code>null</code>.
      * @exception  IllegalArgumentException if <code>key</code> is empty.
      * @see        #getProperty
      * @see        java.lang.System#getProperty(java.lang.String)
      * @see        java.lang.System#getProperty(java.lang.String, java.lang.String)
-     * @see        java.util.PropertyPermission
-     * @see        SecurityManager#checkPermission
      * @since      1.2
      */
     public static String setProperty(String key, String value) {
@@ -1297,29 +1233,17 @@ public final class System {
 
     /**
      * Removes the system property indicated by the specified key.
-     * <p>
-     * First, if a security manager exists, its
-     * <code>SecurityManager.checkPermission</code> method
-     * is called with a <code>PropertyPermission(key, "write")</code>
-     * permission. This may result in a SecurityException being thrown.
-     * If no exception is thrown, the specified property is removed.
-     * <p>
      *
      * @param      key   the name of the system property to be removed.
      * @return     the previous string value of the system property,
      *             or <code>null</code> if there was no property with that key.
      *
-     * @exception  SecurityException  if a security manager exists and its
-     *             <code>checkPropertyAccess</code> method doesn't allow
-     *              access to the specified system property.
      * @exception  NullPointerException if <code>key</code> is
      *             <code>null</code>.
      * @exception  IllegalArgumentException if <code>key</code> is empty.
      * @see        #getProperty
      * @see        #setProperty
      * @see        java.util.Properties
-     * @see        java.lang.SecurityException
-     * @see        java.lang.SecurityManager#checkPropertiesAccess()
      * @since 1.5
      */
     public static String clearProperty(String key) {
