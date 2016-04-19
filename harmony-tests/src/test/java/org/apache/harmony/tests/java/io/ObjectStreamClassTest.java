@@ -25,6 +25,7 @@ import java.io.ObjectOutput;
 import java.io.ObjectStreamClass;
 import java.io.ObjectStreamField;
 import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
 public class ObjectStreamClassTest extends TestCase {
@@ -216,8 +217,23 @@ public class ObjectStreamClassTest extends TestCase {
 
         osc = ObjectStreamClass.lookup(NonSerialzableClass.class);
         assertNull(osc);
-
     }
 
+    // http://b/28106822
+    public void testBug28106822() throws Exception {
+        Method getConstructorId = ObjectStreamClass.class.getDeclaredMethod(
+                "getConstructorId", Class.class);
+        getConstructorId.setAccessible(true);
 
+        assertEquals(1189998819991197253L, getConstructorId.invoke(null, Object.class));
+        assertEquals(1189998819991197253L, getConstructorId.invoke(null, String.class));
+
+        Method newInstance = ObjectStreamClass.class.getDeclaredMethod("newInstance",
+                Class.class, Long.TYPE);
+        newInstance.setAccessible(true);
+
+        Object obj = newInstance.invoke(null, String.class, 0 /* ignored */);
+        assertNotNull(obj);
+        assertTrue(obj instanceof String);
+    }
 }
