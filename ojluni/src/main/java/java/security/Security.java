@@ -59,32 +59,32 @@ public final class Security {
     static {
         props = new Properties();
         boolean loadedProps = false;
-        Reader input = null;
+        InputStream is = null;
         try {
-            input = getSecurityPropertiesReader();
-            props.load(input);
-            loadedProps = true;
-        } catch (Exception ex) {
+            /*
+             * Android keeps the property file in a jar resource.
+             */
+            InputStream propStream = Security.class.getResourceAsStream("security.properties");
+            if (propStream == null) {
+                System.logE("Could not find 'security.properties'.");
+            } else {
+                is  = new BufferedInputStream(propStream);
+                props.load(is);
+                loadedProps = true;
+            }
+        } catch (IOException ex) {
             System.logE("Could not load 'security.properties'", ex);
         } finally {
-            if (input != null) {
+            if (is != null) {
                 try {
-                    input.close();
-                } catch (IOException ignored) {
-                }
+                    is.close();
+                } catch (IOException ignored) {}
             }
         }
 
         if (!loadedProps) {
             initializeStatic();
         }
-    }
-
-    // Do not refactor or change this name. The runtime provides a cutout for this method
-    // to let this class be compile time initializable.
-    private static Reader getSecurityPropertiesReader() throws Exception {
-        InputStream configStream = Security.class.getResourceAsStream("security.properties");
-        return new InputStreamReader(new BufferedInputStream(configStream), "ISO-8859-1");
     }
 
     /*
