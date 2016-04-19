@@ -2272,6 +2272,32 @@ public class ObjectStreamClass implements Serializable {
         return matches;
     }
 
+    // NOTE: The following couple of methods are left here because frameworks such as objenesis
+    // use them.
+    //
+    // **** THESE METHODS WILL BE REMOVED IN A FUTURE ANDROID RELEASE ****.
+    //
+    private static long getConstructorId(Class<?> clazz) {
+        System.logE("WARNING: ObjectStreamClass.getConstructorId(Class<?>) is private API and" +
+                "will be removed in a future Android release.");
+        // NOTE: This method is a stub that returns a fixed value. It's meant to be used
+        // with newInstance(Class<?>, long) and our current implementation of that method ignores
+        // the "constructorId" argument. We return :
+        //
+        // oh one one eight nine nine nine
+        // eight eight one nine nine
+        // nine one one nine seven two five
+        // three
+        //
+        // in all cases.
+        return 1189998819991197253L;
+    }
+    private static Object newInstance(Class<?> clazz, long constructorId) {
+        System.logE("WARNING: ObjectStreamClass.newInstance(Class<?>, long) is private API and" +
+                "will be removed in a future Android release.");
+        return sun.misc.Unsafe.getUnsafe().allocateInstance(clazz);
+    }
+
     /**
      * Removes from the specified map any keys that have been enqueued
      * on the specified reference queue.
