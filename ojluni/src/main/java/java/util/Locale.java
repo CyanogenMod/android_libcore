@@ -82,7 +82,7 @@ import sun.util.locale.UnicodeLocaleExtension;
  * described below.
  *
  * <dl>
- *   <dt><a name="def_language"/><b>language</b></dt>
+ *   <dt><a name="def_language"></a><b>language</b></dt>
  *
  *   <dd>ISO 639 alpha-2 or alpha-3 language code, or registered
  *   language subtags up to 8 alpha letters (for future enhancements).
@@ -100,7 +100,7 @@ import sun.util.locale.UnicodeLocaleExtension;
  *
  *   <dd>Example: "en" (English), "ja" (Japanese), "kok" (Konkani)</dd><br>
  *
- *   <dt><a name="def_script"/><b>script</b></dt>
+ *   <dt><a name="def_script"/></a><b>script</b></dt>
  *
  *   <dd>ISO 15924 alpha-4 script code.  You can find a full list of
  *   valid script codes in the IANA Language Subtag Registry (search
@@ -114,7 +114,7 @@ import sun.util.locale.UnicodeLocaleExtension;
  *
  *   <dd>Example: "Latn" (Latin), "Cyrl" (Cyrillic)</dd><br>
  *
- *   <dt><a name="def_region"/><b>country (region)</b></dt>
+ *   <dt><a name="def_region"></a><b>country (region)</b></dt>
  *
  *   <dd>ISO 3166 alpha-2 country code or UN M.49 numeric-3 area code.
  *   You can find a full list of valid country and region codes in the
@@ -128,7 +128,7 @@ import sun.util.locale.UnicodeLocaleExtension;
  *   <dd>Example: "US" (United States), "FR" (France), "029"
  *   (Caribbean)</dd><br>
  *
- *   <dt><a name="def_variant"/><b>variant</b></dt>
+ *   <dt><a name="def_variant"></a><b>variant</b></dt>
  *
  *   <dd>Any arbitrary value used to indicate a variation of a
  *   <code>Locale</code>.  Where there are two or more variant values
@@ -159,7 +159,7 @@ import sun.util.locale.UnicodeLocaleExtension;
  *
  *   <dd>Example: "polyton" (Polytonic Greek), "POSIX"</dd><br>
  *
- *   <dt><a name="def_extensions"/><b>extensions</b></dt>
+ *   <dt><a name="def_extensions"></a><b>extensions</b></dt>
  *
  *   <dd>A map from single character keys to string values, indicating
  *   extensions apart from language identification.  The extensions in
@@ -187,7 +187,7 @@ import sun.util.locale.UnicodeLocaleExtension;
  * requirement (is well-formed), but does not validate the value
  * itself.  See {@link Builder} for details.
  *
- * <h4><a name="def_locale_extension">Unicode locale/language extension</h4>
+ * <h4><a name="def_locale_extension"></a>Unicode locale/language extension</h4>
  *
  * <p>UTS#35, "Unicode Locale Data Markup Language" defines optional
  * attributes and keywords to override or refine the default behavior
@@ -334,7 +334,7 @@ import sun.util.locale.UnicodeLocaleExtension;
  * Clients desiring a string representation of the complete locale can
  * then always rely on <code>toLanguageTag</code> for this purpose.
  *
- * <h5><a name="special_cases_constructor"/>Special cases</h5>
+ * <h5><a name="special_cases_constructor"></a>Special cases</h5>
  *
  * <p>For compatibility reasons, two
  * non-conforming locales are treated as special cases.  These are
@@ -397,6 +397,80 @@ import sun.util.locale.UnicodeLocaleExtension;
  * codes as specified in the IANA Language Subtag Registry.  For
  * compatibility, the implementation still does not impose a length
  * constraint.
+ *
+ * <a name="locale_data"></a><h4>Locale data</h4>
+ * <p>Note that locale data comes solely from ICU. User-supplied locale service providers (using
+ * the {@code java.text.spi} or {@code java.util.spi} mechanisms) are not supported.
+ *
+ * <p>Here are the versions of ICU (and the corresponding CLDR and Unicode versions) used in
+ * various Android releases:
+ * <table BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+ * <tr><td>Android 1.5 (Cupcake)/Android 1.6 (Donut)/Android 2.0 (Eclair)</td>
+ *     <td>ICU 3.8</td>
+ *     <td><a href="http://cldr.unicode.org/index/downloads/cldr-1-5">CLDR 1.5</a></td>
+ *     <td><a href="http://www.unicode.org/versions/Unicode5.0.0/">Unicode 5.0</a></td></tr>
+ * <tr><td>Android 2.2 (Froyo)</td>
+ *     <td>ICU 4.2</td>
+ *     <td><a href="http://cldr.unicode.org/index/downloads/cldr-1-7">CLDR 1.7</a></td>
+ *     <td><a href="http://www.unicode.org/versions/Unicode5.1.0/">Unicode 5.1</a></td></tr>
+ * <tr><td>Android 2.3 (Gingerbread)/Android 3.0 (Honeycomb)</td>
+ *     <td>ICU 4.4</td>
+ *     <td><a href="http://cldr.unicode.org/index/downloads/cldr-1-8">CLDR 1.8</a></td>
+ *     <td><a href="http://www.unicode.org/versions/Unicode5.2.0/">Unicode 5.2</a></td></tr>
+ * <tr><td>Android 4.0 (Ice Cream Sandwich)</td>
+ *     <td><a href="http://site.icu-project.org/download/46">ICU 4.6</a></td>
+ *     <td><a href="http://cldr.unicode.org/index/downloads/cldr-1-9">CLDR 1.9</a></td>
+ *     <td><a href="http://www.unicode.org/versions/Unicode6.0.0/">Unicode 6.0</a></td></tr>
+ * <tr><td>Android 4.1 (Jelly Bean)</td>
+ *     <td><a href="http://site.icu-project.org/download/48">ICU 4.8</a></td>
+ *     <td><a href="http://cldr.unicode.org/index/downloads/cldr-2-0">CLDR 2.0</a></td>
+ *     <td><a href="http://www.unicode.org/versions/Unicode6.0.0/">Unicode 6.0</a></td></tr>
+ * <tr><td>Android 4.3 (Jelly Bean MR2)</td>
+ *     <td><a href="http://site.icu-project.org/download/50">ICU 50</a></td>
+ *     <td><a href="http://cldr.unicode.org/index/downloads/cldr-22-1">CLDR 22.1</a></td>
+ *     <td><a href="http://www.unicode.org/versions/Unicode6.2.0/">Unicode 6.2</a></td></tr>
+ * <tr><td>Android 4.4 (KitKat)</td>
+ *     <td><a href="http://site.icu-project.org/download/51">ICU 51</a></td>
+ *     <td><a href="http://cldr.unicode.org/index/downloads/cldr-23">CLDR 23</a></td>
+ *     <td><a href="http://www.unicode.org/versions/Unicode6.2.0/">Unicode 6.2</a></td></tr>
+ * <tr><td>Android 5.0 (Lollipop)</td>
+ *     <td><a href="http://site.icu-project.org/download/53">ICU 53</a></td>
+ *     <td><a href="http://cldr.unicode.org/index/downloads/cldr-25">CLDR 25</a></td>
+ *     <td><a href="http://www.unicode.org/versions/Unicode6.3.0/">Unicode 6.3</a></td></tr>
+ * <tr><td>Android 6.0 (Marshmallow)</td>
+ *     <td><a href="http://site.icu-project.org/download/55">ICU 55.1</a></td>
+ *     <td><a href="http://cldr.unicode.org/index/downloads/cldr-27">CLDR 27.0.1</a></td>
+ *     <td><a href="http://www.unicode.org/versions/Unicode7.0.0/">Unicode 7.0</a></td></tr>
+ * </table>
+ *
+ * <a name="default_locale"></a><h4>Be wary of the default locale</h3>
+ * <p>Note that there are many convenience methods that automatically use the default locale, but
+ * using them may lead to subtle bugs.
+ *
+ * <p>The default locale is appropriate for tasks that involve presenting data to the user. In
+ * this case, you want to use the user's date/time formats, number
+ * formats, rules for conversion to lowercase, and so on. In this case, it's safe to use the
+ * convenience methods.
+ *
+ * <p>The default locale is <i>not</i> appropriate for machine-readable output. The best choice
+ * there is usually {@code Locale.US}&nbsp;&ndash; this locale is guaranteed to be available on all
+ * devices, and the fact that it has no surprising special cases and is frequently used (especially
+ * for computer-computer communication) means that it tends to be the most efficient choice too.
+ *
+ * <p>A common mistake is to implicitly use the default locale when producing output meant to be
+ * machine-readable. This tends to work on the developer's test devices (especially because so many
+ * developers use en_US), but fails when run on a device whose user is in a more complex locale.
+ *
+ * <p>For example, if you're formatting integers some locales will use non-ASCII decimal
+ * digits. As another example, if you're formatting floating-point numbers some locales will use
+ * {@code ','} as the decimal point and {@code '.'} for digit grouping. That's correct for
+ * human-readable output, but likely to cause problems if presented to another
+ * computer ({@link Double#parseDouble} can't parse such a number, for example).
+ * You should also be wary of the {@link String#toLowerCase} and
+ * {@link String#toUpperCase} overloads that don't take a {@code Locale}: in Turkey, for example,
+ * the characters {@code 'i'} and {@code 'I'} won't be converted to {@code 'I'} and {@code 'i'}.
+ * This is the correct behavior for Turkish text (such as user input), but inappropriate for, say,
+ * HTTP headers.
  *
  * @see Builder
  * @see ResourceBundle
