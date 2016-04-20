@@ -37,6 +37,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import static java.io.ObjectStreamClass.processQueue;
 import java.io.SerialCallbackContext;
+
 import sun.reflect.misc.ReflectUtil;
 
 /**
@@ -749,7 +750,8 @@ public class ObjectOutputStream
      */
     public void close() throws IOException {
         flush();
-        clear();
+        // http://b/28159133
+        // clear();
         bout.close();
     }
 
@@ -1798,6 +1800,17 @@ public class ObjectOutputStream
         private final DataOutputStream dout;
 
         /**
+         * Indicates that this stream was closed and that a warning must be logged once if an
+         * attempt is made to write to it and the underlying stream does not throw an exception.
+         *
+         * <p>This will be set back to false when a warning is logged to ensure that the log is not
+         * flooded with warnings.
+         *
+         * http://b/28159133
+         */
+        private boolean warnOnceWhenWriting;
+
+        /**
          * Creates new BlockDataOutputStream on top of given underlying stream.
          * Block data mode is turned off by default.
          */
@@ -1830,6 +1843,25 @@ public class ObjectOutputStream
             return blkmode;
         }
 
+        /**
+         * Warns if the stream has been closed.
+         *
+         * <p>This is called after data has been written to the underlying stream in order to allow
+         * the underlying stream to detect and fail if an attempt is made to write to a closed
+         * stream. That ensures that this will only log a warning if the underlying stream does not
+         * so it will not log unnecessary warnings.
+         */
+        private void warnIfClosed() {
+            if (warnOnceWhenWriting) {
+                System.logW("The app is relying on undefined behavior. Attempting to write to a"
+                        + " closed ObjectOutputStream could produce corrupt output in a future"
+                        + " release of Android.", new IOException("Stream Closed"));
+                // Set back to false so no more messages are logged unless the stream is closed
+                // again.
+                warnOnceWhenWriting = false;
+            }
+        }
+
         /* ----------------- generic output stream methods ----------------- */
         /*
          * The following methods are equivalent to their counterparts in
@@ -1860,6 +1892,7 @@ public class ObjectOutputStream
         public void close() throws IOException {
             flush();
             out.close();
+            warnOnceWhenWriting = true;
         }
 
         /**
@@ -1874,6 +1907,7 @@ public class ObjectOutputStream
             if (!(copy || blkmode)) {           // write directly
                 drain();
                 out.write(b, off, len);
+                warnIfClosed();
                 return;
             }
 
@@ -1895,6 +1929,7 @@ public class ObjectOutputStream
                     len -= wlen;
                 }
             }
+            warnIfClosed();
         }
 
         /**
@@ -1910,6 +1945,7 @@ public class ObjectOutputStream
             }
             out.write(buf, 0, pos);
             pos = 0;
+            warnIfClosed();
         }
 
         /**
@@ -1927,6 +1963,7 @@ public class ObjectOutputStream
                 Bits.putInt(hbuf, 1, len);
                 out.write(hbuf, 0, 5);
             }
+            warnIfClosed();
         }
 
 
