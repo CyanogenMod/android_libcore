@@ -311,8 +311,9 @@ import static android.system.OsConstants.S_ISDIR;
                     // Raw dex file (not inside a zip/jar).
                     try {
                         dex = loadDexFile(file, optimizedDirectory, loader, elements);
-                    } catch (IOException ex) {
-                        System.logE("Unable to load dex file: " + file, ex);
+                    } catch (IOException suppressed) {
+                        System.logE("Unable to load dex file: " + file, suppressed);
+                        suppressedExceptions.add(suppressed);
                     }
                 } else {
                     zip = file;
