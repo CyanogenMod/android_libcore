@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.function.BiFunction;
 
 public class IdentityHashMapTest extends junit.framework.TestCase {
     private static final String ID = "hello";
@@ -1052,6 +1053,34 @@ public class IdentityHashMapTest extends junit.framework.TestCase {
         SpliteratorTester.runBasicIterationTests(values.spliterator(), expectedValues);
         SpliteratorTester.runBasicSplitTests(values, expectedValues, comparator);
         SpliteratorTester.testSpliteratorNPE(values.spliterator());
+    }
+
+    public void test_replaceAll() {
+        IdentityHashMap<String, String> map = new IdentityHashMap<>();
+        String key1 = "key1";
+        String key2 = "key2";
+        String key3 = "key3";
+
+        map.put(key1, "1");
+        map.put(key2, "2");
+        map.put(key3, "3");
+
+        map.replaceAll((k, v) -> k + v);
+
+        assertEquals("key11", map.get(key1));
+        assertEquals("key22", map.get(key2));
+        assertEquals("key33", map.get(key3));
+        assertEquals(3, map.size());
+
+        try {
+            map.replaceAll(new BiFunction<String, String, String>() {
+                @Override
+                public String apply(String s, String s2) {
+                    map.put("key4", "4");
+                    return "";
+                }
+            });
+        } catch (ConcurrentModificationException expected) {}
     }
 
 
