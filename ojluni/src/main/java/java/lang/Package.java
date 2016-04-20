@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2014 The Android Open Source Project
- * Copyright (c) 1997, 2011, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2013, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -26,6 +26,7 @@
 
 package java.lang;
 
+import java.lang.reflect.AnnotatedElement;
 import java.io.InputStream;
 import java.util.Enumeration;
 
@@ -48,12 +49,11 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import java.lang.annotation.Annotation;
 import sun.net.www.ParseUtil;
 import sun.reflect.CallerSensitive;
 import dalvik.system.VMStack;
 
-import libcore.reflect.AnnotatedElements;
+import java.lang.annotation.Annotation;
 
 /**
  * {@code Package} objects contain version information
@@ -401,11 +401,11 @@ public class Package implements java.lang.reflect.AnnotatedElement {
 
     /**
      * @throws NullPointerException {@inheritDoc}
-     * @since 1.5
+     * @since 1.8
      */
-    public boolean isAnnotationPresent(
-        Class<? extends Annotation> annotationClass) {
-        return getPackageInfo().isAnnotationPresent(annotationClass);
+    @Override
+    public  <A extends Annotation> A[] getAnnotationsByType(Class<A> annotationClass) {
+        return getPackageInfo().getAnnotationsByType(annotationClass);
     }
 
     /**
@@ -416,38 +416,30 @@ public class Package implements java.lang.reflect.AnnotatedElement {
     }
 
     /**
+     * @throws NullPointerException {@inheritDoc}
+     * @since 1.8
+     */
+    @Override
+    public <A extends Annotation> A getDeclaredAnnotation(Class<A> annotationClass) {
+        return getPackageInfo().getDeclaredAnnotation(annotationClass);
+    }
+
+    /**
+     * @throws NullPointerException {@inheritDoc}
+     * @since 1.8
+     */
+    @Override
+    public <A extends Annotation> A[] getDeclaredAnnotationsByType(Class<A> annotationClass) {
+        return getPackageInfo().getDeclaredAnnotationsByType(annotationClass);
+    }
+
+    /**
      * @since 1.5
      */
     public Annotation[] getDeclaredAnnotations()  {
         return getPackageInfo().getDeclaredAnnotations();
     }
 
-    /**
-     * {@inheritDoc}
-     * @since 1.8
-     */
-    @Override
-    public <T extends Annotation> T[] getDeclaredAnnotationsByType(Class<T> annotationClass) {
-      return AnnotatedElements.getDeclaredAnnotationsByType(this, annotationClass);
-    }
-
-    /**
-     * {@inheritDoc}
-     * @since 1.8
-     */
-    @Override
-    public <T extends Annotation> T[] getAnnotationsByType(Class<T> annotationClass) {
-      return AnnotatedElements.getAnnotationsByType(this, annotationClass);
-    }
-
-    /**
-     * {@inheritDoc}
-     * @since 1.8
-     */
-    @Override
-    public <T extends Annotation> Annotation getDeclaredAnnotation(Class<T> annotationClass) {
-      return AnnotatedElements.getDeclaredAnnotation(this, annotationClass);
-    }
     /**
      * Construct a package instance with the specified version
      * information.

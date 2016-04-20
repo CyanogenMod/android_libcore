@@ -174,15 +174,6 @@ public class AccessibleObject implements AnnotatedElement {
     }
 
     /**
-     * @throws NullPointerException {@inheritDoc}
-     * @since 1.5
-     */
-    public boolean isAnnotationPresent(
-        Class<? extends Annotation> annotationClass) {
-        return getAnnotation(annotationClass) != null;
-    }
-
-    /**
      * @since 1.5
      */
     public Annotation[] getAnnotations() {
@@ -194,32 +185,5 @@ public class AccessibleObject implements AnnotatedElement {
      */
     public Annotation[] getDeclaredAnnotations()  {
         throw new AssertionError("All subclasses should override this method");
-    }
-
-    /**
-     * {@inheritDoc}
-     * @since 1.8
-     */
-    @Override
-    public <T extends Annotation> T[] getDeclaredAnnotationsByType(Class<T> annotationClass) {
-      return AnnotatedElements.getDeclaredAnnotationsByType(this, annotationClass);
-    }
-
-    /**
-     * {@inheritDoc}
-     * @since 1.8
-     */
-    @Override
-    public <T extends Annotation> T[] getAnnotationsByType(Class<T> annotationClass) {
-      return AnnotatedElements.getAnnotationsByType(this, annotationClass);
-    }
-
-    /**
-     * {@inheritDoc}
-     * @since 1.8
-     */
-    @Override
-    public <T extends Annotation> Annotation getDeclaredAnnotation(Class<T> annotationClass) {
-      return AnnotatedElements.getDeclaredAnnotation(this, annotationClass);
     }
 }
