@@ -2883,14 +2883,6 @@ public class Collections {
         public boolean addAll(int index, Collection<? extends E> c) {
             return list.addAll(index, checkedCopyOf(c));
         }
-        @Override
-        public void replaceAll(UnaryOperator<E> operator) {
-            list.replaceAll(operator);
-        }
-        @Override
-        public void sort(Comparator<? super E> c) {
-            list.sort(c);
-        }
         public ListIterator<E> listIterator()   { return listIterator(0); }
 
         public ListIterator<E> listIterator(final int index) {
@@ -2924,6 +2916,32 @@ public class Collections {
 
         public List<E> subList(int fromIndex, int toIndex) {
             return new CheckedList<>(list.subList(fromIndex, toIndex), type);
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * @throws ClassCastException if the class of an element returned by the
+         *         operator prevents it from being added to this collection. The
+         *         exception may be thrown after some elements of the list have
+         *         already been replaced.
+         */
+        @Override
+        public void replaceAll(UnaryOperator<E> operator) {
+            Objects.requireNonNull(operator);
+
+            // Android-changed: Modified from OpenJDK 8 code because typeCheck returns void in
+            // OpenJDK 7.
+            list.replaceAll(e -> {
+                    E newValue = operator.apply(e);
+                    typeCheck(newValue);
+                    return newValue;
+            });
+        }
+
+        @Override
+        public void sort(Comparator<? super E> c) {
+            list.sort(c);
         }
     }
 
