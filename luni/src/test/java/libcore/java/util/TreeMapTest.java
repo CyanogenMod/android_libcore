@@ -596,4 +596,14 @@ public class TreeMapTest extends TestCase {
             fail();
         } catch(ConcurrentModificationException expected) {}
     }
+
+    public void test_replace$K$V$V() {
+        MapDefaultMethodTester.test_replace$K$V$V(new TreeMap<>(), false /* acceptsNullKey */,
+                true /* acceptsNullValue */);
+    }
+
+    public void test_replace$K$V() {
+        MapDefaultMethodTester.test_replace$K$V(new TreeMap<>(), false /* acceptsNullKey */,
+                true /* acceptsNullValue */);
+    }
 }

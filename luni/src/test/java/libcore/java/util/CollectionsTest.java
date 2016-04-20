@@ -32,6 +32,9 @@ import junit.framework.TestCase;
 
 public final class CollectionsTest extends TestCase {
 
+    private static final Object NOT_A_STRING = new Object();
+    private static final Object A_STRING = "string";
+
     public void testEmptyEnumeration() {
         Enumeration<Object> e = Collections.emptyEnumeration();
         assertFalse(e instanceof Serializable);
@@ -598,5 +601,141 @@ public final class CollectionsTest extends TestCase {
 
     public void test_SingletonList_sort() {
         Collections.singletonList(1).sort((k1, k2) -> 2);
+    }
+
+    public void test_CheckedMap_replaceAll() {
+        Map<Integer, Integer> map = new HashMap<>();
+        Map checkedMap = Collections.checkedMap(map, Integer.class, Integer.class);
+        checkedMap.put(1, 10);
+        checkedMap.put(2, 20);
+        checkedMap.put(3, 30);
+        checkedMap.replaceAll((k, v) -> (Integer)k + (Integer)v);
+        assertEquals(11, checkedMap.get(1));
+        assertEquals(22, checkedMap.get(2));
+        assertEquals(33, checkedMap.get(3));
+        assertEquals(3, checkedMap.size());
+    }
+
+    public void test_CheckedMap_putIfAbsent() {
+        Map<Integer, Double> map = new HashMap<>();
+        Map checkedMap = Collections.checkedMap(map, Integer.class, Double.class);
+        MapDefaultMethodTester.test_putIfAbsent(checkedMap, true /* acceptsNullKey */,
+                true /* acceptsNullValue */);
+
+        // Without generics to check the typeCheck implementation
+        Map checkedMap2 = Collections.checkedMap(new HashMap<>(), Integer.class, String.class);
+
+        // When key is present
+        checkedMap2.putIfAbsent(1, A_STRING);
+        try {
+            checkedMap2.putIfAbsent(1, NOT_A_STRING);
+        } catch (ClassCastException expected) {}
+
+        // When key is absent
+        checkedMap2.clear();
+        try {
+            checkedMap2.putIfAbsent(1, NOT_A_STRING);
+        } catch (ClassCastException expected) {}
+    }
+
+    public void test_CheckedMap_remove() {
+        Map<Integer, Double> map = new HashMap<>();
+        Map checkedMap = Collections.checkedMap(map, Integer.class, Double.class);
+        MapDefaultMethodTester.test_remove(checkedMap, true /* acceptsNullKey */,
+                true /* acceptsNullValue */);
+    }
+
+    public void test_CheckedMap_replace$K$V$V() {
+        Map<Integer, Double> map = new HashMap<>();
+        Map checkedMap = Collections.checkedMap(map, Integer.class, Double.class);
+        MapDefaultMethodTester.test_replace$K$V$V(checkedMap, true /* acceptsNullKey */,
+                true /* acceptsNullValue */);
+
+        // Without generics to check the typeCheck implementation
+        Map checkedMap2 = Collections.checkedMap(new HashMap<>(), Integer.class, String.class);
+        checkedMap2.put(1, A_STRING);
+
+        try {
+            checkedMap2.replace(1, NOT_A_STRING);
+        } catch (ClassCastException expected) {}
+    }
+
+    public void test_CheckedMap_replace$K$V() {
+        Map<Integer, Double> map = new HashMap<>();
+        Map checkedMap = Collections.checkedMap(map, Integer.class, Double.class);
+        MapDefaultMethodTester.test_replace$K$V(checkedMap, true /* acceptsNullKey */,
+                true /* acceptsNullValue */);
+
+        // Without generics to check the typeCheck implementation
+        Map checkedMap2 = Collections.checkedMap(new HashMap<>(), Integer.class, String.class);
+        checkedMap2.put(1, A_STRING);
+
+        try {
+            checkedMap2.replace(1, 1, NOT_A_STRING);
+        } catch (ClassCastException expected) {}
+    }
+
+    public void test_CheckedMap_computeIfAbsent() {
+        Map<Integer, Double> map = new HashMap<>();
+        Map checkedMap = Collections.checkedMap(map, Integer.class, Double.class);
+        MapDefaultMethodTester.test_computeIfAbsent(checkedMap, true /* acceptsNullKey */,
+                true /* acceptsNullValue */);
+
+        // Without generics to check the typeCheck implementation
+        Map checkedMap2 = Collections.checkedMap(new HashMap<>(), Integer.class, String.class);
+        checkedMap2.put(1, A_STRING);
+
+        // When key is present
+        try {
+            checkedMap2.computeIfAbsent(1, k -> NOT_A_STRING);
+        } catch (ClassCastException expected) {}
+
+        // When key is absent
+        checkedMap2.clear();
+        try {
+            checkedMap2.computeIfAbsent(1, k -> NOT_A_STRING);
+        } catch (ClassCastException expected) {}
+    }
+
+    public void test_CheckedMap_computeIfPresent() {
+        Map<Integer, Double> map = new HashMap<>();
+        Map checkedMap = Collections.checkedMap(map, Integer.class, Double.class);
+        MapDefaultMethodTester.test_computeIfPresent(checkedMap, true /* acceptsNullKey */);
+
+        // Without generics to check the typeCheck implementation
+        Map m = new HashMap();
+        Map checkedMap2 = Collections.checkedMap(m, Integer.class, String.class);
+        checkedMap2.put(1, A_STRING);
+
+        try {
+            checkedMap2.computeIfPresent(1, (k, v) -> NOT_A_STRING);
+        } catch (ClassCastException expected) {}
+    }
+
+    public void test_CheckedMap_compute() {
+        Map<Integer, Double> map = new HashMap<>();
+        Map checkedMap = Collections.checkedMap(map, Integer.class, Double.class);
+        MapDefaultMethodTester.test_compute(checkedMap, true /* acceptsNullKey */);
+
+        Map checkedMap2 = Collections.checkedMap(new HashMap(), Integer.class, String.class);
+        checkedMap2.put(1, A_STRING);
+        try {
+            checkedMap2.compute(1, (k, v) -> NOT_A_STRING);
+        } catch (ClassCastException expected) {}
+    }
+
+    public void test_CheckedMap_merge() {
+        Map<Integer, Double> map = new HashMap<>();
+        Map checkedMap = Collections.checkedMap(map, Integer.class, Double.class);
+        MapDefaultMethodTester.test_merge(checkedMap, true /* acceptsNullKey */);
+
+        // Without generics to check the typeCheck implementation
+        Map checkedMap2 =
+                Collections.checkedMap(new HashMap<>(), Integer.class, String.class);
+        checkedMap2.put(1, A_STRING);
+
+        try {
+            checkedMap2.merge(1, A_STRING, (v1, v2) -> NOT_A_STRING);
+        } catch (ClassCastException expected) {}
     }
 }

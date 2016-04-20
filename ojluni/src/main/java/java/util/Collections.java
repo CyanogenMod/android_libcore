@@ -1796,7 +1796,6 @@ public class Collections {
 
     // Synch Wrappers
 
-    // TODO: Replace {@code stream} with {@link Stream} once we have them.
     /**
      * Returns a synchronized (thread-safe) collection backed by the specified
      * collection.  In order to guarantee serial access, it is critical that
@@ -1805,7 +1804,7 @@ public class Collections {
      *
      * It is imperative that the user manually synchronize on the returned
      * collection when traversing it via {@link Iterator}, {@link Spliterator}
-     * or {@code Stream}:
+     * or {@link Stream}:
      * <pre>
      *  Collection c = Collections.synchronizedCollection(myCollection);
      *     ...
@@ -3086,6 +3085,68 @@ public class Collections {
         @Override
         public void forEach(BiConsumer<? super K, ? super V> action) {
             m.forEach(action);
+        }
+
+        @Override
+        public void replaceAll(BiFunction<? super K, ? super V, ? extends V> function) {
+            m.replaceAll(typeCheck(function));
+        }
+
+        @Override
+        public V putIfAbsent(K key, V value) {
+            typeCheck(key, value);
+            return m.putIfAbsent(key, value);
+        }
+
+        @Override
+        public boolean remove(Object key, Object value) {
+            return m.remove(key, value);
+        }
+
+        @Override
+        public boolean replace(K key, V oldValue, V newValue) {
+            typeCheck(key, newValue);
+            return m.replace(key, oldValue, newValue);
+        }
+
+        @Override
+        public V replace(K key, V value) {
+            typeCheck(key, value);
+            return m.replace(key, value);
+        }
+
+        @Override
+        public V computeIfAbsent(K key,
+                Function<? super K, ? extends V> mappingFunction) {
+            Objects.requireNonNull(mappingFunction);
+            return m.computeIfAbsent(key, k -> {
+                V value = mappingFunction.apply(k);
+                typeCheck(k, value);
+                return value;
+            });
+        }
+
+        @Override
+        public V computeIfPresent(K key,
+                BiFunction<? super K, ? super V, ? extends V> remappingFunction) {
+            return m.computeIfPresent(key, typeCheck(remappingFunction));
+        }
+
+        @Override
+        public V compute(K key,
+                BiFunction<? super K, ? super V, ? extends V> remappingFunction) {
+            return m.compute(key, typeCheck(remappingFunction));
+        }
+
+        @Override
+        public V merge(K key, V value,
+                BiFunction<? super V, ? super V, ? extends V> remappingFunction) {
+            Objects.requireNonNull(remappingFunction);
+            return m.merge(key, value, (v1, v2) -> {
+                V newValue = remappingFunction.apply(v1, v2);
+                typeCheck(null, newValue);
+                return newValue;
+            });
         }
 
         /**

@@ -998,6 +998,27 @@ public class TreeMap<K,V>
     }
 
     @Override
+    public boolean replace(K key, V oldValue, V newValue) {
+        TreeMapEntry<K,V> p = getEntry(key);
+        if (p!=null && Objects.equals(oldValue, p.value)) {
+            p.value = newValue;
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public V replace(K key, V value) {
+        TreeMapEntry<K,V> p = getEntry(key);
+        if (p!=null) {
+            V oldValue = p.value;
+            p.value = value;
+            return oldValue;
+        }
+        return null;
+    }
+
+    @Override
     public void forEach(BiConsumer<? super K, ? super V> action) {
         Objects.requireNonNull(action);
         int expectedModCount = modCount;
@@ -1014,6 +1035,7 @@ public class TreeMap<K,V>
     public void replaceAll(BiFunction<? super K, ? super V, ? extends V> function) {
         Objects.requireNonNull(function);
         int expectedModCount = modCount;
+
         for (TreeMapEntry<K, V> e = getFirstEntry(); e != null; e = successor(e)) {
             e.value = function.apply(e.key, e.value);
 
