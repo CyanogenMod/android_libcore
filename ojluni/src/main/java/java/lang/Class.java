@@ -26,6 +26,7 @@
 
 package java.lang;
 
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Array;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Member;
@@ -65,7 +66,6 @@ import java.io.Serializable;
 import java.lang.reflect.AccessibleObject;
 import com.android.dex.Dex;
 import dalvik.system.VMStack;
-import libcore.reflect.AnnotatedElements;
 import libcore.reflect.InternalNames;
 import libcore.reflect.GenericSignatureParser;
 import libcore.reflect.Types;
@@ -2470,18 +2470,9 @@ public final
      * @since 1.8
      */
     @Override
-    public <T extends Annotation> T[] getDeclaredAnnotationsByType(Class<T> annotationClass) {
-      return AnnotatedElements.getDeclaredAnnotationsByType(this, annotationClass);
-    }
-
-    /**
-     * {@inheritDoc}
-     * @since 1.8
-     */
-    @Override
     public <T extends Annotation> T[] getAnnotationsByType(Class<T> annotationClass) {
       // Find any associated annotations [directly or repeatably (indirectly) present on this].
-      T[] annotations = AnnotatedElements.getAnnotationsByType(this, annotationClass);
+      T[] annotations = AnnotatedElement.super.getAnnotationsByType(annotationClass);
 
       if (annotations.length != 0) {
         return annotations;
