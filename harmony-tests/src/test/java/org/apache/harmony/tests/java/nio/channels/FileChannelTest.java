@@ -46,6 +46,8 @@ import java.util.Arrays;
 
 import junit.framework.TestCase;
 
+import libcore.io.IoUtils;
+
 public class FileChannelTest extends TestCase {
 
     private static final int CAPACITY = 100;
@@ -76,7 +78,11 @@ public class FileChannelTest extends TestCase {
 
     private FileChannel readOnlyFileChannel;
 
+    private FileChannel readOnlyFileChannel2;
+
     private FileChannel writeOnlyFileChannel;
+
+    private FileChannel writeOnlyFileChannel2;
 
     private FileChannel readWriteFileChannel;
 
@@ -121,41 +127,23 @@ public class FileChannelTest extends TestCase {
         fileLock = null;
         readOnlyFileChannel = new FileInputStream(fileOfReadOnlyFileChannel)
                 .getChannel();
+        readOnlyFileChannel2 = new FileInputStream(fileOfReadOnlyFileChannel)
+                .getChannel();
         writeOnlyFileChannel = new FileOutputStream(fileOfWriteOnlyFileChannel)
+                .getChannel();
+        writeOnlyFileChannel2 = new FileOutputStream(fileOfWriteOnlyFileChannel)
                 .getChannel();
         readWriteFileChannel = new RandomAccessFile(fileOfReadWriteFileChannel,
                 "rw").getChannel();
     }
 
     protected void tearDown() {
-        if (null != readOnlyFileChannel) {
-            try {
-                readOnlyFileChannel.close();
-            } catch (IOException e) {
-                // do nothing
-            }
-        }
-        if (null != writeOnlyFileChannel) {
-            try {
-                writeOnlyFileChannel.close();
-            } catch (IOException e) {
-                // do nothing
-            }
-        }
-        if (null != readWriteFileChannel) {
-            try {
-                readWriteFileChannel.close();
-            } catch (IOException e) {
-                // do nothing
-            }
-        }
-        if (null != fis) {
-            try {
-                fis.close();
-            } catch (IOException e) {
-                // do nothing
-            }
-        }
+        IoUtils.closeQuietly(readOnlyFileChannel);
+        IoUtils.closeQuietly(readOnlyFileChannel2);
+        IoUtils.closeQuietly(writeOnlyFileChannel);
+        IoUtils.closeQuietly(writeOnlyFileChannel2);
+        IoUtils.closeQuietly(readWriteFileChannel);
+        IoUtils.closeQuietly(fis);
 
         if (null != fileLock) {
             try {
@@ -174,56 +162,15 @@ public class FileChannelTest extends TestCase {
         if (null != fileOfReadWriteFileChannel) {
             fileOfReadWriteFileChannel.delete();
         }
-        if (null != datagramChannelSender) {
-            try {
-                datagramChannelSender.close();
-            } catch (IOException e) {
-                // do nothing
-            }
-        }
-        if (null != datagramChannelReceiver) {
-            try {
-                datagramChannelReceiver.close();
-            } catch (IOException e) {
-                // do nothing
-            }
-        }
-        if (null != serverSocketChannel) {
-            try {
-                serverSocketChannel.close();
-            } catch (IOException e) {
-                // do nothing
-            }
-        }
-        if (null != socketChannelSender) {
-            try {
-                socketChannelSender.close();
-            } catch (IOException e) {
-                // do nothing
-            }
-        }
-        if (null != socketChannelReceiver) {
-            try {
-                socketChannelReceiver.close();
-            } catch (IOException e) {
-                // do nothing
-            }
-        }
+
+        IoUtils.closeQuietly(datagramChannelSender);
+        IoUtils.closeQuietly(datagramChannelReceiver);
+        IoUtils.closeQuietly(serverSocketChannel);
+        IoUtils.closeQuietly(socketChannelSender);
+        IoUtils.closeQuietly(socketChannelReceiver);
         if (null != pipe) {
-            if (null != pipe.source()) {
-                try {
-                    pipe.source().close();
-                } catch (IOException e) {
-                    // do nothing
-                }
-            }
-            if (null != pipe.sink()) {
-                try {
-                    pipe.sink().close();
-                } catch (IOException e) {
-                    // do nothing
-                }
-            }
+            IoUtils.closeQuietly(pipe.source());
+            IoUtils.closeQuietly(pipe.sink());
         }
     }
 
@@ -653,14 +600,81 @@ public class FileChannelTest extends TestCase {
     /**
      * @tests java.nio.channels.FileChannel#lock()
      */
+    public void test_lock_Closed() throws Exception {
+        readOnlyFileChannel.close();
+        try {
+            readOnlyFileChannel.lock();
+            fail("should throw ClosedChannelException");
+        } catch (ClosedChannelException expected) {}
+
+        writeOnlyFileChannel.close();
+        try {
+            writeOnlyFileChannel.lock();
+            fail("should throw ClosedChannelException");
+        } catch (ClosedChannelException expected) {}
+
+        readWriteFileChannel.close();
+        try {
+            readWriteFileChannel.lock();
+            fail("should throw ClosedChannelException");
+        } catch (ClosedChannelException expected) {}
+    }
+
+    /**
+     * @tests java.nio.channels.FileChannel#lock()
+     */
+    public void test_lock_NonWritable() throws Exception {
+        try {
+            readOnlyFileChannel.lock();
+            fail("should throw NonWritableChannelException");
+        } catch (NonWritableChannelException expected) {}
+    }
+
+    /**
+     * @tests java.nio.channels.FileChannel#lock()
+     */
     public void test_lock() throws Exception {
-        MockFileChannel mockFileChannel = new MockFileChannel();
-        // Verify that calling lock() leads to the method
-        // lock(long, long, boolean) being called with a 0 for the
-        // first parameter, Long.MAX_VALUE as the second parameter and false
-        // as the third parameter.
-        mockFileChannel.lock();
-        assertTrue(mockFileChannel.isLockCalled);
+        fileLock = writeOnlyFileChannel.lock();
+        assertTrue(fileLock.isValid());
+        assertFalse(fileLock.isShared());
+        assertSame(writeOnlyFileChannel, fileLock.channel());
+        assertEquals(Long.MAX_VALUE, fileLock.size());
+        assertEquals(0, fileLock.position());
+    }
+
+    /**
+     * @tests java.nio.channels.FileChannel#lock()
+     */
+    public void test_lock_OverlappingException() throws Exception {
+        fileLock = writeOnlyFileChannel.lock();
+        assertTrue(fileLock.isValid());
+
+        // Test the same channel cannot be locked twice.
+        try {
+            writeOnlyFileChannel.lock();
+            fail("should throw OverlappingFileLockException");
+        } catch (OverlappingFileLockException expected) {}
+
+        // Test that a different channel on the same file also cannot be locked.
+        try {
+            writeOnlyFileChannel2.lock();
+            fail("should throw OverlappingFileLockException");
+        } catch (OverlappingFileLockException expected) {}
+    }
+
+    /**
+     * @tests java.nio.channels.FileChannel#lock()
+     */
+    public void test_lock_After_Release() throws Exception {
+        fileLock = writeOnlyFileChannel.lock();
+        fileLock.release();
+        // After release file lock can be obtained again.
+        fileLock = writeOnlyFileChannel.lock();
+        assertTrue(fileLock.isValid());
+
+        // A different channel should be able to obtain a lock after it has been released
+        fileLock.release();
+        assertTrue(writeOnlyFileChannel2.lock().isValid());
     }
 
     /**
@@ -826,12 +840,17 @@ public class FileChannelTest extends TestCase {
         fileLock = writeOnlyFileChannel.lock(POSITION, SIZE, false);
         assertTrue(fileLock.isValid());
 
+        // Test the same channel cannot be locked twice.
         try {
             writeOnlyFileChannel.lock(POSITION + 1, SIZE, false);
             fail("should throw OverlappingFileLockException");
-        } catch (OverlappingFileLockException e) {
-            // expected
-        }
+        } catch (OverlappingFileLockException expected) {}
+
+        // Test that a different channel on the same file also cannot be locked.
+        try {
+            writeOnlyFileChannel2.lock(POSITION + 1, SIZE, false);
+            fail("should throw OverlappingFileLockException");
+        } catch (OverlappingFileLockException expected) {}
     }
 
     /**
@@ -861,14 +880,88 @@ public class FileChannelTest extends TestCase {
     /**
      * @tests java.nio.channels.FileChannel#tryLock()
      */
+    public void test_tryLock_Closed() throws Exception {
+        readOnlyFileChannel.close();
+        try {
+            readOnlyFileChannel.tryLock();
+            fail("should throw ClosedChannelException");
+        } catch (ClosedChannelException expected) {}
+
+        writeOnlyFileChannel.close();
+        try {
+            writeOnlyFileChannel.tryLock();
+            fail("should throw ClosedChannelException");
+        } catch (ClosedChannelException expected) {}
+
+        readWriteFileChannel.close();
+        try {
+            readWriteFileChannel.tryLock();
+            fail("should throw ClosedChannelException");
+        } catch (ClosedChannelException expected) {}
+    }
+
+    /**
+     * @tests java.nio.channels.FileChannel#tryLock()
+     */
+    public void test_tryLock_NonWritable() throws Exception {
+        try {
+            readOnlyFileChannel.tryLock();
+            fail("should throw NonWritableChannelException");
+        } catch (NonWritableChannelException expected) {}
+    }
+
+    /**
+     * @tests java.nio.channels.FileChannel#tryLock()
+     */
     public void test_tryLock() throws Exception {
-        MockFileChannel mockFileChannel = new MockFileChannel();
-        // Verify that calling tryLock() leads to the method
-        // tryLock(long, long, boolean) being called with a 0 for the
-        // first parameter, Long.MAX_VALUE as the second parameter and false
-        // as the third parameter.
-        mockFileChannel.tryLock();
-        assertTrue(mockFileChannel.isTryLockCalled);
+        fileLock = writeOnlyFileChannel.tryLock();
+        assertTrue(fileLock.isValid());
+        assertFalse(fileLock.isShared());
+        assertSame(writeOnlyFileChannel, fileLock.channel());
+        assertEquals(0, fileLock.position());
+        assertEquals(Long.MAX_VALUE, fileLock.size());
+    }
+
+    /**
+     * @tests java.nio.channels.FileChannel#tryLock()
+     */
+    public void test_tryLock_Overlapping() throws Exception {
+        fileLock = writeOnlyFileChannel.tryLock();
+        assertTrue(fileLock.isValid());
+
+        // Test the same channel cannot be locked twice.
+        try {
+            writeOnlyFileChannel.tryLock();
+            fail("should throw OverlappingFileLockException");
+        } catch (OverlappingFileLockException expected) {}
+
+        // Test that a different channel on the same file also cannot be locked.
+        try {
+            writeOnlyFileChannel2.tryLock();
+            fail("should throw OverlappingFileLockException");
+        } catch (OverlappingFileLockException expected) {}
+    }
+
+    /**
+     * @tests java.nio.channels.FileChannel#tryLock()
+     */
+    public void test_tryLock_After_Release() throws Exception {
+        fileLock = writeOnlyFileChannel.tryLock();
+        fileLock.release();
+
+        // After release file lock can be obtained again.
+        fileLock = writeOnlyFileChannel.tryLock();
+        assertTrue(fileLock.isValid());
+
+        // Test that the same channel can acquire the lock after it has been released
+        fileLock.release();
+        fileLock = writeOnlyFileChannel.tryLock();
+        assertTrue(fileLock.isValid());
+
+        // Test that a different channel can acquire the lock after it has been released
+        fileLock.release();
+        fileLock = writeOnlyFileChannel2.tryLock();
+        assertTrue(fileLock.isValid());
     }
 
     /**
@@ -1034,12 +1127,17 @@ public class FileChannelTest extends TestCase {
         fileLock = writeOnlyFileChannel.lock(POSITION, SIZE, false);
         assertTrue(fileLock.isValid());
 
+        // Test the same channel cannot be locked twice.
         try {
-            writeOnlyFileChannel.lock(POSITION + 1, SIZE, false);
+            writeOnlyFileChannel.tryLock(POSITION + 1, SIZE, false);
             fail("should throw OverlappingFileLockException");
-        } catch (OverlappingFileLockException e) {
-            // expected
-        }
+        } catch (OverlappingFileLockException expected) {}
+
+        // Test that a different channel on the same file also cannot be locked.
+        try {
+            writeOnlyFileChannel2.tryLock(POSITION + 1, SIZE, false);
+            fail("should throw OverlappingFileLockException");
+        } catch (OverlappingFileLockException expected) {}
     }
 
     /**
