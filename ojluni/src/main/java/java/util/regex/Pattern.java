@@ -26,6 +26,8 @@
 
 package java.util.regex;
 
+import libcore.util.NativeAllocationRegistry;
+
 import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
@@ -926,6 +928,9 @@ public final class Pattern implements java.io.Serializable
 
     transient long address;
 
+    private static final NativeAllocationRegistry registry = new NativeAllocationRegistry(
+            getNativeFinalizer(), nativeSize());
+
 
     /**
      * Compiles the given regular expression into a pattern.  </p>
@@ -1248,21 +1253,12 @@ public final class Pattern implements java.io.Serializable
         // They even have the same value in native code.
         int icuFlags = flags & (CASE_INSENSITIVE | COMMENTS | MULTILINE | DOTALL | UNIX_LINES);
         address = compileImpl(icuPattern, icuFlags);
+        registry.registerNativeAllocation(this, address);
     }
 
-
-    @Override
-    protected void finalize() throws Throwable {
-        try {
-            closeImpl(address);
-        } finally {
-            super.finalize();
-        }
-    }
-
-    private static native void closeImpl(long addr);
     private static native long compileImpl(String regex, int flags);
-
+    private static native long getNativeFinalizer();
+    private static native int nativeSize();
 
     /**
      * Creates a predicate which can be used to match a string.

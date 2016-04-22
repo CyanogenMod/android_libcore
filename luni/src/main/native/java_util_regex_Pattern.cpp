@@ -27,10 +27,6 @@
 
 // ICU documentation: http://icu-project.org/apiref/icu4c/classRegexPattern.html
 
-static icu::RegexPattern* toRegexPattern(jlong addr) {
-    return reinterpret_cast<icu::RegexPattern*>(static_cast<uintptr_t>(addr));
-}
-
 static const char* regexDetailMessage(UErrorCode status) {
     // These human-readable error messages were culled from "utypes.h", and then slightly tuned
     // to make more sense in context.
@@ -71,8 +67,18 @@ static void throwPatternSyntaxException(JNIEnv* env, UErrorCode status, jstring 
     env->Throw(reinterpret_cast<jthrowable>(exception));
 }
 
-static void Pattern_closeImpl(JNIEnv*, jclass, jlong addr) {
-    delete toRegexPattern(addr);
+static void Pattern_free(void* addr) {
+    delete reinterpret_cast<icu::RegexPattern*>(addr);
+}
+
+static jlong Pattern_getNativeFinalizer(JNIEnv*, jclass) {
+    return reinterpret_cast<jlong>(&Pattern_free);
+}
+
+// Return a guess of the amount of native memory to be deallocated by a typical call to
+// Pattern_free().
+static jint Pattern_nativeSize(JNIEnv*, jclass) {
+    return 500;  // Very rough guess based on a quick look at the implementation.
 }
 
 static jlong Pattern_compileImpl(JNIEnv* env, jclass, jstring javaRegex, jint flags) {
@@ -95,9 +101,11 @@ static jlong Pattern_compileImpl(JNIEnv* env, jclass, jstring javaRegex, jint fl
 }
 
 static JNINativeMethod gMethods[] = {
-    NATIVE_METHOD(Pattern, closeImpl, "(J)V"),
     NATIVE_METHOD(Pattern, compileImpl, "(Ljava/lang/String;I)J"),
+    NATIVE_METHOD(Pattern, getNativeFinalizer, "()J"),
+    NATIVE_METHOD(Pattern, nativeSize, "()I"),
 };
+
 void register_java_util_regex_Pattern(JNIEnv* env) {
     jniRegisterNativeMethods(env, "java/util/regex/Pattern", gMethods, NELEM(gMethods));
 }

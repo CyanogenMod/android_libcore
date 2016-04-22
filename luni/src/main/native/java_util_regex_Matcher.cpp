@@ -116,8 +116,18 @@ private:
     void operator=(const MatcherAccessor&);
 };
 
-static void Matcher_closeImpl(JNIEnv*, jclass, jlong address) {
-    delete toRegexMatcher(address);
+static void Matcher_free(void* address) {
+    delete reinterpret_cast<icu::RegexMatcher*>(address);
+}
+
+static jlong Matcher_getNativeFinalizer(JNIEnv*, jclass) {
+    return reinterpret_cast<jlong>(&Matcher_free);
+}
+
+// Return a guess of the amount of native memory to be deallocated by a typical call to
+// Matcher_free().
+static jint Matcher_nativeSize(JNIEnv*, jclass) {
+    return 200;  // Very rough guess based on a quick look at the implementation.
 }
 
 static jint Matcher_findImpl(JNIEnv* env, jclass, jlong addr, jstring javaText, jint startIndex, jintArray offsets) {
@@ -198,13 +208,14 @@ static void Matcher_useTransparentBoundsImpl(JNIEnv* env, jclass, jlong addr, jb
 }
 
 static JNINativeMethod gMethods[] = {
-    NATIVE_METHOD(Matcher, closeImpl, "(J)V"),
     NATIVE_METHOD(Matcher, findImpl, "(JLjava/lang/String;I[I)Z"),
     NATIVE_METHOD(Matcher, findNextImpl, "(JLjava/lang/String;[I)Z"),
+    NATIVE_METHOD(Matcher, getNativeFinalizer, "()J"),
     NATIVE_METHOD(Matcher, groupCountImpl, "(J)I"),
     NATIVE_METHOD(Matcher, hitEndImpl, "(J)Z"),
     NATIVE_METHOD(Matcher, lookingAtImpl, "(JLjava/lang/String;[I)Z"),
     NATIVE_METHOD(Matcher, matchesImpl, "(JLjava/lang/String;[I)Z"),
+    NATIVE_METHOD(Matcher, nativeSize, "()I"),
     NATIVE_METHOD(Matcher, openImpl, "(J)J"),
     NATIVE_METHOD(Matcher, requireEndImpl, "(J)Z"),
     NATIVE_METHOD(Matcher, setInputImpl, "(JLjava/lang/String;II)V"),
