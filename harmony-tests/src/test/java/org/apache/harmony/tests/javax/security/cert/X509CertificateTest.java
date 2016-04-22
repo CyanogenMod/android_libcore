@@ -742,11 +742,7 @@ public class X509CertificateTest extends TestCase {
      * @throws CertificateException
      * {@link Certificate#verify(PublicKey, String)}
      */
-    // SideEffect: Destroys MD5 provider, hurts succeeding tests
-    public void testVerifyPublicKeyString() throws InvalidKeyException,
-            java.security.cert.CertificateException, NoSuchAlgorithmException,
-            NoSuchProviderException, SignatureException, IOException,
-            CertificateException {
+    public void testVerifyPublicKeyString() throws Exception {
 
         try {
             javaxCert.verify(javaxCert.getPublicKey(), myProvider.getName());
@@ -755,6 +751,15 @@ public class X509CertificateTest extends TestCase {
         }
 
         // myProvider.getService(type, algorithm)
+        // Keep track of the original position so the provider can be
+        // reinserted in the same spot later.
+        Provider[] providers = Security.getProviders();
+        int i = 0;
+        for (; i < providers.length; i++) {
+            if (providers[i] == myProvider) {
+                break;
+            }
+        }
 
         Security.removeProvider(myProvider.getName());
         try {
@@ -762,7 +767,10 @@ public class X509CertificateTest extends TestCase {
         } catch (NoSuchProviderException e) {
             // ok
         }
-        Security.addProvider(myProvider);
+
+        // Note: The position is 1-based, that is, 1 is most preferred,
+        // followed by 2, and so on
+        Security.insertProviderAt(myProvider, i + 1);
 
         // Find the Provider which offers MD5withRSA for the certificate's
         // public key.
