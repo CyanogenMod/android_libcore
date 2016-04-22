@@ -171,7 +171,7 @@ class Inet6Address extends InetAddress {
 
     /** @hide */
     public static final InetAddress ANY =
-            new Inet6Address(null, new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, 0);
+            new Inet6Address("::", new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, 0);
 
     /** @hide */
     public static final InetAddress LOOPBACK = new Inet6Address("localhost",
