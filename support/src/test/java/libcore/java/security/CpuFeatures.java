@@ -19,6 +19,8 @@ package libcore.java.security;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -37,6 +39,19 @@ public class CpuFeatures {
         List<String> flags = getListFromCpuinfo("flags");
         if (flags != null && flags.contains("aes")) {
             return true;
+        }
+
+        // If we're in an emulated ABI, Conscrypt's NativeCrypto might bridge to
+        // a library that has accelerated AES instructions. See if Conscrypt
+        // detects that condition.
+        try {
+            Class<?> nativeCrypto = Class.forName("com.android.org.conscrypt.NativeCrypto");
+            Method EVP_has_aes_hardware = nativeCrypto.getDeclaredMethod("EVP_has_aes_hardware");
+            return ((Integer) EVP_has_aes_hardware.invoke(null)) == 1;
+        } catch (ClassNotFoundException | NoSuchMethodException | SecurityException
+                | IllegalAccessException | IllegalArgumentException ignored) {
+        } catch (InvocationTargetException e) {
+            throw new IllegalArgumentException(e);
         }
 
         return false;
