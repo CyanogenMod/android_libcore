@@ -37,18 +37,18 @@ interface StatefulTestOp<E> extends IntermediateTestOp<E, E> {
             case REFERENCE:
                 return new ReferencePipeline.StatefulOp<Object, T>(upstream, op.inputShape(), op.opGetFlags()) {
                     @Override
-                    Sink opWrapSink(int flags, Sink sink) {
+                    public Sink opWrapSink(int flags, Sink sink) {
                         return op.opWrapSink(flags, isParallel(), sink);
                     }
 
                     @Override
-                    <P_IN> Spliterator<T> opEvaluateParallelLazy(PipelineHelper<T> helper,
+                    public <P_IN> Spliterator<T> opEvaluateParallelLazy(PipelineHelper<T> helper,
                                                                  Spliterator<P_IN> spliterator) {
                         return op.opEvaluateParallelLazy(helper, spliterator);
                     }
 
                     @Override
-                    <P_IN> Node<T> opEvaluateParallel(PipelineHelper<T> helper,
+                    public <P_IN> Node<T> opEvaluateParallel(PipelineHelper<T> helper,
                                                       Spliterator<P_IN> spliterator,
                                                       IntFunction<T[]> generator) {
                         return op.opEvaluateParallel(helper, spliterator, generator);
@@ -57,18 +57,18 @@ interface StatefulTestOp<E> extends IntermediateTestOp<E, E> {
             case INT_VALUE:
                 return new IntPipeline.StatefulOp<Object>(upstream, op.inputShape(), op.opGetFlags()) {
                     @Override
-                    Sink opWrapSink(int flags, Sink sink) {
+                    public Sink opWrapSink(int flags, Sink sink) {
                         return op.opWrapSink(flags, isParallel(), sink);
                     }
 
                     @Override
-                    <P_IN> Spliterator<Integer> opEvaluateParallelLazy(PipelineHelper<Integer> helper,
+                    public <P_IN> Spliterator<Integer> opEvaluateParallelLazy(PipelineHelper<Integer> helper,
                                                                  Spliterator<P_IN> spliterator) {
                         return op.opEvaluateParallelLazy(helper, spliterator);
                     }
 
                     @Override
-                    <P_IN> Node<Integer> opEvaluateParallel(PipelineHelper<Integer> helper,
+                    public <P_IN> Node<Integer> opEvaluateParallel(PipelineHelper<Integer> helper,
                                                             Spliterator<P_IN> spliterator,
                                                             IntFunction<Integer[]> generator) {
                         return (Node<Integer>) op.opEvaluateParallel(helper, spliterator, generator);
@@ -77,18 +77,18 @@ interface StatefulTestOp<E> extends IntermediateTestOp<E, E> {
             case LONG_VALUE:
                 return new LongPipeline.StatefulOp<Object>(upstream, op.inputShape(), op.opGetFlags()) {
                     @Override
-                    Sink opWrapSink(int flags, Sink sink) {
+                    public Sink opWrapSink(int flags, Sink sink) {
                         return op.opWrapSink(flags, isParallel(), sink);
                     }
 
                     @Override
-                    <P_IN> Spliterator<Long> opEvaluateParallelLazy(PipelineHelper<Long> helper,
+                    public <P_IN> Spliterator<Long> opEvaluateParallelLazy(PipelineHelper<Long> helper,
                                                                  Spliterator<P_IN> spliterator) {
                         return op.opEvaluateParallelLazy(helper, spliterator);
                     }
 
                     @Override
-                    <P_IN> Node<Long> opEvaluateParallel(PipelineHelper<Long> helper,
+                    public <P_IN> Node<Long> opEvaluateParallel(PipelineHelper<Long> helper,
                                                          Spliterator<P_IN> spliterator,
                                                          IntFunction<Long[]> generator) {
                         return (Node<Long>) op.opEvaluateParallel(helper, spliterator, generator);
@@ -97,18 +97,18 @@ interface StatefulTestOp<E> extends IntermediateTestOp<E, E> {
             case DOUBLE_VALUE:
                 return new DoublePipeline.StatefulOp<Object>(upstream, op.inputShape(), op.opGetFlags()) {
                     @Override
-                    Sink opWrapSink(int flags, Sink sink) {
+                    public Sink opWrapSink(int flags, Sink sink) {
                         return op.opWrapSink(flags, isParallel(), sink);
                     }
 
                     @Override
-                    <P_IN> Spliterator<Double> opEvaluateParallelLazy(PipelineHelper<Double> helper,
+                    public <P_IN> Spliterator<Double> opEvaluateParallelLazy(PipelineHelper<Double> helper,
                                                                     Spliterator<P_IN> spliterator) {
                         return op.opEvaluateParallelLazy(helper, spliterator);
                     }
 
                     @Override
-                    <P_IN> Node<Double> opEvaluateParallel(PipelineHelper<Double> helper,
+                    public <P_IN> Node<Double> opEvaluateParallel(PipelineHelper<Double> helper,
                                                            Spliterator<P_IN> spliterator,
                                                            IntFunction<Double[]> generator) {
                         return (Node<Double>) op.opEvaluateParallel(helper, spliterator, generator);

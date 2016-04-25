@@ -49,8 +49,9 @@ import java.util.function.Supplier;
  *
  * @param <E_IN> type of elements in the upstream source
  * @since 1.8
+ * @hide Visible for CTS testing only (OpenJDK8 tests).
  */
-abstract class IntPipeline<E_IN>
+public abstract class IntPipeline<E_IN>
         extends AbstractPipeline<E_IN, Integer, IntStream>
         implements IntStream {
 
@@ -130,41 +131,41 @@ abstract class IntPipeline<E_IN>
     // Shape-specific methods
 
     @Override
-    final StreamShape getOutputShape() {
+    public final StreamShape getOutputShape() {
         return StreamShape.INT_VALUE;
     }
 
     @Override
-    final <P_IN> Node<Integer> evaluateToNode(PipelineHelper<Integer> helper,
-                                              Spliterator<P_IN> spliterator,
-                                              boolean flattenTree,
-                                              IntFunction<Integer[]> generator) {
+    public final <P_IN> Node<Integer> evaluateToNode(PipelineHelper<Integer> helper,
+                                                     Spliterator<P_IN> spliterator,
+                                                     boolean flattenTree,
+                                                     IntFunction<Integer[]> generator) {
         return Nodes.collectInt(helper, spliterator, flattenTree);
     }
 
     @Override
-    final <P_IN> Spliterator<Integer> wrap(PipelineHelper<Integer> ph,
-                                           Supplier<Spliterator<P_IN>> supplier,
-                                           boolean isParallel) {
+    public final <P_IN> Spliterator<Integer> wrap(PipelineHelper<Integer> ph,
+                                                  Supplier<Spliterator<P_IN>> supplier,
+                                                  boolean isParallel) {
         return new StreamSpliterators.IntWrappingSpliterator<>(ph, supplier, isParallel);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    final Spliterator.OfInt lazySpliterator(Supplier<? extends Spliterator<Integer>> supplier) {
+    public final Spliterator.OfInt lazySpliterator(Supplier<? extends Spliterator<Integer>> supplier) {
         return new StreamSpliterators.DelegatingSpliterator.OfInt((Supplier<Spliterator.OfInt>) supplier);
     }
 
     @Override
-    final void forEachWithCancel(Spliterator<Integer> spliterator, Sink<Integer> sink) {
+    public final void forEachWithCancel(Spliterator<Integer> spliterator, Sink<Integer> sink) {
         Spliterator.OfInt spl = adapt(spliterator);
         IntConsumer adaptedSink = adapt(sink);
         do { } while (!sink.cancellationRequested() && spl.tryAdvance(adaptedSink));
     }
 
     @Override
-    final Node.Builder<Integer> makeNodeBuilder(long exactSizeIfKnown,
-                                                IntFunction<Integer[]> generator) {
+    public final Node.Builder<Integer> makeNodeBuilder(long exactSizeIfKnown,
+                                                       IntFunction<Integer[]> generator) {
         return Nodes.intBuilder(exactSizeIfKnown);
     }
 
@@ -188,7 +189,7 @@ abstract class IntPipeline<E_IN>
         return new LongPipeline.StatelessOp<Integer>(this, StreamShape.INT_VALUE,
                                                      StreamOpFlag.NOT_SORTED | StreamOpFlag.NOT_DISTINCT) {
             @Override
-            Sink<Integer> opWrapSink(int flags, Sink<Long> sink) {
+            public Sink<Integer> opWrapSink(int flags, Sink<Long> sink) {
                 return new Sink.ChainedInt<Long>(sink) {
                     @Override
                     public void accept(int t) {
@@ -204,7 +205,7 @@ abstract class IntPipeline<E_IN>
         return new DoublePipeline.StatelessOp<Integer>(this, StreamShape.INT_VALUE,
                                                        StreamOpFlag.NOT_SORTED | StreamOpFlag.NOT_DISTINCT) {
             @Override
-            Sink<Integer> opWrapSink(int flags, Sink<Double> sink) {
+            public Sink<Integer> opWrapSink(int flags, Sink<Double> sink) {
                 return new Sink.ChainedInt<Double>(sink) {
                     @Override
                     public void accept(int t) {
@@ -226,7 +227,7 @@ abstract class IntPipeline<E_IN>
         return new StatelessOp<Integer>(this, StreamShape.INT_VALUE,
                                         StreamOpFlag.NOT_SORTED | StreamOpFlag.NOT_DISTINCT) {
             @Override
-            Sink<Integer> opWrapSink(int flags, Sink<Integer> sink) {
+            public Sink<Integer> opWrapSink(int flags, Sink<Integer> sink) {
                 return new Sink.ChainedInt<Integer>(sink) {
                     @Override
                     public void accept(int t) {
@@ -243,7 +244,7 @@ abstract class IntPipeline<E_IN>
         return new ReferencePipeline.StatelessOp<Integer, U>(this, StreamShape.INT_VALUE,
                                                              StreamOpFlag.NOT_SORTED | StreamOpFlag.NOT_DISTINCT) {
             @Override
-            Sink<Integer> opWrapSink(int flags, Sink<U> sink) {
+            public Sink<Integer> opWrapSink(int flags, Sink<U> sink) {
                 return new Sink.ChainedInt<U>(sink) {
                     @Override
                     public void accept(int t) {
@@ -260,7 +261,7 @@ abstract class IntPipeline<E_IN>
         return new LongPipeline.StatelessOp<Integer>(this, StreamShape.INT_VALUE,
                                                      StreamOpFlag.NOT_SORTED | StreamOpFlag.NOT_DISTINCT) {
             @Override
-            Sink<Integer> opWrapSink(int flags, Sink<Long> sink) {
+            public Sink<Integer> opWrapSink(int flags, Sink<Long> sink) {
                 return new Sink.ChainedInt<Long>(sink) {
                     @Override
                     public void accept(int t) {
@@ -277,7 +278,7 @@ abstract class IntPipeline<E_IN>
         return new DoublePipeline.StatelessOp<Integer>(this, StreamShape.INT_VALUE,
                                                        StreamOpFlag.NOT_SORTED | StreamOpFlag.NOT_DISTINCT) {
             @Override
-            Sink<Integer> opWrapSink(int flags, Sink<Double> sink) {
+            public Sink<Integer> opWrapSink(int flags, Sink<Double> sink) {
                 return new Sink.ChainedInt<Double>(sink) {
                     @Override
                     public void accept(int t) {
@@ -293,7 +294,7 @@ abstract class IntPipeline<E_IN>
         return new StatelessOp<Integer>(this, StreamShape.INT_VALUE,
                                         StreamOpFlag.NOT_SORTED | StreamOpFlag.NOT_DISTINCT | StreamOpFlag.NOT_SIZED) {
             @Override
-            Sink<Integer> opWrapSink(int flags, Sink<Integer> sink) {
+            public Sink<Integer> opWrapSink(int flags, Sink<Integer> sink) {
                 return new Sink.ChainedInt<Integer>(sink) {
                     @Override
                     public void begin(long size) {
@@ -319,7 +320,7 @@ abstract class IntPipeline<E_IN>
             return this;
         return new StatelessOp<Integer>(this, StreamShape.INT_VALUE, StreamOpFlag.NOT_ORDERED) {
             @Override
-            Sink<Integer> opWrapSink(int flags, Sink<Integer> sink) {
+            public Sink<Integer> opWrapSink(int flags, Sink<Integer> sink) {
                 return sink;
             }
         };
@@ -331,7 +332,7 @@ abstract class IntPipeline<E_IN>
         return new StatelessOp<Integer>(this, StreamShape.INT_VALUE,
                                         StreamOpFlag.NOT_SIZED) {
             @Override
-            Sink<Integer> opWrapSink(int flags, Sink<Integer> sink) {
+            public Sink<Integer> opWrapSink(int flags, Sink<Integer> sink) {
                 return new Sink.ChainedInt<Integer>(sink) {
                     @Override
                     public void begin(long size) {
@@ -354,7 +355,7 @@ abstract class IntPipeline<E_IN>
         return new StatelessOp<Integer>(this, StreamShape.INT_VALUE,
                                         0) {
             @Override
-            Sink<Integer> opWrapSink(int flags, Sink<Integer> sink) {
+            public Sink<Integer> opWrapSink(int flags, Sink<Integer> sink) {
                 return new Sink.ChainedInt<Integer>(sink) {
                     @Override
                     public void accept(int t) {
@@ -510,8 +511,9 @@ abstract class IntPipeline<E_IN>
      *
      * @param <E_IN> type of elements in the upstream source
      * @since 1.8
+     * @hide Visible for CTS testing only (OpenJDK8 tests).
      */
-    static class Head<E_IN> extends IntPipeline<E_IN> {
+    public static class Head<E_IN> extends IntPipeline<E_IN> {
         /**
          * Constructor for the source stage of an IntStream.
          *
@@ -521,7 +523,7 @@ abstract class IntPipeline<E_IN>
          *                    in {@link StreamOpFlag}
          * @param parallel {@code true} if the pipeline is parallel
          */
-        Head(Supplier<? extends Spliterator<Integer>> source,
+        public Head(Supplier<? extends Spliterator<Integer>> source,
              int sourceFlags, boolean parallel) {
             super(source, sourceFlags, parallel);
         }
@@ -534,18 +536,18 @@ abstract class IntPipeline<E_IN>
          *                    in {@link StreamOpFlag}
          * @param parallel {@code true} if the pipeline is parallel
          */
-        Head(Spliterator<Integer> source,
+        public Head(Spliterator<Integer> source,
              int sourceFlags, boolean parallel) {
             super(source, sourceFlags, parallel);
         }
 
         @Override
-        final boolean opIsStateful() {
+        public final boolean opIsStateful() {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        final Sink<E_IN> opWrapSink(int flags, Sink<Integer> sink) {
+        public final Sink<E_IN> opWrapSink(int flags, Sink<Integer> sink) {
             throw new UnsupportedOperationException();
         }
 
@@ -577,8 +579,9 @@ abstract class IntPipeline<E_IN>
      *
      * @param <E_IN> type of elements in the upstream source
      * @since 1.8
+     * @hide Visible for CTS testing only (OpenJDK8 tests).
      */
-    abstract static class StatelessOp<E_IN> extends IntPipeline<E_IN> {
+    public abstract static class StatelessOp<E_IN> extends IntPipeline<E_IN> {
         /**
          * Construct a new IntStream by appending a stateless intermediate
          * operation to an existing stream.
@@ -586,7 +589,7 @@ abstract class IntPipeline<E_IN>
          * @param inputShape The stream shape for the upstream pipeline stage
          * @param opFlags Operation flags for the new stage
          */
-        StatelessOp(AbstractPipeline<?, E_IN, ?> upstream,
+        public StatelessOp(AbstractPipeline<?, E_IN, ?> upstream,
                     StreamShape inputShape,
                     int opFlags) {
             super(upstream, opFlags);
@@ -594,7 +597,7 @@ abstract class IntPipeline<E_IN>
         }
 
         @Override
-        final boolean opIsStateful() {
+        public final boolean opIsStateful() {
             return false;
         }
     }
@@ -604,8 +607,9 @@ abstract class IntPipeline<E_IN>
      *
      * @param <E_IN> type of elements in the upstream source
      * @since 1.8
+     * @hide Visible for CTS testing only (OpenJDK8 tests).
      */
-    abstract static class StatefulOp<E_IN> extends IntPipeline<E_IN> {
+    public abstract static class StatefulOp<E_IN> extends IntPipeline<E_IN> {
         /**
          * Construct a new IntStream by appending a stateful intermediate
          * operation to an existing stream.
@@ -613,7 +617,7 @@ abstract class IntPipeline<E_IN>
          * @param inputShape The stream shape for the upstream pipeline stage
          * @param opFlags Operation flags for the new stage
          */
-        StatefulOp(AbstractPipeline<?, E_IN, ?> upstream,
+        public StatefulOp(AbstractPipeline<?, E_IN, ?> upstream,
                    StreamShape inputShape,
                    int opFlags) {
             super(upstream, opFlags);
@@ -621,12 +625,12 @@ abstract class IntPipeline<E_IN>
         }
 
         @Override
-        final boolean opIsStateful() {
+        public final boolean opIsStateful() {
             return true;
         }
 
         @Override
-        abstract <P_IN> Node<Integer> opEvaluateParallel(PipelineHelper<Integer> helper,
+        public abstract <P_IN> Node<Integer> opEvaluateParallel(PipelineHelper<Integer> helper,
                                                          Spliterator<P_IN> spliterator,
                                                          IntFunction<Integer[]> generator);
     }
