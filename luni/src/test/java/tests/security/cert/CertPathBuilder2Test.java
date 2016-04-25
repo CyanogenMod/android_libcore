@@ -79,19 +79,6 @@ public class CertPathBuilder2Test extends TestCase {
     private void checkResult(CertPathBuilder certBuild)
             throws InvalidAlgorithmParameterException,
             CertPathBuilderException {
-        String dt = CertPathBuilder.getDefaultType();
-        String propName = CertPathBuilder1Test.DEFAULT_TYPE_PROPERTY;
-        String dtN;
-        for (int i = 0; i <invalidValues.length; i++) {
-            Security.setProperty(propName, invalidValues[i]);
-            dtN = CertPathBuilder.getDefaultType();
-            if (!dtN.equals(invalidValues[i]) && !dtN.equals(dt)) {
-                fail("Incorrect default type: ".concat(dtN));
-            }
-        }
-        Security.setProperty(propName, dt);
-        assertEquals("Incorrect default type", CertPathBuilder.getDefaultType(),
-                dt);
         try {
             certBuild.build(null);
             fail("CertPathBuilderException must be thrown");
@@ -161,10 +148,9 @@ public class CertPathBuilder2Test extends TestCase {
             } catch (NoSuchAlgorithmException e) {
             }
         }
-        String prov = null;
         for (int i = 0; i < validValues.length; i++) {
             try {
-                CertPathBuilder.getInstance(validValues[i], prov);
+                CertPathBuilder.getInstance(validValues[i], (Provider) null);
                 fail("IllegalArgumentException must be thrown when provider is null (type: "
                         .concat(validValues[i]).concat(")"));
             } catch (IllegalArgumentException e) {
@@ -224,10 +210,9 @@ public class CertPathBuilder2Test extends TestCase {
             } catch (NoSuchAlgorithmException e) {
             }
         }
-        Provider prov = null;
         for (int i = 0; i < validValues.length; i++) {
             try {
-                CertPathBuilder.getInstance(validValues[i], prov);
+                CertPathBuilder.getInstance(validValues[i], (Provider) null);
                 fail("IllegalArgumentException must be thrown when provider is null (type: "
                         .concat(validValues[i]).concat(")"));
             } catch (IllegalArgumentException e) {
