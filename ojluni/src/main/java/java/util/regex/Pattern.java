@@ -37,6 +37,7 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import libcore.util.EmptyArray;
 
 /**
  * A compiled representation of a regular expression.
@@ -1108,6 +1109,11 @@ public final class Pattern implements java.io.Serializable
      *          around matches of this pattern
      */
     public String[] split(CharSequence input, int limit) {
+        String[] fast = fastSplit(pattern, input.toString(), limit);
+        if (fast != null) {
+            return fast;
+        }
+
         int index = 0;
         boolean matchLimited = limit > 0;
         ArrayList<String> matchList = new ArrayList<>();
@@ -1142,6 +1148,85 @@ public final class Pattern implements java.io.Serializable
                 resultSize--;
         String[] result = new String[resultSize];
         return matchList.subList(0, resultSize).toArray(result);
+    }
+
+    private static final String FASTSPLIT_METACHARACTERS = "\\?*+[](){}^$.|";
+
+    /**
+     * Returns a result equivalent to {@code s.split(separator, limit)} if it's able
+     * to compute it more cheaply than native impl, or null if the caller should fall back to
+     * using native impl.
+     *
+     *  fastpath will work  if the regex is a
+     *   (1)one-char String and this character is not one of the
+     *      RegEx's meta characters ".$|()[{^?*+\\", or
+     *   (2)two-char String and the first char is the backslash and
+     *      the second is one of regEx's meta characters ".$|()[{^?*+\\".
+     * @hide
+     */
+    public static String[] fastSplit(String re, String input, int limit) {
+        // Can we do it cheaply?
+        int len = re.length();
+        if (len == 0) {
+            return null;
+        }
+        char ch = re.charAt(0);
+        if (len == 1 && FASTSPLIT_METACHARACTERS.indexOf(ch) == -1) {
+            // We're looking for a single non-metacharacter. Easy.
+        } else if (len == 2 && ch == '\\') {
+            // We're looking for a quoted character.
+            // Quoted metacharacters are effectively single non-metacharacters.
+            ch = re.charAt(1);
+            if (FASTSPLIT_METACHARACTERS.indexOf(ch) == -1) {
+                return null;
+            }
+        } else {
+            return null;
+        }
+
+        // We can do this cheaply...
+
+        // Unlike Perl, which considers the result of splitting the empty string to be the empty
+        // array, Java returns an array containing the empty string.
+        if (input.isEmpty()) {
+            return new String[] { "" };
+        }
+
+        // Count separators
+        int separatorCount = 0;
+        int begin = 0;
+        int end;
+        while (separatorCount + 1 != limit && (end = input.indexOf(ch, begin)) != -1) {
+            ++separatorCount;
+            begin = end + 1;
+        }
+        int lastPartEnd = input.length();
+        if (limit == 0 && begin == lastPartEnd) {
+            // Last part is empty for limit == 0, remove all trailing empty matches.
+            if (separatorCount == lastPartEnd) {
+                // Input contains only separators.
+                return EmptyArray.STRING;
+            }
+            // Find the beginning of trailing separators.
+            do {
+                --begin;
+            } while (input.charAt(begin - 1) == ch);
+            // Reduce separatorCount and fix lastPartEnd.
+            separatorCount -= input.length() - begin;
+            lastPartEnd = begin;
+        }
+
+        // Collect the result parts.
+        String[] result = new String[separatorCount + 1];
+        begin = 0;
+        for (int i = 0; i != separatorCount; ++i) {
+            end = input.indexOf(ch, begin);
+            result[i] = input.substring(begin, end);
+            begin = end + 1;
+        }
+        // Add last part.
+        result[separatorCount] = input.substring(begin, lastPartEnd);
+        return result;
     }
 
     /**

@@ -2309,61 +2309,12 @@ public final class String
      * @spec JSR-51
      */
     public String[] split(String regex, int limit) {
-        /* fastpath if the regex is a
-         (1)one-char String and this character is not one of the
-            RegEx's meta characters ".$|()[{^?*+\\", or
-         (2)two-char String and the first char is the backslash and
-            the second is not the ascii digit or ascii letter.
-         */
-        char ch = 0;
-        if (((regex.count == 1 &&
-             ".$|()[{^?*+\\".indexOf(ch = regex.charAt(0)) == -1) ||
-             (regex.length() == 2 &&
-              regex.charAt(0) == '\\' &&
-              (((ch = regex.charAt(1))-'0')|('9'-ch)) < 0 &&
-              ((ch-'a')|('z'-ch)) < 0 &&
-              ((ch-'A')|('Z'-ch)) < 0)) &&
-            (ch < Character.MIN_HIGH_SURROGATE ||
-             ch > Character.MAX_LOW_SURROGATE))
-        {
-            int off = 0;
-            int next = 0;
-
-            int sepCount = 0;
-            while (sepCount != limit-1 && (next = indexOf(ch, off)) != -1) {
-              sepCount += 1;
-              off = next + 1;
-            }
-            // If no match was found, return this
-            if (off == 0) {
-                return new String[]{this};
-            }
-
-            int end = count;
-
-            // Remove trailing separators
-            if (limit == 0 && off == end) {
-                if (sepCount == end) {
-                    return EmptyArray.STRING;
-                }
-                while (charAt(off - 1) == ch) {
-                    --off;
-                }
-                sepCount -= count - off;
-                end = off;
-            }
-
-            off = 0;
-            String[] result = new String[sepCount + 1];
-            for (int i = 0;i < sepCount; i++) {
-                next = indexOf(ch, off);
-                result[i] = substring(off, next);
-                off = next + 1;
-            }
-
-            result[sepCount] = substring(off, end);
-            return result;
+        // Try fast splitting without allocating Pattern object
+        String[] fast = Pattern.fastSplit(regex, this, limit);
+        if (fast != null) {
+            return fast;
         }
+
         return Pattern.compile(regex).split(this, limit);
     }
 
