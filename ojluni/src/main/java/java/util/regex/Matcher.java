@@ -26,6 +26,7 @@
 
 package java.util.regex;
 
+import libcore.util.NativeAllocationRegistry;
 
 /**
  * An engine that performs match operations on a {@link java.lang.CharSequence
@@ -113,6 +114,14 @@ public final class Matcher implements MatchResult {
      * Uses of this must be manually synchronized to avoid native crashes.
      */
     private long address;
+
+    /**
+     * If non-null, a Runnable that can be used to explicitly deallocate address.
+     */
+    private Runnable nativeFinalizer;
+
+    private static final NativeAllocationRegistry registry = new NativeAllocationRegistry(
+            getNativeFinalizer(), nativeSize());
 
     /**
      * Holds the input text.
@@ -211,11 +220,13 @@ public final class Matcher implements MatchResult {
         this.pattern = newPattern;
 
         synchronized (this) {
-            if (address != 0) {
-                closeImpl(address);
+            if (nativeFinalizer != null) {
+                nativeFinalizer.run();
                 address = 0; // In case openImpl throws.
+                nativeFinalizer = null;
             }
             address = openImpl(pattern.address);
+            nativeFinalizer = registry.registerNativeAllocation(this, address);
         }
 
         if (input != null) {
@@ -1041,16 +1052,6 @@ public final class Matcher implements MatchResult {
         }
     }
 
-    @Override protected void finalize() throws Throwable {
-        try {
-            synchronized (this) {
-                closeImpl(address);
-            }
-        } finally {
-            super.finalize();
-        }
-    }
-
     /**
      * Returns the start index of the previous match.  </p>
      *
@@ -1093,13 +1094,14 @@ public final class Matcher implements MatchResult {
         return matchOffsets[group * 2];
     }
 
-    private static native void closeImpl(long addr);
     private static native boolean findImpl(long addr, String s, int startIndex, int[] offsets);
     private static native boolean findNextImpl(long addr, String s, int[] offsets);
+    private static native long getNativeFinalizer();
     private static native int groupCountImpl(long addr);
     private static native boolean hitEndImpl(long addr);
     private static native boolean lookingAtImpl(long addr, String s, int[] offsets);
     private static native boolean matchesImpl(long addr, String s, int[] offsets);
+    private static native int nativeSize();
     private static native long openImpl(long patternAddr);
     private static native boolean requireEndImpl(long addr);
     private static native void setInputImpl(long addr, String s, int start, int end);
