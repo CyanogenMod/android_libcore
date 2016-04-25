@@ -74,7 +74,7 @@ import sun.security.jca.GetInstance.Instance;
  * <li>{@code PKIX}</li>
  * </ul>
  * This algorithm is described in the <a href=
- * "{@docRoot}/../technotes/guides/security/StandardNames.html#CertPathValidator">
+ * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#CertPathValidator">
  * CertPathValidator section</a> of the
  * Java Cryptography Architecture Standard Algorithm Name Documentation.
  * Consult the release documentation for your implementation to see if any
@@ -145,7 +145,7 @@ public class CertPathValidator {
      *
      * @param algorithm the name of the requested {@code CertPathValidator}
      *  algorithm. See the CertPathValidator section in the <a href=
-     *  "{@docRoot}/../technotes/guides/security/StandardNames.html#CertPathValidator">
+     *  "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#CertPathValidator">
      * Java Cryptography Architecture Standard Algorithm Name Documentation</a>
      * for information about standard algorithm names.
      *
@@ -180,7 +180,7 @@ public class CertPathValidator {
      *
      * @param algorithm the name of the requested {@code CertPathValidator}
      *  algorithm. See the CertPathValidator section in the <a href=
-     *  "{@docRoot}/../technotes/guides/security/StandardNames.html#CertPathValidator">
+     *  "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#CertPathValidator">
      * Java Cryptography Architecture Standard Algorithm Name Documentation</a>
      * for information about standard algorithm names.
      *
@@ -221,7 +221,7 @@ public class CertPathValidator {
      *
      * @param algorithm the name of the requested {@code CertPathValidator}
      * algorithm. See the CertPathValidator section in the <a href=
-     * "{@docRoot}/../technotes/guides/security/StandardNames.html#CertPathValidator">
+     * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#CertPathValidator">
      * Java Cryptography Architecture Standard Algorithm Name Documentation</a>
      * for information about standard algorithm names.
      *

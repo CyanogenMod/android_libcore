@@ -95,7 +95,7 @@ import sun.security.jca.GetInstance.Instance;
  * <li><tt>HmacSHA256</tt></li>
  * </ul>
  * These algorithms are described in the <a href=
- * "{@docRoot}/../technotes/guides/security/StandardNames.html#KeyGenerator">
+ * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#KeyGenerator">
  * KeyGenerator section</a> of the
  * Java Cryptography Architecture Standard Algorithm Name Documentation.
  * Consult the release documentation for your implementation to see if any
@@ -188,7 +188,7 @@ public class KeyGenerator {
      *
      * @param algorithm the standard name of the requested key algorithm.
      * See the KeyGenerator section in the <a href=
-     * "{@docRoot}/../technotes/guides/security/StandardNames.html#KeyGenerator">
+     * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#KeyGenerator">
      * Java Cryptography Architecture Standard Algorithm Name Documentation</a>
      * for information about standard algorithm names.
      *
@@ -221,7 +221,7 @@ public class KeyGenerator {
      *
      * @param algorithm the standard name of the requested key algorithm.
      * See the KeyGenerator section in the <a href=
-     * "{@docRoot}/../technotes/guides/security/StandardNames.html#KeyGenerator">
+     * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#KeyGenerator">
      * Java Cryptography Architecture Standard Algorithm Name Documentation</a>
      * for information about standard algorithm names.
      *
@@ -263,7 +263,7 @@ public class KeyGenerator {
      *
      * @param algorithm the standard name of the requested key algorithm.
      * See the KeyGenerator section in the <a href=
-     * "{@docRoot}/../technotes/guides/security/StandardNames.html#KeyGenerator">
+     * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#KeyGenerator">
      * Java Cryptography Architecture Standard Algorithm Name Documentation</a>
      * for information about standard algorithm names.
      *

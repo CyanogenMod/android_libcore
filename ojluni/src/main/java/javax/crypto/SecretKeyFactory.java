@@ -65,7 +65,7 @@ import sun.security.jca.GetInstance.Instance;
  * <li><tt>DESede</tt></li>
  * </ul>
  * These algorithms are described in the <a href=
- * "{@docRoot}/../technotes/guides/security/StandardNames.html#SecretKeyFactory">
+ * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#SecretKeyFactory">
  * SecretKeyFactory section</a> of the
  * Java Cryptography Architecture Standard Algorithm Name Documentation.
  * Consult the release documentation for your implementation to see if any
@@ -139,7 +139,7 @@ public class SecretKeyFactory {
      * @param algorithm the standard name of the requested secret-key
      * algorithm.
      * See the SecretKeyFactory section in the <a href=
-     * "{@docRoot}/../technotes/guides/security/StandardNames.html#SecretKeyFactory">
+     * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#SecretKeyFactory">
      * Java Cryptography Architecture Standard Algorithm Name Documentation</a>
      * for information about standard algorithm names.
      *
@@ -174,7 +174,7 @@ public class SecretKeyFactory {
      * @param algorithm the standard name of the requested secret-key
      * algorithm.
      * See the SecretKeyFactory section in the <a href=
-     * "{@docRoot}/../technotes/guides/security/StandardNames.html#SecretKeyFactory">
+     * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#SecretKeyFactory">
      * Java Cryptography Architecture Standard Algorithm Name Documentation</a>
      * for information about standard algorithm names.
      *
@@ -218,7 +218,7 @@ public class SecretKeyFactory {
      * @param algorithm the standard name of the requested secret-key
      * algorithm.
      * See the SecretKeyFactory section in the <a href=
-     * "{@docRoot}/../technotes/guides/security/StandardNames.html#SecretKeyFactory">
+     * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#SecretKeyFactory">
      * Java Cryptography Architecture Standard Algorithm Name Documentation</a>
      * for information about standard algorithm names.
      *

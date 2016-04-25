@@ -68,7 +68,7 @@ import java.util.function.UnaryOperator;
  * already sorted may or may not throw <tt>UnsupportedOperationException</tt>.
  *
  * <p>This class is a member of the
- * <a href="{@docRoot}/../technotes/guides/collections/index.html">
+ * <a href="{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/collections/index.html">
  * Java Collections Framework</a>.
  *
  * @author  Josh Bloch

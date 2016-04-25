@@ -72,7 +72,7 @@ import sun.security.jca.GetInstance.Instance;
  * <li>{@code PKIX}</li>
  * </ul>
  * This algorithm is described in the <a href=
- * "{@docRoot}/../technotes/guides/security/StandardNames.html#CertPathBuilder">
+ * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#CertPathBuilder">
  * CertPathBuilder section</a> of the
  * Java Cryptography Architecture Standard Algorithm Name Documentation.
  * Consult the release documentation for your implementation to see if any
@@ -144,7 +144,7 @@ public class CertPathBuilder {
      *
      * @param algorithm the name of the requested {@code CertPathBuilder}
      *  algorithm.  See the CertPathBuilder section in the <a href=
-     *  "{@docRoot}/../technotes/guides/security/StandardNames.html#CertPathBuilder">
+     *  "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#CertPathBuilder">
      * Java Cryptography Architecture Standard Algorithm Name Documentation</a>
      * for information about standard algorithm names.
      *
@@ -179,7 +179,7 @@ public class CertPathBuilder {
      *
      * @param algorithm the name of the requested {@code CertPathBuilder}
      *  algorithm.  See the CertPathBuilder section in the <a href=
-     *  "{@docRoot}/../technotes/guides/security/StandardNames.html#CertPathBuilder">
+     *  "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#CertPathBuilder">
      * Java Cryptography Architecture Standard Algorithm Name Documentation</a>
      * for information about standard algorithm names.
      *
@@ -219,7 +219,7 @@ public class CertPathBuilder {
      *
      * @param algorithm the name of the requested {@code CertPathBuilder}
      *  algorithm.  See the CertPathBuilder section in the <a href=
-     *  "{@docRoot}/../technotes/guides/security/StandardNames.html#CertPathBuilder">
+     *  "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#CertPathBuilder">
      * Java Cryptography Architecture Standard Algorithm Name Documentation</a>
      * for information about standard algorithm names.
      *
