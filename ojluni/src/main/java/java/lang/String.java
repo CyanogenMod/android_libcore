@@ -2211,17 +2211,13 @@ public final class String
                 sb = new StringBuilder(count);
             }
 
-            for (int i = lastMatch; i < currentMatch; ++i) {
-                sb.append(charAt(i));
-            }
+            sb.append(this, lastMatch, currentMatch);
             sb.append(replacementStr);
             lastMatch = currentMatch + targetStr.count;
         }
 
         if (sb != null) {
-            for (int i = lastMatch; i < count; ++i) {
-                sb.append(charAt(i));
-            }
+            sb.append(this, lastMatch, count);
             return sb.toString();
         } else {
             return this;
