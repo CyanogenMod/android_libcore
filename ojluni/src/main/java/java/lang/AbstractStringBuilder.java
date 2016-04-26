@@ -413,7 +413,7 @@ abstract class AbstractStringBuilder implements Appendable, CharSequence {
         if (str == null) str = "null";
         int len = str.length();
         ensureCapacityInternal(count + len);
-        str.getChars(0, len, value, count);
+        str.getCharsNoCheck(0, len, value, count);
         count += len;
         return this;
     }
@@ -813,7 +813,7 @@ abstract class AbstractStringBuilder implements Appendable, CharSequence {
         ensureCapacityInternal(newCount);
 
         System.arraycopy(value, end, value, start + len, count - end);
-        str.getChars(0, len, value, start);
+        str.getCharsNoCheck(0, len, value, start);
         count = newCount;
         return this;
     }
@@ -986,7 +986,7 @@ abstract class AbstractStringBuilder implements Appendable, CharSequence {
         int len = str.length();
         ensureCapacityInternal(count + len);
         System.arraycopy(value, offset, value, offset + len, count - offset);
-        str.getChars(0, len, value, offset);
+        str.getCharsNoCheck(0, len, value, offset);
         count += len;
         return this;
     }
