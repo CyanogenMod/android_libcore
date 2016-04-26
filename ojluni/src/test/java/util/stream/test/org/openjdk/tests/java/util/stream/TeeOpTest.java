@@ -22,23 +22,11 @@
  */
 package org.openjdk.tests.java.util.stream;
 
-import org.openjdk.testlib.java.util.stream.DoubleStreamTestDataProvider;
-import org.openjdk.testlib.java.util.stream.IntStreamTestDataProvider;
-import org.openjdk.testlib.java.util.stream.LambdaTestHelpers;
-import org.openjdk.testlib.java.util.stream.LongStreamTestDataProvider;
-import org.openjdk.testlib.java.util.stream.OpTestCase;
-import org.openjdk.testlib.java.util.stream.StreamTestDataProvider;
-import org.openjdk.testlib.java.util.stream.TestData;
-
 import java.util.function.Consumer;
 import java.util.function.DoubleConsumer;
 import java.util.function.IntConsumer;
 import java.util.function.LongConsumer;
-import java.util.stream.BaseStream;
-import java.util.stream.Stream;
-import java.util.stream.IntStream;
-import java.util.stream.LongStream;
-import java.util.stream.DoubleStream;
+import java.util.stream.*;
 
 import org.testng.annotations.Test;
 
@@ -46,7 +34,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static org.openjdk.testlib.java.util.stream.LambdaTestHelpers.*;
+import static java.util.stream.LambdaTestHelpers.*;
 
 /**
  * TeeOpTest
