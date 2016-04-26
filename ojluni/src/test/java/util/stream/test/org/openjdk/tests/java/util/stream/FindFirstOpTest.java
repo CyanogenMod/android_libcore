@@ -22,20 +22,14 @@
  */
 package org.openjdk.tests.java.util.stream;
 
-import org.openjdk.testlib.java.util.stream.*;
 import java.util.*;
-
-import java.util.stream.BaseStream;
-import java.util.stream.Stream;
-import java.util.stream.IntStream;
-import java.util.stream.LongStream;
-import java.util.stream.DoubleStream;
+import java.util.stream.*;
 
 import org.testng.annotations.Test;
 
 import java.util.function.Function;
 
-import static org.openjdk.testlib.java.util.stream.LambdaTestHelpers.*;
+import static java.util.stream.LambdaTestHelpers.*;
 
 
 /**

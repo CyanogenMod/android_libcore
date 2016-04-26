@@ -56,9 +56,8 @@ import java.util.function.LongConsumer;
  *
  * @param <T> the type of elements.
  * @since 1.8
- * @hide Visible for CTS testing only (OpenJDK8 tests).
  */
-public interface Node<T> {
+interface Node<T> {
 
     /**
      * Returns a {@link Spliterator} describing the elements contained in this

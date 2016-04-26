@@ -22,11 +22,6 @@
  */
 package org.openjdk.tests.java.util.stream;
 
-import org.openjdk.testlib.java.util.stream.LambdaTestHelpers;
-import org.openjdk.testlib.java.util.stream.OpTestCase;
-import org.openjdk.testlib.java.util.stream.StreamTestDataProvider;
-import org.openjdk.testlib.java.util.stream.TestData;
-
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -36,8 +31,11 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
+import java.util.stream.LambdaTestHelpers;
 import java.util.stream.LongStream;
+import java.util.stream.OpTestCase;
 import java.util.stream.Stream;
+import java.util.stream.TestData;
 
 import static java.util.stream.Collectors.toList;
 
