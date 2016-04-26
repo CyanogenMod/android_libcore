@@ -97,16 +97,6 @@ public class HttpsURLConnectionTest extends TestCase {
     }
 
     /**
-     * javax.net.ssl.HttpsURLConnection#getDefaultSSLSocketFactory()
-     */
-    public final void test_getDefaultSSLSocketFactory() {
-        SSLSocketFactory sf = HttpsURLConnection.getDefaultSSLSocketFactory();
-        if (!sf.equals(SSLSocketFactory.getDefault())) {
-            fail("incorrect DefaultSSLSocketFactory");
-        }
-    }
-
-    /**
      * javax.net.ssl.HttpsURLConnection#getHostnameVerifier()
      */
     public final void test_getHostnameVerifier()
@@ -183,17 +173,6 @@ public class HttpsURLConnectionTest extends TestCase {
         Certificate[] cert = con.getServerCertificates();
         assertNotNull(cert);
         assertEquals(1, cert.length);
-    }
-
-    /**
-     * javax.net.ssl.HttpsURLConnection#getSSLSocketFactory()
-     */
-    public final void test_getSSLSocketFactory() {
-        HttpsURLConnection con = new MyHttpsURLConnection(null);
-        SSLSocketFactory sf = con.getSSLSocketFactory();
-        if (!sf.equals(SSLSocketFactory.getDefault())) {
-            fail("incorrect DefaultSSLSocketFactory");
-        }
     }
 
     /**
