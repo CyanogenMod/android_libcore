@@ -384,6 +384,16 @@ import java.nio.ByteBuffer;
  *             <td>20+</td>
  *             <td>20+</td>
  *         </tr>
+ *         <tr>
+ *             <td>TLS_ECDHE_PSK_WITH_AES_128_CBC_SHA</td>
+ *             <td>21+</td>
+ *             <td>21+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_ECDHE_PSK_WITH_AES_256_CBC_SHA</td>
+ *             <td>21+</td>
+ *             <td>21+</td>
+ *         </tr>
  *         <tr class="deprecated">
  *             <td>TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA</td>
  *             <td>20&ndash;22</td>
@@ -553,16 +563,6 @@ import java.nio.ByteBuffer;
  *             <td>TLS_FALLBACK_SCSV</td>
  *             <td>21+</td>
  *             <td></td>
- *         </tr>
- *         <tr>
- *             <td>TLS_ECDHE_PSK_WITH_AES_128_CBC_SHA</td>
- *             <td>21+</td>
- *             <td>21+</td>
- *         </tr>
- *         <tr>
- *             <td>TLS_ECDHE_PSK_WITH_AES_256_CBC_SHA</td>
- *             <td>21+</td>
- *             <td>21+</td>
  *         </tr>
  *         <tr class="deprecated">
  *             <td>TLS_NULL_WITH_NULL_NULL</td>
