@@ -63,6 +63,16 @@ public class StringBuilderBenchmark {
         }
     }
 
+    public void timeAppendSubCharSequence(int reps) {
+        CharSequence cs = "chars";
+        for (int i = 0; i < reps; ++i) {
+            StringBuilder sb = new StringBuilder();
+            for (int j = 0; j < length; ++j) {
+                sb.append(cs);
+            }
+        }
+    }
+
     public void timeAppendDouble(int reps) {
         double d = 1.2;
         for (int i = 0; i < reps; ++i) {
