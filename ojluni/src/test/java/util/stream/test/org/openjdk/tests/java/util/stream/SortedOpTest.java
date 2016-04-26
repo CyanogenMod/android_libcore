@@ -24,12 +24,6 @@ package org.openjdk.tests.java.util.stream;
 
 import org.testng.annotations.Test;
 
-import org.openjdk.testlib.java.util.stream.CollectorOps;
-import org.openjdk.testlib.java.util.stream.OpTestCase;
-import org.openjdk.testlib.java.util.stream.StreamTestDataProvider;
-import org.openjdk.testlib.java.util.stream.TestData;
-import org.openjdk.testlib.java.util.stream.*;
-
 import java.util.*;
 import java.util.Spliterators;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -37,14 +31,9 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.BaseStream;
-import java.util.stream.DoubleStream;
-import java.util.stream.IntStream;
-import java.util.stream.LongStream;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
+import java.util.stream.*;
 
-import static org.openjdk.testlib.java.util.stream.LambdaTestHelpers.*;
+import static java.util.stream.LambdaTestHelpers.*;
 
 /**
  * SortedOpTest

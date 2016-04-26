@@ -22,27 +22,14 @@
  */
 package org.openjdk.tests.java.util.stream;
 
-import org.openjdk.testlib.java.util.stream.DoubleStreamTestDataProvider;
-import org.openjdk.testlib.java.util.stream.IntStreamTestDataProvider;
-import org.openjdk.testlib.java.util.stream.LambdaTestHelpers;
-import org.openjdk.testlib.java.util.stream.LongStreamTestDataProvider;
-import org.openjdk.testlib.java.util.stream.OpTestCase;
-import org.openjdk.testlib.java.util.stream.StreamTestDataProvider;
-import org.openjdk.testlib.java.util.stream.TestData;
-
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
-
-import java.util.stream.BaseStream;
-import java.util.stream.Stream;
-import java.util.stream.IntStream;
-import java.util.stream.LongStream;
-import java.util.stream.DoubleStream;
+import java.util.stream.*;
 
 import org.testng.annotations.Test;
 
-import static org.openjdk.testlib.java.util.stream.LambdaTestHelpers.countTo;
+import static java.util.stream.LambdaTestHelpers.countTo;
 
 /**
  * MinMaxTest
