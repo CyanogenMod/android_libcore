@@ -22,9 +22,11 @@
  */
 package org.openjdk.tests.java.util.stream;
 
-import java.util.stream.LambdaTestHelpers;
-import java.util.stream.OpTestCase;
-import java.util.stream.StreamTestDataProvider;
+import org.openjdk.testlib.java.util.stream.LambdaTestHelpers;
+import org.openjdk.testlib.java.util.stream.OpTestCase;
+import org.openjdk.testlib.java.util.stream.StreamTestDataProvider;
+import org.openjdk.testlib.java.util.stream.TestData;
+
 import org.testng.annotations.Test;
 
 import java.util.Iterator;
@@ -35,7 +37,6 @@ import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 import java.util.Spliterator;
 import java.util.stream.Stream;
-import java.util.stream.TestData;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;

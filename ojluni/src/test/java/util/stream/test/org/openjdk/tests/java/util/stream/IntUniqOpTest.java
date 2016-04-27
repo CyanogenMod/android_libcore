@@ -22,13 +22,20 @@
  */
 package org.openjdk.tests.java.util.stream;
 
+import org.openjdk.testlib.java.util.stream.IntStreamTestDataProvider;
+import org.openjdk.testlib.java.util.stream.LambdaTestHelpers;
+import org.openjdk.testlib.java.util.stream.OpTestCase;
+import org.openjdk.testlib.java.util.stream.StreamTestDataProvider;
+import org.openjdk.testlib.java.util.stream.TestData;
+
 import java.util.Collection;
-import java.util.stream.*;
+import java.util.stream.Stream;
+import java.util.stream.IntStream;
 
 import org.testng.annotations.Test;
 
-import static java.util.stream.LambdaTestHelpers.assertCountSum;
-import static java.util.stream.LambdaTestHelpers.assertUnique;
+import static org.openjdk.testlib.java.util.stream.LambdaTestHelpers.assertCountSum;
+import static org.openjdk.testlib.java.util.stream.LambdaTestHelpers.assertUnique;
 
 /**
  * UniqOpTest

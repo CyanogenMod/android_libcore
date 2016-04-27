@@ -62,27 +62,39 @@ PROG_DIR="$(cd "${PROG_NAME%/*}" ; pwd -P)"
 
 if [[ -z $ANDROID_ROOT ]]; then
   # Already set to /system for actual android devices
-  ANDROID_ROOT=$ANDROID_HOST_OUT
+  ANDROID_ROOT="$ANDROID_HOST_OUT"
 fi
-LIBDIR=$(find_libdir)
-LD_LIBRARY_PATH=$ANDROID_ROOT/$LIBDIR
+LIBDIR="$(find_libdir)"
+LD_LIBRARY_PATH="$ANDROID_ROOT/$LIBDIR"
 DEBUG_OPTION=""
-
 
 DELETE_ANDROID_DATA=false
 # If ANDROID_DATA is the system ANDROID_DATA or is not set, use our own,
 # and ensure we delete it at the end.
 if [ "$ANDROID_DATA" = "/data" ] || [ "$ANDROID_DATA" = "" ]; then
-  ANDROID_DATA=$PWD/android-data$$
-  IMAGE_DIRECTORY=$ANDROID_DATA/image
+  # TODO: use /data/tmp/... for android, and mktemp for host
+  #ANDROID_DATA=$PWD/android-data$$
+  ANDROID_DATA="$(mktemp -q -d -t "$(basename "$0").XXXXXX")"
+  IMAGE_DIRECTORY="$ANDROID_DATA/image"
   mkdir -p $ANDROID_DATA/dalvik-cache/{arm,arm64,x86,x86_64}
   mkdir -p $IMAGE_DIRECTORY
   DELETE_ANDROID_DATA=true
 fi
 
+# Clean up the temporary files we made earlier on.
+function finish {
+  if $DELETE_ANDROID_DATA; then
+    [[ -d $ANDROID_DATA ]] && rm -rf "$ANDROID_DATA"
+  fi
+}
 
-IMAGE_LOCATION=$IMAGE_DIRECTORY/core-extrabootclasspath.art
+trap finish EXIT
 
+# Dummy image location name. Art ignores the bootclasspath setting if a boot image
+# already exists, so we force it to create a new boot image with our correct bootclasspath.
+IMAGE_LOCATION="$IMAGE_DIRECTORY/core-extrabootclasspath.art"
+
+# TODO: Get this list from somewhere else, a makefile perhaps?
 BOOT_DEXJARS=(
 bouncycastle-hostdex.jar
 apache-xml-hostdex.jar
@@ -90,7 +102,7 @@ core-tests-hostdex.jar
 core-libart-hostdex.jar
 core-lambda-stubs-hostdex.jar
 conscrypt-hostdex.jar
-core-ojtests-hostdex.jar
+core-ojtests-hostdex.jar  # This is the *one* addition that makes our OJ tests actually run. The rest of these are standard jars on the bootclasspath.
 core-oj-hostdex.jar
 okhttp-hostdex.jar)
 
@@ -124,3 +136,6 @@ ANDROID_DATA=$ANDROID_DATA \
     -Ximage:$IMAGE_LOCATION \
     $DEBUG_OPTION \
     "$@"
+
+
+temp_dir="$(mktemp -q -d -t "$(basename "$0").XXXXXX")"

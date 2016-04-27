@@ -22,6 +22,8 @@
  */
 package org.openjdk.tests.java.util.stream;
 
+import org.openjdk.testlib.java.util.stream.LambdaTestHelpers;
+
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
@@ -35,7 +37,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.LinkedTransferQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.function.Supplier;
-import java.util.stream.LambdaTestHelpers;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 

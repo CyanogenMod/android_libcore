@@ -41,7 +41,7 @@ import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
-import static java.util.stream.LambdaTestHelpers.*;
+import static org.openjdk.testlib.java.util.stream.LambdaTestHelpers.*;
 import static org.testng.Assert.*;
 
 @Test

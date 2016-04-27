@@ -25,6 +25,15 @@ package org.openjdk.tests.java.util.stream;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import org.openjdk.testlib.java.util.stream.OpTestCase;
+import org.openjdk.testlib.java.util.stream.StreamTestDataProvider;
+import org.openjdk.testlib.java.util.stream.TestData;
+import org.openjdk.testlib.java.util.stream.DoubleStreamTestScenario;
+import org.openjdk.testlib.java.util.stream.IntStreamTestScenario;
+import org.openjdk.testlib.java.util.stream.LongStreamTestScenario;
+import org.openjdk.testlib.java.util.stream.LambdaTestHelpers;
+import org.openjdk.testlib.java.util.stream.StreamTestScenario;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -34,19 +43,12 @@ import java.util.Spliterator;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 import java.util.stream.DoubleStream;
-import java.util.stream.DoubleStreamTestScenario;
 import java.util.stream.IntStream;
-import java.util.stream.IntStreamTestScenario;
-import java.util.stream.LambdaTestHelpers;
 import java.util.stream.LongStream;
-import java.util.stream.LongStreamTestScenario;
-import java.util.stream.OpTestCase;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-import java.util.stream.StreamTestScenario;
-import java.util.stream.TestData;
 
-import static java.util.stream.LambdaTestHelpers.assertUnique;
+import static org.openjdk.testlib.java.util.stream.LambdaTestHelpers.assertUnique;
 
 
 @Test
