@@ -395,4 +395,12 @@ public class ResourceBundleTest extends junit.framework.TestCase {
 
         Locale.setDefault(defLocale);
     }
+
+    // http://b/26879578
+    public void testBundleWithUtf8Values() {
+        ResourceBundle bundle = ResourceBundle.getBundle(
+                "org.apache.harmony.tests.java.util.TestUtf8ResourceBundle");
+        assertEquals("Страх мой удивительный UTF-8 синтаксического анализа",
+                bundle.getString("key"));
+    }
 }
