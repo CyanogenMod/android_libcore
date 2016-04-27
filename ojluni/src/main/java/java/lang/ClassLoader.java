@@ -205,6 +205,7 @@ public abstract class ClassLoader {
      */
     private static ClassLoader createSystemClassLoader() {
         String classPath = System.getProperty("java.class.path", ".");
+        String librarySearchPath = System.getProperty("java.library.path", "");
 
         // String[] paths = classPath.split(":");
         // URL[] urls = new URL[paths.length];
@@ -220,7 +221,7 @@ public abstract class ClassLoader {
         // return new java.net.URLClassLoader(urls, null);
 
         // TODO Make this a java.net.URLClassLoader once we have those?
-        return new PathClassLoader(classPath, BootClassLoader.getInstance());
+        return new PathClassLoader(classPath, librarySearchPath, BootClassLoader.getInstance());
     }
 
     // The packages defined in this class loader.  Each package name is mapped
