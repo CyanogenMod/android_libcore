@@ -47,14 +47,14 @@ interface StatelessTestOp<E_IN, E_OUT> extends IntermediateTestOp<E_IN, E_OUT> {
             case LONG_VALUE:
                 return new LongPipeline.StatelessOp<Object>(upstream, op.inputShape(), flags) {
                     @Override
-                    Sink opWrapSink(int flags, Sink sink) {
+                    public Sink opWrapSink(int flags, Sink sink) {
                         return op.opWrapSink(flags, isParallel(), sink);
                     }
                 };
             case DOUBLE_VALUE:
                 return new DoublePipeline.StatelessOp<Object>(upstream, op.inputShape(), flags) {
                     @Override
-                    Sink opWrapSink(int flags, Sink sink) {
+                    public Sink opWrapSink(int flags, Sink sink) {
                         return op.opWrapSink(flags, isParallel(), sink);
                     }
                 };

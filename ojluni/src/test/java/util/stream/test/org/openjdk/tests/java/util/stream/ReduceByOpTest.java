@@ -22,20 +22,21 @@
  */
 package org.openjdk.tests.java.util.stream;
 
+import org.openjdk.testlib.java.util.stream.LambdaTestHelpers;
+import org.openjdk.testlib.java.util.stream.OpTestCase;
+import org.openjdk.testlib.java.util.stream.StreamTestDataProvider;
+import org.openjdk.testlib.java.util.stream.TestData;
+
 import java.util.List;
-import java.util.stream.LambdaTestHelpers;
-import java.util.stream.OpTestCase;
 import java.util.stream.Stream;
-import java.util.stream.StreamTestDataProvider;
 import org.testng.annotations.Test;
 
 import java.util.HashSet;
 import java.util.Map;
-import java.util.stream.TestData;
 
+import static org.openjdk.testlib.java.util.stream.LambdaTestHelpers.*;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.reducing;
-import static java.util.stream.LambdaTestHelpers.*;
 
 /**
  * ReduceByOpTest

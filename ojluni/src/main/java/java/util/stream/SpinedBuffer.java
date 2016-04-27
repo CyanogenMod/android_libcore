@@ -52,8 +52,9 @@ import java.util.function.LongConsumer;
  *
  * @param <E> the type of elements in this list
  * @since 1.8
+ * @hide Visible for CTS testing only (OpenJDK8 tests).
  */
-class SpinedBuffer<E>
+public class SpinedBuffer<E>
         extends AbstractSpinedBuffer
         implements Consumer<E>, Iterable<E> {
 
@@ -93,7 +94,7 @@ class SpinedBuffer<E>
      *         is negative
      */
     @SuppressWarnings("unchecked")
-    SpinedBuffer(int initialCapacity) {
+    public SpinedBuffer(int initialCapacity) {
         super(initialCapacity);
         curChunk = (E[]) new Object[1 << initialChunkPower];
     }
@@ -102,7 +103,7 @@ class SpinedBuffer<E>
      * Constructs an empty list with an initial capacity of sixteen.
      */
     @SuppressWarnings("unchecked")
-    SpinedBuffer() {
+    public SpinedBuffer() {
         super();
         curChunk = (E[]) new Object[1 << initialChunkPower];
     }
@@ -414,8 +415,9 @@ class SpinedBuffer<E>
      * @param <E> the wrapper type for this primitive type
      * @param <T_ARR> the array type for this primitive type
      * @param <T_CONS> the Consumer type for this primitive type
+     * @hide Visible for CTS testing only (OpenJDK8 tests).
      */
-    abstract static class OfPrimitive<E, T_ARR, T_CONS>
+    public abstract static class OfPrimitive<E, T_ARR, T_CONS>
             extends AbstractSpinedBuffer implements Iterable<E> {
 
         /*
@@ -719,12 +721,13 @@ class SpinedBuffer<E>
 
     /**
      * An ordered collection of {@code int} values.
+     * @hide Visible for CTS testing only (OpenJDK8 tests).
      */
-    static class OfInt extends SpinedBuffer.OfPrimitive<Integer, int[], IntConsumer>
+    public static class OfInt extends SpinedBuffer.OfPrimitive<Integer, int[], IntConsumer>
             implements IntConsumer {
-        OfInt() { }
+        public OfInt() { }
 
-        OfInt(int initialCapacity) {
+        public OfInt(int initialCapacity) {
             super(initialCapacity);
         }
 
@@ -832,12 +835,13 @@ class SpinedBuffer<E>
 
     /**
      * An ordered collection of {@code long} values.
+     * @hide Visible for CTS testing only (OpenJDK8 tests).
      */
-    static class OfLong extends SpinedBuffer.OfPrimitive<Long, long[], LongConsumer>
+    public static class OfLong extends SpinedBuffer.OfPrimitive<Long, long[], LongConsumer>
             implements LongConsumer {
-        OfLong() { }
+        public OfLong() { }
 
-        OfLong(int initialCapacity) {
+        public OfLong(int initialCapacity) {
             super(initialCapacity);
         }
 
@@ -946,13 +950,14 @@ class SpinedBuffer<E>
 
     /**
      * An ordered collection of {@code double} values.
+     * @hide Visible for CTS testing only (OpenJDK8 tests).
      */
-    static class OfDouble
+    public static class OfDouble
             extends SpinedBuffer.OfPrimitive<Double, double[], DoubleConsumer>
             implements DoubleConsumer {
-        OfDouble() { }
+        public OfDouble() { }
 
-        OfDouble(int initialCapacity) {
+        public OfDouble(int initialCapacity) {
             super(initialCapacity);
         }
 

@@ -14,4 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-./artrun org.testng.TestNG -verbose 3 ./testng.xml
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+$DIR/artrun -Xmx512m org.testng.TestNG -verbose 3 "$DIR/testng.xml"

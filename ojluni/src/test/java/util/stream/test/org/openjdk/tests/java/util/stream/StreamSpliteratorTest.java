@@ -22,6 +22,15 @@
  */
 package org.openjdk.tests.java.util.stream;
 
+import org.openjdk.testlib.java.util.stream.DoubleStreamTestDataProvider;
+import org.openjdk.testlib.java.util.stream.IntStreamTestDataProvider;
+import org.openjdk.testlib.java.util.stream.LambdaTestHelpers;
+import org.openjdk.testlib.java.util.stream.LongStreamTestDataProvider;
+import org.openjdk.testlib.java.util.stream.OpTestCase;
+import org.openjdk.testlib.java.util.stream.SpliteratorTestHelper;
+import org.openjdk.testlib.java.util.stream.StreamTestDataProvider;
+import org.openjdk.testlib.java.util.stream.TestData;
+
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -33,30 +42,22 @@ import java.util.function.IntConsumer;
 import java.util.function.LongConsumer;
 import java.util.function.UnaryOperator;
 import java.util.stream.DoubleStream;
-import java.util.stream.DoubleStreamTestDataProvider;
 import java.util.stream.IntStream;
-import java.util.stream.IntStreamTestDataProvider;
-import java.util.stream.LambdaTestHelpers;
 import java.util.stream.LongStream;
-import java.util.stream.LongStreamTestDataProvider;
-import java.util.stream.OpTestCase;
-import java.util.stream.SpliteratorTestHelper;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-import java.util.stream.StreamTestDataProvider;
-import java.util.stream.TestData;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import static java.util.stream.LambdaTestHelpers.countTo;
-import static java.util.stream.LambdaTestHelpers.dpEven;
-import static java.util.stream.LambdaTestHelpers.ipEven;
-import static java.util.stream.LambdaTestHelpers.irDoubler;
-import static java.util.stream.LambdaTestHelpers.lpEven;
-import static java.util.stream.LambdaTestHelpers.mDoubler;
-import static java.util.stream.LambdaTestHelpers.pEven;
-import static java.util.stream.LambdaTestHelpers.permuteStreamFunctions;
+import static org.openjdk.testlib.java.util.stream.LambdaTestHelpers.countTo;
+import static org.openjdk.testlib.java.util.stream.LambdaTestHelpers.dpEven;
+import static org.openjdk.testlib.java.util.stream.LambdaTestHelpers.ipEven;
+import static org.openjdk.testlib.java.util.stream.LambdaTestHelpers.irDoubler;
+import static org.openjdk.testlib.java.util.stream.LambdaTestHelpers.lpEven;
+import static org.openjdk.testlib.java.util.stream.LambdaTestHelpers.mDoubler;
+import static org.openjdk.testlib.java.util.stream.LambdaTestHelpers.pEven;
+import static org.openjdk.testlib.java.util.stream.LambdaTestHelpers.permuteStreamFunctions;
 
 @Test
 public class StreamSpliteratorTest extends OpTestCase {

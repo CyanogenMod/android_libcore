@@ -22,13 +22,14 @@
  */
 package org.openjdk.tests.java.util.stream;
 
+import org.openjdk.testlib.java.util.stream.OpTestCase;
+
 import java.util.Arrays;
-import java.util.stream.OpTestCase;
 import java.util.stream.Stream;
 
 import org.testng.annotations.Test;
 
-import static java.util.stream.LambdaTestHelpers.countTo;
+import static org.openjdk.testlib.java.util.stream.LambdaTestHelpers.countTo;
 
 /**
  * StreamCloseTest

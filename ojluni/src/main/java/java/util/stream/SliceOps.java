@@ -130,7 +130,7 @@ final class SliceOps {
             }
 
             @Override
-            <P_IN> Spliterator<T> opEvaluateParallelLazy(PipelineHelper<T> helper, Spliterator<P_IN> spliterator) {
+            public <P_IN> Spliterator<T> opEvaluateParallelLazy(PipelineHelper<T> helper, Spliterator<P_IN> spliterator) {
                 long size = helper.exactOutputSizeIfKnown(spliterator);
                 if (size > 0 && spliterator.hasCharacteristics(Spliterator.SUBSIZED)) {
                     return new StreamSpliterators.SliceSpliterator.OfRef<>(
@@ -157,7 +157,7 @@ final class SliceOps {
             }
 
             @Override
-            <P_IN> Node<T> opEvaluateParallel(PipelineHelper<T> helper,
+            public <P_IN> Node<T> opEvaluateParallel(PipelineHelper<T> helper,
                                               Spliterator<P_IN> spliterator,
                                               IntFunction<T[]> generator) {
                 long size = helper.exactOutputSizeIfKnown(spliterator);
@@ -186,7 +186,7 @@ final class SliceOps {
             }
 
             @Override
-            Sink<T> opWrapSink(int flags, Sink<T> sink) {
+            public Sink<T> opWrapSink(int flags, Sink<T> sink) {
                 return new Sink.ChainedReference<T, T>(sink) {
                     long n = skip;
                     long m = limit >= 0 ? limit : Long.MAX_VALUE;
@@ -246,7 +246,7 @@ final class SliceOps {
             }
 
             @Override
-            <P_IN> Spliterator<Integer> opEvaluateParallelLazy(PipelineHelper<Integer> helper,
+            public <P_IN> Spliterator<Integer> opEvaluateParallelLazy(PipelineHelper<Integer> helper,
                                                                Spliterator<P_IN> spliterator) {
                 long size = helper.exactOutputSizeIfKnown(spliterator);
                 if (size > 0 && spliterator.hasCharacteristics(Spliterator.SUBSIZED)) {
@@ -266,7 +266,7 @@ final class SliceOps {
             }
 
             @Override
-            <P_IN> Node<Integer> opEvaluateParallel(PipelineHelper<Integer> helper,
+            public <P_IN> Node<Integer> opEvaluateParallel(PipelineHelper<Integer> helper,
                                                     Spliterator<P_IN> spliterator,
                                                     IntFunction<Integer[]> generator) {
                 long size = helper.exactOutputSizeIfKnown(spliterator);
@@ -295,7 +295,7 @@ final class SliceOps {
             }
 
             @Override
-            Sink<Integer> opWrapSink(int flags, Sink<Integer> sink) {
+            public Sink<Integer> opWrapSink(int flags, Sink<Integer> sink) {
                 return new Sink.ChainedInt<Integer>(sink) {
                     long n = skip;
                     long m = limit >= 0 ? limit : Long.MAX_VALUE;
@@ -355,7 +355,7 @@ final class SliceOps {
             }
 
             @Override
-            <P_IN> Spliterator<Long> opEvaluateParallelLazy(PipelineHelper<Long> helper,
+            public <P_IN> Spliterator<Long> opEvaluateParallelLazy(PipelineHelper<Long> helper,
                                                             Spliterator<P_IN> spliterator) {
                 long size = helper.exactOutputSizeIfKnown(spliterator);
                 if (size > 0 && spliterator.hasCharacteristics(Spliterator.SUBSIZED)) {
@@ -375,7 +375,7 @@ final class SliceOps {
             }
 
             @Override
-            <P_IN> Node<Long> opEvaluateParallel(PipelineHelper<Long> helper,
+            public <P_IN> Node<Long> opEvaluateParallel(PipelineHelper<Long> helper,
                                                  Spliterator<P_IN> spliterator,
                                                  IntFunction<Long[]> generator) {
                 long size = helper.exactOutputSizeIfKnown(spliterator);
@@ -404,7 +404,7 @@ final class SliceOps {
             }
 
             @Override
-            Sink<Long> opWrapSink(int flags, Sink<Long> sink) {
+            public Sink<Long> opWrapSink(int flags, Sink<Long> sink) {
                 return new Sink.ChainedLong<Long>(sink) {
                     long n = skip;
                     long m = limit >= 0 ? limit : Long.MAX_VALUE;
@@ -464,7 +464,7 @@ final class SliceOps {
             }
 
             @Override
-            <P_IN> Spliterator<Double> opEvaluateParallelLazy(PipelineHelper<Double> helper,
+            public <P_IN> Spliterator<Double> opEvaluateParallelLazy(PipelineHelper<Double> helper,
                                                               Spliterator<P_IN> spliterator) {
                 long size = helper.exactOutputSizeIfKnown(spliterator);
                 if (size > 0 && spliterator.hasCharacteristics(Spliterator.SUBSIZED)) {
@@ -484,7 +484,7 @@ final class SliceOps {
             }
 
             @Override
-            <P_IN> Node<Double> opEvaluateParallel(PipelineHelper<Double> helper,
+            public <P_IN> Node<Double> opEvaluateParallel(PipelineHelper<Double> helper,
                                                    Spliterator<P_IN> spliterator,
                                                    IntFunction<Double[]> generator) {
                 long size = helper.exactOutputSizeIfKnown(spliterator);
@@ -513,7 +513,7 @@ final class SliceOps {
             }
 
             @Override
-            Sink<Double> opWrapSink(int flags, Sink<Double> sink) {
+            public Sink<Double> opWrapSink(int flags, Sink<Double> sink) {
                 return new Sink.ChainedDouble<Double>(sink) {
                     long n = skip;
                     long m = limit >= 0 ? limit : Long.MAX_VALUE;

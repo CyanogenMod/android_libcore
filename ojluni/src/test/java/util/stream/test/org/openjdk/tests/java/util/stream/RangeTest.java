@@ -22,15 +22,16 @@
  */
 package org.openjdk.tests.java.util.stream;
 
+import org.openjdk.testlib.java.util.stream.OpTestCase;
+import org.openjdk.testlib.java.util.stream.SpliteratorTestHelper;
+import org.openjdk.testlib.java.util.stream.TestData;
+
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.Spliterator;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
-import java.util.stream.OpTestCase;
-import java.util.stream.SpliteratorTestHelper;
 import java.util.stream.Stream;
-import java.util.stream.TestData;
 
 import org.testng.annotations.Test;
 

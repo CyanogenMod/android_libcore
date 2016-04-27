@@ -22,6 +22,8 @@
  */
 package org.openjdk.tests.java.util.stream;
 
+import org.openjdk.testlib.java.util.stream.*;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -44,12 +46,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import java.util.stream.LambdaTestHelpers;
-import java.util.stream.OpTestCase;
 import java.util.stream.Stream;
-import java.util.stream.StreamOpFlagTestHelper;
-import java.util.stream.StreamTestDataProvider;
-import java.util.stream.TestData;
 
 import org.testng.annotations.Test;
 
@@ -63,9 +60,9 @@ import static java.util.stream.Collectors.toConcurrentMap;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
-import static java.util.stream.LambdaTestHelpers.assertContents;
-import static java.util.stream.LambdaTestHelpers.assertContentsUnordered;
-import static java.util.stream.LambdaTestHelpers.mDoubler;
+import static org.openjdk.testlib.java.util.stream.LambdaTestHelpers.assertContents;
+import static org.openjdk.testlib.java.util.stream.LambdaTestHelpers.assertContentsUnordered;
+import static org.openjdk.testlib.java.util.stream.LambdaTestHelpers.mDoubler;
 
 /**
  * TabulatorsTest
