@@ -99,6 +99,10 @@ public final class AndroidHardcodedSystemProperties {
         // Hardcode "os.name" to "Linux." Aids compile-time initialization, checked in System.
         // b/28174137
         { "os.name", "Linux" },
+
+        // Turn off javax.net debugging. This allows compile-time initialization of a range
+        // of classes. b/28174137
+        { "javax.net.debug", null },
     };
 }
 
