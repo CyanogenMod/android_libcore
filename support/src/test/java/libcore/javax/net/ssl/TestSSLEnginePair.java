@@ -30,7 +30,7 @@ import junit.framework.Assert;
  * a pair of connected and handshaked client and server SSLEngines for
  * testing.
  */
-public final class TestSSLEnginePair extends Assert {
+public final class TestSSLEnginePair extends Assert implements AutoCloseable {
     public final TestSSLContext c;
     public final SSLEngine server;
     public final SSLEngine client;
@@ -41,6 +41,10 @@ public final class TestSSLEnginePair extends Assert {
         this.c = c;
         this.server = server;
         this.client = client;
+    }
+
+    public static TestSSLEnginePair create() throws IOException {
+        return create(null);
     }
 
     public static TestSSLEnginePair create(Hooks hooks) throws IOException {
