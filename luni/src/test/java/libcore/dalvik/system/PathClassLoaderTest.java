@@ -22,7 +22,16 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.CodeSigner;
+import java.security.cert.Certificate;
+import java.util.Enumeration;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.zip.ZipFile;
+
 import libcore.io.Streams;
+import tests.support.resource.Support_Resources;
+
 import junit.framework.TestCase;
 
 public final class PathClassLoaderTest extends TestCase {
@@ -73,6 +82,35 @@ public final class PathClassLoaderTest extends TestCase {
 
         // Clean up the extracted jar file.
         assertTrue(jar.delete());
+    }
+
+    public void test_classLoader_tampered_certificate_loadsOK_nullCertificates() throws Exception {
+        File resources = Support_Resources.createTempFolder();
+        String jar = "hyts_signed_wrong_cert.jar";
+        String signedEntryName = "coucou/FileAccess.class";
+        Support_Resources.copyFile(resources, null, jar);
+        File f = new File(resources, jar);
+        PathClassLoader pcl = new PathClassLoader(
+                f.getAbsolutePath(), this.getClass().getClassLoader());
+        InputStream is = pcl.getResourceAsStream(signedEntryName);
+
+        // We can read all the bytes in the resource despite META-INF/TEST.DSA being malformed
+        // (lacking first byte compared to the one in hyts_signed.jar, see
+        // {@link org.apache.harmony.tests.java.util.jar.JarFileTest}
+        while (is.available() > 0) {
+            is.read();
+        }
+
+        JarFile jarFile = new JarFile(f, true /* verify */, ZipFile.OPEN_READ);
+        try {
+            JarEntry signedEntry = (JarEntry) jarFile.getEntry(signedEntryName);
+            assertNotNull(signedEntry);
+            // Check we return null for the certificates and signers.
+            assertNull(signedEntry.getCertificates());
+            assertNull(signedEntry.getCodeSigners());
+        } finally {
+            jarFile.close();
+        }
     }
 
     @Override protected void setUp() throws Exception {
