@@ -103,6 +103,9 @@ public final class AndroidHardcodedSystemProperties {
         // Turn off javax.net debugging. This allows compile-time initialization of a range
         // of classes. b/28174137
         { "javax.net.debug", null },
+
+        // Hardcode default value for AVA. b/28174137
+        { "com.sun.security.preserveOldDCEncoding", null },
     };
 }
 
