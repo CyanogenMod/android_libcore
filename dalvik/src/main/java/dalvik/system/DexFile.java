@@ -380,6 +380,13 @@ public final class DexFile {
     }
 
     /*
+     * Returns true if the dex file is backed by a valid oat file.
+     */
+    /*package*/ boolean isBackedByOatFile() {
+        return isBackedByOatFile(mCookie);
+    }
+
+    /*
      * Returns true if we managed to close the dex file.
      */
     private static native boolean closeDexFile(Object cookie);
@@ -387,6 +394,7 @@ public final class DexFile {
                                                   DexFile dexFile)
             throws ClassNotFoundException, NoClassDefFoundError;
     private static native String[] getClassNameList(Object cookie);
+    private static native boolean isBackedByOatFile(Object cookie);
     /*
      * Open a DEX file.  The value returned is a magic VM cookie.  On
      * failure, an IOException is thrown.
