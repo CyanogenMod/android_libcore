@@ -716,7 +716,7 @@
   description: "ManagerFactoryParameters object is not supported and InvalidAlgorithmParameterException was
                 thrown.",
   bug: 3403706,
-  name: "tests.api.javax.net.ssl.TrustManagerFactory1Test#test_initLjavax_net_ssl_ManagerFactoryParameters"
+  name: "org.apache.harmony.tests.javax.net.ssl.TrustManagerFactory1Test#test_initLjavax_net_ssl_ManagerFactoryParameters"
 },
 {
   modes: [ "jvm" ],
