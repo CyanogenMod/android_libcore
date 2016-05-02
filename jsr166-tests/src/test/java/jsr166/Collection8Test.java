@@ -26,7 +26,8 @@ import junit.framework.Test;
  * Contains tests applicable to all jdk8+ Collection implementations.
  * An extension of CollectionTest.
  */
-public class Collection8Test extends JSR166TestCase {
+// Android-changed: Made class abstract so it will be ignored by test runners.
+public abstract class Collection8Test extends JSR166TestCase {
     final CollectionImplementation impl;
 
     /** Tests are parameterized by a Collection implementation. */
