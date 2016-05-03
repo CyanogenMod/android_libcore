@@ -121,7 +121,7 @@ public final class Matcher implements MatchResult {
     private Runnable nativeFinalizer;
 
     private static final NativeAllocationRegistry registry = new NativeAllocationRegistry(
-            getNativeFinalizer(), nativeSize());
+            Matcher.class.getClassLoader(), getNativeFinalizer(), nativeSize());
 
     /**
      * Holds the input text.

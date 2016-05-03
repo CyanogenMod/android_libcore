@@ -40,6 +40,7 @@ import sun.misc.Cleaner;
  */
 public class NativeAllocationRegistry {
 
+    private final ClassLoader classLoader;
     private final long freeFunction;
     private final long size;
 
@@ -54,23 +55,30 @@ public class NativeAllocationRegistry {
      *    void f(void* nativePtr);
      * </pre>
      * <p>
+     * The <code>classLoader</code> argument should be the class loader used
+     * to load the native library that freeFunction belongs to. This is needed
+     * to ensure the native library doesn't get unloaded before freeFunction
+     * is called.
+     * <p>
      * The <code>size</code> should be an estimate of the total number of
      * native bytes this kind of native allocation takes up. Different
      * NativeAllocationRegistrys must be used to register native allocations
      * with different estimated sizes, even if they use the same
      * <code>freeFunction</code>.
-     *
+     * @param classLoader  ClassLoader that was used to load the native
+     *                     library freeFunction belongs to.
      * @param freeFunction address of a native function used to free this
      *                     kind of native allocation
      * @param size         estimated size in bytes of this kind of native
      *                     allocation
      * @throws IllegalArgumentException If <code>size</code> is negative
      */
-    public NativeAllocationRegistry(long freeFunction, long size) {
+    public NativeAllocationRegistry(ClassLoader classLoader, long freeFunction, long size) {
         if (size < 0) {
             throw new IllegalArgumentException("Invalid native allocation size: " + size);
         }
 
+        this.classLoader = classLoader;
         this.freeFunction = freeFunction;
         this.size = size;
     }
