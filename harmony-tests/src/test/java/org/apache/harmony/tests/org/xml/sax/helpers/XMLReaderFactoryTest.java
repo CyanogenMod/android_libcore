@@ -50,7 +50,7 @@ public class XMLReaderFactoryTest extends TestCase {
 
         // Non-accessible class
         System.setProperty("org.xml.sax.driver",
-                "org.apache.harmony.tests.api.org.xml.sax.support.NoAccessXMLReader");
+                "org.apache.harmony.tests.org.xml.sax.support.NoAccessXMLReader");
 
         try {
             XMLReaderFactory.createXMLReader();
@@ -60,7 +60,7 @@ public class XMLReaderFactoryTest extends TestCase {
 
         // Non-instantiable class
         System.setProperty("org.xml.sax.driver",
-                "org.apache.harmony.tests.api.org.xml.sax.support.NoInstanceXMLReader");
+                "org.apache.harmony.tests.org.xml.sax.support.NoInstanceXMLReader");
 
         try {
             XMLReaderFactory.createXMLReader();
@@ -70,7 +70,7 @@ public class XMLReaderFactoryTest extends TestCase {
 
         // Non-XMLReader class
         System.setProperty("org.xml.sax.driver",
-                "org.apache.harmony.tests.api.org.xml.sax.support.NoSubclassXMLReader");
+                "org.apache.harmony.tests.org.xml.sax.support.NoSubclassXMLReader");
 
         try {
             XMLReaderFactory.createXMLReader();
@@ -82,7 +82,7 @@ public class XMLReaderFactoryTest extends TestCase {
 
         // Good one, finally
         System.setProperty("org.xml.sax.driver",
-                "org.apache.harmony.tests.api.org.xml.sax.support.DoNothingXMLReader");
+                "org.apache.harmony.tests.org.xml.sax.support.DoNothingXMLReader");
 
         try {
             XMLReaderFactory.createXMLReader();
@@ -112,7 +112,7 @@ public class XMLReaderFactoryTest extends TestCase {
         // Non-accessible class
         try {
             XMLReaderFactory.createXMLReader(
-                    "org.apache.harmony.tests.api.org.xml.sax.support.NoAccessXMLReader");
+                    "org.apache.harmony.tests.org.xml.sax.support.NoAccessXMLReader");
         } catch (SAXException e) {
             // Expected
         }
@@ -120,7 +120,7 @@ public class XMLReaderFactoryTest extends TestCase {
         // Non-instantiable class
         try {
             XMLReaderFactory.createXMLReader(
-                    "org.apache.harmony.tests.api.org.xml.sax.support.NoInstanceXMLReader");
+                    "org.apache.harmony.tests.org.xml.sax.support.NoInstanceXMLReader");
         } catch (SAXException e) {
             // Expected
         }
@@ -128,7 +128,7 @@ public class XMLReaderFactoryTest extends TestCase {
         // Non-Parser class
         try {
             XMLReaderFactory.createXMLReader(
-                    "org.apache.harmony.tests.api.org.xml.sax.support.NoSubclassXMLReader");
+                    "org.apache.harmony.tests.org.xml.sax.support.NoSubclassXMLReader");
         } catch (SAXException e) {
             // Expected
         }
@@ -136,7 +136,7 @@ public class XMLReaderFactoryTest extends TestCase {
         // Good one, finally
         try {
             XMLReaderFactory.createXMLReader(
-                    "org.apache.harmony.tests.api.org.xml.sax.support.DoNothingXMLReader");
+                    "org.apache.harmony.tests.org.xml.sax.support.DoNothingXMLReader");
         } catch (SAXException e) {
             throw new RuntimeException("Unexpected exception", e);
         }
