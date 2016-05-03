@@ -106,13 +106,6 @@ class Inet4Address extends InetAddress {
     public static final InetAddress LOOPBACK =
             new Inet4Address("localhost", new byte[] { 127, 0, 0, 1 });
 
-    /*
-     * Perform initializations.
-     */
-    static {
-        init();
-    }
-
     Inet4Address() {
         super();
         holder().hostName = null;
@@ -387,8 +380,4 @@ class Inet4Address extends InetAddress {
         return (src[0] & 0xff) + "." + (src[1] & 0xff) + "." + (src[2] & 0xff) + "." + (src[3] & 0xff);
     }
 
-    /**
-     * Perform class load-time initializations.
-     */
-    private static native void init();
 }

@@ -48,8 +48,7 @@ jmethodID ia6_ctrID;
  * Method:    init
  * Signature: ()V
  */
-JNIEXPORT void JNICALL
-Inet6Address_init(JNIEnv *env, jclass cls) {
+static void Inet6Address_init(JNIEnv *env) {
     jclass c = (*env)->FindClass(env, "java/net/Inet6Address");
     CHECK_NULL(c);
     ia6_class = (*env)->NewGlobalRef(env, c);
@@ -68,10 +67,6 @@ Inet6Address_init(JNIEnv *env, jclass cls) {
     CHECK_NULL(ia6_ctrID);
 }
 
-static JNINativeMethod gMethods[] = {
-  NATIVE_METHOD(Inet6Address, init, "()V"),
-};
-
 void register_java_net_Inet6Address(JNIEnv* env) {
-  jniRegisterNativeMethods(env, "java/net/Inet6Address", gMethods, NELEM(gMethods));
+  Inet6Address_init(env);
 }
