@@ -156,11 +156,6 @@ class Deflater {
      */
     public static final int FULL_FLUSH = 3;
 
-    static {
-        /* Zip library is loaded from System.initializeSystemClass */
-        initIDs();
-    }
-
     /**
      * Creates a new compressor using the specified compression level.
      * If 'nowrap' is true then the ZLIB header and checksum fields will
@@ -556,7 +551,6 @@ class Deflater {
             throw new NullPointerException("Deflater has been closed");
     }
 
-    private static native void initIDs();
     private native static long init(int level, int strategy, boolean nowrap);
     private native static void setDictionary(long addr, byte[] b, int off, int len);
     private native int deflateBytes(long addr, byte[] b, int off, int len,

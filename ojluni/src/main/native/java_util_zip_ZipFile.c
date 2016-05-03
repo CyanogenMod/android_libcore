@@ -55,15 +55,16 @@
 
 static jfieldID jzfileID;
 
-static int OPEN_READ = java_util_zip_ZipFile_OPEN_READ;
-static int OPEN_DELETE = java_util_zip_ZipFile_OPEN_DELETE;
-
-JNIEXPORT void JNICALL
-ZipFile_initIDs(JNIEnv *env, jclass cls)
+static void ZipFile_initIDs(JNIEnv *env)
 {
+    jclass cls = (*env)->FindClass(env, "java/util/zip/ZipFile");
     jzfileID = (*env)->GetFieldID(env, cls, "jzfile", "J");
     assert(jzfileID != 0);
 }
+
+
+static int OPEN_READ = java_util_zip_ZipFile_OPEN_READ;
+static int OPEN_DELETE = java_util_zip_ZipFile_OPEN_DELETE;
 
 static void
 ThrowZipException(JNIEnv *env, const char *msg)
@@ -345,7 +346,6 @@ ZipFile_getZipMessage(JNIEnv *env, jclass cls, jlong zfile)
 }
 
 static JNINativeMethod gMethods[] = {
-  NATIVE_METHOD(ZipFile, initIDs, "()V"),
   NATIVE_METHOD(ZipFile, getEntry, "(J[BZ)J"),
   NATIVE_METHOD(ZipFile, freeEntry, "(JJ)V"),
   NATIVE_METHOD(ZipFile, getNextEntry, "(JI)J"),
@@ -367,4 +367,6 @@ static JNINativeMethod gMethods[] = {
 
 void register_java_util_zip_ZipFile(JNIEnv* env) {
   jniRegisterNativeMethods(env, "java/util/zip/ZipFile", gMethods, NELEM(gMethods));
+
+  ZipFile_initIDs(env);
 }

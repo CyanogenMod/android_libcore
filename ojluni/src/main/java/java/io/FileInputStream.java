@@ -402,12 +402,6 @@ class FileInputStream extends InputStream
         }
     }
 
-    private static native void initIDs();
-
-    static {
-        initIDs();
-    }
-
     /**
      * Ensures that the <code>close</code> method of this file input stream is
      * called when there are no more references to it.

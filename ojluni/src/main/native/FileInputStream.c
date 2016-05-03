@@ -53,17 +53,14 @@
 jfieldID fis_fd; /* id for jobject 'fd' in java.io.FileInputStream */
 
 /**************************************************************
- * static methods to store field ID's in initializers
- */
-
-JNIEXPORT void JNICALL
-FileInputStream_initIDs(JNIEnv *env, jclass fdClass) {
-    fis_fd = (*env)->GetFieldID(env, fdClass, "fd", "Ljava/io/FileDescriptor;");
-}
-
-/**************************************************************
  * Input stream
  */
+
+
+static void FileInputStream_initIDs(JNIEnv *env) {
+    jclass clazz = (*env)->FindClass(env, "java/io/FileInputStream");
+    fis_fd = (*env)->GetFieldID(env, clazz, "fd", "Ljava/io/FileDescriptor;");
+}
 
 JNIEXPORT void JNICALL
 FileInputStream_open(JNIEnv *env, jobject this, jstring path) {
@@ -136,12 +133,12 @@ FileInputStream_available0(JNIEnv *env, jobject this) {
 }
 
 static JNINativeMethod gMethods[] = {
-  NATIVE_METHOD(FileInputStream, initIDs, "()V"),
   NATIVE_METHOD(FileInputStream, open, "(Ljava/lang/String;)V"),
   NATIVE_METHOD(FileInputStream, skip0, "(J)J"),
   NATIVE_METHOD(FileInputStream, available0, "()I"),
 };
 
 void register_java_io_FileInputStream(JNIEnv* env) {
-  jniRegisterNativeMethods(env, "java/io/FileInputStream", gMethods, NELEM(gMethods));
+    jniRegisterNativeMethods(env, "java/io/FileInputStream", gMethods, NELEM(gMethods));
+    FileInputStream_initIDs(env);
 }

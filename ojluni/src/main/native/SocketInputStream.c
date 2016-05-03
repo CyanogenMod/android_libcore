@@ -47,16 +47,6 @@ static jfieldID IO_fd_fdID;
 
 /*
  * Class:     java_net_SocketInputStream
- * Method:    init
- * Signature: ()V
- */
-JNIEXPORT void JNICALL
-SocketInputStream_init(JNIEnv *env, jclass cls) {
-    IO_fd_fdID = NET_GetFileDescriptorID(env);
-}
-
-/*
- * Class:     java_net_SocketInputStream
  * Method:    socketRead0
  * Signature: (Ljava/io/FileDescriptor;[BIII)I
  */
@@ -165,9 +155,11 @@ SocketInputStream_socketRead0(JNIEnv *env, jobject this,
 
 static JNINativeMethod gMethods[] = {
   NATIVE_METHOD(SocketInputStream, socketRead0, "(Ljava/io/FileDescriptor;[BIII)I"),
-  NATIVE_METHOD(SocketInputStream, init, "()V"),
 };
 
 void register_java_net_SocketInputStream(JNIEnv* env) {
   jniRegisterNativeMethods(env, "java/net/SocketInputStream", gMethods, NELEM(gMethods));
+
+  // Init field ids
+  IO_fd_fdID = NET_GetFileDescriptorID(env);
 }

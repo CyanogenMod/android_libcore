@@ -48,9 +48,8 @@ static jfieldID needDictID;
 static jfieldID finishedID;
 static jfieldID bufID, offID, lenID;
 
-JNIEXPORT void JNICALL
-Inflater_initIDs(JNIEnv *env, jclass cls)
-{
+static void Inflater_initIDs(JNIEnv *env) {
+    jclass cls = (*env)->FindClass(env, "java/util/zip/Inflater");
     needDictID = (*env)->GetFieldID(env, cls, "needDict", "Z");
     finishedID = (*env)->GetFieldID(env, cls, "finished", "Z");
     bufID = (*env)->GetFieldID(env, cls, "buf", "[B");
@@ -196,7 +195,6 @@ Inflater_end(JNIEnv *env, jclass cls, jlong addr)
 }
 
 static JNINativeMethod gMethods[] = {
-  NATIVE_METHOD(Inflater, initIDs, "()V"),
   NATIVE_METHOD(Inflater, init, "(Z)J"),
   NATIVE_METHOD(Inflater, setDictionary, "(J[BII)V"),
   NATIVE_METHOD(Inflater, inflateBytes, "(J[BII)I"),
@@ -206,5 +204,7 @@ static JNINativeMethod gMethods[] = {
 };
 
 void register_java_util_zip_Inflater(JNIEnv* env) {
-  jniRegisterNativeMethods(env, "java/util/zip/Inflater", gMethods, NELEM(gMethods));
+    jniRegisterNativeMethods(env, "java/util/zip/Inflater", gMethods, NELEM(gMethods));
+
+    Inflater_initIDs(env);
 }

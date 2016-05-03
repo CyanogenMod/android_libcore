@@ -48,9 +48,8 @@ static jfieldID finishID;
 static jfieldID finishedID;
 static jfieldID bufID, offID, lenID;
 
-JNIEXPORT void JNICALL
-Deflater_initIDs(JNIEnv *env, jclass cls)
-{
+static void Deflater_initIDs(JNIEnv *env) {
+    jclass cls = (*env)->FindClass(env, "java/util/zip/Deflater");
     levelID = (*env)->GetFieldID(env, cls, "level", "I");
     strategyID = (*env)->GetFieldID(env, cls, "strategy", "I");
     setParamsID = (*env)->GetFieldID(env, cls, "setParams", "Z");
@@ -237,7 +236,6 @@ Deflater_end(JNIEnv *env, jclass cls, jlong addr)
 }
 
 static JNINativeMethod gMethods[] = {
-  NATIVE_METHOD(Deflater, initIDs, "()V"),
   NATIVE_METHOD(Deflater, init, "(IIZ)J"),
   NATIVE_METHOD(Deflater, setDictionary, "(J[BII)V"),
   NATIVE_METHOD(Deflater, deflateBytes, "(J[BIII)I"),
@@ -247,5 +245,7 @@ static JNINativeMethod gMethods[] = {
 };
 
 void register_java_util_zip_Deflater(JNIEnv* env) {
-  jniRegisterNativeMethods(env, "java/util/zip/Deflater", gMethods, NELEM(gMethods));
+    jniRegisterNativeMethods(env, "java/util/zip/Deflater", gMethods, NELEM(gMethods));
+
+    Deflater_initIDs(env);
 }

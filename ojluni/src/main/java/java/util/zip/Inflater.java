@@ -88,11 +88,6 @@ class Inflater {
 
     private static final byte[] defaultBuf = new byte[0];
 
-    static {
-        /* Zip library is loaded from System.initializeSystemClass */
-        initIDs();
-    }
-
     /**
      * Creates a new decompressor. If the parameter 'nowrap' is true then
      * the ZLIB header and checksum fields will not be used. This provides
@@ -408,7 +403,6 @@ class Inflater {
         }
     }
 
-    private native static void initIDs();
     private native static long init(boolean nowrap);
     private native static void setDictionary(long addr, byte[] b, int off,
                                              int len);
