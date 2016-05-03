@@ -44,10 +44,6 @@ import sun.misc.IoTrace;
  */
 class SocketOutputStream extends FileOutputStream
 {
-    static {
-        init();
-    }
-
     private AbstractPlainSocketImpl impl = null;
     private byte temp[] = new byte[1];
     private Socket socket = null;
@@ -182,10 +178,4 @@ class SocketOutputStream extends FileOutputStream
      * Overrides finalize, the fd is closed by the Socket.
      */
     protected void finalize() {}
-
-    /**
-     * Perform class load-time initializations.
-     */
-    private native static void init();
-
 }

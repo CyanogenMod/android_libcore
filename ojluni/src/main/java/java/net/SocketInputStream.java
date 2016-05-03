@@ -45,10 +45,6 @@ import sun.net.ConnectionResetException;
  */
 class SocketInputStream extends FileInputStream
 {
-    static {
-        init();
-    }
-
     private boolean eof;
     private AbstractPlainSocketImpl impl = null;
     private byte temp[];
@@ -276,9 +272,4 @@ class SocketInputStream extends FileInputStream
      * Overrides finalize, the fd is closed by the Socket.
      */
     protected void finalize() {}
-
-    /**
-     * Perform class load-time initializations.
-     */
-    private native static void init();
 }

@@ -43,17 +43,13 @@
 jfieldID fos_fd; /* id for jobject 'fd' in java.io.FileOutputStream */
 
 /**************************************************************
- * static methods to store field ID's in initializers
- */
-
-JNIEXPORT void JNICALL
-FileOutputStream_initIDs(JNIEnv *env, jclass fdClass) {
-    fos_fd = (*env)->GetFieldID(env, fdClass, "fd", "Ljava/io/FileDescriptor;");
-}
-
-/**************************************************************
  * Output stream
  */
+static void FileOutputStream_initIDs(JNIEnv *env) {
+    jclass clazz = (*env)->FindClass(env, "java/io/FileOutputStream");
+    fos_fd = (*env)->GetFieldID(env, clazz, "fd", "Ljava/io/FileDescriptor;");
+}
+
 
 JNIEXPORT void JNICALL
 FileOutputStream_open(JNIEnv *env, jobject this,
@@ -63,10 +59,10 @@ FileOutputStream_open(JNIEnv *env, jobject this,
 }
 
 static JNINativeMethod gMethods[] = {
-  NATIVE_METHOD(FileOutputStream, initIDs, "()V"),
   NATIVE_METHOD(FileOutputStream, open, "(Ljava/lang/String;Z)V"),
 };
 
 void register_java_io_FileOutputStream(JNIEnv* env) {
-  jniRegisterNativeMethods(env, "java/io/FileOutputStream", gMethods, NELEM(gMethods));
+    jniRegisterNativeMethods(env, "java/io/FileOutputStream", gMethods, NELEM(gMethods));
+    FileOutputStream_initIDs(env);
 }
