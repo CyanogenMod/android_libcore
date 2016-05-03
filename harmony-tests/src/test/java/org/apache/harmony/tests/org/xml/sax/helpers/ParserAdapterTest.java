@@ -84,7 +84,7 @@ public class ParserAdapterTest extends TestCase {
 
     public void testParserAdapter() {
         System.setProperty("org.xml.sax.parser",
-                "tests.api.org.xml.sax.support.DoNothingParser");
+                "org.apache.harmony.tests.org.xml.sax.support.DoNothingParser");
 
         try {
             new ParserAdapter();
