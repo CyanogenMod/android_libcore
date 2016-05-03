@@ -16,6 +16,7 @@
 
 package libcore.java.security;
 
+import java.security.NoSuchProviderException;
 import java.security.Provider;
 import java.security.SecureRandom;
 import java.security.Security;
@@ -23,6 +24,8 @@ import java.util.Arrays;
 import java.util.Set;
 
 import junit.framework.TestCase;
+
+import dalvik.system.VMRuntime;
 
 public class SecureRandomTest extends TestCase {
     private static final String EXPECTED_PROVIDER = "com.android.org.conscrypt.OpenSSLProvider";
@@ -109,5 +112,66 @@ public class SecureRandomTest extends TestCase {
         SecureRandom sr2 = new SecureRandom(STATIC_SEED_BYTES);
         assertEquals(EXPECTED_PROVIDER, sr2.getProvider().getClass().getName());
         test_SecureRandom(sr2);
+    }
+
+    /**
+      * http://b/28550092 : Removal of "Crypto" provider in N caused application compatibility
+      * issues for callers of SecureRandom. To improve compatibility the provider is not registered
+      * as a JCA Provider obtainable via Security.getProvider() but is made available for
+      * SecureRandom.getInstance() iff the application targets API <= 23.
+      */
+    public void testCryptoProvider_withWorkaround_Success() throws Exception {
+        // Assert that SecureRandom is still using the default value. Sanity check.
+        assertEquals(SecureRandom.DEFAULT_SDK_TARGET_FOR_CRYPTO_PROVIDER_WORKAROUND,
+                SecureRandom.getSdkTargetForCryptoProviderWorkaround());
+
+        try {
+            // Modify the maximum target SDK to apply the workaround, thereby enabling the
+            // workaround for the current SDK and enabling it to be tested.
+            SecureRandom.setSdkTargetForCryptoProviderWorkaround(
+                    VMRuntime.getRuntime().getTargetSdkVersion());
+
+            // Assert that the crypto provider is not installed...
+            assertNull(Security.getProvider("Crypto"));
+            SecureRandom sr = SecureRandom.getInstance("SHA1PRNG", "Crypto");
+            assertNotNull(sr);
+            // ...but we can get a SecureRandom from it...
+            assertEquals("org.apache.harmony.security.provider.crypto.CryptoProvider",
+                    sr.getProvider().getClass().getName());
+            // ...yet it's not installed. So the workaround worked.
+            assertNull(Security.getProvider("Crypto"));
+        } finally {
+            // Reset the target SDK for the workaround to the default / real value.
+            SecureRandom.setSdkTargetForCryptoProviderWorkaround(
+                    SecureRandom.DEFAULT_SDK_TARGET_FOR_CRYPTO_PROVIDER_WORKAROUND);
+        }
+    }
+
+    /**
+     * http://b/28550092 : Removal of "Crypto" provider in N caused application compatibility
+     * issues for callers of SecureRandom. To improve compatibility the provider is not registered
+     * as a JCA Provider obtainable via Security.getProvider() but is made available for
+     * SecureRandom.getInstance() iff the application targets API <= 23.
+     */
+    public void testCryptoProvider_withoutWorkaround_Failure() throws Exception {
+        // Assert that SecureRandom is still using the default value. Sanity check.
+        assertEquals(SecureRandom.DEFAULT_SDK_TARGET_FOR_CRYPTO_PROVIDER_WORKAROUND,
+                SecureRandom.getSdkTargetForCryptoProviderWorkaround());
+
+        try {
+            // We set the limit SDK for the workaround at the previous one, indicating that the
+            // workaround shouldn't be in place.
+            SecureRandom.setSdkTargetForCryptoProviderWorkaround(
+                    VMRuntime.getRuntime().getTargetSdkVersion() - 1);
+
+            SecureRandom sr = SecureRandom.getInstance("SHA1PRNG", "Crypto");
+            fail("Should throw " + NoSuchProviderException.class.getName());
+        } catch(NoSuchProviderException expected) {
+            // The workaround doesn't work. As expected.
+        } finally {
+            // Reset the target SDK for the workaround to the default / real value.
+            SecureRandom.setSdkTargetForCryptoProviderWorkaround(
+                    SecureRandom.DEFAULT_SDK_TARGET_FOR_CRYPTO_PROVIDER_WORKAROUND);
+        }
     }
 }

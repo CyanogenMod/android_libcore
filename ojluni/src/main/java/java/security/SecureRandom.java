@@ -28,7 +28,9 @@ package java.security;
 import java.util.*;
 
 import java.security.Provider.Service;
+import java.util.function.Function;
 
+import dalvik.system.VMRuntime;
 import sun.security.jca.*;
 import sun.security.jca.GetInstance.Instance;
 
@@ -280,6 +282,39 @@ public class SecureRandom extends java.util.Random {
     }
 
     /**
+     * Maximum SDK version for which the workaround for the Crypto provider is in place.
+     *
+     * <p> We provide instances from the Crypto provider (although the provider is not installed) to
+     * apps targeting M or earlier versions of the SDK.
+     *
+     * <p> Default is 23 (M). We have it as a field for testability and it shouldn't be changed.
+     *
+     * @hide
+     */
+    public static final int DEFAULT_SDK_TARGET_FOR_CRYPTO_PROVIDER_WORKAROUND = 23;
+
+    private static int sdkTargetForCryptoProviderWorkaround =
+            DEFAULT_SDK_TARGET_FOR_CRYPTO_PROVIDER_WORKAROUND;
+
+    /**
+     * Only for testing.
+     *
+     * @hide
+     */
+    public static void setSdkTargetForCryptoProviderWorkaround(int sdkTargetVersion) {
+        sdkTargetForCryptoProviderWorkaround = sdkTargetVersion;
+    }
+
+    /**
+     * Only for testing.
+     *
+     * @hide
+     */
+    public static int getSdkTargetForCryptoProviderWorkaround() {
+        return sdkTargetForCryptoProviderWorkaround;
+    }
+
+    /**
      * Returns a SecureRandom object that implements the specified
      * Random Number Generator (RNG) algorithm.
      *
@@ -333,16 +368,37 @@ public class SecureRandom extends java.util.Random {
             if ("Crypto".equals(provider)) {
                 System.logE(" ********** PLEASE READ ************ ");
                 System.logE(" * ");
-                System.logE(" * Android N no longer ships with the Crypto provider.");
+                System.logE(" * New versions of the Android SDK no longer support the Crypto provider.");
                 System.logE(" * If your app was relying on setSeed() to derive keys from strings, you");
                 System.logE(" * should switch to using SecretKeySpec to load raw key bytes directly OR");
                 System.logE(" * use a real key derivation function (KDF). See advice here : ");
                 System.logE(" * https://stackoverflow.com/questions/13433529/android-4-2-broke-my-encrypt-decrypt-code-and-the-provided-solutions-dont-work ");
                 System.logE(" *********************************** ");
+                if (VMRuntime.getRuntime().getTargetSdkVersion()
+                        <= sdkTargetForCryptoProviderWorkaround) {
+                    return getInstanceFromCryptoProvider(algorithm);
+                }
             }
 
             throw nspe;
         }
+    }
+
+    private static SecureRandom getInstanceFromCryptoProvider(String algorithm)
+            throws NoSuchAlgorithmException {
+        Provider cryptoProvider;
+        try {
+            cryptoProvider = (Provider) SecureRandom.class.getClassLoader()
+                    .loadClass(
+                            "org.apache.harmony.security.provider.crypto.CryptoProvider")
+                    .newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        Service service = cryptoProvider.getService("SecureRandom", algorithm);
+        Instance instance = GetInstance.getInstance(service, SecureRandomSpi.class);
+        return new SecureRandom(
+                (SecureRandomSpi) instance.impl, instance.provider, algorithm);
     }
 
     /**
