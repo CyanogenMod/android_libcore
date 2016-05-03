@@ -85,13 +85,6 @@ class ZipFile implements ZipConstants, Closeable {
      */
     public static final int OPEN_DELETE = 0x4;
 
-    static {
-        /* Zip library is loaded from System.initializeSystemClass */
-        initIDs();
-    }
-
-    private static native void initIDs();
-
     private static final boolean usemmap;
 
     static {

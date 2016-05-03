@@ -48,13 +48,6 @@ extern "C" {
 #define java_util_zip_ZipFile_JZENTRY_EXTRA 1L
 #undef java_util_zip_ZipFile_JZENTRY_COMMENT
 #define java_util_zip_ZipFile_JZENTRY_COMMENT 2L
-/*
- * Class:     java_util_zip_ZipFile
- * Method:    initIDs
- * Signature: ()V
- */
-JNIEXPORT void JNICALL ZipFile_initIDs
-  (JNIEnv *, jclass);
 
 /*
  * Class:     java_util_zip_ZipFile

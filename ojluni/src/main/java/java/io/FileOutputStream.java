@@ -420,10 +420,4 @@ class FileOutputStream extends OutputStream
             }
         }
     }
-
-    private static native void initIDs();
-
-    static {
-        initIDs();
-    }
 }
