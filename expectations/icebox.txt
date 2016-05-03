@@ -73,7 +73,7 @@
 {
   description: "Dalvik doesn't support XML Schemas, DTDs or validation",
   bug: 3268630,
-  name: "org.apache.harmony.tests.api.javax.xml.parsers.DocumentBuilderTest#testSetEntityResolver",
+  name: "org.apache.harmony.tests.javax.xml.parsers.DocumentBuilderTest#testSetEntityResolver",
   substring: "java.lang.ClassCastException: org.apache.harmony.xml.dom.EntityReferenceImpl"
 },
 {
@@ -115,17 +115,17 @@
 {
   description: "low-impact XML bugs:",
   result: EXEC_FAILED,
-  name: "tests.api.javax.xml.parsers.SAXParserFactoryTest#test_newInstance",
+  name: "org.apache.harmony.tests.javax.xml.parsers.SAXParserFactoryTest#test_newInstance",
   substring: "Expected FactoryConfigurationError was not thrown"
 },
 {
   description: "low-impact XML bugs:",
   result: EXEC_FAILED,
   names: [
-    "org.apache.harmony.tests.api.javax.xml.parsers.DocumentBuilderFactoryTest#test_isSetXIncludeAware",
-    "org.apache.harmony.tests.api.javax.xml.parsers.DocumentBuilderTest#testIsXIncludeAware",
-    "org.apache.harmony.tests.api.javax.xml.parsers.SAXParserFactoryTest#test_setIsXIncludeAware",
-    "org.apache.harmony.tests.api.javax.xml.parsers.SAXParserTest#testIsXIncludeAware"
+    "org.apache.harmony.tests.javax.xml.parsers.DocumentBuilderFactoryTest#test_isSetXIncludeAware",
+    "org.apache.harmony.tests.javax.xml.parsers.DocumentBuilderTest#testIsXIncludeAware",
+    "org.apache.harmony.tests.javax.xml.parsers.SAXParserFactoryTest#test_setIsXIncludeAware",
+    "org.apache.harmony.tests.javax.xml.parsers.SAXParserTest#testIsXIncludeAware"
   ],
   substring: "java.lang.UnsupportedOperationException: This parser does not support specification \"Unknown\" version \"0.0\""
 },
@@ -138,7 +138,7 @@
 {
   description: "this test needs to be fixed. We supply optional qnames, but this test doesn't expect them",
   result: EXEC_FAILED,
-  name: "tests.api.javax.xml.parsers.SAXParserTest#test_parseLjava_io_InputStreamLorg_xml_sax_helpers_DefaultHandlerLjava_lang_String"
+  name: "org.apache.harmony.tests.javax.xml.parsers.SAXParserTest#test_parseLjava_io_InputStreamLorg_xml_sax_helpers_DefaultHandlerLjava_lang_String"
 },
 {
   description: "BouncyCastle allows unrecognized algorithms, but RI does not, not clear if this is a bug",
