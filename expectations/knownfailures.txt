@@ -1526,5 +1526,15 @@
   names: [
     "libcore.java.util.concurrent.CopyOnWriteArrayListTest#testSubListAtomicAdds"
   ]
+},
+{
+  description: "Made for extending, shouldn't be run",
+  bug: 28503384,
+  result: EXEC_FAILED,
+  names: [
+    "jsr166.CollectionTest#testEmptyMeansEmpty",
+    "jsr166.Collection8Test#testForEach",
+    "jsr166.Collection8Test#testForEachConcurrentStressTest"
+  ]
 }
 ]
