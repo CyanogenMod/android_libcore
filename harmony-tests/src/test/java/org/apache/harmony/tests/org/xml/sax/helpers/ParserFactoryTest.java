@@ -52,7 +52,7 @@ public class ParserFactoryTest extends TestCase {
 
         // Non-accessible class
         System.setProperty("org.xml.sax.parser",
-                "org.apache.harmony.tests.api.org.xml.sax.support.NoAccessParser");
+                "org.apache.harmony.tests.org.xml.sax.support.NoAccessParser");
 
         try {
             ParserFactory.makeParser();
@@ -63,7 +63,7 @@ public class ParserFactoryTest extends TestCase {
 
         // Non-instantiable class
         System.setProperty("org.xml.sax.parser",
-                "org.apache.harmony.tests.api.org.xml.sax.support.NoInstanceParser");
+                "org.apache.harmony.tests.org.xml.sax.support.NoInstanceParser");
 
         try {
             ParserFactory.makeParser();
@@ -74,7 +74,7 @@ public class ParserFactoryTest extends TestCase {
 
         // Non-Parser class
         System.setProperty("org.xml.sax.parser",
-                "org.apache.harmony.tests.api.org.xml.sax.support.NoSubclassParser");
+                "org.apache.harmony.tests.org.xml.sax.support.NoSubclassParser");
 
         try {
             ParserFactory.makeParser();
@@ -85,7 +85,7 @@ public class ParserFactoryTest extends TestCase {
 
         // Good one, finally
         System.setProperty("org.xml.sax.parser",
-                "org.apache.harmony.tests.api.org.xml.sax.support.DoNothingParser");
+                "org.apache.harmony.tests.org.xml.sax.support.DoNothingParser");
 
         ParserFactory.makeParser();
 
@@ -112,7 +112,7 @@ public class ParserFactoryTest extends TestCase {
         // Non-accessible class
         try {
             ParserFactory.makeParser(
-                    "org.apache.harmony.tests.api.org.xml.sax.support.NoAccessParser");
+                    "org.apache.harmony.tests.org.xml.sax.support.NoAccessParser");
             fail("expected IllegalAccessException was not thrown");
         } catch (IllegalAccessException e) {
             // Expected
@@ -121,7 +121,7 @@ public class ParserFactoryTest extends TestCase {
         // Non-instantiable class
         try {
             ParserFactory.makeParser(
-                    "org.apache.harmony.tests.api.org.xml.sax.support.NoInstanceParser");
+                    "org.apache.harmony.tests.org.xml.sax.support.NoInstanceParser");
             fail("expected InstantiationException was not thrown");
         } catch (InstantiationException e) {
             // Expected
@@ -130,7 +130,7 @@ public class ParserFactoryTest extends TestCase {
         // Non-Parser class
         try {
             ParserFactory.makeParser(
-                    "org.apache.harmony.tests.api.org.xml.sax.support.NoSubclassParser");
+                    "org.apache.harmony.tests.org.xml.sax.support.NoSubclassParser");
             fail("expected ClassCastException was not thrown");
         } catch (ClassCastException e) {
             // Expected
@@ -138,8 +138,7 @@ public class ParserFactoryTest extends TestCase {
 
         // Good one, finally
         ParserFactory.makeParser(
-                "org.apache.harmony.tests.api.org.xml.sax.support.DoNothingParser");
-
+                "org.apache.harmony.tests.org.xml.sax.support.DoNothingParser");
     }
 
 }
