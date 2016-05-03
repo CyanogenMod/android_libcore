@@ -496,4 +496,15 @@ public final class DexFile {
     public static native int getDexOptNeeded(String fileName,
             String instructionSet, String compilerFilter, boolean newProfile)
             throws FileNotFoundException, IOException;
+
+    /**
+     * Returns the status of the dex file {@code fileName}. The returned string is
+     * an opaque, human readable representation of the current status. The output
+     * is only meant for debugging and is not guaranteed to be stable across
+     * releases and/or devices.
+     *
+     * @hide
+     */
+    public static native String getDexFileStatus(String fileName, String instructionSet)
+        throws FileNotFoundException;
 }
