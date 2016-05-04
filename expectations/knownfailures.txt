@@ -1536,5 +1536,13 @@
     "jsr166.Collection8Test#testForEach",
     "jsr166.Collection8Test#testForEachConcurrentStressTest"
   ]
+},
+{
+  description: "Tests must be run as root",
+  bug: 28536847,
+  result: EXEC_FAILED,
+  names: [
+    "com.android.org.apache.harmony.luni.tests.java.net.UnixNetworkInterfaceTest"
+  ]
 }
 ]
