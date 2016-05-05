@@ -212,7 +212,6 @@ class SourceChannelImpl
     }
 
     static {
-        Util.load();
         nd = new FileDispatcherImpl();
     }
 
