@@ -116,12 +116,6 @@ static void initGroupSourceReq(JNIEnv* env, jbyteArray group, jint index,
 }
 #endif
 
-JNIEXPORT void JNICALL
-Java_sun_nio_ch_Net_initIDs(JNIEnv *env, jclass clazz)
-{
-    /* Here because Windows native code does need to init IDs */
-}
-
 JNIEXPORT jboolean JNICALL
 Java_sun_nio_ch_Net_isIPv6Available0(JNIEnv* env, jclass cl)
 {
@@ -723,7 +717,6 @@ static JNINativeMethod gMethods[] = {
   NATIVE_METHOD(Net, getInterface4, "(Ljava/io/FileDescriptor;)I"),
   NATIVE_METHOD(Net, setInterface6, "(Ljava/io/FileDescriptor;I)V"),
   NATIVE_METHOD(Net, getInterface6, "(Ljava/io/FileDescriptor;)I"),
-  NATIVE_METHOD(Net, initIDs, "()V"),
 };
 
 void register_sun_nio_ch_Net(JNIEnv* env) {

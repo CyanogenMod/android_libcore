@@ -187,14 +187,6 @@ public class ObjectStreamClass implements Serializable {
     private ObjectStreamClass superDesc;
 
     /**
-     * Initializes native code.
-     */
-    private static native void initNative();
-    static {
-        initNative();
-    }
-
-    /**
      * Find the descriptor for a class that can be serialized.  Creates an
      * ObjectStreamClass instance if one does not exist yet for class. Null is
      * returned if the specified class does not implement java.io.Serializable

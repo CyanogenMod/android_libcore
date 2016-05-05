@@ -617,11 +617,4 @@ class Net {                                             // package-private
     static native void setInterface6(FileDescriptor fd, int index) throws IOException;
 
     static native int getInterface6(FileDescriptor fd) throws IOException;
-
-    private static native void initIDs();
-
-    static {
-        initIDs();
-    }
-
 }

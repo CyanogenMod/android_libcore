@@ -317,10 +317,6 @@ class EPollArrayWrapper {
         interrupted = false;
     }
 
-    static {
-        init();
-    }
-
     private native int epollCreate();
     private native void epollCtl(int epfd, int opcode, int fd, int events);
     private native int epollWait(long pollAddress, int numfds, long timeout,
@@ -328,5 +324,4 @@ class EPollArrayWrapper {
     private static native int sizeofEPollEvent();
     private static native int offsetofData();
     private static native void interrupt(int fd);
-    private static native void init();
 }

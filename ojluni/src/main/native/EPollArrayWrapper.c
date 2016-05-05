@@ -75,11 +75,6 @@ iepoll(int epfd, struct epoll_event *events, int numfds, jlong timeout)
     }
 }
 
-JNIEXPORT void JNICALL
-Java_sun_nio_ch_EPollArrayWrapper_init(JNIEnv *env, jclass this)
-{
-}
-
 JNIEXPORT jint JNICALL
 Java_sun_nio_ch_EPollArrayWrapper_epollCreate(JNIEnv *env, jobject this)
 {
@@ -170,7 +165,6 @@ static JNINativeMethod gMethods[] = {
   NATIVE_METHOD(EPollArrayWrapper, sizeofEPollEvent, "()I"),
   NATIVE_METHOD(EPollArrayWrapper, offsetofData, "()I"),
   NATIVE_METHOD(EPollArrayWrapper, interrupt, "(I)V"),
-  NATIVE_METHOD(EPollArrayWrapper, init, "()V"),
 };
 
 void register_sun_nio_ch_EPollArrayWrapper(JNIEnv* env) {

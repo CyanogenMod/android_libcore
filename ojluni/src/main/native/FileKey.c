@@ -43,9 +43,9 @@ static jfieldID key_st_dev;    /* id for FileKey.st_dev */
 static jfieldID key_st_ino;    /* id for FileKey.st_ino */
 
 
-JNIEXPORT void JNICALL
-FileKey_initIDs(JNIEnv *env, jclass clazz)
+static void FileKey_initIDs(JNIEnv *env)
 {
+    jclass clazz = (*env)->FindClass(env, "sun/nio/ch/FileKey");
     key_st_dev = (*env)->GetFieldID(env, clazz, "st_dev", "J");
     key_st_ino = (*env)->GetFieldID(env, clazz, "st_ino", "J");
 }
@@ -67,10 +67,10 @@ FileKey_init(JNIEnv *env, jobject this, jobject fdo)
 }
 
 static JNINativeMethod gMethods[] = {
-  NATIVE_METHOD(FileKey, initIDs, "()V"),
   NATIVE_METHOD(FileKey, init, "(Ljava/io/FileDescriptor;)V"),
 };
 
 void register_sun_nio_ch_FileKey(JNIEnv* env) {
-  jniRegisterNativeMethods(env, "sun/nio/ch/FileKey", gMethods, NELEM(gMethods));
+    jniRegisterNativeMethods(env, "sun/nio/ch/FileKey", gMethods, NELEM(gMethods));
+    FileKey_initIDs(env);
 }
