@@ -136,8 +136,15 @@ static int getFD(JNIEnv *env, jobject this) {
     return (*env)->GetIntField(env, fdObj, IO_fd_fdID);
 }
 
-static void PlainDatagramSocketImpl_init(JNIEnv *env) {
-    jclass cls = (*env)->FindClass(env, "java/net/PlainDatagramSocketImpl");
+
+/*
+ * Class:     java_net_PlainDatagramSocketImpl
+ * Method:    init
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL
+PlainDatagramSocketImpl_init(JNIEnv *env, jclass cls) {
+
 #ifdef __linux__
     struct utsname sysinfo;
 #endif
@@ -160,6 +167,11 @@ static void PlainDatagramSocketImpl_init(JNIEnv *env) {
 
     IO_fd_fdID = NET_GetFileDescriptorID(env);
     CHECK_NULL(IO_fd_fdID);
+
+    InetAddress_init(env, 0);
+    Inet4Address_init(env, 0);
+    Inet6Address_init(env, 0);
+    NetworkInterface_init(env, 0);
 
 #ifdef __linux__
 #ifdef AF_INET6
@@ -1978,9 +1990,9 @@ static JNINativeMethod gMethods[] = {
   NATIVE_METHOD(PlainDatagramSocketImpl, disconnect0, "(I)V"),
   NATIVE_METHOD(PlainDatagramSocketImpl, connect0, "(Ljava/net/InetAddress;I)V"),
   NATIVE_METHOD(PlainDatagramSocketImpl, bind0, "(ILjava/net/InetAddress;)V"),
+  NATIVE_METHOD(PlainDatagramSocketImpl, init, "()V"),
 };
 
 void register_java_net_PlainDatagramSocketImpl(JNIEnv* env) {
-    jniRegisterNativeMethods(env, "java/net/PlainDatagramSocketImpl", gMethods, NELEM(gMethods));
-    PlainDatagramSocketImpl_init(env);
+  jniRegisterNativeMethods(env, "java/net/PlainDatagramSocketImpl", gMethods, NELEM(gMethods));
 }

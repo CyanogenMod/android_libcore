@@ -111,4 +111,8 @@ class EPoll {
 
     static native int epollWait(int epfd, long pollAddress, int numfds)
         throws IOException;
+
+    static {
+        Util.load();
+    }
 }

@@ -42,8 +42,13 @@ jfieldID iac_addressID;
 jfieldID iac_familyID;
 jfieldID iac_hostNameID;
 
-
-static void InetAddress_init(JNIEnv *env) {
+/*
+ * Class:     java_net_InetAddress
+ * Method:    init
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL
+InetAddress_init(JNIEnv *env, jclass cls) {
     jclass c = (*env)->FindClass(env,"java/net/InetAddress");
     CHECK_NULL(c);
     ia_class = (*env)->NewGlobalRef(env, c);
@@ -62,6 +67,10 @@ static void InetAddress_init(JNIEnv *env) {
     CHECK_NULL(iac_hostNameID);
 }
 
+static JNINativeMethod gMethods[] = {
+  NATIVE_METHOD(InetAddress, init, "()V"),
+};
+
 void register_java_net_InetAddress(JNIEnv* env) {
-  InetAddress_init(env);
+  jniRegisterNativeMethods(env, "java/net/InetAddress", gMethods, NELEM(gMethods));
 }

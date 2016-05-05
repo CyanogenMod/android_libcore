@@ -124,7 +124,14 @@ static int     getFlags(int sock, const char *ifname, int *flags);
 static int     getMTU(JNIEnv *env, int sock, const char *ifname);
 
 /******************* Java entry points *****************************/
-static void NetworkInterface_init(JNIEnv *env) {
+
+/*
+ * Class:     java_net_NetworkInterface
+ * Method:    init
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL
+NetworkInterface_init(JNIEnv *env, jclass cls) {
     ni_class = (*env)->FindClass(env,"java/net/NetworkInterface");
     ni_class = (*env)->NewGlobalRef(env, ni_class);
     ni_nameID = (*env)->GetFieldID(env, ni_class,"name", "Ljava/lang/String;");
@@ -1073,9 +1080,10 @@ static JNINativeMethod gMethods[] = {
   NATIVE_METHOD(NetworkInterface, getByInetAddress0, "(Ljava/net/InetAddress;)Ljava/net/NetworkInterface;"),
   NATIVE_METHOD(NetworkInterface, getByIndex0, "(I)Ljava/net/NetworkInterface;"),
   NATIVE_METHOD(NetworkInterface, getByName0, "(Ljava/lang/String;)Ljava/net/NetworkInterface;"),
+  NATIVE_METHOD(NetworkInterface, init, "()V"),
+
 };
 
 void register_java_net_NetworkInterface(JNIEnv* env) {
   jniRegisterNativeMethods(env, "java/net/NetworkInterface", gMethods, NELEM(gMethods));
-  NetworkInterface_init(env);
 }

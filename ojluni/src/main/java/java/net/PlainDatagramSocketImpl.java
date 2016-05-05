@@ -34,6 +34,10 @@ import java.io.IOException;
 
 class PlainDatagramSocketImpl extends AbstractPlainDatagramSocketImpl
 {
+    static {
+        init();
+    }
+
     protected synchronized native void bind0(int lport, InetAddress laddr)
         throws SocketException;
 
@@ -72,4 +76,9 @@ class PlainDatagramSocketImpl extends AbstractPlainDatagramSocketImpl
     protected native void connect0(InetAddress address, int port) throws SocketException;
 
     protected native void disconnect0(int family);
+
+    /**
+     * Perform class load-time initializations.
+     */
+    private native static void init();
 }

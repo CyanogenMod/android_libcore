@@ -42,7 +42,8 @@ jmethodID ia4_ctrID;
  * Method:    init
  * Signature: ()V
  */
-static void Inet4Address_init(JNIEnv *env) {
+JNIEXPORT void JNICALL
+Inet4Address_init(JNIEnv *env, jclass cls) {
     jclass c = (*env)->FindClass(env, "java/net/Inet4Address");
     CHECK_NULL(c);
     ia4_class = (*env)->NewGlobalRef(env, c);
@@ -51,6 +52,10 @@ static void Inet4Address_init(JNIEnv *env) {
     CHECK_NULL(ia4_ctrID);
 }
 
+static JNINativeMethod gMethods[] = {
+  NATIVE_METHOD(Inet4Address, init, "()V"),
+};
+
 void register_java_net_Inet4Address(JNIEnv* env) {
-  Inet4Address_init(env);
+  jniRegisterNativeMethods(env, "java/net/Inet4Address", gMethods, NELEM(gMethods));
 }

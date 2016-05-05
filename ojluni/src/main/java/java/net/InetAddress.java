@@ -246,6 +246,12 @@ class InetAddress implements java.io.Serializable {
     /** use serialVersionUID from JDK 1.0.2 for interoperability */
     private static final long serialVersionUID = 3286316764910316507L;
 
+    /*
+     * Load net library into runtime, and perform initializations.
+     */
+    static {
+        init();
+    }
 
     /**
      * Constructor for the Socket.accept() method.
@@ -816,6 +822,12 @@ class InetAddress implements java.io.Serializable {
         String local = Libcore.os.uname().nodename;
         return impl.lookupAllHostAddr(local, NETID_UNSET)[0];
     }
+
+    /**
+     * Perform class load-time initializations.
+     */
+    private static native void init();
+
 
     /*
      * Returns the InetAddress representing anyLocalAddress

@@ -233,4 +233,8 @@ class InheritedChannel {
     private static native int soType0(int fd);
     private static native InetAddress peerAddress0(int fd);
     private static native int peerPort0(int fd);
+
+    static {
+        Util.load();
+    }
 }
