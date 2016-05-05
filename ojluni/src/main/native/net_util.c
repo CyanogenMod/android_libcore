@@ -62,17 +62,6 @@ net_JNI_OnLoad(JavaVM *vm, void* ignored)
     return JNI_VERSION_1_2;
 }
 
-static int initialized = 0;
-
-static void initInetAddrs(JNIEnv *env) {
-    if (!initialized) {
-        InetAddress_init(env, 0);
-        Inet4Address_init(env, 0);
-        Inet6Address_init(env, 0);
-        initialized = 1;
-    }
-}
-
 /* The address, and family fields used to be in InetAddress
  * but are now in an implementation object. So, there is an extra
  * level of indirection to access them now.
@@ -85,43 +74,36 @@ extern jfieldID iac_familyID;
 
 void setInetAddress_addr(JNIEnv *env, jobject iaObj, int address) {
     jobject holder;
-    initInetAddrs(env);
     holder = (*env)->GetObjectField(env, iaObj, ia_holderID);
     (*env)->SetIntField(env, holder, iac_addressID, address);
 }
 
 void setInetAddress_family(JNIEnv *env, jobject iaObj, int family) {
     jobject holder;
-    initInetAddrs(env);
     holder = (*env)->GetObjectField(env, iaObj, ia_holderID);
     (*env)->SetIntField(env, holder, iac_familyID, family);
 }
 
 void setInetAddress_hostName(JNIEnv *env, jobject iaObj, jobject host) {
     jobject holder;
-    initInetAddrs(env);
     holder = (*env)->GetObjectField(env, iaObj, ia_holderID);
     (*env)->SetObjectField(env, holder, iac_hostNameID, host);
 }
 
 int getInetAddress_addr(JNIEnv *env, jobject iaObj) {
     jobject holder;
-    initInetAddrs(env);
     holder = (*env)->GetObjectField(env, iaObj, ia_holderID);
     return (*env)->GetIntField(env, holder, iac_addressID);
 }
 
 int getInetAddress_family(JNIEnv *env, jobject iaObj) {
     jobject holder;
-
-    initInetAddrs(env);
     holder = (*env)->GetObjectField(env, iaObj, ia_holderID);
     return (*env)->GetIntField(env, holder, iac_familyID);
 }
 
 jobject getInetAddress_hostName(JNIEnv *env, jobject iaObj) {
     jobject holder;
-    initInetAddrs(env);
     holder = (*env)->GetObjectField(env, iaObj, ia_holderID);
     return (*env)->GetObjectField(env, holder, iac_hostNameID);
 }
@@ -129,7 +111,6 @@ jobject getInetAddress_hostName(JNIEnv *env, jobject iaObj) {
 JNIEXPORT jobject JNICALL
 NET_SockaddrToInetAddress(JNIEnv *env, struct sockaddr *him, int *port) {
     jobject iaObj;
-    initInetAddrs(env);
 #ifdef AF_INET6
     if (him->sa_family == AF_INET6) {
         jbyteArray ipaddress;

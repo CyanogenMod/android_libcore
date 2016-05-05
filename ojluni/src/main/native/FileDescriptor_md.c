@@ -45,8 +45,8 @@ jfieldID IO_fd_fdID;
  * static methods to store field ID's in initializers
  */
 
-JNIEXPORT void JNICALL
-FileDescriptor_initIDs(JNIEnv *env, jclass fdClass) {
+static void FileDescriptor_initIDs(JNIEnv *env) {
+    jclass fdClass = (*env)->FindClass(env, "java/io/FileDescriptor");
     IO_fd_fdID = (*env)->GetFieldID(env, fdClass, "descriptor", "I");
 }
 
@@ -69,11 +69,12 @@ JNIEXPORT jboolean JNICALL FileDescriptor_isSocket(JNIEnv *env, jclass ignored, 
 }
 
 static JNINativeMethod gMethods[] = {
-  NATIVE_METHOD(FileDescriptor, initIDs, "()V"),
   NATIVE_METHOD(FileDescriptor, sync, "()V"),
   NATIVE_METHOD(FileDescriptor, isSocket, "(I)Z"),
 };
 
 void register_java_io_FileDescriptor(JNIEnv* env) {
-  jniRegisterNativeMethods(env, "java/io/FileDescriptor", gMethods, NELEM(gMethods));
+    jniRegisterNativeMethods(env, "java/io/FileDescriptor", gMethods, NELEM(gMethods));
+
+    FileDescriptor_initIDs(env);
 }

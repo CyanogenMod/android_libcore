@@ -41,11 +41,9 @@
 
 static jfieldID fd_fdID;        /* for jint 'fd' in java.io.FileDescriptor */
 
-
-JNIEXPORT void JNICALL
-IOUtil_initIDs(JNIEnv *env, jclass clazz)
+static void IOUtil_initIDs(JNIEnv *env)
 {
-    clazz = (*env)->FindClass(env, "java/io/FileDescriptor");
+    jclass clazz = (*env)->FindClass(env, "java/io/FileDescriptor");
     fd_fdID = (*env)->GetFieldID(env, clazz, "descriptor", "I");
 }
 
@@ -215,9 +213,10 @@ static JNINativeMethod gMethods[] = {
   NATIVE_METHOD(IOUtil, setfdVal, "(Ljava/io/FileDescriptor;I)V"),
   NATIVE_METHOD(IOUtil, fdVal, "(Ljava/io/FileDescriptor;)I"),
   NATIVE_METHOD(IOUtil, randomBytes, "([B)Z"),
-  NATIVE_METHOD(IOUtil, initIDs, "()V"),
 };
 
 void register_sun_nio_ch_IOUtil(JNIEnv* env) {
   jniRegisterNativeMethods(env, "sun/nio/ch/IOUtil", gMethods, NELEM(gMethods));
+
+  IOUtil_initIDs(env);
 }

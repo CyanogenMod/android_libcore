@@ -129,13 +129,6 @@ public final class FileDescriptor {
      */
     public native void sync() throws SyncFailedException;
 
-    /* This routine initializes JNI field offsets for the class */
-    private static native void initIDs();
-
-    static {
-        initIDs();
-    }
-
     /**
      * Returns the int descriptor. It's highly unlikely you should be calling this. Please discuss
      * your needs with a libcore maintainer before using this method.

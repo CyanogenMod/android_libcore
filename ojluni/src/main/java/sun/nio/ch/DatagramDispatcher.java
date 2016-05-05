@@ -37,10 +37,6 @@ import java.net.*;
 
 class DatagramDispatcher extends NativeDispatcher
 {
-    static {
-        Util.load();
-    }
-
     int read(FileDescriptor fd, long address, int len) throws IOException {
         BlockGuard.getThreadPolicy().onNetwork();
         return read0(fd, address, len);
