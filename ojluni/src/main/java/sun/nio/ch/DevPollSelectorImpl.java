@@ -196,4 +196,9 @@ class DevPollSelectorImpl
         }
         return this;
     }
+
+    static {
+        Util.load();
+    }
+
 }

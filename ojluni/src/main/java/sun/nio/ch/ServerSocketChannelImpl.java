@@ -394,6 +394,7 @@ class ServerSocketChannelImpl
     private static native void initIDs();
 
     static {
+        Util.load();
         initIDs();
         nd = new SocketDispatcher();
     }

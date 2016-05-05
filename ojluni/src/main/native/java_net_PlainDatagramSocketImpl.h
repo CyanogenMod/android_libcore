@@ -170,6 +170,14 @@ JNIEXPORT void JNICALL PlainDatagramSocketImpl_connect0
 JNIEXPORT void JNICALL PlainDatagramSocketImpl_disconnect0
   (JNIEnv *, jobject, jint);
 
+/*
+ * Class:     java_net_PlainDatagramSocketImpl
+ * Method:    init
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL PlainDatagramSocketImpl_init
+  (JNIEnv *, jclass);
+
 #ifdef __cplusplus
 }
 #endif

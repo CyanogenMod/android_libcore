@@ -114,6 +114,14 @@ JNIEXPORT jbyteArray JNICALL NetworkInterface_getMacAddr0
 JNIEXPORT jint JNICALL NetworkInterface_getMTU0
   (JNIEnv *, jclass, jstring, jint);
 
+/*
+ * Class:     java_net_NetworkInterface
+ * Method:    init
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL NetworkInterface_init
+  (JNIEnv *, jclass);
+
 #ifdef __cplusplus
 }
 #endif

@@ -906,6 +906,7 @@ class DatagramChannelImpl
         throws IOException;
 
     static {
+        Util.load();
         initIDs();
     }
 

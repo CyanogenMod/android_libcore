@@ -344,7 +344,11 @@ class IOUtil {
 
     static native int fdLimit();
 
+    static native void initIDs();
+
     static {
+        // Note that IOUtil.initIDs is called from within Util.load.
+        Util.load();
         IOV_MAX = iovMax();
     }
 

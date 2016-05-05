@@ -210,6 +210,12 @@ class Inet6Address extends InetAddress {
 
     private static final long serialVersionUID = 6880410070516793377L;
 
+    /*
+     * Perform initializations.
+     */
+    static {
+        init();
+    }
 
     Inet6Address() {
         super();
@@ -760,6 +766,11 @@ class Inet6Address extends InetAddress {
         }
         return sb.toString();
     }
+
+    /**
+     * Perform class load-time initializations.
+     */
+    private static native void init();
 
     /**
      * Following field is only used during (de)/serialization

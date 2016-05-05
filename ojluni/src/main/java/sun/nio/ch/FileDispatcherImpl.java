@@ -32,6 +32,10 @@ import java.io.*;
 class FileDispatcherImpl extends FileDispatcher
 {
 
+    static {
+        Util.load();
+    }
+
     FileDispatcherImpl(boolean append) {
         /* append is ignored */
     }

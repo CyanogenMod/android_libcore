@@ -1173,6 +1173,7 @@ public class FileChannelImpl
     private static native long initIDs();
 
     static {
+        Util.load();
         allocationGranularity = initIDs();
     }
 

@@ -60,6 +60,15 @@ abstract class AbstractPlainDatagramSocketImpl extends DatagramSocketImpl
 
     private final CloseGuard guard = CloseGuard.get();
 
+    private static final String os = AccessController.doPrivileged(
+        new sun.security.action.GetPropertyAction("os.name")
+    );
+
+    /**
+     * flag set if the native connect() call not to be used
+     */
+    private final static boolean connectDisabled = os.contains("OS X");
+
     /**
      * Creates a datagram socket
      */
@@ -380,6 +389,6 @@ abstract class AbstractPlainDatagramSocketImpl extends DatagramSocketImpl
     protected abstract void disconnect0(int family);
 
     protected boolean nativeConnectDisabled() {
-        return false;
+        return connectDisabled;
     }
 }
