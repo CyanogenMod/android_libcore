@@ -372,19 +372,4 @@ class Util {
         }
         return bugLevel.equals(bl);
     }
-
-
-    // -- Initialization --
-
-    private static boolean loaded = false;
-
-    static void load() {
-        synchronized (Util.class) {
-            if (loaded)
-                return;
-            loaded = true;
-            IOUtil.initIDs();
-        }
-    }
-
 }

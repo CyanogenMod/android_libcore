@@ -1036,7 +1036,6 @@ class SocketChannelImpl
         throws IOException;
 
     static {
-        Util.load();
         nd = new SocketDispatcher();
     }
 

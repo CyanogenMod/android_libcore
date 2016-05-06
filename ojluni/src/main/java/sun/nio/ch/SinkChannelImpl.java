@@ -208,7 +208,6 @@ class SinkChannelImpl
     }
 
     static {
-        Util.load();
         nd = new FileDispatcherImpl();
     }
 
