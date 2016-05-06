@@ -53,7 +53,6 @@ LOCAL_SRC_FILES := \
     ServerSocketChannelImpl.c \
     SocketInputStream.c \
     SocketOutputStream.c \
-    DefaultProxySelector.c \
     Float.c \
     Double.c \
     StrictMath.c \

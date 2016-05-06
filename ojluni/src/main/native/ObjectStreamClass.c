@@ -33,15 +33,7 @@
 
 static jclass noSuchMethodErrCl;
 
-/*
- * Class:     java_io_ObjectStreamClass
- * Method:    initNative
- * Signature: ()V
- *
- * Native code initialization hook.
- */
-JNIEXPORT void JNICALL
-ObjectStreamClass_initNative(JNIEnv *env, jclass this)
+static void ObjectStreamClass_initNative(JNIEnv *env)
 {
     jclass cl = (*env)->FindClass(env, "java/lang/NoSuchMethodError");
     if (cl == NULL) {           /* exception thrown */
@@ -101,10 +93,10 @@ ObjectStreamClass_hasStaticInitializer(JNIEnv *env, jclass this,
 }
 
 static JNINativeMethod gMethods[] = {
-  NATIVE_METHOD(ObjectStreamClass, initNative, "()V"),
   NATIVE_METHOD(ObjectStreamClass, hasStaticInitializer, "(Ljava/lang/Class;)Z"),
 };
 
 void register_java_io_ObjectStreamClass(JNIEnv* env) {
   jniRegisterNativeMethods(env, "java/io/ObjectStreamClass", gMethods, NELEM(gMethods));
+  ObjectStreamClass_initNative(env);
 }

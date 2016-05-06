@@ -87,20 +87,6 @@ public class DefaultProxySelector extends ProxySelector {
 
     private static boolean hasSystemProxies = false;
 
-    static {
-        final String key = "java.net.useSystemProxies";
-        Boolean b = AccessController.doPrivileged(
-            new PrivilegedAction<Boolean>() {
-                public Boolean run() {
-                    return NetProperties.getBoolean(key);
-                }});
-        if (b != null && b.booleanValue()) {
-            java.security.AccessController.doPrivileged(
-                      new sun.security.action.LoadLibraryAction("net"));
-            hasSystemProxies = init();
-        }
-    }
-
     /**
      * How to deal with "non proxy hosts":
      * since we do have to generate a RegexpPool we don't want to do that if
@@ -228,17 +214,7 @@ public class DefaultProxySelector extends ProxySelector {
                                  * settings (Gnome & Windows) if we were
                                  * instructed to.
                                  */
-                                if (hasSystemProxies) {
-                                    String sproto;
-                                    if (proto.equalsIgnoreCase("socket"))
-                                        sproto = "socks";
-                                    else
-                                        sproto = proto;
-                                    Proxy sproxy = getSystemProxy(sproto, urlhost);
-                                    if (sproxy != null) {
-                                        return sproxy;
-                                    }
-                                }
+                                // Android-changed, hasSystemProxies is always false
                                 return Proxy.NO_PROXY;
                             }
                             // If a Proxy Host is defined for that protocol
@@ -348,7 +324,4 @@ public class DefaultProxySelector extends ProxySelector {
             return -1;
         }
     }
-
-    private native static boolean init();
-    private synchronized native Proxy getSystemProxy(String protocol, String host);
 }

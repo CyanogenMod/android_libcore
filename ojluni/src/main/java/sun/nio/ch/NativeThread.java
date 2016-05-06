@@ -50,11 +50,4 @@ class NativeThread {
     // no effect.
     //
     static native void signal(long nt);
-
-    static native void init();
-
-    static {
-        init();
-    }
-
 }

@@ -67,9 +67,4 @@ public class FileKey {
     }
 
     private native void init(FileDescriptor fd) throws IOException;
-    private static native void initIDs();
-
-    static {
-        initIDs();
-    }
 }

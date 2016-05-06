@@ -47,10 +47,7 @@ nullHandler(int sig)
 {
 }
 
-
-
-JNIEXPORT void JNICALL
-NativeThread_init(JNIEnv *env, jclass cl)
+static void  NativeThread_init(JNIEnv *env)
 {
 
     /* Install the null handler for INTERRUPT_SIGNAL.  This might overwrite the
@@ -84,11 +81,11 @@ NativeThread_signal(JNIEnv *env, jclass cl, jlong thread)
 }
 
 static JNINativeMethod gMethods[] = {
-  NATIVE_METHOD(NativeThread, init, "()V"),
   NATIVE_METHOD(NativeThread, current, "()J"),
   NATIVE_METHOD(NativeThread, signal, "(J)V"),
 };
 
 void register_sun_nio_ch_NativeThread(JNIEnv* env) {
   jniRegisterNativeMethods(env, "sun/nio/ch/NativeThread", gMethods, NELEM(gMethods));
+  NativeThread_init(env);
 }
