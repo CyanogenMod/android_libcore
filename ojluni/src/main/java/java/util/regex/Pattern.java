@@ -930,7 +930,7 @@ public final class Pattern implements java.io.Serializable
     transient long address;
 
     private static final NativeAllocationRegistry registry = new NativeAllocationRegistry(
-            getNativeFinalizer(), nativeSize());
+            Pattern.class.getClassLoader(), getNativeFinalizer(), nativeSize());
 
 
     /**

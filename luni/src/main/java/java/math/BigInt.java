@@ -26,7 +26,7 @@ import libcore.util.NativeAllocationRegistry;
 final class BigInt {
 
     private static NativeAllocationRegistry registry = new NativeAllocationRegistry(
-            NativeBN.getNativeFinalizer(), NativeBN.size());
+            BigInt.class.getClassLoader(), NativeBN.getNativeFinalizer(), NativeBN.size());
 
     /* Fields used for the internal representation. */
     transient long bignum = 0;

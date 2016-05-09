@@ -24,6 +24,8 @@ public class NativeAllocationRegistryTest extends TestCase {
         System.loadLibrary("javacoretests");
     }
 
+    private ClassLoader classLoader = NativeAllocationRegistryTest.class.getClassLoader();
+
     private static class TestConfig {
         public boolean useAllocator;
         public boolean shareRegistry;
@@ -53,14 +55,15 @@ public class NativeAllocationRegistryTest extends TestCase {
         final int nativeSize = size/2;
         int javaSize = size/2;
         NativeAllocationRegistry registry = new NativeAllocationRegistry(
-                getNativeFinalizer(), nativeSize);
+                classLoader, getNativeFinalizer(), nativeSize);
 
         // Allocate more native allocations than will fit in memory. This should
         // not throw OutOfMemoryError because the few allocations we save
         // references to should easily fit.
         for (int i = 0; i < expectedMaxNumAllocations * 10; i++) {
             if (!config.shareRegistry) {
-                registry = new NativeAllocationRegistry(getNativeFinalizer(), nativeSize);
+                registry = new NativeAllocationRegistry(
+                    classLoader, getNativeFinalizer(), nativeSize);
             }
 
             final Allocation alloc = new Allocation();
@@ -109,7 +112,7 @@ public class NativeAllocationRegistryTest extends TestCase {
         assertThrowsIllegalArgumentException(new Runnable() {
             public void run() {
                 NativeAllocationRegistry registry = new NativeAllocationRegistry(
-                        getNativeFinalizer(), -8);
+                        classLoader, getNativeFinalizer(), -8);
             }
         });
     }
@@ -117,7 +120,7 @@ public class NativeAllocationRegistryTest extends TestCase {
     public void testEarlyFree() {
         long size = 1234;
         NativeAllocationRegistry registry
-            = new NativeAllocationRegistry(getNativeFinalizer(), size);
+            = new NativeAllocationRegistry(classLoader, getNativeFinalizer(), size);
         long nativePtr = doNativeAllocation(size);
         Object referent = new Object();
         Runnable cleaner = registry.registerNativeAllocation(referent, nativePtr);
@@ -139,7 +142,7 @@ public class NativeAllocationRegistryTest extends TestCase {
 
     public void testNullArguments() {
         final NativeAllocationRegistry registry
-            = new NativeAllocationRegistry(getNativeFinalizer(), 1024);
+            = new NativeAllocationRegistry(classLoader, getNativeFinalizer(), 1024);
         final long dummyNativePtr = 0x1;
         final Object referent = new Object();
 
