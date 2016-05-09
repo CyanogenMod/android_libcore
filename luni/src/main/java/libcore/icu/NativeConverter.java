@@ -18,7 +18,7 @@ import java.nio.charset.CodingErrorAction;
 
 public final class NativeConverter {
     private static final NativeAllocationRegistry registry = new NativeAllocationRegistry(
-            getNativeFinalizer(), getNativeSize());
+            NativeConverter.class.getClassLoader(), getNativeFinalizer(), getNativeSize());
 
     public static native int decode(long converterHandle, byte[] input, int inEnd,
             char[] output, int outEnd, int[] data, boolean flush);
