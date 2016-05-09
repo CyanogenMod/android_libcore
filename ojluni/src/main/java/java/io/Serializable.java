@@ -158,6 +158,18 @@ package java.io;
  * the default computed value, but the requirement for matching
  * serialVersionUID values is waived for array classes.
  *
+ * <h3>Implement Serializable Judiciously</h3>
+ * Refer to <i>Effective Java</i>'s chapter on serialization for thorough
+ * coverage of the serialization API. The book explains how to use this
+ * interface without harming your application's maintainability.
+ *
+ * <h3>Recommended Alternatives</h3>
+ * <strong>JSON</strong> is concise, human-readable and efficient. Android
+ * includes both a {@link android.util.JsonReader streaming API} and a {@link
+ * org.json.JSONObject tree API} to read and write JSON. Use a binding library
+ * like <a href="http://code.google.com/p/google-gson/">GSON</a> to read and
+ * write Java objects directly.
+ *
  * @author  unascribed
  * @see java.io.ObjectOutputStream
  * @see java.io.ObjectInputStream
