@@ -421,6 +421,12 @@ non_openjdk_java_files := \
   dalvik/src/main/java/org/apache/harmony/dalvik/ddmc/DdmServer.java \
   dalvik/src/main/java/org/apache/harmony/dalvik/ddmc/DdmVmInternal.java \
   luni/src/main/java/org/apache/harmony/luni/internal/util/TimezoneGetter.java \
+  luni/src/main/java/org/apache/harmony/security/PrivateKeyImpl.java \
+  luni/src/main/java/org/apache/harmony/security/PublicKeyImpl.java \
+  luni/src/main/java/org/apache/harmony/security/provider/crypto/SHA1Impl.java \
+  luni/src/main/java/org/apache/harmony/security/provider/crypto/CryptoProvider.java \
+  luni/src/main/java/org/apache/harmony/security/provider/crypto/SHA1PRNG_SecureRandomImpl.java \
+  luni/src/main/java/org/apache/harmony/security/provider/crypto/SHA1Constants.java \
   luni/src/main/java/org/apache/harmony/xml/ExpatAttributes.java \
   luni/src/main/java/org/apache/harmony/xml/ExpatException.java \
   luni/src/main/java/org/apache/harmony/xml/ExpatParser.java \
