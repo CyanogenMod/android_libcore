@@ -158,5 +158,13 @@
   names: [
       "com.android.org.apache.harmony.luni.tests.java.net.URLClassLoaderTest"
   ]
+},
+{
+  description: "Unable to execute Support_AvailTest",
+  result: EXEC_FAILED,
+  bug: 28535603,
+  names: [
+      "com.android.org.apache.harmony.luni.tests.internal.process.SystemProcessTest#test_interrupt"
+  ]
 }
 ]
