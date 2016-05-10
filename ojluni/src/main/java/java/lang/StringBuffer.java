@@ -82,7 +82,7 @@ package java.lang;
  */
  public final class StringBuffer
     extends AbstractStringBuilder
-    implements java.io.Serializable, CharSequence
+    implements java.io.Serializable, Appendable, CharSequence
 {
 
     /** use serialVersionUID from JDK 1.0.2 for interoperability */
