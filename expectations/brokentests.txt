@@ -35,6 +35,13 @@
   pattern: ".*java.net.UnknownHostException:.*jcltest.apache.org.*"
 },
 {
+  description: "Some tests (ExcludedProxyTest) connect to a public webserver to check that the HTTP client works",
+  result: EXEC_FAILED,
+  names: [
+    "com.android.org.apache.harmony.luni.tests.java.net.ExcludedProxyTest"
+  ]
+},
+{
   description: "Some tests depend on ICU data, which has changed. Others make assumptions about floating point rounding",
   result: EXEC_FAILED,
   names: [
@@ -142,6 +149,14 @@
   modes: [device],
   names: [
       "org.apache.harmony.tests.java.lang.reflect.GenericSignatureFormatErrorTest#test_signatureFormatError"
+  ]
+},
+{
+  description: "Requires functional Support_Jetty",
+  bug: 28535961,
+  result: EXEC_FAILED,
+  names: [
+      "com.android.org.apache.harmony.luni.tests.java.net.URLClassLoaderTest"
   ]
 }
 ]
