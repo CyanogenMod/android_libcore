@@ -345,6 +345,49 @@ ZipFile_getZipMessage(JNIEnv *env, jclass cls, jlong zfile)
     return JNU_NewStringPlatform(env, msg);
 }
 
+JNIEXPORT jobjectArray JNICALL
+JarFile_getMetaInfEntryNames(JNIEnv *env, jobject obj)
+{
+    jlong zfile = (*env)->GetLongField(env, obj, jzfileID);
+    jzfile *zip;
+    int i, count;
+    jobjectArray result = 0;
+
+    if (zfile == 0) {
+        JNU_ThrowByName(env,
+                        "java/lang/IllegalStateException", "zip file closed");
+        return NULL;
+    }
+    zip = jlong_to_ptr(zfile);
+
+    /* count the number of valid ZIP metanames */
+    count = 0;
+    if (zip->metanames != 0) {
+        for (i = 0; i < zip->metacount; i++) {
+            if (zip->metanames[i] != 0) {
+                count++;
+            }
+        }
+    }
+
+    /* If some names were found then build array of java strings */
+    if (count > 0) {
+        jclass cls = (*env)->FindClass(env, "java/lang/String");
+        result = (*env)->NewObjectArray(env, count, cls, 0);
+        if (result != 0) {
+            for (i = 0; i < count; i++) {
+                jstring str = (*env)->NewStringUTF(env, zip->metanames[i]);
+                if (str == 0) {
+                    break;
+                }
+                (*env)->SetObjectArrayElement(env, result, i, str);
+                (*env)->DeleteLocalRef(env, str);
+            }
+        }
+    }
+    return result;
+}
+
 static JNINativeMethod gMethods[] = {
   NATIVE_METHOD(ZipFile, getEntry, "(J[BZ)J"),
   NATIVE_METHOD(ZipFile, freeEntry, "(JJ)V"),
@@ -365,8 +408,13 @@ static JNINativeMethod gMethods[] = {
   NATIVE_METHOD(ZipFile, getZipMessage, "(J)Ljava/lang/String;"),
 };
 
+static JNINativeMethod gJarFileMethods[] = {
+  NATIVE_METHOD(JarFile, getMetaInfEntryNames, "()[Ljava/lang/String;"),
+};
+
 void register_java_util_zip_ZipFile(JNIEnv* env) {
   jniRegisterNativeMethods(env, "java/util/zip/ZipFile", gMethods, NELEM(gMethods));
-
   ZipFile_initIDs(env);
+
+  jniRegisterNativeMethods(env, "java/util/jar/JarFile", gJarFileMethods, NELEM(gJarFileMethods));
 }

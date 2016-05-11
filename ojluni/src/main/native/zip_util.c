@@ -440,22 +440,19 @@ hash_append(unsigned int hash, char c)
 
 /*
  * Returns true if the specified entry's name begins with the string
- * "META-INF/" irrespective of case.
+ * "META-INF/".
  */
 static int
 isMetaName(const char *name, int length)
 {
+    static const char kMetaInf[] = "META-INF/";
+    static const int kMetaInfLength = sizeof(kMetaInf) - 1;
     const char *s;
-    if (length < (int)sizeof("META-INF/") - 1)
+    if (length < kMetaInfLength) {
         return 0;
-    for (s = "META-INF/"; *s != '\0'; s++) {
-        char c = *name++;
-        // Avoid toupper; it's locale-dependent
-        if (c >= 'a' && c <= 'z') c += 'A' - 'a';
-        if (*s != c)
-            return 0;
     }
-    return 1;
+
+    return (strncmp(kMetaInf, name, kMetaInfLength) == 0) ? 1 : 0;
 }
 
 /*
