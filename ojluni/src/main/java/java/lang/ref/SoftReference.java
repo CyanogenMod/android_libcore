@@ -28,8 +28,7 @@ package java.lang.ref;
 
 /**
  * Soft reference objects, which are cleared at the discretion of the garbage
- * collector in response to memory demand.  Soft references are most often used
- * to implement memory-sensitive caches.
+ * collector in response to memory demand.
  *
  * <p> Suppose that the garbage collector determines at a certain point in time
  * that an object is <a href="package-summary.html#reachability">softly
@@ -48,14 +47,19 @@ package java.lang.ref;
  * implementations are, however, encouraged to bias against clearing
  * recently-created or recently-used soft references.
  *
- * <p> Direct instances of this class may be used to implement simple caches;
- * this class or derived subclasses may also be used in larger data structures
- * to implement more sophisticated caches.  As long as the referent of a soft
- * reference is strongly reachable, that is, is actually in use, the soft
- * reference will not be cleared.  Thus a sophisticated cache can, for example,
- * prevent its most recently used entries from being discarded by keeping
- * strong referents to those entries, leaving the remaining entries to be
- * discarded at the discretion of the garbage collector.
+ * <h3>Avoid Soft References for Caching</h3>
+ * In practice, soft references are inefficient for caching. The runtime doesn't
+ * have enough information on which references to clear and which to keep. Most
+ * fatally, it doesn't know what to do when given the choice between clearing a
+ * soft reference and growing the heap.
+ *
+ * <p>The lack of information on the value to your application of each reference
+ * limits the usefulness of soft references. References that are cleared too
+ * early cause unnecessary work; those that are cleared too late waste memory.
+ *
+ * <p>Most applications should use an {@code android.util.LruCache} instead of
+ * soft references. LruCache has an effective eviction policy and lets the user
+ * tune how much memory is allotted.
  *
  * @author   Mark Reinhold
  * @since    1.2
