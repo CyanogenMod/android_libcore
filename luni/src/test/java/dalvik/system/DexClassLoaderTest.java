@@ -70,7 +70,11 @@ public class DexClassLoaderTest extends TestCase {
         }
         File[] files = dir.listFiles();
         for (File file : files) {
-            assertTrue(file.delete());
+            if (file.isDirectory()) {
+                cleanUpDir(file);
+            } else {
+                assertTrue(file.delete());
+            }
         }
     }
 
@@ -392,5 +396,40 @@ public class DexClassLoaderTest extends TestCase {
      */
     public void test_twoJar_diff_getResourceAsStream() throws Exception {
         createLoaderAndCallMethod("test.TestMethods", "test_diff_getResourceAsStream", jar1, jar2);
+    }
+
+    /**
+     * Test that a DexClassLoader can be used to generate optimized code, then
+     * a subsequent PathClassLoader can be used to load the optimized code.
+     * (b/19937016).
+     */
+    public void testDexThenPathClassLoader() throws Exception {
+        // Use a DexClassLoader to create optimized code.
+        File dex = new File(srcDir, "dex-then-path.dex");
+        copyResource("loading-test.dex", dex);
+
+        File oatDir = new File(new File(srcDir, "oat"), VMRuntime.getCurrentInstructionSet());
+        assertTrue(oatDir.mkdirs());
+
+        DexClassLoader dexloader = new DexClassLoader(dex.getAbsolutePath(),
+                oatDir.getAbsolutePath(), null, ClassLoader.getSystemClassLoader());
+        Class c1 = dexloader.loadClass("test.Test1");
+        Method m1 = c1.getMethod("test", (Class[]) null);
+        assertSame("blort", m1.invoke(null, (Object[]) null));
+
+        // Move the optimized code to the right location to be used by a
+        // PathClassLoader.
+        File odexForDexClassLoader = new File(oatDir, "dex-then-path.dex");
+        File odexForPathClassLoader = new File(oatDir, "dex-then-path.odex");
+        assertTrue(DexFile.isDexOptNeeded(dex.getAbsolutePath()));
+        assertTrue(odexForDexClassLoader.renameTo(odexForPathClassLoader));
+        assertFalse(DexFile.isDexOptNeeded(dex.getAbsolutePath()));
+
+        // Use a PathClassLoader that loads and runs the optimized code.
+        PathClassLoader pathloader = new PathClassLoader(dex.getAbsolutePath(),
+                ClassLoader.getSystemClassLoader());
+        Class c2 = pathloader.loadClass("test.Test1");
+        Method m2 = c2.getMethod("test", (Class[]) null);
+        assertSame("blort", m2.invoke(null, (Object[]) null));
     }
 }
