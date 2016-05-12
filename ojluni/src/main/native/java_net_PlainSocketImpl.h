@@ -102,13 +102,6 @@ JNIEXPORT void JNICALL PlainSocketImpl_socketClose0
 JNIEXPORT void JNICALL PlainSocketImpl_socketShutdown
   (JNIEnv *, jobject, jint);
 
-/*
- * Class:     java_net_PlainSocketImpl
- * Method:    initProto
- * Signature: ()V
- */
-JNIEXPORT void JNICALL PlainSocketImpl_initProto
-  (JNIEnv *, jclass);
 
 /*
  * Class:     java_net_PlainSocketImpl

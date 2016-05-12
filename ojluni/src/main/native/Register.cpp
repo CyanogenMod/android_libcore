@@ -116,6 +116,19 @@ jint JNI_OnLoad(JavaVM* vm, void*) { JNIEnv* env;
     register_sun_nio_ch_NativeThread(env);
     register_sun_nio_ch_FileKey(env);
     register_java_io_ObjectStreamClass(env);
+    register_java_lang_Character(env);
+    register_java_lang_Float(env);
+    register_java_lang_Double(env);
+    register_java_lang_StrictMath(env);
+    register_java_lang_Math(env);
+    register_java_lang_ProcessEnvironment(env);
+    register_java_lang_Runtime(env);
+    register_java_lang_System(env);
+    register_java_lang_Shutdown(env);
+    register_java_lang_UNIXProcess(env);
+    // register_java_net_InetAddress depends on java_lang_Float & Math being
+    // fully registered (getMethodId on InetAddress class triggers its
+    // <clinit> which depends on java.lang.Float)
     register_java_net_InetAddress(env);
     register_java_net_Inet4Address(env);
     register_java_net_Inet6Address(env);
@@ -127,16 +140,6 @@ jint JNI_OnLoad(JavaVM* vm, void*) { JNIEnv* env;
     register_java_net_SocketInputStream(env);
     register_java_net_SocketOutputStream(env);
     register_java_nio_Bits(env);
-    register_java_lang_Character(env);
-    register_java_lang_Float(env);
-    register_java_lang_Double(env);
-    register_java_lang_StrictMath(env);
-    register_java_lang_Math(env);
-    register_java_lang_ProcessEnvironment(env);
-    register_java_lang_Runtime(env);
-    register_java_lang_System(env);
-    register_java_lang_Shutdown(env);
-    register_java_lang_UNIXProcess(env);
     register_java_util_prefs_FileSystemPreferences(env);
     register_sun_nio_ch_ServerSocketChannelImpl(env);
     register_sun_nio_ch_SocketChannelImpl(env);
