@@ -1077,5 +1077,6 @@ static JNINativeMethod gMethods[] = {
 };
 
 void register_java_net_NetworkInterface(JNIEnv* env) {
-    NetworkInterface_init(env);
+  jniRegisterNativeMethods(env, "java/net/NetworkInterface", gMethods, NELEM(gMethods));
+  NetworkInterface_init(env);
 }
