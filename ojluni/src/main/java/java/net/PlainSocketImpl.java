@@ -36,10 +36,6 @@ import java.io.FileDescriptor;
 
 class PlainSocketImpl extends AbstractPlainSocketImpl
 {
-    static {
-        initProto();
-    }
-
     /**
      * Constructs an empty instance.
      */
@@ -71,8 +67,6 @@ class PlainSocketImpl extends AbstractPlainSocketImpl
     native void socketClose0() throws IOException;
 
     native void socketShutdown(int howto) throws IOException;
-
-    static native void initProto();
 
     native void socketSetOption(int cmd, boolean on, Object value)
         throws SocketException;

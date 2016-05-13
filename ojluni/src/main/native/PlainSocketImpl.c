@@ -98,17 +98,8 @@ static int getFD(JNIEnv *env, jobject this) {
     return (*env)->GetIntField(env, fdObj, IO_fd_fdID);
 }
 
-/*
- * The initroto function is called whenever PlainSocketImpl is
- * loaded, to cache fieldIds for efficiency. This is called everytime
- * the Java class is loaded.
- *
- * Class:     java_net_PlainSocketImpl
- * Method:    initProto
- * Signature: ()V
- */
-JNIEXPORT void JNICALL
-PlainSocketImpl_initProto(JNIEnv *env, jclass cls) {
+static void PlainSocketImpl_initProto(JNIEnv *env) {
+    jclass cls = (*env)->FindClass(env, "java/net/PlainSocketImpl");
     psi_fdID = (*env)->GetFieldID(env, cls , "fd",
                                   "Ljava/io/FileDescriptor;");
     CHECK_NULL(psi_fdID);
@@ -1091,9 +1082,9 @@ static JNINativeMethod gMethods[] = {
   NATIVE_METHOD(PlainSocketImpl, socketBind, "(Ljava/net/InetAddress;I)V"),
   NATIVE_METHOD(PlainSocketImpl, socketConnect, "(Ljava/net/InetAddress;II)V"),
   NATIVE_METHOD(PlainSocketImpl, socketCreate, "(Z)V"),
-  NATIVE_METHOD(PlainSocketImpl, initProto, "()V"),
 };
 
 void register_java_net_PlainSocketImpl(JNIEnv* env) {
   jniRegisterNativeMethods(env, "java/net/PlainSocketImpl", gMethods, NELEM(gMethods));
+  PlainSocketImpl_initProto(env);
 }

@@ -54,7 +54,6 @@ public final class NetworkInterface {
     private static final int defaultIndex; /* index of defaultInterface */
 
     static {
-        init();
         defaultInterface = DefaultInterface.getDefault();
         if (defaultInterface != null) {
             defaultIndex = defaultInterface.getIndex();
@@ -540,8 +539,6 @@ public final class NetworkInterface {
         }
         return result;
     }
-
-    private static native void init();
 
     /**
      * Returns the default network interface of this system

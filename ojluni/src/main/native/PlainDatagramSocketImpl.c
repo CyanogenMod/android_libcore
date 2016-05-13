@@ -168,11 +168,6 @@ PlainDatagramSocketImpl_init(JNIEnv *env, jclass cls) {
     IO_fd_fdID = NET_GetFileDescriptorID(env);
     CHECK_NULL(IO_fd_fdID);
 
-    InetAddress_init(env, 0);
-    Inet4Address_init(env, 0);
-    Inet6Address_init(env, 0);
-    NetworkInterface_init(env, 0);
-
 #ifdef __linux__
 #ifdef AF_INET6
     pdsi_multicastInterfaceID = (*env)->GetFieldID(env, cls, "multicastInterface", "I");
