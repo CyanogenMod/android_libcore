@@ -23,9 +23,8 @@ import java.util.jar.Manifest;
 
 public class JarFileBenchmark {
     @Param({
-        "/system/framework/bouncycastle.jar",
-        "/system/framework/core.jar",
-        "/system/framework/framework.jar"
+        "/system/framework/core-oj.jar",
+        "/system/priv-app/Phonesky/Phonesky.apk"
     })
     private String filename;
 

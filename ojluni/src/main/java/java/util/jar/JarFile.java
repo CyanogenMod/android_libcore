@@ -198,23 +198,7 @@ class JarFile extends ZipFile {
         return man;
     }
 
-    /* ----- BEGIN android -----
-    private native String[] getMetaInfEntryNames();*/
-
-    private String[] getMetaInfEntryNames() {
-        List<String> list = new ArrayList<String>(8);
-
-        Enumeration<? extends ZipEntry> allEntries = entries();
-        while (allEntries.hasMoreElements()) {
-            ZipEntry ze = allEntries.nextElement();
-            if (ze.getName().startsWith(META_DIR)
-                    && ze.getName().length() > META_DIR.length()) {
-                list.add(ze.getName());
-            }
-        }
-        return list.toArray(new String[list.size()]);
-    }
-    // ----- END android -----
+    private native String[] getMetaInfEntryNames();
 
     /**
      * Returns the <code>JarEntry</code> for the given entry name or
