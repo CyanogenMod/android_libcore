@@ -89,7 +89,7 @@ import java.nio.ByteBuffer;
  * <li><tt>SHA-256</tt></li>
  * </ul>
  * These algorithms are described in the <a href=
- * "{@docRoot}/../technotes/guides/security/StandardNames.html#MessageDigest">
+ * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#MessageDigest">
  * MessageDigest section</a> of the
  * Java Cryptography Architecture Standard Algorithm Name Documentation.
  * Consult the release documentation for your implementation to see if any
@@ -118,7 +118,7 @@ public abstract class MessageDigest extends MessageDigestSpi {
      *
      * @param algorithm the standard name of the digest algorithm.
      * See the MessageDigest section in the <a href=
-     * "{@docRoot}/../technotes/guides/security/StandardNames.html#MessageDigest">
+     * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#MessageDigest">
      * Java Cryptography Architecture Standard Algorithm Name Documentation</a>
      * for information about standard algorithm names.
      */
@@ -141,7 +141,7 @@ public abstract class MessageDigest extends MessageDigestSpi {
      *
      * @param algorithm the name of the algorithm requested.
      * See the MessageDigest section in the <a href=
-     * "{@docRoot}/../technotes/guides/security/StandardNames.html#MessageDigest">
+     * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#MessageDigest">
      * Java Cryptography Architecture Standard Algorithm Name Documentation</a>
      * for information about standard algorithm names.
      *
@@ -187,7 +187,7 @@ public abstract class MessageDigest extends MessageDigestSpi {
      *
      * @param algorithm the name of the algorithm requested.
      * See the MessageDigest section in the <a href=
-     * "{@docRoot}/../technotes/guides/security/StandardNames.html#MessageDigest">
+     * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#MessageDigest">
      * Java Cryptography Architecture Standard Algorithm Name Documentation</a>
      * for information about standard algorithm names.
      *
@@ -236,7 +236,7 @@ public abstract class MessageDigest extends MessageDigestSpi {
      *
      * @param algorithm the name of the algorithm requested.
      * See the MessageDigest section in the <a href=
-     * "{@docRoot}/../technotes/guides/security/StandardNames.html#MessageDigest">
+     * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#MessageDigest">
      * Java Cryptography Architecture Standard Algorithm Name Documentation</a>
      * for information about standard algorithm names.
      *
@@ -456,7 +456,7 @@ public abstract class MessageDigest extends MessageDigestSpi {
      * implementation details. The name should be a standard
      * Java Security name (such as "SHA", "MD5", and so on).
      * See the MessageDigest section in the <a href=
-     * "{@docRoot}/../technotes/guides/security/StandardNames.html#MessageDigest">
+     * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#MessageDigest">
      * Java Cryptography Architecture Standard Algorithm Name Documentation</a>
      * for information about standard algorithm names.
      *

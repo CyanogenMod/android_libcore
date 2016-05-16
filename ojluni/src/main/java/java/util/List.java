@@ -88,7 +88,7 @@ import java.util.function.UnaryOperator;
  * interface.
  *
  * <p>This interface is a member of the
- * <a href="{@docRoot}/../technotes/guides/collections/index.html">
+ * <a href="{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/collections/index.html">
  * Java Collections Framework</a>.
  *
  * @param <E> the type of elements in this list

@@ -105,7 +105,7 @@ import java.util.function.Function;
  *
  * <p>As of the Java 2 platform v1.2, this class was retrofitted to
  * implement the {@link Map} interface, making it a member of the
- * <a href="{@docRoot}/../technotes/guides/collections/index.html">
+ * <a href="{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/collections/index.html">
  *
  * Java Collections Framework</a>.  Unlike the new collection
  * implementations, {@code Hashtable} is synchronized.  If a

@@ -56,7 +56,7 @@ import java.security.spec.InvalidParameterSpecException;
  * <li><tt>DSA</tt></li>
  * </ul>
  * These algorithms are described in the <a href=
- * "{@docRoot}/../technotes/guides/security/StandardNames.html#AlgorithmParameters">
+ * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#AlgorithmParameters">
  * AlgorithmParameters section</a> of the
  * Java Cryptography Architecture Standard Algorithm Name Documentation.
  * Consult the release documentation for your implementation to see if any
@@ -128,7 +128,7 @@ public class AlgorithmParameters {
      *
      * @param algorithm the name of the algorithm requested.
      * See the AlgorithmParameters section in the <a href=
-     * "{@docRoot}/../technotes/guides/security/StandardNames.html#AlgorithmParameters">
+     * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#AlgorithmParameters">
      * Java Cryptography Architecture Standard Algorithm Name Documentation</a>
      * for information about standard algorithm names.
      *
@@ -170,7 +170,7 @@ public class AlgorithmParameters {
      *
      * @param algorithm the name of the algorithm requested.
      * See the AlgorithmParameters section in the <a href=
-     * "{@docRoot}/../technotes/guides/security/StandardNames.html#AlgorithmParameters">
+     * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#AlgorithmParameters">
      * Java Cryptography Architecture Standard Algorithm Name Documentation</a>
      * for information about standard algorithm names.
      *
@@ -217,7 +217,7 @@ public class AlgorithmParameters {
      *
      * @param algorithm the name of the algorithm requested.
      * See the AlgorithmParameters section in the <a href=
-     * "{@docRoot}/../technotes/guides/security/StandardNames.html#AlgorithmParameters">
+     * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#AlgorithmParameters">
      * Java Cryptography Architecture Standard Algorithm Name Documentation</a>
      * for information about standard algorithm names.
      *

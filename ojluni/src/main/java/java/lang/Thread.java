@@ -844,7 +844,7 @@ class Thread implements Runnable {
      *       for example), the <code>interrupt</code> method should be used to
      *       interrupt the wait.
      *       For more information, see
-     *       <a href="{@docRoot}/../technotes/guides/concurrency/threadPrimitiveDeprecation.html">Why
+     *       <a href="{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/concurrency/threadPrimitiveDeprecation.html">Why
      *       are Thread.stop, Thread.suspend and Thread.resume Deprecated?</a>.
      */
     @Deprecated
@@ -898,7 +898,7 @@ class Thread implements Runnable {
      *        exceptions that the thread could not possibly throw, were it
      *        not for this method).
      *        For more information, see
-     *        <a href="{@docRoot}/../technotes/guides/concurrency/threadPrimitiveDeprecation.html">Why
+     *        <a href="{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/concurrency/threadPrimitiveDeprecation.html">Why
      *        are Thread.stop, Thread.suspend and Thread.resume Deprecated?</a>.
      */
     @Deprecated
@@ -1007,7 +1007,7 @@ class Thread implements Runnable {
      *     If another thread ever attempted to lock this resource, deadlock
      *     would result. Such deadlocks typically manifest themselves as
      *     "frozen" processes. For more information, see
-     *     <a href="{@docRoot}/../technotes/guides/concurrency/threadPrimitiveDeprecation.html">
+     *     <a href="{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/concurrency/threadPrimitiveDeprecation.html">
      *     Why are Thread.stop, Thread.suspend and Thread.resume Deprecated?</a>.
      * @throws UnsupportedOperationException always
      */
@@ -1050,7 +1050,7 @@ class Thread implements Runnable {
      *   monitor prior to calling <code>resume</code>, deadlock results.  Such
      *   deadlocks typically manifest themselves as "frozen" processes.
      *   For more information, see
-     *   <a href="{@docRoot}/../technotes/guides/concurrency/threadPrimitiveDeprecation.html">Why
+     *   <a href="{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/concurrency/threadPrimitiveDeprecation.html">Why
      *   are Thread.stop, Thread.suspend and Thread.resume Deprecated?</a>.
      */
     @Deprecated
@@ -1075,7 +1075,7 @@ class Thread implements Runnable {
      * @deprecated This method exists solely for use with {@link #suspend},
      *     which has been deprecated because it is deadlock-prone.
      *     For more information, see
-     *     <a href="{@docRoot}/../technotes/guides/concurrency/threadPrimitiveDeprecation.html">Why
+     *     <a href="{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/concurrency/threadPrimitiveDeprecation.html">Why
      *     are Thread.stop, Thread.suspend and Thread.resume Deprecated?</a>.
      */
     @Deprecated

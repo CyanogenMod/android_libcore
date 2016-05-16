@@ -114,7 +114,7 @@ import sun.security.jca.GetInstance.Instance;
  * <li><tt>RSA</tt> (1024, 2048)</li>
  * </ul>
  * These algorithms are described in the <a href=
- * "{@docRoot}/../technotes/guides/security/StandardNames.html#KeyPairGenerator">
+ * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#KeyPairGenerator">
  * KeyPairGenerator section</a> of the
  * Java Cryptography Architecture Standard Algorithm Name Documentation.
  * Consult the release documentation for your implementation to see if any
@@ -137,7 +137,7 @@ public abstract class KeyPairGenerator extends KeyPairGeneratorSpi {
      *
      * @param algorithm the standard string name of the algorithm.
      * See the KeyPairGenerator section in the <a href=
-     * "{@docRoot}/../technotes/guides/security/StandardNames.html#KeyPairGenerator">
+     * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#KeyPairGenerator">
      * Java Cryptography Architecture Standard Algorithm Name Documentation</a>
      * for information about standard algorithm names.
      */
@@ -148,7 +148,7 @@ public abstract class KeyPairGenerator extends KeyPairGeneratorSpi {
     /**
      * Returns the standard name of the algorithm for this key pair generator.
      * See the KeyPairGenerator section in the <a href=
-     * "{@docRoot}/../technotes/guides/security/StandardNames.html#KeyPairGenerator">
+     * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#KeyPairGenerator">
      * Java Cryptography Architecture Standard Algorithm Name Documentation</a>
      * for information about standard algorithm names.
      *
@@ -186,7 +186,7 @@ public abstract class KeyPairGenerator extends KeyPairGeneratorSpi {
      *
      * @param algorithm the standard string name of the algorithm.
      * See the KeyPairGenerator section in the <a href=
-     * "{@docRoot}/../technotes/guides/security/StandardNames.html#KeyPairGenerator">
+     * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#KeyPairGenerator">
      * Java Cryptography Architecture Standard Algorithm Name Documentation</a>
      * for information about standard algorithm names.
      *
@@ -242,7 +242,7 @@ public abstract class KeyPairGenerator extends KeyPairGeneratorSpi {
      *
      * @param algorithm the standard string name of the algorithm.
      * See the KeyPairGenerator section in the <a href=
-     * "{@docRoot}/../technotes/guides/security/StandardNames.html#KeyPairGenerator">
+     * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#KeyPairGenerator">
      * Java Cryptography Architecture Standard Algorithm Name Documentation</a>
      * for information about standard algorithm names.
      *
@@ -281,7 +281,7 @@ public abstract class KeyPairGenerator extends KeyPairGeneratorSpi {
      *
      * @param algorithm the standard string name of the algorithm.
      * See the KeyPairGenerator section in the <a href=
-     * "{@docRoot}/../technotes/guides/security/StandardNames.html#KeyPairGenerator">
+     * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#KeyPairGenerator">
      * Java Cryptography Architecture Standard Algorithm Name Documentation</a>
      * for information about standard algorithm names.
      *

@@ -170,7 +170,7 @@ import javax.security.auth.callback.*;
  * <li><tt>PKCS12</tt></li>
  * </ul>
  * This type is described in the <a href=
- * "{@docRoot}/../technotes/guides/security/StandardNames.html#KeyStore">
+ * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#KeyStore">
  * KeyStore section</a> of the
  * Java Cryptography Architecture Standard Algorithm Name Documentation.
  * Consult the release documentation for your implementation to see if any
@@ -594,7 +594,7 @@ public class KeyStore {
      *
      * @param type the type of keystore.
      * See the KeyStore section in the <a href=
-     * "{@docRoot}/../technotes/guides/security/StandardNames.html#KeyStore">
+     * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#KeyStore">
      * Java Cryptography Architecture Standard Algorithm Name Documentation</a>
      * for information about standard keystore types.
      *
@@ -632,7 +632,7 @@ public class KeyStore {
      *
      * @param type the type of keystore.
      * See the KeyStore section in the <a href=
-     * "{@docRoot}/../technotes/guides/security/StandardNames.html#KeyStore">
+     * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#KeyStore">
      * Java Cryptography Architecture Standard Algorithm Name Documentation</a>
      * for information about standard keystore types.
      *
@@ -675,7 +675,7 @@ public class KeyStore {
      *
      * @param type the type of keystore.
      * See the KeyStore section in the <a href=
-     * "{@docRoot}/../technotes/guides/security/StandardNames.html#KeyStore">
+     * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#KeyStore">
      * Java Cryptography Architecture Standard Algorithm Name Documentation</a>
      * for information about standard keystore types.
      *

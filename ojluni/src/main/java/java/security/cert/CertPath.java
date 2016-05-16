@@ -91,7 +91,7 @@ import java.util.List;
  * <li><tt>PkiPath</tt></li>
  * </ul>
  * These encodings are described in the <a href=
- * "{@docRoot}/../technotes/guides/security/StandardNames.html#CertPathEncodings">
+ * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#CertPathEncodings">
  * CertPath Encodings section</a> of the
  * Java Cryptography Architecture Standard Algorithm Name Documentation.
  * Consult the release documentation for your implementation to see if any

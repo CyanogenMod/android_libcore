@@ -70,7 +70,7 @@ public abstract class Certificate implements java.io.Serializable {
      *
      * @param type the standard name of the certificate type.
      * See the CertificateFactory section in the <a href=
-     * "{@docRoot}/../technotes/guides/security/StandardNames.html#CertificateFactory">
+     * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#CertificateFactory">
      * Java Cryptography Architecture Standard Algorithm Name Documentation</a>
      * for information about standard certificate types.
      */

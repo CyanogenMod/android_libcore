@@ -43,7 +43,7 @@ import sun.security.jca.GetInstance;
  * <li><tt>TLSv1</tt></li>
  * </ul>
  * This protocol is described in the <a href=
- * "{@docRoot}/../technotes/guides/security/StandardNames.html#SSLContext">
+ * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#SSLContext">
  * SSLContext section</a> of the
  * Java Cryptography Architecture Standard Algorithm Name Documentation.
  * Consult the release documentation for your implementation to see if any
@@ -137,7 +137,7 @@ public class SSLContext {
      *
      * @param protocol the standard name of the requested protocol.
      *          See the SSLContext section in the <a href=
-     * "{@docRoot}/../technotes/guides/security/StandardNames.html#SSLContext">
+     * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#SSLContext">
      *          Java Cryptography Architecture Standard Algorithm Name
      *          Documentation</a>
      *          for information about standard protocol names.
@@ -173,7 +173,7 @@ public class SSLContext {
      *
      * @param protocol the standard name of the requested protocol.
      *          See the SSLContext section in the <a href=
-     * "{@docRoot}/../technotes/guides/security/StandardNames.html#SSLContext">
+     * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#SSLContext">
      *          Java Cryptography Architecture Standard Algorithm Name
      *          Documentation</a>
      *          for information about standard protocol names.
@@ -213,7 +213,7 @@ public class SSLContext {
      *
      * @param protocol the standard name of the requested protocol.
      *          See the SSLContext section in the <a href=
-     * "{@docRoot}/../technotes/guides/security/StandardNames.html#SSLContext">
+     * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#SSLContext">
      *          Java Cryptography Architecture Standard Algorithm Name
      *          Documentation</a>
      *          for information about standard protocol names.

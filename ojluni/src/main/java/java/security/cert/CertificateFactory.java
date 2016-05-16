@@ -102,9 +102,9 @@ import sun.security.jca.GetInstance.Instance;
  * <li><tt>PkiPath</tt></li>
  * </ul>
  * The type and encodings are described in the <a href=
- * "{@docRoot}/../technotes/guides/security/StandardNames.html#CertificateFactory">
+ * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#CertificateFactory">
  * CertificateFactory section</a> and the <a href=
- * "{@docRoot}/../technotes/guides/security/StandardNames.html#CertPathEncodings">
+ * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#CertPathEncodings">
  * CertPath Encodings section</a> of the
  * Java Cryptography Architecture Standard Algorithm Name Documentation.
  * Consult the release documentation for your implementation to see if any
@@ -165,7 +165,7 @@ public class CertificateFactory {
      *
      * @param type the name of the requested certificate type.
      * See the CertificateFactory section in the <a href=
-     * "{@docRoot}/../technotes/guides/security/StandardNames.html#CertificateFactory">
+     * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#CertificateFactory">
      * Java Cryptography Architecture Standard Algorithm Name Documentation</a>
      * for information about standard certificate types.
      *
@@ -203,7 +203,7 @@ public class CertificateFactory {
      *
      * @param type the certificate type.
      * See the CertificateFactory section in the <a href=
-     * "{@docRoot}/../technotes/guides/security/StandardNames.html#CertificateFactory">
+     * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#CertificateFactory">
      * Java Cryptography Architecture Standard Algorithm Name Documentation</a>
      * for information about standard certificate types.
      *
@@ -247,7 +247,7 @@ public class CertificateFactory {
      *
      * @param type the certificate type.
      * See the CertificateFactory section in the <a href=
-     * "{@docRoot}/../technotes/guides/security/StandardNames.html#CertificateFactory">
+     * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#CertificateFactory">
      * Java Cryptography Architecture Standard Algorithm Name Documentation</a>
      * for information about standard certificate types.
      * @param provider the provider.
@@ -343,7 +343,7 @@ public class CertificateFactory {
      * Returns an iteration of the <code>CertPath</code> encodings supported
      * by this certificate factory, with the default encoding first. See
      * the CertPath Encodings section in the <a href=
-     * "{@docRoot}/../technotes/guides/security/StandardNames.html#CertPathEncodings">
+     * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#CertPathEncodings">
      * Java Cryptography Architecture Standard Algorithm Name Documentation</a>
      * for information about standard encoding names and their formats.
      * <p>
@@ -383,7 +383,7 @@ public class CertificateFactory {
      * the data read from the <code>InputStream</code> inStream. The data
      * is assumed to be in the specified encoding. See
      * the CertPath Encodings section in the <a href=
-     * "{@docRoot}/../technotes/guides/security/StandardNames.html#CertPathEncodings">
+     * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#CertPathEncodings">
      * Java Cryptography Architecture Standard Algorithm Name Documentation</a>
      * for information about standard encoding names and their formats.
      *
