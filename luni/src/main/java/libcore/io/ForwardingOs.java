@@ -128,6 +128,7 @@ public class ForwardingOs implements Os {
     public int read(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException, InterruptedIOException { return os.read(fd, buffer); }
     public int read(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws ErrnoException, InterruptedIOException { return os.read(fd, bytes, byteOffset, byteCount); }
     public String readlink(String path) throws ErrnoException { return os.readlink(path); }
+    public String realpath(String path) throws ErrnoException { return os.realpath(path); }
     public int readv(FileDescriptor fd, Object[] buffers, int[] offsets, int[] byteCounts) throws ErrnoException, InterruptedIOException { return os.readv(fd, buffers, offsets, byteCounts); }
     public int recvfrom(FileDescriptor fd, ByteBuffer buffer, int flags, InetSocketAddress srcAddress) throws ErrnoException, SocketException { return os.recvfrom(fd, buffer, flags, srcAddress); }
     public int recvfrom(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, int flags, InetSocketAddress srcAddress) throws ErrnoException, SocketException { return os.recvfrom(fd, bytes, byteOffset, byteCount, flags, srcAddress); }

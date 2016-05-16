@@ -170,6 +170,7 @@ public final class Posix implements Os {
     }
     private native int readBytes(FileDescriptor fd, Object buffer, int offset, int byteCount) throws ErrnoException, InterruptedIOException;
     public native String readlink(String path) throws ErrnoException;
+    public native String realpath(String path) throws ErrnoException;
     public native int readv(FileDescriptor fd, Object[] buffers, int[] offsets, int[] byteCounts) throws ErrnoException, InterruptedIOException;
     public int recvfrom(FileDescriptor fd, ByteBuffer buffer, int flags, InetSocketAddress srcAddress) throws ErrnoException, SocketException {
         final int bytesReceived;
