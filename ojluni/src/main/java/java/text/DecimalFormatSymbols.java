@@ -741,8 +741,8 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
             result.setCurrency(Currency.getInstance("XXX"));
         }
 
-        result.setCurrencySymbol(dfs.getCurrencySymbol());
         result.setInternationalCurrencySymbol(dfs.getInternationalCurrencySymbol());
+        result.setCurrencySymbol(dfs.getCurrencySymbol());
         return result;
     }
 
