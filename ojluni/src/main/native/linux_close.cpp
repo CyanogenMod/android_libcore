@@ -175,10 +175,25 @@ int NET_Select(int s, fd_set *readfds, fd_set *writefds,
  * Wrapper for poll(s, timeout).
  * Auto restarts with adjusted timeout if interrupted by
  * signal other than our wakeup signal.
+ *
+ * If s < 0, exits early rather than delegating to poll().
+ * TODO: Investigate whether it'd be better to handle this
+ * case at the caller so that this function is never called
+ * for s < 0.
  */
 int NET_Timeout(int s, long timeout) {
     long prevtime = 0, newtime;
     struct timeval t;
+
+    /*
+     * b/27763633
+     * Avoid blocking calls to poll() for invalid sockets, e.g. when
+     * called from PlainSocketImpl_socketAccept with fd == -1.
+     */
+    if (s < 0) {
+        errno = EBADF;
+        return -1;
+    }
 
     /*
      * Pick up current time as may need to adjust timeout
