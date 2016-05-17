@@ -320,6 +320,16 @@ public class DecimalFormatTest extends junit.framework.TestCase {
         }
     }
 
+    // Test that overriding the currency symbol survives a roundrip through the
+    // DecimalFormat constructor.
+    // http://b/28732330
+    public void testSetCurrencySymbol() {
+        DecimalFormatSymbols decimalFormatSymbols = new DecimalFormatSymbols(Locale.US);
+        decimalFormatSymbols.setCurrencySymbol("¥");
+        DecimalFormat decimalFormat = new DecimalFormat("¤#,##0.00", decimalFormatSymbols);
+        assertEquals("¥", decimalFormat.getDecimalFormatSymbols().getCurrencySymbol());
+    }
+
     private String formatArbitraryCurrencyAmountInLocale(Currency currency, Locale locale) {
         NumberFormat localeCurrencyFormat = NumberFormat.getCurrencyInstance(locale);
         localeCurrencyFormat.setCurrency(currency);
