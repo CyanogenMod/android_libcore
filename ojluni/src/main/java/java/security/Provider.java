@@ -1522,4 +1522,22 @@ public abstract class Provider extends Properties {
     public boolean isRegistered() {
         return registered;
     }
+
+    /**
+     * Ensure the values cached by {@link #getServices} and {@link #getService} are already computed
+     *
+     * Used by the zygote so that initialization is performed during preload for the providers
+     * available at that point.
+     *
+     * @hide
+     */
+    public synchronized void warmUpServiceProvision() {
+        checkInitialized();
+        // Further calls do nothing if the services didn't change. If not called here, it would
+        // parse legacy strings the first time that a service is requested.
+        ensureLegacyParsed();
+        // This call to getServices will update fields so that further calls will just return a
+        // stored field, if the services didn't change in the meantime.
+        getServices();
+    }
 }
