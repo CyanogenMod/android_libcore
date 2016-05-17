@@ -1156,41 +1156,26 @@ public final
         if (isArray())
             return getComponentType().getSimpleName()+"[]";
 
-        String simpleName = getSimpleBinaryName();
-        if (simpleName == null) { // top level class
-            simpleName = getName();
+        if (isAnonymousClass()) {
+            return "";
+        }
+
+        if (isMemberClass() || isLocalClass()) {
+            // Note that we obtain this information from getInnerClassName(), which uses
+            // dex system annotations to obtain the name. It is possible for this information
+            // to disagree with the actual enclosing class name. For example, if dex
+            // manipulation tools have renamed the enclosing class without adjusting
+            // the system annotation to match. See http://b/28800927.
+            return getInnerClassName();
+        }
+
+        String simpleName = getName();
+        final int dot = simpleName.lastIndexOf(".");
+        if (dot > 0) {
             return simpleName.substring(simpleName.lastIndexOf(".")+1); // strip the package name
         }
-        // According to JLS3 "Binary Compatibility" (13.1) the binary
-        // name of non-package classes (not top level) is the binary
-        // name of the immediately enclosing class followed by a '$' followed by:
-        // (for nested and inner classes): the simple name.
-        // (for local classes): 1 or more digits followed by the simple name.
-        // (for anonymous classes): 1 or more digits.
 
-        // Since getSimpleBinaryName() will strip the binary name of
-        // the immediatly enclosing class, we are now looking at a
-        // string that matches the regular expression "\$[0-9]*"
-        // followed by a simple name (considering the simple of an
-        // anonymous class to be the empty string).
-
-        // Remove leading "\$[0-9]*" from the name
-        int length = simpleName.length();
-        if (length < 1 || simpleName.charAt(0) != '$')
-            throw new InternalError("Malformed class name");
-        int index = 1;
-        while (index < length && isAsciiDigit(simpleName.charAt(index)))
-            index++;
-        // Eventually, this is the empty string iff this is an anonymous class
-        return simpleName.substring(index);
-    }
-
-    /**
-     * Character.isDigit answers {@code true} to some non-ascii
-     * digits.  This one does not.
-     */
-    private static boolean isAsciiDigit(char c) {
-        return '0' <= c && c <= '9';
+        return simpleName;
     }
 
     /**
@@ -1253,25 +1238,7 @@ public final
      * @since 1.5
      */
     public boolean isMemberClass() {
-        return getSimpleBinaryName() != null && !isLocalOrAnonymousClass();
-    }
-
-    /**
-     * Returns the "simple binary name" of the underlying class, i.e.,
-     * the binary name without the leading enclosing class name.
-     * Returns {@code null} if the underlying class is a top level
-     * class.
-     */
-    private String getSimpleBinaryName() {
-        Class<?> enclosingClass = getEnclosingClass();
-        if (enclosingClass == null) // top level class
-            return null;
-        // Otherwise, strip the enclosing class' name
-        try {
-            return getName().substring(enclosingClass.getName().length());
-        } catch (IndexOutOfBoundsException ex) {
-            throw new InternalError("Malformed class name");
-        }
+        return getDeclaringClass() != null;
     }
 
     /**
