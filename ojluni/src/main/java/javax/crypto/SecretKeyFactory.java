@@ -58,18 +58,146 @@ import sun.security.jca.GetInstance.Instance;
  * <code>DESedeKeySpec</code> as a transparent representation of Triple DES
  * keys.
  *
- * <p> Every implementation of the Java platform is required to support the
- * following standard <code>SecretKeyFactory</code> algorithms:
- * <ul>
- * <li><tt>DES</tt></li>
- * <li><tt>DESede</tt></li>
- * </ul>
+ * <p> Android provides the following <code>SecretKeyFactory</code> algorithms:
+ * <table>
+ *     <thead>
+ *         <tr>
+ *             <th>Name</th>
+ *             <th>Supported (API Levels)</th>
+ *         </tr>
+ *     </thead>
+ *     <tbody>
+ *         <tr>
+ *             <td>AES</td>
+ *             <td>23+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>DES</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>DESede</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>HmacSHA1</td>
+ *             <td>23+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>HmacSHA224</td>
+ *             <td>23+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>HmacSHA256</td>
+ *             <td>23+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>HmacSHA384</td>
+ *             <td>23+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>HmacSHA512</td>
+ *             <td>23+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>PBEwithHmacSHA1</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>PBEwithMD5and128BITAES-CBC-OPENSSL</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>PBEwithMD5and192BITAES-CBC-OPENSSL</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>PBEwithMD5and256BITAES-CBC-OPENSSL</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>PBEwithMD5andDES</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>PBEwithMD5andRC2</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>PBEwithSHA1andDES</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>PBEwithSHA1andRC2</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>PBEwithSHA256and128BITAES-CBC-BC</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>PBEwithSHA256and192BITAES-CBC-BC</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>PBEwithSHA256and256BITAES-CBC-BC</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>PBEwithSHAand128BITAES-CBC-BC</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>PBEwithSHAand128BITRC2-CBC</td>
+ *             <td>10+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>PBEwithSHAand128BITRC4</td>
+ *             <td>10+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>PBEwithSHAand192BITAES-CBC-BC</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>PBEwithSHAand2-KEYTRIPLEDES-CBC</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>PBEwithSHAand256BITAES-CBC-BC</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>PBEwithSHAand3-KEYTRIPLEDES-CBC</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>PBEwithSHAand40BITRC2-CBC</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>PBEwithSHAand40BITRC4</td>
+ *             <td>10+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>PBEwithSHAandTWOFISH-CBC</td>
+ *             <td>10+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>PBKDF2withHmacSHA1</td>
+ *             <td>10+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>PBKDF2withHmacSHA1and8BIT</td>
+ *             <td>19+</td>
+ *         </tr>
+ *     </tbody>
+ * </table>
+ *
  * These algorithms are described in the <a href=
  * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#SecretKeyFactory">
  * SecretKeyFactory section</a> of the
  * Java Cryptography Architecture Standard Algorithm Name Documentation.
- * Consult the release documentation for your implementation to see if any
- * other algorithms are supported.
  *
  * @author Jan Luehe
  *

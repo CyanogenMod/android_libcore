@@ -84,22 +84,78 @@ import sun.security.jca.GetInstance.Instance;
  * (via a call to an <code>init</code> method), each provider must
  * supply (and document) a default initialization.
  *
- * <p> Every implementation of the Java platform is required to support the
- * following standard <code>KeyGenerator</code> algorithms with the keysizes in
- * parentheses:
- * <ul>
- * <li><tt>AES</tt> (128)</li>
- * <li><tt>DES</tt> (56)</li>
- * <li><tt>DESede</tt> (168)</li>
- * <li><tt>HmacSHA1</tt></li>
- * <li><tt>HmacSHA256</tt></li>
- * </ul>
+ * <p> Android provides the following <code>KeyGenerator</code> algorithms:
+ * <table>
+ *     <thead>
+ *         <tr>
+ *             <th>Name</th>
+ *             <th>Supported (API Levels)</th>
+ *         </tr>
+ *     </thead>
+ *     <tbody>
+ *         <tr>
+ *             <td>AES</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>AESWRAP</td>
+ *             <td>1&ndash;8</td>
+ *         </tr>
+ *         <tr>
+ *             <td>ARC4</td>
+ *             <td>14+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>Blowfish</td>
+ *             <td>10+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>DES</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>DESede</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>DESedeWRAP</td>
+ *             <td>1&ndash;8</td>
+ *         </tr>
+ *         <tr>
+ *             <td>HmacMD5</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>HmacSHA1</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>HmacSHA224</td>
+ *             <td>1&ndash;8,22+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>HmacSHA256</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>HmacSHA384</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>HmacSHA512</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>RC4</td>
+ *             <td>10&ndash;13</td>
+ *         </tr>
+ *     </tbody>
+ * </table>
+ *
  * These algorithms are described in the <a href=
  * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#KeyGenerator">
  * KeyGenerator section</a> of the
  * Java Cryptography Architecture Standard Algorithm Name Documentation.
- * Consult the release documentation for your implementation to see if any
- * other algorithms are supported.
  *
  * @author Jan Luehe
  *

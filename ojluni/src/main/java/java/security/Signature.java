@@ -99,19 +99,114 @@ import sun.security.jca.GetInstance.Instance;
  * the superclass are intended for cryptographic service providers who wish to
  * supply their own implementations of digital signature algorithms.
  *
- * <p> Every implementation of the Java platform is required to support the
- * following standard <code>Signature</code> algorithms:
- * <ul>
- * <li><tt>SHA1withDSA</tt></li>
- * <li><tt>SHA1withRSA</tt></li>
- * <li><tt>SHA256withRSA</tt></li>
- * </ul>
+ * <p> Android provides the following <code>Signature</code> algorithms:
+ * <table>
+ *     <thead>
+ *         <tr>
+ *             <th>Name</th>
+ *             <th>Supported (API Levels)</th>
+ *         </tr>
+ *     </thead>
+ *     <tbody>
+ *         <tr>
+ *             <td>DSA</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>DSAwithSHA1</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>DSS</td>
+ *             <td>1&ndash;19</td>
+ *         </tr>
+ *         <tr>
+ *             <td>ECDSA</td>
+ *             <td>11+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>ECDSAwithSHA1</td>
+ *             <td>11+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>MD2withRSA</td>
+ *             <td>1&ndash;3</td>
+ *         </tr>
+ *         <tr>
+ *             <td>MD4withRSA</td>
+ *             <td>1&ndash;8</td>
+ *         </tr>
+ *         <tr>
+ *             <td>MD5withRSA</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>MD5withRSA/ISO9796-2</td>
+ *             <td>1&ndash;8</td>
+ *         </tr>
+ *         <tr>
+ *             <td>NONEwithDSA</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>NONEwithECDSA</td>
+ *             <td>11+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>NONEwithRSA</td>
+ *             <td>17+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>RSASSA-PSS</td>
+ *             <td>1&ndash;8</td>
+ *         </tr>
+ *         <tr>
+ *             <td>SHA1withDSA</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>SHA1withECDSA</td>
+ *             <td>11+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>SHA1withRSA</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>SHA1withRSA/ISO9796-2</td>
+ *             <td>1&ndash;8</td>
+ *         </tr>
+ *         <tr>
+ *             <td>SHA256withECDSA</td>
+ *             <td>11+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>SHA256withRSA</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>SHA384withECDSA</td>
+ *             <td>11+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>SHA384withRSA</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>SHA512withECDSA</td>
+ *             <td>11+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>SHA512withRSA</td>
+ *             <td>1+</td>
+ *         </tr>
+ *     </tbody>
+ * </table>
+ *
  * These algorithms are described in the <a href=
  * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#Signature">
  * Signature section</a> of the
  * Java Cryptography Architecture Standard Algorithm Name Documentation.
- * Consult the release documentation for your implementation to see if any
- * other algorithms are supported.
  *
  * @author Benjamin Renaud
  *

@@ -164,17 +164,50 @@ import javax.security.auth.callback.*;
  * different passwords or other protection parameters
  * may also be used.
  *
- * <p> Every implementation of the Java platform is required to support
- * the following standard <code>KeyStore</code> type:
- * <ul>
- * <li><tt>PKCS12</tt></li>
- * </ul>
- * This type is described in the <a href=
+ * <p> Android provides the following <code>KeyStore</code> types:
+ * <table>
+ *     <thead>
+ *         <tr>
+ *             <th>Name</th>
+ *             <th>Supported (API Levels)</th>
+ *         </tr>
+ *     </thead>
+ *     <tbody>
+ *         <tr>
+ *             <td>AndroidCAStore</td>
+ *             <td>14+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>AndroidKeyStore</td>
+ *             <td>18+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>BCPKCS12</td>
+ *             <td>1&ndash;8</td>
+ *         </tr>
+ *         <tr>
+ *             <td>BKS</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>BouncyCastle</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>PKCS12</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>PKCS12-DEF</td>
+ *             <td>1&ndash;8</td>
+ *         </tr>
+ *     </tbody>
+ * </table>
+ *
+ * These types are described in the <a href=
  * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#KeyStore">
  * KeyStore section</a> of the
  * Java Cryptography Architecture Standard Algorithm Name Documentation.
- * Consult the release documentation for your implementation to see if any
- * other types are supported.
  *
  * @author Jan Luehe
  *
