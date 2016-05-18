@@ -76,6 +76,12 @@ struct addrinfo_deleter {
     }
 };
 
+struct c_deleter {
+    void operator()(void* p) const {
+        free(p);
+    }
+};
+
 static bool isIPv4MappedAddress(const sockaddr *sa) {
     const sockaddr_in6 *sin6 = reinterpret_cast<const sockaddr_in6*>(sa);
     return sa != NULL && sa->sa_family == AF_INET6 &&
@@ -1497,6 +1503,21 @@ static jstring Posix_readlink(JNIEnv* env, jobject, jstring javaPath) {
     return env->NewStringUTF(result.c_str());
 }
 
+static jstring Posix_realpath(JNIEnv* env, jobject, jstring javaPath) {
+    ScopedUtfChars path(env, javaPath);
+    if (path.c_str() == NULL) {
+        return NULL;
+    }
+
+    std::unique_ptr<char, c_deleter> real_path(realpath(path.c_str(), nullptr));
+    if (real_path.get() == nullptr) {
+        throwErrnoException(env, "realpath");
+        return NULL;
+    }
+
+    return env->NewStringUTF(real_path.get());
+}
+
 static jint Posix_readv(JNIEnv* env, jobject, jobject javaFd, jobjectArray buffers, jintArray offsets, jintArray byteCounts) {
     IoVec<ScopedBytesRW> ioVec(env, env->GetArrayLength(buffers));
     if (!ioVec.init(buffers, offsets, byteCounts)) {
@@ -2015,6 +2036,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, pwriteBytes, "(Ljava/io/FileDescriptor;Ljava/lang/Object;IIJ)I"),
     NATIVE_METHOD(Posix, readBytes, "(Ljava/io/FileDescriptor;Ljava/lang/Object;II)I"),
     NATIVE_METHOD(Posix, readlink, "(Ljava/lang/String;)Ljava/lang/String;"),
+    NATIVE_METHOD(Posix, realpath, "(Ljava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(Posix, readv, "(Ljava/io/FileDescriptor;[Ljava/lang/Object;[I[I)I"),
     NATIVE_METHOD(Posix, recvfromBytes, "(Ljava/io/FileDescriptor;Ljava/lang/Object;IIILjava/net/InetSocketAddress;)I"),
     NATIVE_METHOD(Posix, remove, "(Ljava/lang/String;)V"),

@@ -541,6 +541,27 @@ public class OsTest extends TestCase {
     }
   }
 
+  public void test_realpath() throws Exception {
+      File tmpDir = new File(System.getProperty("java.io.tmpdir"));
+      // This is a chicken and egg problem. We have no way of knowing whether
+      // the temporary directory or one of its path elements were symlinked, so
+      // we'll need this call to realpath.
+      String canonicalTmpDir = Libcore.os.realpath(tmpDir.getAbsolutePath());
+
+      // Test that "." and ".." are resolved correctly.
+      assertEquals(canonicalTmpDir,
+          Libcore.os.realpath(canonicalTmpDir + "/./../" + tmpDir.getName()));
+
+      // Test that symlinks are resolved correctly.
+      File target = new File(tmpDir, "target");
+      assertTrue(target.createNewFile());
+      File link = new File(tmpDir, "link");
+      Libcore.os.symlink(target.getAbsolutePath(), link.getAbsolutePath());
+
+      assertEquals(canonicalTmpDir + "/target",
+          Libcore.os.realpath(canonicalTmpDir + "/link"));
+  }
+
   private static void assertStartsWith(byte[] expectedContents, byte[] container) {
     for (int i = 0; i < expectedContents.length; i++) {
       if (expectedContents[i] != container[i]) {

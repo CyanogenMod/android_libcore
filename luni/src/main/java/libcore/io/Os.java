@@ -121,6 +121,7 @@ public interface Os {
     public int read(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException, InterruptedIOException;
     public int read(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws ErrnoException, InterruptedIOException;
     public String readlink(String path) throws ErrnoException;
+    public String realpath(String path) throws ErrnoException;
     public int readv(FileDescriptor fd, Object[] buffers, int[] offsets, int[] byteCounts) throws ErrnoException, InterruptedIOException;
     public int recvfrom(FileDescriptor fd, ByteBuffer buffer, int flags, InetSocketAddress srcAddress) throws ErrnoException, SocketException;
     public int recvfrom(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, int flags, InetSocketAddress srcAddress) throws ErrnoException, SocketException;
