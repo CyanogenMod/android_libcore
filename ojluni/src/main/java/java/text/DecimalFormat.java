@@ -1334,13 +1334,16 @@ public class DecimalFormat extends NumberFormat {
      */
     public void setCurrency(Currency currency) {
         // Set the international currency symbol, and currency symbol on the DecimalFormatSymbols
-        // object and tell ICU to use that. Trying to set the currency on icuDecimalFormat will
-        // cause the fractional digits to be update
+        // object and tell ICU to use that.
         if (currency != symbols.getCurrency()
             || !currency.getSymbol().equals(symbols.getCurrencySymbol())) {
             symbols.setCurrency(currency);
+            icuDecimalFormat.setDecimalFormatSymbols(symbols.getIcuDecimalFormatSymbols());
+            // Giving the icuDecimalFormat a new currency will cause the fractional digits to be
+            // updated. This class is specified to not touch the fraction digits, so we re-set them.
+            icuDecimalFormat.setMinimumFractionDigits(minimumFractionDigits);
+            icuDecimalFormat.setMaximumFractionDigits(maximumFractionDigits);
         }
-        icuDecimalFormat.setDecimalFormatSymbols(symbols.getIcuDecimalFormatSymbols());
     }
 
     /**
