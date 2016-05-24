@@ -431,7 +431,13 @@ public final class NetworkInterface {
      * @since 1.6
      */
     public byte[] getHardwareAddress() throws SocketException {
-        return (hardwareAddr != null) ? hardwareAddr.clone() : null;
+        // Android chage - do not use the cached address, fetch
+        // the object again. NI might not be valid anymore.
+        NetworkInterface ni = getByName0(name);
+        if (ni == null) {
+            throw new SocketException("NetworkInterface doesn't exist anymore");
+        }
+        return ni.hardwareAddr;
     }
 
     /**
