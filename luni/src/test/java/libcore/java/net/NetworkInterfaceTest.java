@@ -17,6 +17,7 @@
 package libcore.java.net;
 
 import junit.framework.TestCase;
+import java.lang.reflect.Field;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -144,6 +145,48 @@ public class NetworkInterfaceTest extends TestCase {
             assertFalse(allIndexes.contains(nif.getIndex()));
             allIndexes.add(nif.getIndex());
         }
+    }
+
+    // b/28903817
+    public void testInterfaceRemoval() throws Exception {
+        NetworkInterface lo = NetworkInterface.getByName("lo");
+
+        // Simulate interface removal by changing it's name to unused value.
+        // This works only because getHardwareAddress (and others) is using name to fetch
+        // the NI data. If this changes, this test needs an update.
+        Field nameField = NetworkInterface.class.getDeclaredField("name");
+        nameField.setAccessible(true);
+        nameField.set(lo, "noSuchInterface");
+
+        try {
+            lo.getHardwareAddress();
+            fail();
+        } catch(SocketException expected) {}
+
+        try {
+            lo.getMTU();
+            fail();
+        } catch(SocketException expected) {}
+
+        try {
+            lo.isLoopback();
+            fail();
+        } catch(SocketException expected) {}
+
+        try {
+            lo.isUp();
+            fail();
+        } catch(SocketException expected) {}
+
+        try {
+            lo.isPointToPoint();
+            fail();
+        } catch(SocketException expected) {}
+
+        try {
+            lo.supportsMulticast();
+            fail();
+        } catch(SocketException expected) {}
     }
 
     // Is ifName a name of a Ethernet device?
