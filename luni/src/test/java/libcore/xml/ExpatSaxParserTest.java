@@ -36,6 +36,7 @@ import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.ext.DefaultHandler2;
 import org.xml.sax.helpers.DefaultHandler;
@@ -622,6 +623,54 @@ public class ExpatSaxParserTest extends TestCase {
         source.setSystemId(server.getUrl("/systemFoo").toString());
         reader.parse(source);
         assertEquals(Arrays.asList("foo", "bar", "/bar", "/foo"), handler.elementNames);
+    }
+
+    /**
+     * A little endian UTF-16 file with an odd number of bytes.
+     */
+    public void testBug28698301_1() throws Exception {
+        checkBug28698301("bug28698301-1.xml");
+    }
+
+    /**
+     * A little endian UTF-16 file with an even number of bytes that didn't exhibit the problem
+     * reported in the bug.
+     */
+    public void testBug28698301_2() throws Exception {
+        checkBug28698301("bug28698301-2.xml");
+    }
+
+    /**
+     * A big endian UTF-16 file with an odd number of bytes.
+     */
+    public void testBug28698301_3() throws Exception {
+        checkBug28698301("bug28698301-3.xml");
+    }
+
+    /**
+     * This tests what happens when UTF-16 input (little and big endian) that has an odd number of
+     * bytes (and hence is invalid UTF-16) is parsed by Expat.
+     *
+     * <p>Prior to the patch the files would cause the pointer into the byte buffer to jump past
+     * the end of the buffer and keep reading. Once it had jumped past it would continue reading
+     * from memory until it hit a check that caused it to stop or caused a SIGSEGV. If a SIGSEGV
+     * was not thrown that lead to spurious and misleading errors being reported.
+     *
+     * <p>The initial jump was caused because it was not checking to make sure that there were
+     * enough bytes to read a whole UTF-16 character. It kept reading because most of the buffer
+     * range checks used == and != rather than >= and <. The patch fixes the initial jump and then
+     * uses inequalities in the range check to fail fast in the event of another overflow bug.
+     */
+    private void checkBug28698301(String name) throws IOException, SAXException {
+        InputStream is = getClass().getResourceAsStream(name);
+        try {
+            parse(is, Encoding.UTF_16, new TestHandler());
+        } catch (SAXParseException exception) {
+            String message = exception.getMessage();
+            if (!message.contains("no element found")) {
+                fail("Expected 'no element found' exception, found: " + message);
+            }
+        }
     }
 
     /**
