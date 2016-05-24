@@ -54,19 +54,82 @@ import sun.security.jca.GetInstance.Instance;
  * e.g., MD5 or SHA-1, in combination with a secret shared key. HMAC is
  * specified in RFC 2104.
  *
- * <p> Every implementation of the Java platform is required to support
- * the following standard <code>Mac</code> algorithms:
- * <ul>
- * <li><tt>HmacMD5</tt></li>
- * <li><tt>HmacSHA1</tt></li>
- * <li><tt>HmacSHA256</tt></li>
- * </ul>
+ * <p> Android provides the following <code>Mac</code> algorithms
+ * <table>
+ *     <thead>
+ *         <tr>
+ *             <th>Name</th>
+ *             <th>Supported (API Levels)</th>
+ *         </tr>
+ *     </thead>
+ *     <tbody>
+ *         <tr>
+ *             <td>DESedeMAC</td>
+ *             <td>1&ndash;8</td>
+ *         </tr>
+ *         <tr>
+ *             <td>DESedeMAC/CFB8</td>
+ *             <td>1&ndash;8</td>
+ *         </tr>
+ *         <tr>
+ *             <td>DESedeMAC64</td>
+ *             <td>1&ndash;8</td>
+ *         </tr>
+ *         <tr>
+ *             <td>DESMAC</td>
+ *             <td>1&ndash;8</td>
+ *         </tr>
+ *         <tr>
+ *             <td>DESMAC/CFB8</td>
+ *             <td>1&ndash;8</td>
+ *         </tr>
+ *         <tr>
+ *             <td>DESwithISO9797</td>
+ *             <td>1&ndash;8</td>
+ *         </tr>
+ *         <tr>
+ *             <td>HmacMD5</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>HmacSHA1</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>HmacSHA224</td>
+ *             <td>1&ndash;8, 22+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>HmacSHA256</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>HmacSHA384</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>HmacSHA512</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>ISO9797ALG3MAC</td>
+ *             <td>1&ndash;8</td>
+ *         </tr>
+ *         <tr>
+ *             <td>PBEwithHmacSHA</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>PBEwithHmacSHA1</td>
+ *             <td>1+</td>
+ *         </tr>
+ *     </tbody>
+ * </table>
+ *
  * These algorithms are described in the
  * <a href="{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#Mac">
  * Mac section</a> of the
  * Java Cryptography Architecture Standard Algorithm Name Documentation.
- * Consult the release documentation for your implementation to see if any
- * other algorithms are supported.
  *
  * @author Jan Luehe
  *

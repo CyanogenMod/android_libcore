@@ -68,17 +68,26 @@ import sun.security.jca.GetInstance.Instance;
  * CertPathValidatorResult cpvr = cpv.validate(path, params);
  * </pre>
  *
- * <p>Every implementation of the Java platform is required to support the
- * following standard {@code CertPathValidator} algorithm:
- * <ul>
- * <li>{@code PKIX}</li>
- * </ul>
+ * <p> Android provides the following {@code CertPathValidator} algorithms:
+ * <table>
+ *     <thead>
+ *         <tr>
+ *             <th>Name</th>
+ *             <th>Supported (API Levels)</th>
+ *         </tr>
+ *     </thead>
+ *     <tbody>
+ *         <tr>
+ *             <td>PKIX</td>
+ *             <td>1+</td>
+ *         </tr>
+ *     </tbody>
+ * </table>
+ *
  * This algorithm is described in the <a href=
  * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#CertPathValidator">
  * CertPathValidator section</a> of the
  * Java Cryptography Architecture Standard Algorithm Name Documentation.
- * Consult the release documentation for your implementation to see if any
- * other algorithms are supported.
  *
  * <p>
  * <b>Concurrent Access</b>

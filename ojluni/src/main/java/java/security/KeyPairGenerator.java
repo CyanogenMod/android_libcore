@@ -105,20 +105,38 @@ import sun.security.jca.GetInstance.Instance;
  * the superclass are intended for cryptographic service providers who wish to
  * supply their own implementations of key pair generators.
  *
- * <p> Every implementation of the Java platform is required to support the
- * following standard <code>KeyPairGenerator</code> algorithms and keysizes in
- * parentheses:
- * <ul>
- * <li><tt>DiffieHellman</tt> (1024)</li>
- * <li><tt>DSA</tt> (1024)</li>
- * <li><tt>RSA</tt> (1024, 2048)</li>
- * </ul>
+ * <p> Android provides the following <code>KeyPairGenerator</code> algorithms:
+ * <table>
+ *     <thead>
+ *         <tr>
+ *             <th>Name</th>
+ *             <th>Supported (API Levels)</th>
+ *         </tr>
+ *     </thead>
+ *     <tbody>
+ *         <tr>
+ *             <td>DH</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>DSA</td>
+ *             <td>1+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>EC</td>
+ *             <td>11+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>RSA</td>
+ *             <td>1+</td>
+ *         </tr>
+ *     </tbody>
+ * </table>
+ *
  * These algorithms are described in the <a href=
  * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html#KeyPairGenerator">
  * KeyPairGenerator section</a> of the
  * Java Cryptography Architecture Standard Algorithm Name Documentation.
- * Consult the release documentation for your implementation to see if any
- * other algorithms are supported.
  *
  * @author Benjamin Renaud
  *
