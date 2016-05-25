@@ -254,4 +254,11 @@ public class NumberFormatTest extends junit.framework.TestCase {
         assertEquals("CHF\u00a050.00", nf.format(50.00));
     }
 
+    // http://b/28893763
+    public void test_setCurrency_leavesFractionDigitsUntouched() {
+        NumberFormat format = NumberFormat.getCurrencyInstance(Locale.US);
+        format.setMinimumFractionDigits(0);
+        format.setCurrency(Currency.getInstance("USD"));
+        assertEquals("$10", format.format(10d));
+    }
 }
