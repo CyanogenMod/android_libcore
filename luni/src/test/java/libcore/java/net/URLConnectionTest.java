@@ -153,8 +153,12 @@ public final class URLConnectionTest extends AbstractResourceLeakageDetectorTest
         assertForbiddenRequestHeaderValue("\t");
         assertForbiddenRequestHeaderValue("\u001f");
         assertForbiddenRequestHeaderValue("\u007f");
-        assertForbiddenRequestHeaderValue("\u0080");
-        assertForbiddenRequestHeaderValue("\ud83c\udf69");
+
+        // For http://b/28867041 the allowed character range was changed.
+        // assertForbiddenRequestHeaderValue("\u0080");
+        // assertForbiddenRequestHeaderValue("\ud83c\udf69");
+        assertEquals("\u0080", setAndReturnRequestHeaderValue("\u0080"));
+        assertEquals("\ud83c\udf69", setAndReturnRequestHeaderValue("\ud83c\udf69"));
 
         // Workaround for http://b/26422335 , http://b/26889631 , http://b/27606665 :
         // allow (but strip) trailing \n, \r and \r\n
