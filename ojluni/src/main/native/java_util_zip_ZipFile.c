@@ -95,7 +95,8 @@ ZipFile_open(JNIEnv *env, jclass cls, jstring name,
     jzfile *zip = 0;
 
     if (mode & OPEN_READ) flag |= O_RDONLY;
-    if (mode & OPEN_DELETE) flag |= JVM_O_DELETE;
+    // Android changed, JVM_O_DELETE/unlink is problematic, see b/28901232.
+    //if (mode & OPEN_DELETE) flag |= JVM_O_DELETE;
 
     if (path != 0) {
         zip = ZIP_Get_From_Cache(path, &msg, lastModified);
