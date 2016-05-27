@@ -554,12 +554,21 @@ public class OsTest extends TestCase {
 
       // Test that symlinks are resolved correctly.
       File target = new File(tmpDir, "target");
-      assertTrue(target.createNewFile());
       File link = new File(tmpDir, "link");
-      Libcore.os.symlink(target.getAbsolutePath(), link.getAbsolutePath());
+      try {
+          assertTrue(target.createNewFile());
+          Libcore.os.symlink(target.getAbsolutePath(), link.getAbsolutePath());
 
-      assertEquals(canonicalTmpDir + "/target",
-          Libcore.os.realpath(canonicalTmpDir + "/link"));
+          assertEquals(canonicalTmpDir + "/target",
+              Libcore.os.realpath(canonicalTmpDir + "/link"));
+      } finally {
+          boolean deletedTarget = target.delete();
+          boolean deletedLink = link.delete();
+          // Asserting this here to provide a definitive reason for
+          // a subsequent failure on the same run.
+          assertTrue("deletedTarget = " + deletedTarget + ", deletedLink =" + deletedLink,
+              deletedTarget && deletedLink);
+      }
   }
 
   private static void assertStartsWith(byte[] expectedContents, byte[] container) {
