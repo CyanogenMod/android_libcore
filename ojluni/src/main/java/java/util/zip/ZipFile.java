@@ -68,6 +68,10 @@ class ZipFile implements ZipConstants, Closeable {
 
     private final CloseGuard guard = CloseGuard.get();
 
+    // Android changed, needed for alternative OPEN_DELETE implementation
+    // that doesn't use unlink before closing the file.
+    private final File fileToRemoveOnClose;
+
     private static final int STORED = ZipEntry.STORED;
     private static final int DEFLATED = ZipEntry.DEFLATED;
 
@@ -204,13 +208,10 @@ class ZipFile implements ZipConstants, Closeable {
             throw new ZipException("File too short to be a zip file: " + file.length());
         }
         String name = file.getPath();
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            sm.checkRead(name);
-            if ((mode & OPEN_DELETE) != 0) {
-                sm.checkDelete(name);
-            }
-        }
+
+        // Android changed, handle OPEN_DELETE case in #close().
+        fileToRemoveOnClose = ((mode & OPEN_DELETE) != 0) ? file : null;
+
         if (charset == null)
             throw new NullPointerException("charset is null");
         this.zc = ZipCoder.get(charset);
@@ -615,6 +616,11 @@ class ZipFile implements ZipConstants, Closeable {
                 jzfile = 0;
 
                 close(zf);
+            }
+
+            // Android-changed, explicit delete for OPEN_DELETE ZipFile.
+            if (fileToRemoveOnClose != null) {
+                fileToRemoveOnClose.delete();
             }
         }
     }

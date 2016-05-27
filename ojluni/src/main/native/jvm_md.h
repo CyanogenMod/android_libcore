@@ -75,6 +75,8 @@
 #define JVM_O_O_APPEND   O_APPEND
 #define JVM_O_EXCL       O_EXCL
 #define JVM_O_CREAT      O_CREAT
+// JVM_O_DELETE use is discouraged (until b/28950284 is fixed),
+// may cause bugs on some filesystems.
 #define JVM_O_DELETE     0x10000
 
 /* Signals */
