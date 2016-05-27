@@ -62,7 +62,7 @@ class DatagramDispatcher extends NativeDispatcher
     }
 
     void preClose(FileDescriptor fd) throws IOException {
-        FileDispatcherImpl.preClose0(fd);
+        FileDispatcherImpl.preCloseImpl(fd);
     }
 
     static native int read0(FileDescriptor fd, long address, int len)
