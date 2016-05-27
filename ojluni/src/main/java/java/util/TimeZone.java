@@ -709,6 +709,7 @@ abstract public class TimeZone implements Serializable, Cloneable {
     {
         if (hasPermission()) {
             defaultTimeZone = timeZone != null ? (TimeZone) timeZone.clone() : null;
+            android.icu.util.TimeZone.clearCachedDefault();
         }
     }
 

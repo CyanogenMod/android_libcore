@@ -324,4 +324,20 @@ public class TimeZoneTest extends TestCase {
             Locale.setDefault(defaultLocale);
         }
     }
+
+    // http://b/28949992
+    public void testSetDefaultAppliesToIcuTimezone() {
+        TimeZone origTz = TimeZone.getDefault();
+        try {
+            android.icu.util.TimeZone origIcuTz = android.icu.util.TimeZone.getDefault();
+            assertEquals(origTz.getID(), origIcuTz.getID());
+
+            TimeZone tz = TimeZone.getTimeZone("GMT-05:00");
+            TimeZone.setDefault(tz);
+            android.icu.util.TimeZone icuTz = android.icu.util.TimeZone.getDefault();
+            assertEquals(tz.getID(), icuTz.getID());
+        } finally {
+            TimeZone.setDefault(origTz);
+        }
+    }
 }
