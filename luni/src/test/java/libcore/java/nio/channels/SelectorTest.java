@@ -15,9 +15,11 @@
  */
 package libcore.java.nio.channels;
 
+import android.system.Os;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
+import java.io.FileDescriptor;
 import java.nio.ByteBuffer;
 import java.nio.channels.NoConnectionPendingException;
 import java.nio.channels.SelectionKey;
@@ -163,5 +165,69 @@ public class SelectorTest extends TestCase {
         // Historically on android this did not throw an exception. Due to the bug it would throw
         // an (undeclared) IOException.
         selector.wakeup();
+    }
+
+    public void test28318596() throws Exception {
+        Selector selector = Selector.open();
+        ServerSocketChannel ssc = ServerSocketChannel.open();
+        SocketChannel server = null;
+        FileDescriptor dup = null;
+        try {
+            ssc.configureBlocking(false);
+            ssc.bind(null);
+            SocketChannel sc = SocketChannel.open();
+            sc.connect(ssc.getLocalAddress());
+            sc.finishConnect();
+
+            // Switch to non-blocking so we can use a Selector.
+            sc.configureBlocking(false);
+
+            sc.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
+            assertEquals(1, selector.select(100));
+            assertEquals(0, selector.select(100));
+
+            server = ssc.accept();
+            server.write(ByteBuffer.allocate(8192));
+
+            // This triggered b/28318596. We'd call through to preClose() which would dup2
+            // a known sink descriptor into the channel's descriptor. All subsequent calls
+            // to epoll_ctl(EPOLL_CTL_DEL) would then fail because the kernel was unhappy about
+            // the fact that the descriptor was associated with a different file. This meant that
+            // we'd spuriously return from select because we've never managed to remove the file
+            // associated with the selection key from the epoll fd's interest set.
+            server.shutdownInput();
+            server.shutdownOutput();
+            // We dup the socket here to work around kernel cleanup mechanisms. The kernel will
+            // automatically unregister a file reference from all associated epoll instances once
+            // the last non-epoll instance has been closed.
+            dup = Os.dup(sc.socket().getFileDescriptor$());
+            sc.close();
+
+            // The following is a finicky loop to try and figure out whether we're going into
+            // a tight loop where select returns immediately (we should've received a POLLHUP
+            // and/or POLLIN on |sc|).
+            long start = System.currentTimeMillis();
+            for (int i = 0; i < 10; ++i) {
+                assertEquals(0, selector.select(500));
+            }
+
+            server.close();
+            long end = System.currentTimeMillis();
+            // There should have been no events during the loop above (the size of
+            // the interest set is zero) so all of the selects should timeout and take
+            // ~5000ms.
+            assertTrue("Time taken: " + (end - start), (end - start) > 2000);
+        } finally {
+            selector.close();
+            ssc.close();
+
+            if (server != null) {
+                server.close();
+            }
+
+            if (dup != null) {
+                Os.close(dup);
+            }
+        }
     }
 }

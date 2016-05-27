@@ -1185,14 +1185,7 @@ openjdk_java_files := \
     ojluni/src/main/java/sun/nio/ch/DatagramDispatcher.java \
     ojluni/src/main/java/sun/nio/ch/DatagramSocketAdaptor.java \
     ojluni/src/main/java/sun/nio/ch/DefaultSelectorProvider.java \
-    ojluni/src/main/java/sun/nio/ch/DevPollArrayWrapper.java \
-    ojluni/src/main/java/sun/nio/ch/DevPollSelectorImpl.java \
-    ojluni/src/main/java/sun/nio/ch/DevPollSelectorProvider.java \
     ojluni/src/main/java/sun/nio/ch/DirectBuffer.java \
-    ojluni/src/main/java/sun/nio/ch/EPollArrayWrapper.java \
-    ojluni/src/main/java/sun/nio/ch/EPoll.java \
-    ojluni/src/main/java/sun/nio/ch/EPollSelectorImpl.java \
-    ojluni/src/main/java/sun/nio/ch/EPollSelectorProvider.java \
     ojluni/src/main/java/sun/nio/ch/ExtendedSocketOption.java \
     ojluni/src/main/java/sun/nio/ch/FileChannelImpl.java \
     ojluni/src/main/java/sun/nio/ch/FileDescriptorHolderSocketImpl.java \
