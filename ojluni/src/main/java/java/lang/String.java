@@ -731,13 +731,24 @@ public final class String
             throw new StringIndexOutOfBoundsException(this, srcEnd);
         }
 
-        int count = srcEnd - srcBegin;
+        int n = srcEnd - srcBegin;
         if (srcEnd < srcBegin) {
-            throw new StringIndexOutOfBoundsException(this, srcBegin, count);
+            throw new StringIndexOutOfBoundsException(this, srcBegin, n);
         }
 
-        if (dstBegin + count > dst.length) {
-            throw new ArrayIndexOutOfBoundsException("dstBegin + count > dst.length");
+        if (dstBegin < 0) {
+            throw new ArrayIndexOutOfBoundsException("dstBegin < 0. dstBegin=" + dstBegin);
+        }
+        // dstBegin can be equal to dst.length, but only in the case where zero chars are to be
+        // copied.
+        if (dstBegin > dst.length) {
+            throw new ArrayIndexOutOfBoundsException(
+                    "dstBegin > dst.length. dstBegin=" + dstBegin + ", dst.length=" + dst.length);
+        }
+        if (n > dst.length - dstBegin) {
+            throw new ArrayIndexOutOfBoundsException(
+                    "n > dst.length - dstBegin. n=" + n + ", dst.length=" + dst.length
+                            + "dstBegin=" + dstBegin);
         }
 
         getCharsNoCheck(srcBegin, srcEnd, dst, dstBegin);

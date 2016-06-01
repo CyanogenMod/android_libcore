@@ -454,6 +454,70 @@ public class StringTest extends TestCase {
         }
     }
 
+    // http://b/28998511
+    public void testGetCharsBoundsChecks() {
+        // This is the explicit case from the bug: dstBegin == srcEnd - srcBegin
+        assertGetCharsThrowsAIOOBException("abcd", 0, 4, new char[0], -4);
+
+        // Some valid cases.
+        char[] dst = new char[1];
+        "abcd".getChars(0, 1, dst, 0);
+        assertEquals('a', dst[0]);
+        "abcd".getChars(3, 4, dst, 0);
+        assertEquals('d', dst[0]);
+        dst = new char[4];
+        "abcd".getChars(0, 4, dst, 0);
+        assertTrue(Arrays.equals("abcd".toCharArray(), dst));
+
+        // Zero length src.
+        "abcd".getChars(0, 0, new char[0], 0);  // dstBegin == 0 is ok if copying zero chars
+        "abcd".getChars(0, 0, new char[1], 1);  // dstBegin == 1 is ok if copying zero chars
+        "".getChars(0, 0, new char[0], 0);
+        "abcd".getChars(1, 1, new char[1], 0);
+        "abcd".getChars(1, 1, new char[1], 1);
+
+        // Valid src args, invalid dst args.
+        assertGetCharsThrowsAIOOBException("abcd", 3, 4, new char[1], 1); // Out of range dstBegin
+        assertGetCharsThrowsAIOOBException("abcd", 0, 4, new char[3], 0); // Small dst
+        assertGetCharsThrowsAIOOBException("abcd", 0, 4, new char[4], -1); // Negative dstBegin
+
+        // dstBegin + (srcEnd - srcBegin) -> integer overflow OR dstBegin >= dst.length
+        assertGetCharsThrowsAIOOBException("abcd", 0, 4, new char[4], Integer.MAX_VALUE - 1);
+
+        // Invalid src args, valid dst args.
+        assertGetCharsThrowsSIOOBException("abcd", 2, 1, new char[4], 0); // srcBegin > srcEnd
+        assertGetCharsThrowsSIOOBException("abcd", -1, 3, new char[4], 0); // Negative srcBegin
+        assertGetCharsThrowsSIOOBException("abcd", 0, 5, new char[4], 0); // Out of range srcEnd
+        assertGetCharsThrowsSIOOBException("abcd", 0, -1, new char[4], 0); // Negative srcEnd
+
+        // Valid src args, invalid dst args.
+        assertGetCharsThrowsAIOOBException("abcd", 0, 4, new char[4], 1); // Bad dstBegin
+
+        // Zero length src copy, invalid dst args.
+        assertGetCharsThrowsAIOOBException("abcd", 0, 0, new char[4], -1); // Negative dstBegin
+        assertGetCharsThrowsAIOOBException("abcd", 0, 0, new char[0], 1); // Out of range dstBegin
+        assertGetCharsThrowsAIOOBException("abcd", 0, 0, new char[1], 2);  // Out of range dstBegin
+        assertGetCharsThrowsAIOOBException("abcd", 0, 0, new char[4], 5); // Out of range dstBegin
+    }
+
+    private static void assertGetCharsThrowsAIOOBException(String s, int srcBegin, int srcEnd,
+            char[] dst, int dstBegin) {
+        try {
+            s.getChars(srcBegin, srcEnd, dst, dstBegin);
+            fail();
+        } catch (ArrayIndexOutOfBoundsException expected) {
+        }
+    }
+
+    private static void assertGetCharsThrowsSIOOBException(String s, int srcBegin, int srcEnd,
+            char[] dst, int dstBegin) {
+        try {
+            s.getChars(srcBegin, srcEnd, dst, dstBegin);
+            fail();
+        } catch (StringIndexOutOfBoundsException expected) {
+        }
+    }
+
     public void testChars() {
         String s = "Hello\n\tworld";
         int[] expected = new int[s.length()];
