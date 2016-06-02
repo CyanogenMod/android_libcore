@@ -188,13 +188,8 @@ public class SecureRandom extends java.util.Random {
     private void getDefaultPRNG(boolean setSeed, byte[] seed) {
         String prng = getPrngAlgorithm();
         if (prng == null) {
-            // bummer, get the SUN implementation
-            prng = "SHA1PRNG";
-            this.secureRandomSpi = new sun.security.provider.SecureRandom();
-            this.provider = Providers.getSunProvider();
-            if (setSeed) {
-                this.secureRandomSpi.engineSetSeed(seed);
-            }
+            // Android changed, should never happen
+            throw new IllegalStateException("No SecureRandom implementation!");
         } else {
             try {
                 SecureRandom random = SecureRandom.getInstance(prng);

@@ -1300,12 +1300,6 @@ openjdk_java_files := \
     ojluni/src/main/java/sun/security/provider/certpath/Vertex.java \
     ojluni/src/main/java/sun/security/provider/certpath/X509CertPath.java \
     ojluni/src/main/java/sun/security/provider/certpath/X509CertificatePair.java \
-    ojluni/src/main/java/sun/security/provider/NativePRNG.java \
-    ojluni/src/main/java/sun/security/provider/NativeSeedGenerator.java \
-    ojluni/src/main/java/sun/security/provider/SecureRandom.java \
-    ojluni/src/main/java/sun/security/provider/SeedGenerator.java \
-    ojluni/src/main/java/sun/security/provider/SunEntries.java \
-    ojluni/src/main/java/sun/security/provider/VerificationProvider.java \
     ojluni/src/main/java/sun/security/provider/X509Factory.java \
     ojluni/src/main/java/sun/security/rsa/SunRsaSignEntries.java \
     ojluni/src/main/java/sun/security/ssl/Alerts.java \
