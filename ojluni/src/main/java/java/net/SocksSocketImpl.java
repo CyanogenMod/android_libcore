@@ -347,87 +347,14 @@ class SocksSocketImpl extends PlainSocketImpl implements SocksConsts {
                                       epoint.getPort());
         }
         if (server == null) {
-            // This is the general case
-            // server is not null only when the socket was created with a
-            // specified proxy in which case it does bypass the ProxySelector
-            ProxySelector sel = java.security.AccessController.doPrivileged(
-                new java.security.PrivilegedAction<ProxySelector>() {
-                    public ProxySelector run() {
-                            return ProxySelector.getDefault();
-                        }
-                    });
-            if (sel == null) {
-                /*
-                 * No default proxySelector --> direct connection
-                 */
-                super.connect(epoint, remainingMillis(deadlineMillis));
-                return;
-            }
-            URI uri;
-            // Use getHostString() to avoid reverse lookups
-            String host = epoint.getHostString();
-            // IPv6 litteral?
-            if (epoint.getAddress() instanceof Inet6Address &&
-                (!host.startsWith("[")) && (host.indexOf(":") >= 0)) {
-                host = "[" + host + "]";
-            }
-            try {
-                uri = new URI("socket://" + ParseUtil.encodePath(host) + ":"+ epoint.getPort());
-            } catch (URISyntaxException e) {
-                // This shouldn't happen
-                assert false : e;
-                uri = null;
-            }
-            Proxy p = null;
-            IOException savedExc = null;
-            java.util.Iterator<Proxy> iProxy = null;
-            iProxy = sel.select(uri).iterator();
-            if (iProxy == null || !(iProxy.hasNext())) {
-                super.connect(epoint, remainingMillis(deadlineMillis));
-                return;
-            }
-            while (iProxy.hasNext()) {
-                p = iProxy.next();
-                if (p == null || p == Proxy.NO_PROXY) {
-                    super.connect(epoint, remainingMillis(deadlineMillis));
-                    return;
-                }
-                if (p.type() != Proxy.Type.SOCKS)
-                    throw new SocketException("Unknown proxy type : " + p.type());
-                if (!(p.address() instanceof InetSocketAddress))
-                    throw new SocketException("Unknow address type for proxy: " + p);
-                // Use getHostString() to avoid reverse lookups
-                server = ((InetSocketAddress) p.address()).getHostString();
-                serverPort = ((InetSocketAddress) p.address()).getPort();
-                if (p instanceof SocksProxy) {
-                    if (((SocksProxy)p).protocolVersion() == 4) {
-                        useV4 = true;
-                    }
-                }
-
-                // Connects to the SOCKS server
-                try {
-                    privilegedConnect(server, serverPort, remainingMillis(deadlineMillis));
-                    // Worked, let's get outta here
-                    break;
-                } catch (IOException e) {
-                    // Ooops, let's notify the ProxySelector
-                    sel.connectFailed(uri,p.address(),e);
-                    server = null;
-                    serverPort = -1;
-                    savedExc = e;
-                    // Will continue the while loop and try the next proxy
-                }
-            }
-
             /*
-             * If server is still null at this point, none of the proxy
-             * worked
+             * Android-changed: Removed code that tried to establish proxy connection if
+             * ProxySelector#getDefault() is not null.
+             * This was never the case in previous android releases, was causing
+             * issues and therefore was removed.
              */
-            if (server == null) {
-                throw new SocketException("Can't connect to SOCKS proxy:"
-                                          + savedExc.getMessage());
-            }
+            super.connect(epoint, remainingMillis(deadlineMillis));
+            return;
         } else {
             // Connects to the SOCKS server
             try {
@@ -912,124 +839,6 @@ class SocksSocketImpl extends PlainSocketImpl implements SocksConsts {
         cmdIn = in;
         cmdOut = out;
     }
-
-    /**
-     * Accepts a connection from a specific host.
-     *
-     * @param      s   the accepted connection.
-     * @param      saddr the socket address of the host we do accept
-     *               connection from
-     * @exception  IOException  if an I/O error occurs when accepting the
-     *               connection.
-     */
-    protected void acceptFrom(SocketImpl s, InetSocketAddress saddr) throws IOException {
-        if (cmdsock == null) {
-            // Not a Socks ServerSocket.
-            return;
-        }
-        InputStream in = cmdIn;
-        // Sends the "SOCKS BIND" request.
-        socksBind(saddr);
-        in.read();
-        int i = in.read();
-        in.read();
-        SocketException ex = null;
-        int nport;
-        byte[] addr;
-        InetSocketAddress real_end = null;
-        switch (i) {
-        case REQUEST_OK:
-            // success!
-            i = in.read();
-            switch(i) {
-            case IPV4:
-                addr = new byte[4];
-                readSocksReply(in, addr);
-                nport = in.read() << 8;
-                nport += in.read();
-                real_end =
-                    new InetSocketAddress(new Inet4Address("", addr) , nport);
-                break;
-            case DOMAIN_NAME:
-                int len = in.read();
-                addr = new byte[len];
-                readSocksReply(in, addr);
-                nport = in.read() << 8;
-                nport += in.read();
-                real_end = new InetSocketAddress(new String(addr), nport);
-                break;
-            case IPV6:
-                addr = new byte[16];
-                readSocksReply(in, addr);
-                nport = in.read() << 8;
-                nport += in.read();
-                real_end =
-                    new InetSocketAddress(new Inet6Address("", addr), nport);
-                break;
-            }
-            break;
-        case GENERAL_FAILURE:
-            ex = new SocketException("SOCKS server general failure");
-            break;
-        case NOT_ALLOWED:
-            ex = new SocketException("SOCKS: Accept not allowed by ruleset");
-            break;
-        case NET_UNREACHABLE:
-            ex = new SocketException("SOCKS: Network unreachable");
-            break;
-        case HOST_UNREACHABLE:
-            ex = new SocketException("SOCKS: Host unreachable");
-            break;
-        case CONN_REFUSED:
-            ex = new SocketException("SOCKS: Connection refused");
-            break;
-        case TTL_EXPIRED:
-            ex =  new SocketException("SOCKS: TTL expired");
-            break;
-        case CMD_NOT_SUPPORTED:
-            ex = new SocketException("SOCKS: Command not supported");
-            break;
-        case ADDR_TYPE_NOT_SUP:
-            ex = new SocketException("SOCKS: address type not supported");
-            break;
-        }
-        if (ex != null) {
-            cmdIn.close();
-            cmdOut.close();
-            cmdsock.close();
-            cmdsock = null;
-            throw ex;
-        }
-
-        /**
-         * This is where we have to do some fancy stuff.
-         * The datastream from the socket "accepted" by the proxy will
-         * come through the cmdSocket. So we have to swap the socketImpls
-         */
-        if (s instanceof SocksSocketImpl) {
-            ((SocksSocketImpl)s).external_address = real_end;
-        }
-        if (s instanceof PlainSocketImpl) {
-            PlainSocketImpl psi = (PlainSocketImpl) s;
-            psi.setInputStream((SocketInputStream) in);
-            psi.setFileDescriptor(cmdsock.getImpl().getFileDescriptor());
-            psi.setAddress(cmdsock.getImpl().getInetAddress());
-            psi.setPort(cmdsock.getImpl().getPort());
-            psi.setLocalPort(cmdsock.getImpl().getLocalPort());
-        } else {
-            s.fd = cmdsock.getImpl().fd;
-            s.address = cmdsock.getImpl().address;
-            s.port = cmdsock.getImpl().port;
-            s.localport = cmdsock.getImpl().localport;
-        }
-
-        // Need to do that so that the socket won't be closed
-        // when the ServerSocket is closed by the user.
-        // It kinds of detaches the Socket because it is now
-        // used elsewhere.
-        cmdsock = null;
-    }
-
 
     /**
      * Returns the value of this socket's <code>address</code> field.
