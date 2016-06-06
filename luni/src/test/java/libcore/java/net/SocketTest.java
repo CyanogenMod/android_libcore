@@ -23,14 +23,18 @@ import java.net.ConnectException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.ProxySelector;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.SocketImpl;
+import java.net.URI;
 import java.net.UnknownHostException;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -387,6 +391,34 @@ public class SocketTest extends junit.framework.TestCase {
 
         boolean connectUnblocked = signal.await(2000, TimeUnit.MILLISECONDS);
         assertTrue(connectUnblocked);
+    }
+
+    // http://b/29092095
+    public void testSocketWithProxySet() throws Exception {
+        ProxySelector ps = ProxySelector.getDefault();
+        try {
+            ProxySelector.setDefault(new ProxySelector() {
+                @Override
+                public List<Proxy> select(URI uri) {
+                    fail("ProxySelector#select was called");
+                    return null; // unreachable.
+                }
+
+                @Override
+                public void connectFailed(URI uri, SocketAddress sa, IOException ioe) {
+                    fail("ProxySelector#connectFail was called");
+                }
+            });
+
+            ServerSocket server = new ServerSocket(0);
+
+            // We shouldn't ask the proxy selector to select() a proxy for us during
+            // connect().
+            Socket client = new Socket(InetAddress.getLocalHost(), server.getLocalPort());
+            client.close();
+        } finally {
+            ProxySelector.setDefault(ps);
+        }
     }
 
 
