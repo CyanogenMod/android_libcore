@@ -33,28 +33,22 @@ class ByteBufferAsIntBuffer extends IntBuffer {        // package-private
     protected final int offset;
     private final ByteOrder order;
 
-    ByteBufferAsIntBuffer(ByteBuffer bb, ByteOrder order) {   // package-private
-        super(-1, 0,
-                bb.remaining() >> 2,
-                bb.remaining() >> 2);
-        this.bb = bb;
-        this.isReadOnly = bb.isReadOnly;
-        this.address = bb.address;
-        this.order = order;
-        int cap = this.capacity();
-        this.limit(cap);
-        int pos = this.position();
-        assert (pos <= cap);
-        offset = pos;
-    }
-
     ByteBufferAsIntBuffer(ByteBuffer bb,
                           int mark, int pos, int lim, int cap,
                           int off, ByteOrder order) {
         super(mark, pos, lim, cap);
         this.bb = bb;
         this.isReadOnly = bb.isReadOnly;
-        this.address = bb.address;
+        // There are only two possibilities for the type of ByteBuffer "bb", viz, DirectByteBuffer and
+        // HeapByteBuffer. We only have to initialize the field when bb is an instance of
+        // DirectByteBuffer.
+        // The address field is used by NIOAccess#getBasePointer and GetDirectBufferAddress method
+        // in art which return the address of the first usable byte of the underlying memory, i.e,
+        // the position of parent buffer. Therefore, value of "off" will be equal to parent buffer's
+        // position when the method is called from either HeapByteBuffer or DirectByteBuffer.
+        if (bb instanceof DirectByteBuffer) {
+            this.address = bb.address + off;
+        }
         this.order = order;
         offset = off;
     }
