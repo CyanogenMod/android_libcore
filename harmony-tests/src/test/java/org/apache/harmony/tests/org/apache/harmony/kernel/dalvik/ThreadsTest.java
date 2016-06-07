@@ -237,7 +237,7 @@ public class ThreadsTest extends TestCase {
             long minimum = (long) ((double) expectedMillis * 0.80);
             long maximum =
                 Math.max((long) ((double) expectedMillis * 1.20), 10);
-            long waitMillis = Math.max(expectedMillis * 10, 30);
+            long waitMillis = Math.max(expectedMillis * 10, 1000);
             long duration = getDurationMillis(waitMillis);
 
             if (duration < minimum) {
