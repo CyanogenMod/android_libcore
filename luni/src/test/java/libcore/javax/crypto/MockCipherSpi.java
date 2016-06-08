@@ -54,6 +54,48 @@ public class MockCipherSpi extends CipherSpi {
         }
     }
 
+    public static class SpecificAlgorithmParameterSpecTypes extends MockCipherSpi {
+        @Override
+        public void checkAlgorithmParameterSpec(AlgorithmParameterSpec aps)
+                throws InvalidAlgorithmParameterException {
+            if (!(aps instanceof MockAlgorithmParameterSpec)) {
+                throw new InvalidAlgorithmParameterException("Must be "
+                        + MockAlgorithmParameterSpec.class.getName());
+            }
+        }
+    }
+
+    public static class SpecificAlgorithmParameterSpecTypes2 extends MockCipherSpi {
+        @Override
+        public void checkAlgorithmParameterSpec(AlgorithmParameterSpec aps)
+                throws InvalidAlgorithmParameterException {
+            if (!(aps instanceof MockAlgorithmParameterSpec2)) {
+                throw new InvalidAlgorithmParameterException("Must be "
+                        + MockAlgorithmParameterSpec2.class.getName());
+            }
+        }
+    }
+
+    public static class SpecificAlgorithmParameterAesAlgorithm extends MockCipherSpi {
+        @Override
+        public void checkAlgorithmParameters(AlgorithmParameters ap)
+                throws InvalidAlgorithmParameterException {
+            if (!ap.getAlgorithm().equals("AES")) {
+                throw new InvalidAlgorithmParameterException("Must be AES");
+            }
+        }
+    }
+
+    public static class SpecificAlgorithmParametersDesAlgorithm extends MockCipherSpi {
+        @Override
+        public void checkAlgorithmParameters(AlgorithmParameters ap)
+                throws InvalidAlgorithmParameterException {
+            if ((!ap.getAlgorithm().equals("DES"))) {
+                throw new InvalidAlgorithmParameterException("Must be DES");
+            }
+        }
+    }
+
     public static class AllKeyTypes extends MockCipherSpi {
     }
 
@@ -146,6 +188,15 @@ public class MockCipherSpi extends CipherSpi {
     public void checkKeyType(Key key) throws InvalidKeyException {
     }
 
+    public void checkAlgorithmParameterSpec(AlgorithmParameterSpec aps)
+            throws InvalidAlgorithmParameterException {
+    }
+
+    public void checkAlgorithmParameters(AlgorithmParameters ap)
+            throws InvalidAlgorithmParameterException {
+    }
+
+
     @Override
     protected void engineSetMode(String mode) throws NoSuchAlgorithmException {
         if (!"FOO".equals(mode)) {
@@ -189,12 +240,14 @@ public class MockCipherSpi extends CipherSpi {
     protected void engineInit(int opmode, Key key, AlgorithmParameterSpec params,
             SecureRandom random) throws InvalidKeyException, InvalidAlgorithmParameterException {
         checkKeyType(key);
+        checkAlgorithmParameterSpec(params);
     }
 
     @Override
     protected void engineInit(int opmode, Key key, AlgorithmParameters params, SecureRandom random)
             throws InvalidKeyException, InvalidAlgorithmParameterException {
         checkKeyType(key);
+        checkAlgorithmParameters(params);
     }
 
     @Override
@@ -219,5 +272,11 @@ public class MockCipherSpi extends CipherSpi {
             int outputOffset) throws ShortBufferException, IllegalBlockSizeException,
             BadPaddingException {
         throw new UnsupportedOperationException("not implemented");
+    }
+
+    public static class MockAlgorithmParameterSpec implements AlgorithmParameterSpec {
+    }
+
+    public static class MockAlgorithmParameterSpec2 implements AlgorithmParameterSpec {
     }
 }
