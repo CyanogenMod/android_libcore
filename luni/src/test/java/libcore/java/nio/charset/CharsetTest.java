@@ -30,4 +30,42 @@ public class CharsetTest extends junit.framework.TestCase {
         assertNotNull(Charset.forName("UTF8"));
   }
 
+    public static class CheckerThread extends Thread {
+        private final String name;
+        private boolean failed = false;
+
+        CheckerThread(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public void run() {
+            for (int i = 0; i < 1000; ++i) {
+                Charset cs = Charset.forName(name);
+                if (!name.equals(cs.name())) {
+                    failed = true;
+                }
+            }
+        }
+    }
+
+    // http://b/26548702
+    public void test_multiThreadedForName() throws Exception {
+        CheckerThread[] threads = new CheckerThread[10];
+        for (int i = 0; i < 10; ++i) {
+            threads[i] = new CheckerThread((i % 2 == 0) ? "UTF-8" : "ISO-8859-1");
+        }
+
+        for (CheckerThread ct : threads) {
+            ct.start();
+        }
+
+        for (CheckerThread ct : threads) {
+            ct.join();
+        }
+
+        for (CheckerThread ct : threads) {
+            assertTrue(!ct.failed);
+        }
+    }
 }

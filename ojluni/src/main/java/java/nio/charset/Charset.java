@@ -495,8 +495,10 @@ public abstract class Charset
         if (charsetName == null)
             throw new IllegalArgumentException("Null charset name");
 
-        if (cache1 != null && charsetName.equals(cache1.getKey()))
-            return cache1.getValue();
+
+        final Map.Entry<String, Charset> cached = cache1;
+        if (cached != null && charsetName.equals(cached.getKey()))
+            return cached.getValue();
         return lookup2(charsetName);
     }
 
