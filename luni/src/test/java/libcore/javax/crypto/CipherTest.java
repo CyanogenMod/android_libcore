@@ -3844,4 +3844,112 @@ public final class CipherTest extends TestCase {
         cipher.init(Cipher.DECRYPT_MODE, secretKey, new IvParameterSpec(iv));
         assertEquals(Arrays.toString(plaintext), Arrays.toString(cipher.doFinal(ciphertext)));
     }
+
+    /**
+     * http://b/29038928
+     * If in a second call to init the current spi doesn't support the new specified key, look for
+     * another suitable spi.
+     */
+    public void test_init_onKeyTypeChange_reInitCipher() throws Exception {
+        Provider mockProvider = new MockProvider("MockProvider") {
+            public void setup() {
+                put("Cipher.FOO", MockCipherSpi.SpecificKeyTypes.class.getName());
+            }
+        };
+        Provider mockProvider2 = new MockProvider("MockProvider2") {
+            public void setup() {
+                put("Cipher.FOO", MockCipherSpi.SpecificKeyTypes2.class.getName());
+            }
+        };
+        try {
+            Security.addProvider(mockProvider);
+            Security.addProvider(mockProvider2);
+            Cipher cipher = Cipher.getInstance("FOO");
+            cipher.init(Cipher.ENCRYPT_MODE, new MockKey());
+            assertEquals("MockProvider", cipher.getProvider().getName());
+            // Using a different key...
+            cipher.init(Cipher.ENCRYPT_MODE, new MockKey2());
+            // ...results in a different provider.
+            assertEquals("MockProvider2", cipher.getProvider().getName());
+        } finally {
+            Security.removeProvider(mockProvider.getName());
+            Security.removeProvider(mockProvider2.getName());
+        }
+    }
+
+    /**
+     * http://b/29038928
+     * If in a second call to init the current spi doesn't support the new specified
+     * {@link AlgorithmParameterSpec}, look for another suitable spi.
+     */
+    public void test_init_onAlgorithmParameterTypeChange_reInitCipher() throws Exception {
+        Provider mockProvider = new MockProvider("MockProvider") {
+            public void setup() {
+                put("Cipher.FOO",
+                        MockCipherSpi.SpecificAlgorithmParameterSpecTypes.class.getName());
+            }
+        };
+        Provider mockProvider2 = new MockProvider("MockProvider2") {
+            public void setup() {
+                put("Cipher.FOO",
+                        MockCipherSpi.SpecificAlgorithmParameterSpecTypes2.class.getName());
+            }
+        };
+        try {
+            Security.addProvider(mockProvider);
+            Security.addProvider(mockProvider2);
+            Cipher cipher = Cipher.getInstance("FOO");
+            cipher.init(Cipher.ENCRYPT_MODE,
+                    new MockKey(),
+                    new MockCipherSpi.MockAlgorithmParameterSpec());
+            assertEquals("MockProvider", cipher.getProvider().getName());
+            // Using a different AlgorithmParameterSpec...
+            cipher.init(Cipher.ENCRYPT_MODE,
+                    new MockKey(),
+                    new MockCipherSpi.MockAlgorithmParameterSpec2());
+            // ...results in a different provider.
+            assertEquals("MockProvider2", cipher.getProvider().getName());
+        } finally {
+            Security.removeProvider(mockProvider.getName());
+            Security.removeProvider(mockProvider2.getName());
+        }
+    }
+
+    /**
+     * http://b/29038928
+     * If in a second call to init the current spi doesn't support the new specified
+     * {@link AlgorithmParameters}, look for another suitable spi.
+     */
+    public void test_init_onAlgorithmParametersChange_reInitCipher() throws Exception {
+        Provider mockProvider = new MockProvider("MockProvider") {
+            public void setup() {
+                put("Cipher.FOO",
+                        MockCipherSpi.SpecificAlgorithmParameterAesAlgorithm.class.getName());
+            }
+        };
+        Provider mockProvider2 = new MockProvider("MockProvider2") {
+            public void setup() {
+                put("Cipher.FOO",
+                        MockCipherSpi.SpecificAlgorithmParametersDesAlgorithm.class.getName());
+            }
+        };
+        try {
+            Security.addProvider(mockProvider);
+            Security.addProvider(mockProvider2);
+            Cipher cipher = Cipher.getInstance("FOO");
+            cipher.init(Cipher.ENCRYPT_MODE,
+                    new MockKey(),
+                    AlgorithmParameters.getInstance("AES"));
+            assertEquals("MockProvider", cipher.getProvider().getName());
+            // Using a different AlgorithmParameters...
+            cipher.init(Cipher.ENCRYPT_MODE,
+                    new MockKey(),
+                    AlgorithmParameters.getInstance("DES"));
+            // ...results in a different provider.
+            assertEquals("MockProvider2", cipher.getProvider().getName());
+        } finally {
+            Security.removeProvider(mockProvider.getName());
+            Security.removeProvider(mockProvider2.getName());
+        }
+    }
 }

@@ -1195,15 +1195,11 @@ public class Cipher {
         initialized = false;
         checkOpmode(opmode);
 
-        if (spi != null && (key == null)) {
-            spi.engineInit(opmode, key, random);
-        } else {
-            try {
-                chooseProvider(InitType.KEY, opmode, key, null, null, random);
-            } catch (InvalidAlgorithmParameterException e) {
-                // should never occur
-                throw new InvalidKeyException(e);
-            }
+        try {
+            chooseProvider(InitType.KEY, opmode, key, null, null, random);
+        } catch (InvalidAlgorithmParameterException e) {
+            // should never occur
+            throw new InvalidKeyException(e);
         }
 
         initialized = true;
@@ -1330,11 +1326,7 @@ public class Cipher {
         initialized = false;
         checkOpmode(opmode);
 
-        if (spi != null) {
-            spi.engineInit(opmode, key, params, random);
-        } else {
-            chooseProvider(InitType.ALGORITHM_PARAM_SPEC, opmode, key, params, null, random);
-        }
+        chooseProvider(InitType.ALGORITHM_PARAM_SPEC, opmode, key, params, null, random);
 
         initialized = true;
         this.opmode = opmode;
@@ -1460,11 +1452,7 @@ public class Cipher {
         initialized = false;
         checkOpmode(opmode);
 
-        if (spi != null) {
-            spi.engineInit(opmode, key, params, random);
-        } else {
-            chooseProvider(InitType.ALGORITHM_PARAMS, opmode, key, null, params, random);
-        }
+        chooseProvider(InitType.ALGORITHM_PARAMS, opmode, key, null, params, random);
 
         initialized = true;
         this.opmode = opmode;
@@ -1599,8 +1587,7 @@ public class Cipher {
      */
     public final void init(int opmode, Certificate certificate,
                            SecureRandom random)
-            throws InvalidKeyException
-    {
+            throws InvalidKeyException {
         initialized = false;
         checkOpmode(opmode);
 
@@ -1609,38 +1596,34 @@ public class Cipher {
         if (certificate instanceof java.security.cert.X509Certificate) {
             // Check whether the cert has a key usage extension
             // marked as a critical extension.
-            X509Certificate cert = (X509Certificate)certificate;
+            X509Certificate cert = (X509Certificate) certificate;
             Set critSet = cert.getCriticalExtensionOIDs();
 
             if (critSet != null && !critSet.isEmpty()
-                && critSet.contains(KEY_USAGE_EXTENSION_OID)) {
+                    && critSet.contains(KEY_USAGE_EXTENSION_OID)) {
                 boolean[] keyUsageInfo = cert.getKeyUsage();
                 // keyUsageInfo[2] is for keyEncipherment;
                 // keyUsageInfo[3] is for dataEncipherment.
                 if ((keyUsageInfo != null) &&
-                    (((opmode == Cipher.ENCRYPT_MODE) &&
-                      (keyUsageInfo.length > 3) &&
-                      (keyUsageInfo[3] == false)) ||
-                     ((opmode == Cipher.WRAP_MODE) &&
-                      (keyUsageInfo.length > 2) &&
-                      (keyUsageInfo[2] == false)))) {
+                        (((opmode == Cipher.ENCRYPT_MODE) &&
+                                (keyUsageInfo.length > 3) &&
+                                (keyUsageInfo[3] == false)) ||
+                                ((opmode == Cipher.WRAP_MODE) &&
+                                        (keyUsageInfo.length > 2) &&
+                                        (keyUsageInfo[2] == false)))) {
                     throw new InvalidKeyException("Wrong key usage");
                 }
             }
         }
 
         PublicKey publicKey =
-            (certificate==null? null:certificate.getPublicKey());
+                (certificate == null ? null : certificate.getPublicKey());
 
-        if (spi != null) {
-            spi.engineInit(opmode, publicKey, random);
-        } else {
-            try {
-                chooseProvider(InitType.KEY, opmode, (Key)publicKey, null, null, random);
-            } catch (InvalidAlgorithmParameterException e) {
-                // should never occur
-                throw new InvalidKeyException(e);
-            }
+        try {
+            chooseProvider(InitType.KEY, opmode, (Key) publicKey, null, null, random);
+        } catch (InvalidAlgorithmParameterException e) {
+            // should never occur
+            throw new InvalidKeyException(e);
         }
 
         initialized = true;
