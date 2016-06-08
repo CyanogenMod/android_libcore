@@ -17,6 +17,10 @@ package org.apache.harmony.tests.java.nio;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.DirectByteBuffer;
+import java.nio.IntBuffer;
+import java.nio.NIOAccess;
+import libcore.io.SizeOf;
 
 public class DirectIntBufferTest extends IntBufferTest {
     public void setUp(){
@@ -49,6 +53,20 @@ public class DirectIntBufferTest extends IntBufferTest {
         } catch (UnsupportedOperationException e) {
             //expected
         }
+    }
+
+    // http://b/28964300
+    public void testJNIAccessByAddress() throws Exception {
+        DirectByteBuffer directByteBuffer = (DirectByteBuffer) ByteBuffer.allocateDirect(10);
+        directByteBuffer.put((byte)'a');
+        IntBuffer intBuffer = directByteBuffer.asIntBuffer();
+        long byteBufferBasePointer = NIOAccess.getBasePointer(directByteBuffer);
+        long intBufferBasePointer = NIOAccess.getBasePointer(intBuffer);
+        assertEquals(byteBufferBasePointer, intBufferBasePointer);
+
+        // Check if the NIOAccess method adds up the current position value.
+        intBuffer.put(1);
+        assertEquals(intBufferBasePointer + SizeOf.INT, NIOAccess.getBasePointer(intBuffer));
     }
 
     public void testIsDirect() {
