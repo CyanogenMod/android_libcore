@@ -125,6 +125,8 @@ import java.util.ArrayList;
  * created, the abstract pathname represented by a <code>File</code> object
  * will never change.
  *
+ * <p>On Android, the underlying filesystem encoding for filenames is always UTF-8.
+ *
  * @author  unascribed
  * @since   JDK1.0
  */
@@ -495,10 +497,8 @@ public class File
 
     /**
      * Tests whether this abstract pathname is absolute.  The definition of
-     * absolute pathname is system dependent.  On UNIX systems, a pathname is
-     * absolute if its prefix is <code>"/"</code>.  On Microsoft Windows systems, a
-     * pathname is absolute if its prefix is a drive specifier followed by
-     * <code>"\\"</code>, or if its prefix is <code>"\\\\"</code>.
+     * absolute pathname is system dependent.  On Android, absolute paths start with
+     * the character '/'.
      *
      * @return  <code>true</code> if this abstract pathname is absolute,
      *          <code>false</code> otherwise
@@ -508,25 +508,15 @@ public class File
     }
 
     /**
-     * Returns the absolute pathname string of this abstract pathname.
+     * Returns the absolute path of this file. An absolute path is a path that starts at a root
+     * of the file system. On Android, there is only one root: {@code /}.
      *
-     * <p> If this abstract pathname is already absolute, then the pathname
-     * string is simply returned as if by the <code>{@link #getPath}</code>
-     * method.  If this abstract pathname is the empty abstract pathname then
-     * the pathname string of the current user directory, which is named by the
-     * system property <code>user.dir</code>, is returned.  Otherwise this
-     * pathname is resolved in a system-dependent way.  On UNIX systems, a
-     * relative pathname is made absolute by resolving it against the current
-     * user directory.  On Microsoft Windows systems, a relative pathname is made absolute
-     * by resolving it against the current directory of the drive named by the
-     * pathname, if any; if not, it is resolved against the current user
-     * directory.
+     * <p>A common use for absolute paths is when passing paths to a {@code Process} as
+     * command-line arguments, to remove the requirement implied by relative paths, that the
+     * child must have the same working directory as its parent.
      *
      * @return  The absolute pathname string denoting the same file or
      *          directory as this abstract pathname
-     *
-     * @throws  SecurityException
-     *          If a required system property value cannot be accessed.
      *
      * @see     java.io.File#isAbsolute()
      */
@@ -1000,6 +990,18 @@ public class File
      * {@link java.nio.channels.FileLock FileLock}
      * facility should be used instead.
      *
+     * <p><i>Note that on Android, the application lifecycle does not include VM termination,
+     * so calling this method will not ensure that files are deleted</i>. Instead, you should
+     * use the most appropriate out of:
+     * <ul>
+     * <li>Use a {@code finally} clause to manually invoke {@link #delete}.
+     * <li>Maintain your own set of files to delete, and process it at an appropriate point
+     * in your application's lifecycle.
+     * <li>Use the Unix trick of deleting the file as soon as all readers and writers have
+     * opened it. No new readers/writers will be able to access the file, but all existing
+     * ones will still have access until the last one closes the file.
+     * </ul>
+     *
      * @throws  SecurityException
      *          If a security manager exists and its <code>{@link
      *          java.lang.SecurityManager#checkDelete}</code> method denies
@@ -1284,11 +1286,16 @@ public class File
     /**
      * Renames the file denoted by this abstract pathname.
      *
-     * <p> Many aspects of the behavior of this method are inherently
-     * platform-dependent: The rename operation might not be able to move a
-     * file from one filesystem to another, it might not be atomic, and it
-     * might not succeed if a file with the destination abstract pathname
-     * already exists.  The return value should always be checked to make sure
+     * <p>Many failures are possible. Some of the more likely failures include:
+     * <ul>
+     * <li>Write permission is required on the directories containing both the source and
+     * destination paths.
+     * <li>Search permission is required for all parents of both paths.
+     * <li>Both paths be on the same mount point. On Android, applications are most likely to hit
+     * this restriction when attempting to copy between internal storage and an SD card.
+     * </ul>
+     *
+     * <p>The return value should always be checked to make sure
      * that the rename operation was successful.
      *
      * @param  dest  The new abstract pathname for the named file
@@ -1623,47 +1630,10 @@ public class File
 
     /* -- Filesystem interface -- */
 
+
     /**
-     * List the available filesystem roots.
-     *
-     * <p> A particular Java platform may support zero or more
-     * hierarchically-organized file systems.  Each file system has a
-     * {@code root} directory from which all other files in that file system
-     * can be reached.  Windows platforms, for example, have a root directory
-     * for each active drive; UNIX platforms have a single root directory,
-     * namely {@code "/"}.  The set of available filesystem roots is affected
-     * by various system-level operations such as the insertion or ejection of
-     * removable media and the disconnecting or unmounting of physical or
-     * virtual disk drives.
-     *
-     * <p> This method returns an array of {@code File} objects that denote the
-     * root directories of the available filesystem roots.  It is guaranteed
-     * that the canonical pathname of any file physically present on the local
-     * machine will begin with one of the roots returned by this method.
-     *
-     * <p> The canonical pathname of a file that resides on some other machine
-     * and is accessed via a remote-filesystem protocol such as SMB or NFS may
-     * or may not begin with one of the roots returned by this method.  If the
-     * pathname of a remote file is syntactically indistinguishable from the
-     * pathname of a local file then it will begin with one of the roots
-     * returned by this method.  Thus, for example, {@code File} objects
-     * denoting the root directories of the mapped network drives of a Windows
-     * platform will be returned by this method, while {@code File} objects
-     * containing UNC pathnames will not be returned by this method.
-     *
-     * <p> Unlike most methods in this class, this method does not throw
-     * security exceptions.  If a security manager exists and its {@link
-     * SecurityManager#checkRead(String)} method denies read access to a
-     * particular root directory, then that directory will not appear in the
-     * result.
-     *
-     * @return  An array of {@code File} objects denoting the available
-     *          filesystem roots, or {@code null} if the set of roots could not
-     *          be determined.  The array will be empty if there are no
-     *          filesystem roots.
-     *
-     * @since  1.2
-     * @see java.nio.file.FileStore
+     * Returns the file system roots. On Android and other Unix systems, there is
+     * a single root, {@code /}.
      */
     public static File[] listRoots() {
         return fs.listRoots();
@@ -1752,6 +1722,11 @@ public class File
      * I/O operations including those made on the system outside of this
      * virtual machine.  This method makes no guarantee that write operations
      * to this file system will succeed.
+     *
+     * <p> On Android (and other Unix-based systems), this method returns the number of free bytes
+     * available to non-root users, regardless of whether you're actually running as root,
+     * and regardless of any quota or other restrictions that might apply to the user.
+     * (The {@code getFreeSpace} method returns the number of bytes potentially available to root.)
      *
      * @return  The number of available bytes on the partition or <tt>0L</tt>
      *          if the abstract pathname does not name a partition.  On
