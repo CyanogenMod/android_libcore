@@ -307,6 +307,9 @@ public class RuleBasedCollator extends Collator {
     /**
      * Gets the table-based rules for the collation object.
      *
+     * <p>On Android, the returned string will be empty unless this instance was
+     * constructed using {@link #RuleBasedCollator(String)}.
+     *
      * @return returns the collation rules that the table collation object
      * was created from.
      */
