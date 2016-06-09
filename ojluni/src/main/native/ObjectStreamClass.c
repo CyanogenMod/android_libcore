@@ -45,14 +45,15 @@ static void ObjectStreamClass_initNative(JNIEnv *env)
 /*
  * Class:     java_io_ObjectStreamClass
  * Method:    hasStaticInitializer
- * Signature: (Ljava/lang/Class;)Z
+ * Signature: (Ljava/lang/Class;Z)Z
  *
  * Returns true if the given class defines a <clinit>()V method; returns false
  * otherwise.
  */
 JNIEXPORT jboolean JNICALL
 ObjectStreamClass_hasStaticInitializer(JNIEnv *env, jclass this,
-                                                    jclass clazz)
+                                       jclass clazz,
+                                       jboolean checkSuperclass)
 {
     jclass superCl = NULL;
     jmethodID superClinitId = NULL;
@@ -67,6 +68,14 @@ ObjectStreamClass_hasStaticInitializer(JNIEnv *env, jclass this,
         return JNI_FALSE;
     }
 
+    // Android-changed, if checkSuperclass == true, remove check for
+    // superclass clinitId != child clinitId.
+    // We're returning true to enable deserializing classes without explicit serialVersionID
+    // that would fail in this check (b/29064453).
+    if (checkSuperclass == JNI_FALSE) {
+        return JNI_TRUE;
+    }
+
     /*
      * Check superclass for static initializer as well--if the same method ID
      * is returned, then the static initializer is from a superclass.
@@ -74,7 +83,6 @@ ObjectStreamClass_hasStaticInitializer(JNIEnv *env, jclass this,
      * JNI spec makes no guarantee that GetStaticMethodID will not return the
      * ID for a superclass initializer.
      */
-
     if ((superCl = (*env)->GetSuperclass(env, clazz)) == NULL) {
         return JNI_TRUE;
     }
@@ -93,7 +101,7 @@ ObjectStreamClass_hasStaticInitializer(JNIEnv *env, jclass this,
 }
 
 static JNINativeMethod gMethods[] = {
-  NATIVE_METHOD(ObjectStreamClass, hasStaticInitializer, "(Ljava/lang/Class;)Z"),
+  NATIVE_METHOD(ObjectStreamClass, hasStaticInitializer, "(Ljava/lang/Class;Z)Z"),
 };
 
 void register_java_io_ObjectStreamClass(JNIEnv* env) {

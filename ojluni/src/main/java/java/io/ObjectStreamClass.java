@@ -52,8 +52,8 @@ import sun.misc.Unsafe;
 import sun.reflect.CallerSensitive;
 import sun.reflect.Reflection;
 import sun.reflect.misc.ReflectUtil;
+import dalvik.system.VMRuntime;
 import dalvik.system.VMStack;
-
 /**
  * Serialization's descriptor for classes.  It contains the name and
  * serialVersionUID of the class.  The ObjectStreamClass for a specific class
@@ -1731,7 +1731,9 @@ public class ObjectStreamClass implements Serializable {
                 }
             }
 
-            if (hasStaticInitializer(cl)) {
+            boolean checkSuperclass = !(VMRuntime.getRuntime().getTargetSdkVersion()
+                                       <= MAX_SDK_TARGET_FOR_CLINIT_UIDGEN_WORKAROUND);
+            if (hasStaticInitializer(cl, checkSuperclass)) {
                 dout.writeUTF("<clinit>");
                 dout.writeInt(Modifier.STATIC);
                 dout.writeUTF("()V");
@@ -1804,11 +1806,17 @@ public class ObjectStreamClass implements Serializable {
         }
     }
 
+    /** Max SDK target version for which we use buggy hasStaticIntializier implementation. */
+    static final int MAX_SDK_TARGET_FOR_CLINIT_UIDGEN_WORKAROUND = 23;
+
     /**
      * Returns true if the given class defines a static initializer method,
      * false otherwise.
+     * if checkSuperclass is false, we use a buggy version (for compatibility reason) that
+     * will return true even if only the superclass has a static initializer method.
      */
-    private native static boolean hasStaticInitializer(Class<?> cl);
+    private native static boolean hasStaticInitializer(Class<?> cl, boolean checkSuperclass);
+
 
     /**
      * Class for computing and caching field/constructor/method signatures
