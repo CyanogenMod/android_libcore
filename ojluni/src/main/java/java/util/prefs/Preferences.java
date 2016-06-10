@@ -268,6 +268,11 @@ public abstract class Preferences {
     public static final int MAX_NAME_LENGTH = 80;
 
     /**
+     * <strong>WARNING:</strong> On Android, the Preference nodes
+     * corresponding to the "system" and "user" preferences are stored in sections
+     * of the file system that are inaccessible to apps. Further, allowing apps to set
+     * "system wide" preferences is contrary to android's security model.
+     *
      * Returns the preference node from the calling user's preference tree
      * that is associated (by convention) with the specified class's package.
      * The convention is as follows: the absolute path name of the node is the
@@ -312,6 +317,11 @@ public abstract class Preferences {
     }
 
     /**
+     * <strong>WARNING:</strong> On Android, the Preference nodes
+     * corresponding to the "system" and "user" preferences are stored in sections
+     * of the file system that are inaccessible to apps. Further, allowing apps to set
+     * "system wide" preferences is contrary to android's security model.
+     *
      * Returns the preference node from the system preference tree that is
      * associated (by convention) with the specified class's package.  The
      * convention is as follows: the absolute path name of the node is the
@@ -382,6 +392,11 @@ public abstract class Preferences {
     private static Permission prefsPerm = new RuntimePermission("preferences");
 
     /**
+     * <strong>WARNING:</strong> On Android, the Preference nodes
+     * corresponding to the "system" and "user" preferences are stored in sections
+     * of the file system that are inaccessible to apps. Further, allowing apps to set
+     * "system wide" preferences is contrary to android's security model.
+     *
      * Returns the root preference node for the calling user.
      *
      * @return the root preference node for the calling user.
@@ -398,6 +413,11 @@ public abstract class Preferences {
     }
 
     /**
+     * <strong>WARNING:</strong> On Android, the Preference nodes
+     * corresponding to the "system" and "user" preferences are stored in sections
+     * of the file system that are inaccessible to apps. Further, allowing apps to set
+     * "system wide" preferences is contrary to android's security model.
+     *
      * Returns the root preference node for the system.
      *
      * @return the root preference node for the system.
