@@ -84,6 +84,11 @@ import sun.security.jca.GetInstance.Instance;
  * for example, if they need to read from /dev/random on various unix-like
  * operating systems.
  *
+ * The SHA1PRNG algorithm from the Crypto provider has been deprecated as it was insecure, and also
+ * incorrectly used by some apps as a key derivation function. See
+ * <a href="http://android-developers.blogspot.com/2016/06/security-crypto-provider-deprecated-in.html">
+ * Security &quot;Crypto&quot; provider deprecated in Android N</a> for details.
+ *
  * @see java.security.SecureRandomSpi
  * @see java.util.Random
  *
@@ -367,10 +372,15 @@ public class SecureRandom extends java.util.Random {
                 System.logE(" * If your app was relying on setSeed() to derive keys from strings, you");
                 System.logE(" * should switch to using SecretKeySpec to load raw key bytes directly OR");
                 System.logE(" * use a real key derivation function (KDF). See advice here : ");
-                System.logE(" * https://stackoverflow.com/questions/13433529/android-4-2-broke-my-encrypt-decrypt-code-and-the-provided-solutions-dont-work ");
+                System.logE(" * http://android-developers.blogspot.com/2016/06/security-crypto-provider-deprecated-in.html ");
                 System.logE(" *********************************** ");
                 if (VMRuntime.getRuntime().getTargetSdkVersion()
                         <= sdkTargetForCryptoProviderWorkaround) {
+                    System.logE(" Returning an instance of SecureRandom from the Crypto provider");
+                    System.logE(" as a temporary measure so that the apps targeting earlier SDKs");
+                    System.logE(" keep working. Please do not rely on the presence of the Crypto");
+                    System.logE(" provider in the codebase, as our plan is to delete it");
+                    System.logE(" completely in the future.");
                     return getInstanceFromCryptoProvider(algorithm);
                 }
             }
