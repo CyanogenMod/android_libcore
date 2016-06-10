@@ -466,8 +466,6 @@ static int getFlags0(JNIEnv *env, jstring name) {
     return -1;
   }
 
-  name_utf = (*env)->GetStringUTFChars(env, name, &isCopy);
-
   ret = getFlags(sock, name_utf, &flags);
 
   untagSocket(env, sock);
