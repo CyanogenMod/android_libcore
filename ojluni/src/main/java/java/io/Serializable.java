@@ -158,6 +158,12 @@ package java.io;
  * the default computed value, but the requirement for matching
  * serialVersionUID values is waived for array classes.
  *
+ * Android implementation of serialVersionUID computation will change slightly
+ * for some classes if you're targeting android N. In order to preserve compatibility,
+ * this change is only enabled is the application target SDK version is set to
+ * 24 or higher. It is highly recommended to use an explicit serialVersionUID
+ * field to avoid compatibility issues.
+ *
  * <h3>Implement Serializable Judiciously</h3>
  * Refer to <i>Effective Java</i>'s chapter on serialization for thorough
  * coverage of the serialization API. The book explains how to use this
