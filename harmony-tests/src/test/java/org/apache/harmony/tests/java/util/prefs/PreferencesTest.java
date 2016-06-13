@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.FileOutputStream;
 import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
 import java.util.prefs.AbstractPreferences;
@@ -50,12 +51,13 @@ public class PreferencesTest extends TestCase {
     private MockInputStream stream ;
     private InputStream in;
     private PreferencesFactory defaultFactory;
+    private File backendDir;
 
     @Override
     protected void setUp() throws Exception {
-        File tmpDir = IoUtils.createTemporaryDirectory("OldAbstractPreferencesTest");
+        backendDir = IoUtils.createTemporaryDirectory("OldAbstractPreferencesTest");
         defaultFactory = Preferences.setPreferencesFactory(
-                new AbstractPreferencesTest.TestPreferencesFactory(tmpDir.getAbsolutePath()));
+                new AbstractPreferencesTest.TestPreferencesFactory(backendDir.getAbsolutePath()));
 
         in = new ByteArrayInputStream(PREFS.getBytes(StandardCharsets.US_ASCII));
         stream = new MockInputStream(in);
@@ -416,5 +418,39 @@ public class PreferencesTest extends TestCase {
         }
 
     }
+
+    // b/27645233
+    public void testReadingFromBackendCache() throws Exception {
+        // Create a preferences filesystem backend storage file.
+        // It emulates a situation where we saved some data in the past,
+        // restarted the application and we're trying to read it.
+        //
+        // We need a package without the existing backing file (so a package that
+        // wasn't used in this test case), java.io is a good candidate.
+        File backendFile = new File(backendDir, "/user/java/io/prefs.xml");
+        InputStream inputData = PreferencesTest.class
+            .getResourceAsStream("/resources/prefs/java/util/prefs/backendread.xml");
+        assertTrue(new File(backendDir, "/user/java/io").mkdirs());
+        assertTrue(backendFile.createNewFile());
+
+        // Copy the example content (one test=test1 entry) to a storage file
+        FileOutputStream fos = new FileOutputStream(backendFile);
+        try {
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = inputData.read(buffer)) > 0) {
+                fos.write(buffer, 0, length);
+            }
+        } finally {
+            fos.close();
+            inputData.close();
+        }
+
+        Preferences prefs = Preferences.userNodeForPackage(OutputStream.class);
+        // Any exception from reading the file will be swallowed and ignored,
+        // only result we will see is a lack of requested key-value pair.
+        assertEquals("test1", prefs.get("test",""));
+    }
+
 
 }

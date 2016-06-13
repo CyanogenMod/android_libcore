@@ -568,41 +568,35 @@ public class FileSystemPreferences extends AbstractPreferences {
      * lastSyncTime are unaffected by the call.
      */
     private void loadCache() throws BackingStoreException {
+        Map<String, String> m = new TreeMap<>();
+        long newLastSyncTime = 0;
         try {
-            AccessController.doPrivileged(
-                new PrivilegedExceptionAction<Void>() {
-                public Void run() throws BackingStoreException {
-                    Map<String, String> m = new TreeMap<>();
-                    long newLastSyncTime = 0;
-                    try {
-                        newLastSyncTime = prefsFile.lastModified();
-                        try (FileInputStream fis = new FileInputStream(prefsFile)) {
-                            XmlSupport.importMap(fis, m);
-                        }
-                    } catch(Exception e) {
-                        if (e instanceof InvalidPreferencesFormatException) {
-                            getLogger().warning("Invalid preferences format in "
-                                                        +  prefsFile.getPath());
-                            prefsFile.renameTo( new File(
-                                                    prefsFile.getParentFile(),
-                                                  "IncorrectFormatPrefs.xml"));
-                            m = new TreeMap<>();
-                        } else if (e instanceof FileNotFoundException) {
-                        getLogger().warning("Prefs file removed in background "
-                                           + prefsFile.getPath());
-                        } else {
-                            throw new BackingStoreException(e);
-                        }
-                    }
-                    // Attempt succeeded; update state
-                    prefsCache = m;
-                    lastSyncTime = newLastSyncTime;
-                    return null;
-                }
-            });
-        } catch (PrivilegedActionException e) {
-            throw (BackingStoreException) e.getException();
+            newLastSyncTime = prefsFile.lastModified();
+            try (FileInputStream fis = new FileInputStream(prefsFile)) {
+                XmlSupport.importMap(fis, m);
+            }
+        } catch(Exception e) {
+            if (e instanceof InvalidPreferencesFormatException) {
+                getLogger().warning("Invalid preferences format in "
+                                    +  prefsFile.getPath());
+                prefsFile.renameTo( new File(
+                                             prefsFile.getParentFile(),
+                                             "IncorrectFormatPrefs.xml"));
+                m = new TreeMap<>();
+            } else if (e instanceof FileNotFoundException) {
+                getLogger().warning("Prefs file removed in background "
+                                    + prefsFile.getPath());
+            } else {
+                // Android added: This exception may be ignored by some callers,
+                // added a logger entry to prevent omitting it completely.
+                getLogger().warning("Exception while reading cache: "
+                                    + e.getMessage());
+                throw new BackingStoreException(e);
+            }
         }
+        // Attempt succeeded; update state
+        prefsCache = m;
+        lastSyncTime = newLastSyncTime;
     }
 
     /**
@@ -769,18 +763,9 @@ public class FileSystemPreferences extends AbstractPreferences {
     }
 
     protected void syncSpi() throws BackingStoreException {
-        try {
-            AccessController.doPrivileged(
-                new PrivilegedExceptionAction<Void>() {
-                public Void run() throws BackingStoreException {
-                    syncSpiPrivileged();
-                    return null;
-                }
-            });
-        } catch (PrivilegedActionException e) {
-            throw (BackingStoreException) e.getException();
-        }
+        syncSpiPrivileged();
     }
+
     private void syncSpiPrivileged() throws BackingStoreException {
         if (isRemoved())
             throw new IllegalStateException("Node has been removed");
