@@ -411,6 +411,12 @@ class XmlSupport {
 
             NodeList entries = xmlMap.getChildNodes();
             for (int i=0, numEntries=entries.getLength(); i<numEntries; i++) {
+                // Android added, android xml serializer generates one-char Text nodes with a single
+                // new-line character between expected Element nodes. openJdk code wasn't
+                // expecting anything else than Element node.
+                if (!(entries.item(i) instanceof Element)) {
+                    continue;
+                }
                 Element entry = (Element) entries.item(i);
                 m.put(entry.getAttribute("key"), entry.getAttribute("value"));
             }
