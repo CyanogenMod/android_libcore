@@ -411,8 +411,7 @@ public class OpenSSLSocketImpl
                 wrapper.initCause(e);
                 throw wrapper;
             }
-            byte[] sessionId = NativeCrypto.SSL_SESSION_session_id(sslSessionNativePointer);
-            if (sessionToReuse != null && Arrays.equals(sessionToReuse.getId(), sessionId)) {
+            if (sessionToReuse != null && NativeCrypto.SSL_session_reused(sslNativePointer)) {
                 this.sslSession = sessionToReuse;
                 sslSession.lastAccessedTime = System.currentTimeMillis();
                 NativeCrypto.SSL_SESSION_free(sslSessionNativePointer);
