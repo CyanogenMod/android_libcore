@@ -868,7 +868,7 @@ public class Runtime {
      */
     @CallerSensitive
     public void load(String filename) {
-        load0(VMStack.getStackClass2(), filename);
+        load0(VMStack.getStackClass1(), filename);
     }
 
     // Fixes b/25859957 regression. Depending on private methods is bad, mkay.
