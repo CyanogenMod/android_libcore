@@ -17,8 +17,10 @@
 
 package org.apache.harmony.tests.java.io;
 
+import dalvik.system.DexFile;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InvalidClassException;
@@ -27,6 +29,9 @@ import java.io.ObjectOutputStream;
 import java.io.ObjectStreamClass;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
+import java.lang.reflect.Field;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 
 import junit.framework.TestCase;
@@ -208,6 +213,56 @@ public class ObjectInputStream2Test extends TestCase {
             fail("Should throw InvalidClassException");
         } catch (InvalidClassException ice) {
             // Excpected
+        }
+    }
+
+    // http://b/29721023
+    public void test_sameName() throws Exception {
+        // Load class from dex, it's not possible to create a class with same-named
+        // fields in java (but it's allowed in dex).
+        File sameFieldNames = File.createTempFile("sameFieldNames", ".dex");
+        InputStream dexIs = this.getClass().getClassLoader().
+            getResourceAsStream("tests/api/java/io/sameFieldNames.dex");
+        assertNotNull(dexIs);
+
+        Class<?> clazz = null;
+
+        // Get the class object
+        try {
+            Files.copy(dexIs, sameFieldNames.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            DexFile dexFile = new DexFile(sameFieldNames);
+            clazz = dexFile.loadClass("sameFieldNames", getClass().getClassLoader());
+            dexFile.close();
+        } finally {
+            if (sameFieldNames.exists()) {
+                sameFieldNames.delete();
+            }
+        }
+
+        // Create class instance, fill it with content
+        Object o1 = clazz.getConstructor().newInstance();
+        int v = 123;
+        for(Field f : clazz.getFields()) {
+            if (f.getType() == Integer.class) {
+                f.set(o1, new Integer(v++));
+            } else if (f.getType() == Long.class) {
+                f.set(o1, new Long(v++));
+            }
+        }
+
+        // Serialize and deserialize
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(baos);
+        oos.writeObject(o1);
+        oos.close();
+        ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(
+                baos.toByteArray()));
+        Object o2 = ois.readObject();
+        ois.close();
+
+        // Compare content
+        for(Field f : clazz.getFields()) {
+            assertEquals(f.get(o1), f.get(o2));
         }
     }
 }
