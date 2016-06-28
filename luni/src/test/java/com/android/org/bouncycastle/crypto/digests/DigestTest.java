@@ -93,9 +93,6 @@ public class DigestTest extends TestCase {
                 + oldTime.toString());
         System.out.println("Time for " + ITERATIONS + " x new hash processing: "
                 + newTime.toString());
-
-        assertTrue("New hash should be faster:\nold=" + oldTime.toString() + "\nnew="
-                + newTime.toString(), newTime.mean() < oldTime.mean());
     }
 
     /**
