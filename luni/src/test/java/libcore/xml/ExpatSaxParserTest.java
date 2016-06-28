@@ -623,6 +623,7 @@ public class ExpatSaxParserTest extends TestCase {
         source.setSystemId(server.getUrl("/systemFoo").toString());
         reader.parse(source);
         assertEquals(Arrays.asList("foo", "bar", "/bar", "/foo"), handler.elementNames);
+        server.shutdown();
     }
 
     /**

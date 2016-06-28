@@ -610,6 +610,7 @@ public class HttpsURLConnectionTest extends TestCase {
                 System.out.println("Got expected IOException: " + e.getMessage());
             }
         }
+        proxyAndWebServer.shutdown();
     }
 
     /**
@@ -650,6 +651,7 @@ public class HttpsURLConnectionTest extends TestCase {
                 System.out.println("Expected exception was thrown: " + e.getMessage());
             }
         }
+        proxyAndWebServer.shutdown();
     }
 
     public void setUp() throws Exception {
