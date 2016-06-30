@@ -84,12 +84,6 @@ public class Support_TestWebServer implements Support_HttpConstants {
     /* If set, this indicates the reason for redirection */
     int redirectCode = -1;
 
-    /* Set the number of connections the server will accept before shutdown */
-    int acceptLimit = 100;
-
-    /* Count of number of accepted connections */
-    int acceptedConnections = 0;
-
     public Support_TestWebServer() {
     }
 
@@ -166,14 +160,6 @@ public class Support_TestWebServer implements Support_HttpConstants {
     }
 
     /**
-     * Call this to specify the maximum number of sockets to accept
-     * @param limit The number of sockets to accept
-     */
-    public void setAcceptLimit(int limit) {
-        acceptLimit = limit;
-    }
-
-    /**
      * Call this to indicate redirection port requirement.
      * When this value is set, the server will respond to a request with
      * a redirect code with the Location response header set to the value
@@ -195,10 +181,6 @@ public class Support_TestWebServer implements Support_HttpConstants {
         return pathToRequest;
     }
 
-    public int getNumAcceptedConnections() {
-        return acceptedConnections;
-    }
-
     /**
      * Cause the thread accepting connections on the server socket to close
      */
@@ -217,12 +199,8 @@ public class Support_TestWebServer implements Support_HttpConstants {
     class AcceptThread extends Thread {
 
         ServerSocket ss = null;
-        boolean running = false;
+        volatile boolean closed = false;
 
-        /**
-         * @param port the port to use, or 0 to let the OS choose.
-         * Hard-coding ports is evil, so always pass 0!
-         */
         public int init() throws IOException {
             ss = new ServerSocket(0);
             ss.setSoTimeout(5000);
@@ -233,15 +211,10 @@ public class Support_TestWebServer implements Support_HttpConstants {
         /**
          * Main thread responding to new connections
          */
-        public synchronized void run() {
-            running = true;
-            while (running) {
+        public void run() {
+            while (!closed) {
                 try {
                     Socket s = ss.accept();
-                    acceptedConnections++;
-                    if (acceptedConnections >= acceptLimit) {
-                        running = false;
-                    }
                     new Thread(new Worker(s), "additional worker").start();
                 } catch (SocketException e) {
                     log(e.getMessage());
@@ -255,7 +228,7 @@ public class Support_TestWebServer implements Support_HttpConstants {
         // Close this socket
         public void close() {
             try {
-                running = false;
+                closed = true;
                 /* Stop server socket from processing further. Currently
                    this does not cause the SocketException from ss.accept
                    therefore the acceptLimit functionality has been added
