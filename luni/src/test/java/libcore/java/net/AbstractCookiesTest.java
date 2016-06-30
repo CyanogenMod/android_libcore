@@ -69,10 +69,12 @@ public abstract class AbstractCookiesTest extends TestCase {
     private CookieHandler defaultHandler;
     private CookieManager cookieManager;
     private CookieStore cookieStore;
+    private MockWebServer server;
 
 
     @Override public void setUp() throws Exception {
         super.setUp();
+        server = new MockWebServer();
         defaultHandler = CookieHandler.getDefault();
         cookieManager = new CookieManager(createCookieStore(), null);
         cookieStore = cookieManager.getCookieStore();
@@ -80,6 +82,7 @@ public abstract class AbstractCookiesTest extends TestCase {
 
     @Override public void tearDown() throws Exception {
         CookieHandler.setDefault(defaultHandler);
+        server.shutdown();
         super.tearDown();
     }
 
@@ -89,7 +92,6 @@ public abstract class AbstractCookiesTest extends TestCase {
         CookieManager cookieManager = new CookieManager(createCookieStore(),
                 ACCEPT_ORIGINAL_SERVER);
         CookieHandler.setDefault(cookieManager);
-        MockWebServer server = new MockWebServer();
         server.play();
 
         server.enqueue(new MockResponse().addHeader("Set-Cookie: a=android; "
@@ -118,7 +120,6 @@ public abstract class AbstractCookiesTest extends TestCase {
         CookieManager cookieManager = new CookieManager(createCookieStore(),
                 ACCEPT_ORIGINAL_SERVER);
         CookieHandler.setDefault(cookieManager);
-        MockWebServer server = new MockWebServer();
         server.play();
 
         server.enqueue(new MockResponse().addHeader("Set-Cookie: a=android; "
@@ -149,7 +150,6 @@ public abstract class AbstractCookiesTest extends TestCase {
         CookieManager cookieManager = new CookieManager(createCookieStore(),
                 ACCEPT_ORIGINAL_SERVER);
         CookieHandler.setDefault(cookieManager);
-        MockWebServer server = new MockWebServer();
         server.play();
 
         server.enqueue(new MockResponse().addHeader("Set-Cookie2: a=android; "
@@ -185,7 +185,6 @@ public abstract class AbstractCookiesTest extends TestCase {
                 ACCEPT_ORIGINAL_SERVER);
 
         CookieHandler.setDefault(cookieManager);
-        MockWebServer server = new MockWebServer();
         server.play();
 
         server.enqueue(new MockResponse().addHeader("Set-Cookie2: a=\"android\"; "
@@ -337,7 +336,6 @@ public abstract class AbstractCookiesTest extends TestCase {
     }
 
     public void testSendingCookiesFromStore() throws Exception {
-        MockWebServer server = new MockWebServer();
         server.enqueue(new MockResponse());
         server.play();
 
@@ -389,6 +387,8 @@ public abstract class AbstractCookiesTest extends TestCase {
                 fail(header);
             }
         }
+        redirectSource.shutdown();
+        redirectTarget.shutdown();
     }
 
     /**
@@ -412,7 +412,6 @@ public abstract class AbstractCookiesTest extends TestCase {
                 return result;
             }
         });
-        MockWebServer server = new MockWebServer();
         server.enqueue(new MockResponse());
         server.play();
 
@@ -461,7 +460,6 @@ public abstract class AbstractCookiesTest extends TestCase {
                 return result;
             }
         });
-        MockWebServer server = new MockWebServer();
         server. enqueue(new MockResponse());
         server.play();
 
