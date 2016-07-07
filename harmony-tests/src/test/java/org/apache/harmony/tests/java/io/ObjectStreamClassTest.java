@@ -17,21 +17,15 @@
 
 package org.apache.harmony.tests.java.io;
 
-import dalvik.system.DexFile;
 import java.io.Externalizable;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.ObjectStreamClass;
 import java.io.ObjectStreamField;
 import java.io.Serializable;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import junit.framework.TestCase;
 
 public class ObjectStreamClassTest extends TestCase {
@@ -299,28 +293,5 @@ public class ObjectStreamClassTest extends TestCase {
         assertFalse((Boolean)
                     hasStaticInitializer.invoke(null, NoClinitChildWithNoClinitParent.class,
                                                 true /* checkSuperclass */));
-    }
-
-    // http://b/29721023
-    public void testClassWithSameFieldName() throws Exception {
-        // Load class from dex, it's not possible to create a class with same-named
-        // fields in java (but it's allowed in dex).
-        File sameFieldNames = File.createTempFile("sameFieldNames", ".dex");
-        InputStream dexIs = this.getClass().getClassLoader().
-            getResourceAsStream("tests/api/java/io/sameFieldNames.dex");
-        assertNotNull(dexIs);
-
-        try {
-            Files.copy(dexIs, sameFieldNames.toPath(), StandardCopyOption.REPLACE_EXISTING);
-            DexFile dexFile = new DexFile(sameFieldNames);
-            Class<?> clazz = dexFile.loadClass("sameFieldNames", getClass().getClassLoader());
-            ObjectStreamClass osc = ObjectStreamClass.lookup(clazz);
-            assertEquals(4, osc.getFields().length);
-            dexFile.close();
-        } finally {
-            if (sameFieldNames.exists()) {
-                sameFieldNames.delete();
-            }
-        }
     }
 }
