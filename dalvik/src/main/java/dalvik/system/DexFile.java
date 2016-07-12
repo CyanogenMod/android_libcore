@@ -501,4 +501,12 @@ public final class DexFile {
      */
     public static native String getDexFileStatus(String fileName, String instructionSet)
         throws FileNotFoundException;
+
+    /**
+     * Returns the full file path of the optimized dex file {@code fileName}.  The returned string
+     * is the full file name including path of optimized dex file, if it exists.
+     * @hide
+     */
+    public static native String getDexFileOutputPath(String fileName, String instructionSet)
+        throws FileNotFoundException;
 }
