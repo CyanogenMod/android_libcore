@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ConnectException;
 import java.net.Inet4Address;
+import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
@@ -34,6 +35,7 @@ import java.net.URI;
 import java.net.UnknownHostException;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
@@ -45,6 +47,10 @@ import java.io.FileDescriptor;
 
 
 public class SocketTest extends junit.framework.TestCase {
+
+    // This hostname is required to resolve to 127.0.0.1 and ::1 for all tests to pass.
+    private static final String ALL_LOOPBACK_HOSTNAME = "loopback46.unittest.grpc.io";
+
     // See http://b/2980559.
     public void test_close() throws Exception {
         Socket s = new Socket();
@@ -541,5 +547,52 @@ public class SocketTest extends junit.framework.TestCase {
         try {
             new SocketThatFailOnClose(InetAddress.getLocalHost(), 1, true);
         } catch(IOException expected) {}
+    }
+
+    // b/30007735
+    public void testSocketTestAllAddresses() throws Exception {
+        // Socket Ctor should try all sockets.
+        //
+        // This test creates a server socket bound to 127.0.0.1 or ::1 only, and connects using a
+        // hostname that resolves to both addresses. We should be able to connect to the server
+        // socket in either setup.
+        final String loopbackHost = ALL_LOOPBACK_HOSTNAME;
+
+        assertTrue("Loopback DNS record is unreachable or is invalid.", checkLoopbackHost(
+                loopbackHost));
+
+        final int port = 9999;
+        for (InetAddress addr : new InetAddress[]{ Inet4Address.LOOPBACK, Inet6Address.LOOPBACK }) {
+            try (ServerSocket ss = new ServerSocket(port, 0, addr)) {
+                new Thread(() -> {
+                    try {
+                        ss.accept();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }).start();
+
+                assertTrue(canConnect(loopbackHost, port));
+            }
+        }
+    }
+
+    /** Confirm the supplied hostname maps to only loopback addresses. */
+    private static boolean checkLoopbackHost(String host) {
+        try {
+            List<InetAddress> addrs = Arrays.asList(InetAddress.getAllByName(host));
+            return addrs.stream().allMatch(InetAddress::isLoopbackAddress) &&
+                    addrs.contains(Inet4Address.LOOPBACK) && addrs.contains(Inet6Address.LOOPBACK);
+        } catch (UnknownHostException e) {
+            return false;
+        }
+    }
+
+    private static boolean canConnect(String host, int port) {
+        try(Socket sock = new Socket(host, port)) {
+            return sock.isConnected();
+        } catch (IOException e) {
+            return false;
+        }
     }
 }
