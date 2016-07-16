@@ -291,11 +291,28 @@ public class DerInputStream {
      *          (used to initialize an auto-growing data structure)
      * @return array of the values in the sequence
      */
-    public DerValue[] getSequence(int startLen) throws IOException {
+    public DerValue[] getSequence(int startLen,
+            boolean originalEncodedFormRetained) throws IOException {
         tag = (byte)buffer.read();
         if (tag != DerValue.tag_Sequence)
             throw new IOException("Sequence tag error");
-        return readVector(startLen);
+        return readVector(startLen, originalEncodedFormRetained);
+    }
+
+    /**
+     * Return a sequence of encoded entities.  ASN.1 sequences are
+     * ordered, and they are often used, like a "struct" in C or C++,
+     * to group data values.  They may have optional or context
+     * specific values.
+     *
+     * @param startLen guess about how long the sequence will be
+     *          (used to initialize an auto-growing data structure)
+     * @return array of the values in the sequence
+     */
+    public DerValue[] getSequence(int startLen) throws IOException {
+        return getSequence(
+                startLen,
+                false); // no need to retain original encoded form
     }
 
     /**
