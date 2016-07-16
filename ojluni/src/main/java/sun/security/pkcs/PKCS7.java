@@ -207,7 +207,7 @@ public class PKCS7 {
     private void parseNetscapeCertChain(DerValue val)
     throws ParsingException, IOException {
         DerInputStream dis = new DerInputStream(val.toByteArray());
-        DerValue[] contents = dis.getSequence(2);
+        DerValue[] contents = dis.getSequence(2, true);
         certificates = new X509Certificate[contents.length];
 
         CertificateFactory certfac = null;
@@ -409,7 +409,7 @@ public class PKCS7 {
         } catch (CertificateException ce) {
             // do nothing
         }
-        DerValue[] certVals = dis.getSet(2);
+        DerValue[] certVals = dis.getSet(2, false, true);
         len = certVals.length;
         certificates = new X509Certificate[len];
 
