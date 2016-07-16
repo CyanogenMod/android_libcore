@@ -72,6 +72,12 @@ public class DerValue {
 
     private int                 length;
 
+    /**
+     * The original encoded form of the whole value (tag, length, and value)
+     * or null if the form was not provided or was not retained during parsing.
+     */
+    private byte[]              originalEncodedForm;
+
     /*
      * The type starts at the first byte of the encoding, and
      * is one of these tag_* values.  That may be all the type
@@ -243,10 +249,12 @@ public class DerValue {
     /*
      * package private
      */
-    DerValue(DerInputBuffer in) throws IOException {
+    DerValue(DerInputBuffer in, boolean originalEncodedFormRetained)
+            throws IOException {
         // XXX must also parse BER-encoded constructed
         // values such as sequences, sets...
 
+        int startPosInInput = in.getPos();
         tag = (byte)in.read();
         byte lenByte = (byte)in.read();
         length = DerInputStream.getLength((lenByte & 0xff), in);
@@ -280,6 +288,11 @@ public class DerValue {
             data = new DerInputStream(buffer);
 
             in.skip(length);
+        }
+
+        if (originalEncodedFormRetained) {
+            int consumed = in.getPos() - startPosInInput;
+            originalEncodedForm = in.getSlice(startPosInInput, consumed);
         }
     }
 
@@ -819,6 +832,15 @@ public class DerValue {
         } catch (IOException e) {
             throw new IllegalArgumentException("misformatted DER value");
         }
+    }
+
+    /**
+     * Returns the original encoded form or {@code null} if the form was not
+     * retained or is not available.
+     */
+    public byte[] getOriginalEncodedForm() {
+        return (originalEncodedForm != null)
+                ? originalEncodedForm.clone() : null;
     }
 
     /**

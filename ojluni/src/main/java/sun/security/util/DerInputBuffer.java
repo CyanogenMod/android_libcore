@@ -71,6 +71,16 @@ class DerInputBuffer extends ByteArrayInputStream implements Cloneable {
         return retval;
     }
 
+    int getPos() {
+        return pos;
+    }
+
+    byte[] getSlice(int startPos, int size) {
+        byte[] result = new byte[size];
+        System.arraycopy(buf, startPos, result, 0, size);
+        return result;
+    }
+
     int peek() throws IOException {
         if (pos >= count)
             throw new IOException("out of data");

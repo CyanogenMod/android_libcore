@@ -315,6 +315,24 @@ public class X509CertImpl extends X509Certificate implements DerEncoder {
     }
 
     /**
+     * Unmarshal a certificate from its encoded form, parsing a DER value.
+     * This form of constructor is used by agents which need to examine
+     * and use certificate contents.
+     *
+     * @param derVal the der value containing the encoded cert.
+     * @exception CertificateException on parsing and initialization errors.
+     */
+    public X509CertImpl(DerValue derVal, byte[] encoded)
+        throws CertificateException {
+        try {
+            parse(derVal, encoded);
+        } catch (IOException e) {
+            signedCert = null;
+            throw new CertificateException("Unable to initialize, " + e, e);
+        }
+    }
+
+    /**
      * Appends the certificate to an output stream.
      *
      * @param out an input stream to which the certificate is appended.
@@ -1770,6 +1788,24 @@ public class X509CertImpl extends X509Certificate implements DerEncoder {
      */
     private void parse(DerValue val)
     throws CertificateException, IOException {
+        parse(
+            val,
+            null // use re-encoded form of val as the encoded form
+            );
+    }
+
+    /*
+     * Cert is a SIGNED ASN.1 macro, a three elment sequence:
+     *
+     *  - Data to be signed (ToBeSigned) -- the "raw" cert
+     *  - Signature algorithm (SigAlgId)
+     *  - The signature bits
+     *
+     * This routine unmarshals the certificate, saving the signature
+     * parts away for later verification.
+     */
+    private void parse(DerValue val, byte[] originalEncodedForm)
+    throws CertificateException, IOException {
         // check if can over write the certificate
         if (readOnly)
             throw new CertificateParsingException(
@@ -1779,7 +1815,9 @@ public class X509CertImpl extends X509Certificate implements DerEncoder {
             throw new CertificateParsingException(
                       "invalid DER-encoded certificate data");
 
-        signedCert = val.toByteArray();
+        signedCert =
+                (originalEncodedForm != null)
+                        ? originalEncodedForm : val.toByteArray();
         DerValue[] seq = new DerValue[3];
 
         seq[0] = val.data.getDerValue();

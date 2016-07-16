@@ -328,13 +328,22 @@ public class DerInputStream {
      */
     public DerValue[] getSet(int startLen, boolean implicit)
         throws IOException {
+        return getSet(
+            startLen,
+            implicit,
+            false); // no need to retain original encoded form
+    }
+
+    public DerValue[] getSet(int startLen, boolean implicit,
+            boolean originalEncodedFormRetained)
+        throws IOException {
         tag = (byte)buffer.read();
         if (!implicit) {
             if (tag != DerValue.tag_Set) {
                 throw new IOException("Set tag error");
             }
         }
-        return (readVector(startLen));
+        return (readVector(startLen, originalEncodedFormRetained));
     }
 
     /*
@@ -343,6 +352,18 @@ public class DerInputStream {
      * this same helper routine.
      */
     protected DerValue[] readVector(int startLen) throws IOException {
+        return readVector(
+            startLen,
+            false); // no need to retain original encoded form
+    }
+
+    /*
+     * Read a "vector" of values ... set or sequence have the
+     * same encoding, except for the initial tag, so both use
+     * this same helper routine.
+     */
+    protected DerValue[] readVector(int startLen,
+            boolean originalEncodedFormRetained) throws IOException {
         DerInputStream  newstr;
 
         byte lenByte = (byte)buffer.read();
@@ -387,7 +408,7 @@ public class DerInputStream {
         DerValue value;
 
         do {
-            value = new DerValue(newstr.buffer);
+            value = new DerValue(newstr.buffer, originalEncodedFormRetained);
             vec.addElement(value);
         } while (newstr.available() > 0);
 

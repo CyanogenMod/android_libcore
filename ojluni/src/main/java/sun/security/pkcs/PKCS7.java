@@ -31,10 +31,16 @@ import java.math.BigInteger;
 import java.util.*;
 import java.security.cert.X509Certificate;
 import java.security.cert.CertificateException;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateExpiredException;
+import java.security.cert.CertificateNotYetValidException;
+import java.security.cert.CertificateParsingException;
 import java.security.cert.X509CRL;
 import java.security.cert.CRLException;
 import java.security.cert.CertificateFactory;
 import java.security.*;
+
+import javax.security.auth.x500.X500Principal;
 
 import sun.security.util.*;
 import sun.security.x509.AlgorithmId;
@@ -214,13 +220,14 @@ public class PKCS7 {
         for (int i=0; i < contents.length; i++) {
             ByteArrayInputStream bais = null;
             try {
+                byte[] original = contents[i].getOriginalEncodedForm();
                 if (certfac == null)
-                    certificates[i] = new X509CertImpl(contents[i]);
+                    certificates[i] = new X509CertImpl(contents[i], original);
                 else {
-                    byte[] encoded = contents[i].toByteArray();
-                    bais = new ByteArrayInputStream(encoded);
-                    certificates[i] =
-                        (X509Certificate)certfac.generateCertificate(bais);
+                    bais = new ByteArrayInputStream(original);
+                    certificates[i] = new VerbatimX509Certificate(
+                        (X509Certificate)certfac.generateCertificate(bais),
+                        original);
                     bais.close();
                     bais = null;
                 }
@@ -279,7 +286,7 @@ public class PKCS7 {
          * (certificates are OPTIONAL)
          */
         if ((byte)(dis.peekByte()) == (byte)0xA0) {
-            DerValue[] certVals = dis.getSet(2, true);
+            DerValue[] certVals = dis.getSet(2, true, true);
 
             len = certVals.length;
             certificates = new X509Certificate[len];
@@ -292,13 +299,14 @@ public class PKCS7 {
                     // We only parse the normal certificate. Other types of
                     // CertificateChoices ignored.
                     if (tag == DerValue.tag_Sequence) {
+                        byte[] original = certVals[i].getOriginalEncodedForm();
                         if (certfac == null) {
-                            certificates[count] = new X509CertImpl(certVals[i]);
+                            certificates[count] = new X509CertImpl(certVals[i], original);
                         } else {
-                            byte[] encoded = certVals[i].toByteArray();
-                            bais = new ByteArrayInputStream(encoded);
-                            certificates[count] =
-                                (X509Certificate)certfac.generateCertificate(bais);
+                            bais = new ByteArrayInputStream(original);
+                            certificates[count] = new VerbatimX509Certificate(
+                                (X509Certificate)certfac.generateCertificate(bais),
+                                original);
                             bais.close();
                             bais = null;
                         }
@@ -408,13 +416,14 @@ public class PKCS7 {
         for (int i = 0; i < len; i++) {
             ByteArrayInputStream bais = null;
             try {
+                byte[] original = certVals[i].getOriginalEncodedForm();
                 if (certfac == null)
-                    certificates[i] = new X509CertImpl(certVals[i]);
+                    certificates[i] = new X509CertImpl(certVals[i], original);
                 else {
-                    byte[] encoded = certVals[i].toByteArray();
-                    bais = new ByteArrayInputStream(encoded);
-                    certificates[i] =
-                        (X509Certificate)certfac.generateCertificate(bais);
+                    bais = new ByteArrayInputStream(original);
+                    certificates[i] = new VerbatimX509Certificate(
+                        (X509Certificate)certfac.generateCertificate(bais),
+                        original);
                     bais.close();
                     bais = null;
                 }
@@ -761,5 +770,197 @@ public class PKCS7 {
      */
     public boolean isOldStyle() {
         return this.oldStyle;
+    }
+
+    /**
+     * For legacy reasons we need to return exactly the original encoded certificate bytes, instead
+     * of letting the underlying implementation have a shot at re-encoding the data.
+     */
+    private static class VerbatimX509Certificate extends WrappedX509Certificate {
+        private byte[] encodedVerbatim;
+
+        public VerbatimX509Certificate(X509Certificate wrapped, byte[] encodedVerbatim) {
+            super(wrapped);
+            this.encodedVerbatim = encodedVerbatim;
+        }
+
+        @Override
+        public byte[] getEncoded() throws CertificateEncodingException {
+            return encodedVerbatim;
+        }
+    }
+
+    private static class WrappedX509Certificate extends X509Certificate {
+        private final X509Certificate wrapped;
+
+        public WrappedX509Certificate(X509Certificate wrapped) {
+            this.wrapped = wrapped;
+        }
+
+        @Override
+        public Set<String> getCriticalExtensionOIDs() {
+            return wrapped.getCriticalExtensionOIDs();
+        }
+
+        @Override
+        public byte[] getExtensionValue(String oid) {
+            return wrapped.getExtensionValue(oid);
+        }
+
+        @Override
+        public Set<String> getNonCriticalExtensionOIDs() {
+            return wrapped.getNonCriticalExtensionOIDs();
+        }
+
+        @Override
+        public boolean hasUnsupportedCriticalExtension() {
+            return wrapped.hasUnsupportedCriticalExtension();
+        }
+
+        @Override
+        public void checkValidity()
+                throws CertificateExpiredException, CertificateNotYetValidException {
+            wrapped.checkValidity();
+        }
+
+        @Override
+        public void checkValidity(Date date)
+                throws CertificateExpiredException, CertificateNotYetValidException {
+            wrapped.checkValidity(date);
+        }
+
+        @Override
+        public int getVersion() {
+            return wrapped.getVersion();
+        }
+
+        @Override
+        public BigInteger getSerialNumber() {
+            return wrapped.getSerialNumber();
+        }
+
+        @Override
+        public Principal getIssuerDN() {
+            return wrapped.getIssuerDN();
+        }
+
+        @Override
+        public Principal getSubjectDN() {
+            return wrapped.getSubjectDN();
+        }
+
+        @Override
+        public Date getNotBefore() {
+            return wrapped.getNotBefore();
+        }
+
+        @Override
+        public Date getNotAfter() {
+            return wrapped.getNotAfter();
+        }
+
+        @Override
+        public byte[] getTBSCertificate() throws CertificateEncodingException {
+            return wrapped.getTBSCertificate();
+        }
+
+        @Override
+        public byte[] getSignature() {
+            return wrapped.getSignature();
+        }
+
+        @Override
+        public String getSigAlgName() {
+            return wrapped.getSigAlgName();
+        }
+
+        @Override
+        public String getSigAlgOID() {
+            return wrapped.getSigAlgOID();
+        }
+
+        @Override
+        public byte[] getSigAlgParams() {
+            return wrapped.getSigAlgParams();
+        }
+
+        @Override
+        public boolean[] getIssuerUniqueID() {
+            return wrapped.getIssuerUniqueID();
+        }
+
+        @Override
+        public boolean[] getSubjectUniqueID() {
+            return wrapped.getSubjectUniqueID();
+        }
+
+        @Override
+        public boolean[] getKeyUsage() {
+            return wrapped.getKeyUsage();
+        }
+
+        @Override
+        public int getBasicConstraints() {
+            return wrapped.getBasicConstraints();
+        }
+
+        @Override
+        public byte[] getEncoded() throws CertificateEncodingException {
+            return wrapped.getEncoded();
+        }
+
+        @Override
+        public void verify(PublicKey key) throws CertificateException, NoSuchAlgorithmException,
+                InvalidKeyException, NoSuchProviderException, SignatureException {
+            wrapped.verify(key);
+        }
+
+        @Override
+        public void verify(PublicKey key, String sigProvider)
+                throws CertificateException, NoSuchAlgorithmException, InvalidKeyException,
+                NoSuchProviderException, SignatureException {
+            wrapped.verify(key, sigProvider);
+        }
+
+        @Override
+        public String toString() {
+            return wrapped.toString();
+        }
+
+        @Override
+        public PublicKey getPublicKey() {
+            return wrapped.getPublicKey();
+        }
+
+        @Override
+        public List<String> getExtendedKeyUsage() throws CertificateParsingException {
+            return wrapped.getExtendedKeyUsage();
+        }
+
+        @Override
+        public Collection<List<?>> getIssuerAlternativeNames() throws CertificateParsingException {
+            return wrapped.getIssuerAlternativeNames();
+        }
+
+        @Override
+        public X500Principal getIssuerX500Principal() {
+            return wrapped.getIssuerX500Principal();
+        }
+
+        @Override
+        public Collection<List<?>> getSubjectAlternativeNames() throws CertificateParsingException {
+            return wrapped.getSubjectAlternativeNames();
+        }
+
+        @Override
+        public X500Principal getSubjectX500Principal() {
+            return wrapped.getSubjectX500Principal();
+        }
+
+        @Override
+        public void verify(PublicKey key, Provider sigProvider) throws CertificateException,
+                NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+            wrapped.verify(key, sigProvider);
+        }
     }
 }
