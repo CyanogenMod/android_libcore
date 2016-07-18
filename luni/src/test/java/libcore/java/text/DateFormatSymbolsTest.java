@@ -161,4 +161,16 @@ public class DateFormatSymbolsTest extends junit.framework.TestCase {
             }
         }
     }
+
+    public void test_setZoneStrings_checks_dimensions() throws Exception {
+        DateFormatSymbols dfs = DateFormatSymbols.getInstance();
+        String[][] zoneStrings = dfs.getZoneStrings();
+        zoneStrings[0] = new String[] { "id_only "};
+        try {
+            dfs.setZoneStrings(zoneStrings);
+            fail("No IllegalArgumentException when setting incorrect zoneStrings");
+        } catch (IllegalArgumentException e) {
+            // expected
+        }
+    }
 }
