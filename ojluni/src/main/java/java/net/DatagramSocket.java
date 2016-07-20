@@ -655,6 +655,11 @@ class DatagramSocket implements java.io.Closeable {
     public void send(DatagramPacket p) throws IOException  {
         InetAddress packetAddress = null;
         synchronized (p) {
+            // ----- BEGIN android -----
+            if (pendingConnectException != null) {
+                throw new SocketException("Pending connect failure", pendingConnectException);
+            }
+            // ----- END android -----
             if (isClosed())
                 throw new SocketException("Socket is closed");
             checkAddress (p.getAddress(), "send");
