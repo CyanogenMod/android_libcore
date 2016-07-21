@@ -23,6 +23,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
+import java.io.InputStream;
 
 public class DataInputStreamTest extends junit.framework.TestCase {
 
@@ -564,6 +565,54 @@ public class DataInputStreamTest extends junit.framework.TestCase {
                 + skipped, skipped == fileString.length());
     }
 
+    // b/30268192 : Some apps rely on the exact calls that
+    // DataInputStream makes on the wrapped InputStream. This
+    // test is to prevent *unintentional* regressions but may
+    // change in future releases.
+    public void test_readShortUsesMultiByteRead() throws IOException {
+        ThrowExceptionOnSingleByteReadInputStream
+                is = new ThrowExceptionOnSingleByteReadInputStream();
+        DataInputStream dis = new DataInputStream(is);
+        dis.readShort();
+        is.assertMultiByteReadWasCalled();
+    }
+
+    // b/30268192 : Some apps rely on the exact calls that
+    // DataInputStream makes on the wrapped InputStream. This
+    // test is to prevent *unintentional* regressions but may
+    // change in future releases.
+    public void test_readCharUsesMultiByteRead() throws IOException {
+        ThrowExceptionOnSingleByteReadInputStream
+                is = new ThrowExceptionOnSingleByteReadInputStream();
+        DataInputStream dis = new DataInputStream(is);
+        dis.readChar();
+        is.assertMultiByteReadWasCalled();
+    }
+
+    // b/30268192 : Some apps rely on the exact calls that
+    // DataInputStream makes on the wrapped InputStream. This
+    // test is to prevent *unintentional* regressions but may
+    // change in future releases.
+    public void test_readIntUsesMultiByteRead() throws IOException {
+        ThrowExceptionOnSingleByteReadInputStream
+                is = new ThrowExceptionOnSingleByteReadInputStream();
+        DataInputStream dis = new DataInputStream(is);
+        dis.readInt();
+        is.assertMultiByteReadWasCalled();
+    }
+
+    // b/30268192 : Some apps rely on the exact calls that
+    // DataInputStream makes on the wrapped InputStream. This
+    // test is to prevent *unintentional* regressions but may
+    // change in future releases.
+    public void test_readUnsignedShortUsesMultiByteRead() throws IOException {
+        ThrowExceptionOnSingleByteReadInputStream
+                is = new ThrowExceptionOnSingleByteReadInputStream();
+        DataInputStream dis = new DataInputStream(is);
+        dis.readUnsignedShort();
+        is.assertMultiByteReadWasCalled();
+    }
+
     private void openDataInputStream() throws IOException {
         dis = new DataInputStream(new ByteArrayInputStream(bos.toByteArray()));
     }
@@ -589,6 +638,29 @@ public class DataInputStreamTest extends junit.framework.TestCase {
         try {
             dis.close();
         } catch (Exception e) {
+        }
+    }
+
+    public static class ThrowExceptionOnSingleByteReadInputStream extends InputStream {
+
+        private boolean multiByteReadWasCalled = false;
+
+        @Override
+        public int read() throws IOException {
+            fail("Should not call single byte read");
+            return 0;
+        }
+
+        @Override
+        public int read(byte[] b, int i, int j) throws IOException {
+            multiByteReadWasCalled = true;
+            return j;
+        }
+
+        public void assertMultiByteReadWasCalled() {
+            if (!multiByteReadWasCalled) {
+                fail("read(byte[], int, int) was not called");
+            }
         }
     }
 }
