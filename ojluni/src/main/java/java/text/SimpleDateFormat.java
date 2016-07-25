@@ -1974,7 +1974,7 @@ public class SimpleDateFormat extends DateFormat {
             case PATTERN_STANDALONE_DAY_OF_WEEK: // 'c'
             {
                 final int idx = parseWeekday(text, start, field, useDateFormatSymbols,
-                        false /* standalone */, calb);
+                        true /* standalone */, calb);
                 if (idx > 0) {
                     return idx;
                 }

@@ -223,6 +223,9 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
         if (d == null) {
             fail(pp.toString());
         }
+        if (pp.getIndex() != value.length()) {
+            fail("Value " + value + " must be fully consumed: " +  pp.toString());
+        }
         Calendar c = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         c.setTime(d);
         return c;
@@ -475,5 +478,25 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
         sdf = new SimpleDateFormat("zzzz", symbols);
         sdf.setTimeZone(tz);
         assertTrue(sdf.format(new Date(1376927400000L)).startsWith("GMT"));
+    }
+
+    // http://b/30323478
+    public void testStandaloneWeekdayParsing() throws Exception {
+        Locale fi = new Locale("fi"); // Finnish has separate standalone weekday names
+        // tiistaina = Tuesday (regular)
+        // tiistai = Tuesday (standalone)
+        assertEquals(Calendar.TUESDAY,
+                parseDate(fi, "cccc yyyy", "tiistai 2000").get(Calendar.DAY_OF_WEEK));
+        assertEquals(Calendar.TUESDAY,
+                parseDate(fi, "EEEE yyyy", "tiistaina 2000").get(Calendar.DAY_OF_WEEK));
+        assertCannotParse(fi, "cccc yyyy", "tiistaina 2000");
+        assertCannotParse(fi, "EEEE yyyy", "tiistai 2000");
+    }
+
+    // http://b/30323478
+    public void testStandaloneWeekdayFormatting() throws Exception {
+        Locale fi = new Locale("fi"); // Finnish has separate standalone weekday names
+        assertEquals("torstai", formatDate(fi, "cccc"));
+        assertEquals("torstaina", formatDate(fi, "EEEE"));
     }
 }
