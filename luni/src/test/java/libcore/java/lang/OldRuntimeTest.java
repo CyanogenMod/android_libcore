@@ -27,6 +27,9 @@ import java.security.Permission;
 import java.util.Arrays;
 import java.util.Vector;
 import tests.support.resource.Support_Resources;
+import dalvik.system.VMRuntime;
+import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
 
 public class OldRuntimeTest extends junit.framework.TestCase {
 
@@ -519,4 +522,77 @@ public class OldRuntimeTest extends junit.framework.TestCase {
             //expected
         }
     }
+    // b/25859957
+    public void test_loadDeprecated() throws Exception {
+        final int savedTargetSdkVersion = VMRuntime.getRuntime().getTargetSdkVersion();
+        try {
+            try {
+                // Call Runtime#load(String, ClassLoader) at API level 24 (N). It will fail
+                // with a UnsatisfiedLinkError because requested library doesn't exits.
+                VMRuntime.getRuntime()
+                    .setTargetSdkVersion(24);
+                Method loadMethod = Runtime.class.getDeclaredMethod("load", String.class,
+                                                                    ClassLoader.class);
+                loadMethod.setAccessible(true);
+                loadMethod.invoke(Runtime.getRuntime(), "nonExistentLibrary", null);
+                fail();
+            } catch(InvocationTargetException expected) {
+                assertTrue(expected.getCause() instanceof UnsatisfiedLinkError);
+            }
+
+            try {
+                // Call Runtime#load(String, ClassLoader) at API level 25. It will fail
+                // with a IllegalStateException because it's deprecated.
+                VMRuntime.getRuntime()
+                    .setTargetSdkVersion(25);
+                Method loadMethod = Runtime.class.getDeclaredMethod("load", String.class,
+                                                                    ClassLoader.class);
+                loadMethod.setAccessible(true);
+                loadMethod.invoke(Runtime.getRuntime(), "nonExistentLibrary", null);
+                fail();
+            } catch(InvocationTargetException expected) {
+                assertTrue(expected.getCause() instanceof IllegalStateException);
+            }
+        } finally {
+            VMRuntime.getRuntime().setTargetSdkVersion(savedTargetSdkVersion);
+        }
+    }
+
+    // b/25859957
+    public void test_loadLibraryDeprecated() throws Exception {
+        final int savedTargetSdkVersion = VMRuntime.getRuntime().getTargetSdkVersion();
+        try {
+            try {
+                // Call Runtime#loadLibrary(String, ClassLoader) at API level 24 (N). It will fail
+                // with a UnsatisfiedLinkError because requested library doesn't exits.
+                VMRuntime.getRuntime()
+                    .setTargetSdkVersion(24);
+                Method loadMethod = Runtime.class.getDeclaredMethod("loadLibrary", String.class,
+                                                                    ClassLoader.class);
+                loadMethod.setAccessible(true);
+                loadMethod.invoke(Runtime.getRuntime(), "nonExistentLibrary", null);
+                fail();
+            } catch(InvocationTargetException expected) {
+                assertTrue(expected.getCause() instanceof UnsatisfiedLinkError);
+            }
+
+            try {
+                // Call Runtime#load(String, ClassLoader) at API level 25. It will fail
+                // with a IllegalStateException because it's deprecated.
+
+                VMRuntime.getRuntime()
+                    .setTargetSdkVersion(25);
+                Method loadMethod = Runtime.class.getDeclaredMethod("loadLibrary", String.class,
+                                                                    ClassLoader.class);
+                loadMethod.setAccessible(true);
+                loadMethod.invoke(Runtime.getRuntime(), "nonExistentLibrary", null);
+                fail();
+            } catch(InvocationTargetException expected) {
+                assertTrue(expected.getCause() instanceof IllegalStateException);
+            }
+        } finally {
+            VMRuntime.getRuntime().setTargetSdkVersion(savedTargetSdkVersion);
+        }
+    }
+
 }
