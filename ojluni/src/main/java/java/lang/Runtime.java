@@ -872,7 +872,7 @@ public class Runtime {
     }
 
     /** Check target sdk, if it's higher than N, we throw an UnsupportedOperationException */
-    void checkTargetSdkVersionForLoad(String methodName) {
+    private void checkTargetSdkVersionForLoad(String methodName) {
         final int targetSdkVersion = VMRuntime.getRuntime().getTargetSdkVersion();
         if (targetSdkVersion > 24) {
             throw new UnsupportedOperationException(methodName + " is not supported on SDK " +
