@@ -1768,7 +1768,12 @@ public class FileTest extends TestCase {
         while (dir.getCanonicalPath().length() < 256) {
             sb2.append(0);
             dir = new File(sb2.toString());
-            assertTrue("mkdir " + dir.getCanonicalPath().length() + " failed",
+            if (dir.getName().length() > 140) {
+              // Split a long file name that is > 140 chars
+              sb2.append(File.separator);
+            }
+            assertTrue("mkdir " + dir.getCanonicalPath() + " " +
+                    dir.getCanonicalPath().length() + " failed",
                     dir.mkdir());
             assertTrue("mkdir " + dir.getCanonicalPath().length()
                     + " worked but exists check failed", dir.exists());
