@@ -2283,8 +2283,13 @@ public final class URLConnectionTest extends AbstractResourceLeakageDetectorTest
         testUrlToRequestMapping("$", "$", "$");
         testUrlToUriMapping("&", "&", "&", "&", "&");
         testUrlToRequestMapping("&", "&", "&");
-        testUrlToUriMapping("'", "'", "'", "%27", "'");
-        testUrlToRequestMapping("'", "'", "%27");
+
+        // http://b/30405333 - upstream OkHttp encodes single quote (') as %27 in query parameters
+        // but this breaks iTunes remote apps: iTunes currently does not accept %27 so we have a
+        // local patch to retain the historic Android behavior of not encoding single quote.
+        testUrlToUriMapping("'", "'", "'", "'", "'");
+        testUrlToRequestMapping("'", "'", "'");
+
         testUrlToUriMapping("(", "(", "(", "(", "(");
         testUrlToRequestMapping("(", "(", "(");
         testUrlToUriMapping(")", ")", ")", ")", ")");
