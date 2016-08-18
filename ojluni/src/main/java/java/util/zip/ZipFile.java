@@ -771,6 +771,14 @@ class ZipFile implements ZipConstants, Closeable {
         return locsig;
     }
 
+    /** @hide */
+    // @VisibleForTesting
+    public int getFileDescriptor() {
+        return getFileDescriptor(jzfile);
+    }
+
+    private static native int getFileDescriptor(long jzfile);
+
     private static native long open(String name, int mode, long lastModified,
                                     boolean usemmap) throws IOException;
     private static native int getTotal(long jzfile);

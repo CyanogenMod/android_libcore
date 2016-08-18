@@ -156,6 +156,12 @@ ZipFile_close(JNIEnv *env, jclass cls, jlong zfile)
     ZIP_Close(jlong_to_ptr(zfile));
 }
 
+JNIEXPORT jint JNICALL
+ZipFile_getFileDescriptor(JNIEnv *env, jclass cls, jlong zfile) {
+    jzfile *zip = jlong_to_ptr(zfile);
+    return zip->zfd;
+}
+
 JNIEXPORT jlong JNICALL
 ZipFile_getEntry(JNIEnv *env, jclass cls, jlong zfile,
                  jbyteArray name, jboolean addSlash)
@@ -390,6 +396,7 @@ JarFile_getMetaInfEntryNames(JNIEnv *env, jobject obj)
 }
 
 static JNINativeMethod gMethods[] = {
+  NATIVE_METHOD(ZipFile, getFileDescriptor, "(J)I"),
   NATIVE_METHOD(ZipFile, getEntry, "(J[BZ)J"),
   NATIVE_METHOD(ZipFile, freeEntry, "(JJ)V"),
   NATIVE_METHOD(ZipFile, getNextEntry, "(JI)J"),
