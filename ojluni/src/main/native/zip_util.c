@@ -47,8 +47,6 @@
 #include "zip_util.h"
 #include <zlib.h>
 
-#include "cutils/log.h"
-
 #ifdef _ALLBSD_SOURCE
 #define off64_t off_t
 #define mmap64 mmap
@@ -1278,40 +1276,6 @@ ZIP_Unlock(jzfile *zip)
     MUNLOCK(zip->lock);
 }
 
-// Temporary debugging information for b/30529561. If we encounter
-// a zip file with a bad LOC header, we log :
-//
-// - the file data at the offset.
-// - the offset itself.
-// - the first PATH_MAX bytes of the path associated with the fd.
-//
-// TODO(narayan): Remove this once b/30529561 is resolved.
-void ZIP_PrintDebugInfo(jzfile *zip, jzentry *entry,
-                        const unsigned char *loc)
-{
-  ALOGE("b/30529561: Unexpected LOC header: %x", *((unsigned int*) loc));
-  ALOGE("b/30529561: Entry offset: %zd", (size_t) entry->pos);
-
-  char path[64];
-  snprintf(path, sizeof(path), "/proc/self/fd/%d", zip->zfd);
-
-  char buf[PATH_MAX];
-  ssize_t count = readlink(path, buf, PATH_MAX);
-
-  if (count == -1) {
-    ALOGE("b/30529561: readlink failed for %s (%s)", path, strerror(errno));
-    return;
-  } else if (count == PATH_MAX) {
-    // Truncate the name, we're just using this for debugging purposes
-    // anyway.
-    --count;
-  }
-
-  buf[count] = '\0';
-
-  ALOGE("b/30529561: Reading zip file %s", buf);
-}
-
 /*
  * Returns the offset of the entry data within the zip file.
  * Returns -1 if an error occurred, in which case zip->msg will
@@ -1336,10 +1300,6 @@ ZIP_GetEntryDataOffset(jzfile *zip, jzentry *entry)
             return -1;
         }
         if (GETSIG(loc) != LOCSIG) {
-            // TODO(narayan): Remove this debug message once b/30529561 is
-            // sorted out satisfactorily.
-            ZIP_PrintDebugInfo(zip, entry, loc);
-
             zip->msg = "invalid LOC header (bad signature)";
             return -1;
         }
