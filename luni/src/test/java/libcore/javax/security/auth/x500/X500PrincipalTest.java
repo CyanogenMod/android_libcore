@@ -120,6 +120,30 @@ public class X500PrincipalTest extends TestCase {
         expectExceptionInDNConstructor("l=\\g0");
     }
 
+    public void testNegativeLen() {
+        try {
+            X500Principal p = new X500Principal(new byte[]{
+                    0x30, // DerValue.tag_Sequence read in DerValue#getSequence
+                    9,    // Length of the vector. read in readVector.
+                          // DerInputStream.getLength will just return this as 10 & 0x80 == 0
+                    -1,   // Tag of the first value in the sequencevalue. Convenient so that it
+                          // doesn't hold DerIndefLenConverter.isEOC()
+                    (byte) 0x80, // Encoding in indefinite form
+                    -1,          // Second tag to be read by DerIndefLenConverter
+                    (byte) 0x84, // Second length byte to be read, 0x80 means long form, 4 bytes
+                    (byte) 0xff, // Length to be read by DerIndefLenConverter, -6, will move the
+                                 // buffer position to the second tag
+                    (byte) 0xff,
+                    (byte) 0xff,
+                    (byte) -6,
+                    0,           // Needed as otherwise it's detected that there's nothing after
+                    // the length
+            });
+            fail("expected IllegalArgumentException");
+        } catch (IllegalArgumentException expected) {
+        }
+    }
+
     private void expectExceptionInDNConstructor(String dn) {
         try {
             X500Principal principal = new X500Principal(dn);
