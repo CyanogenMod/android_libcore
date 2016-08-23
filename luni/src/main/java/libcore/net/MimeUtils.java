@@ -210,6 +210,12 @@ public final class MimeUtils {
         add("application/x-xcf", "xcf");
         add("application/x-xfig", "fig");
         add("application/xhtml+xml", "xhtml");
+        // Video mime types for 3GPP first so they'll be default for guessMimeTypeFromExtension
+        // See RFC 3839 for 3GPP and RFC 4393 for 3GPP2
+        add("video/3gpp", "3gpp");
+        add("video/3gpp", "3gp");
+        add("video/3gpp2", "3gpp2");
+        add("video/3gpp2", "3g2");
         add("audio/3gpp", "3gpp");
         add("audio/aac", "aac");
         add("audio/aac-adts", "aac");
@@ -353,10 +359,6 @@ public final class MimeUtils {
         add("text/x-tex", "cls");
         add("text/x-vcalendar", "vcs");
         add("text/x-vcard", "vcf");
-        add("video/3gpp", "3gpp");
-        add("video/3gpp", "3gp");
-        add("video/3gpp2", "3gpp2");
-        add("video/3gpp2", "3g2");
         add("video/avi", "avi");
         add("video/dl", "dl");
         add("video/dv", "dif");
