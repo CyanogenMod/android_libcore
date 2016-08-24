@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.Spliterator;
 import java.util.Vector;
@@ -848,6 +849,15 @@ public class VectorTest extends junit.framework.TestCase {
             fail("should throw ArrayIndexOutOfBoundsException");
         } catch (ArrayIndexOutOfBoundsException e) {
         }
+    }
+
+    // http://b/30974375
+    public void test_listIterator_addAndPrevious() {
+        ListIterator<String> it = new Vector<String>().listIterator();
+        assertFalse(it.hasNext());
+        it.add("value");
+        assertEquals("value", it.previous());
+        assertTrue(it.hasNext());
     }
 
     /**
