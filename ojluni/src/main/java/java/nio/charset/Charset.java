@@ -214,10 +214,7 @@ import sun.security.action.GetPropertyAction;
  * input sequence are not omitted since the same code is used to represent
  * <small>ZERO-WIDTH NON-BREAKING SPACE</small>.
  *
- * <p> Every instance of the Java virtual machine has a default charset, which
- * may or may not be one of the standard charsets.  The default charset is
- * determined during virtual-machine startup and typically depends upon the
- * locale and charset being used by the underlying operating system. </p>
+ * <p>Android note: The Android platform default is always UTF-8.
  *
  * <p>The {@link StandardCharsets} class defines constants for each of the
  * standard charsets.
@@ -653,9 +650,7 @@ public abstract class Charset
     /**
      * Returns the default charset of this Java virtual machine.
      *
-     * <p> The default charset is determined during virtual-machine startup and
-     * typically depends upon the locale and charset of the underlying
-     * operating system.
+     * <p>Android note: The Android platform default is always UTF-8.
      *
      * @return  A charset object for the default charset
      *
