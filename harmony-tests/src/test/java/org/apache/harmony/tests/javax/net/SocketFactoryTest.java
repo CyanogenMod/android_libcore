@@ -126,30 +126,12 @@ public class SocketFactoryTest extends TestCase {
     public final void test_createSocket_InetAddressIInetAddressI() throws Exception {
         SocketFactory sf = SocketFactory.getDefault();
         int sport = new ServerSocket(0).getLocalPort();
-        int[] invalidPorts = {Integer.MIN_VALUE, -1, 65536, Integer.MAX_VALUE};
 
         Socket s = sf.createSocket(InetAddress.getLocalHost(), sport,
-                                   InetAddress.getLocalHost(), 0);
+                InetAddress.getLocalHost(), 0);
         assertNotNull(s);
         assertTrue("1: Failed to create socket", s.getPort() == sport);
         int portNumber = s.getLocalPort();
-
-        for (int i = 0; i < invalidPorts.length; i++) {
-            try {
-              sf.createSocket(InetAddress.getLocalHost(), invalidPorts[i],
-                              InetAddress.getLocalHost(), portNumber);
-                fail("IllegalArgumentException wasn't thrown for " + invalidPorts[i]);
-            } catch (IllegalArgumentException expected) {
-            }
-
-            try {
-                sf.createSocket(InetAddress.getLocalHost(), sport,
-                                InetAddress.getLocalHost(), invalidPorts[i]);
-                fail("IllegalArgumentException wasn't thrown for " + invalidPorts[i]);
-            } catch (IllegalArgumentException expected) {
-            }
-        }
-
         try {
             sf.createSocket(InetAddress.getLocalHost(), sport,
                             InetAddress.getLocalHost(), portNumber);
@@ -162,6 +144,64 @@ public class SocketFactoryTest extends TestCase {
             f.createSocket(InetAddress.getLocalHost(), 8081, InetAddress.getLocalHost(), 8082);
             fail("IOException wasn't thrown ...");
         } catch (IOException expected) {
+        }
+    }
+
+    // Checks the behavior of createSocket(InetAddress, int, InetAddress, int) when the
+    // ports are invalid.
+    public void test_createSocket_InetAddressIInetAddressI_IllegalArgumentException()
+            throws Exception {
+        SocketFactory sf = SocketFactory.getDefault();
+        int validPort = new ServerSocket(0).getLocalPort();
+        int[] invalidPorts = {Integer.MIN_VALUE, -1, 65536, Integer.MAX_VALUE};
+
+        for (int i = 0; i < invalidPorts.length; i++) {
+            // Check invalid server port.
+            try (Socket s = sf.createSocket(InetAddress.getLocalHost() /* ServerAddress */,
+                    invalidPorts[i] /* ServerPort */,
+                    InetAddress.getLocalHost() /* ClientAddress */,
+                    validPort /* ClientPort */)) {
+                fail("IllegalArgumentException wasn't thrown for " + invalidPorts[i]);
+            } catch (IllegalArgumentException expected) {
+            }
+
+            // Check invalid client port.
+            try (Socket s = sf.createSocket(InetAddress.getLocalHost() /* ServerAddress */,
+                    validPort /* ServerPort */,
+                    InetAddress.getLocalHost() /* ClientAddress */,
+                    invalidPorts[i]) /* ClientPort */){
+                fail("IllegalArgumentException wasn't thrown for " + invalidPorts[i]);
+            } catch (IllegalArgumentException expected) {
+            }
+        }
+    }
+
+    // b/31019685
+    // Checks the ordering of port number validation (IllegalArgumentException) and binding error.
+    public void test_createSocket_InetAddressIInetAddressI_ExceptionOrder() throws IOException {
+        int invalidPort = Integer.MAX_VALUE;
+        SocketFactory sf = SocketFactory.getDefault();
+        int validServerPortNumber = new ServerSocket(0).getLocalPort();
+
+        // Create a socket with localhost as the client address so that another attempt to bind
+        // would fail.
+        Socket s = sf.createSocket(InetAddress.getLocalHost() /* ServerAddress */,
+                validServerPortNumber /* ServerPortNumber */,
+                InetAddress.getLocalHost() /* ClientAddress */,
+                0 /* ClientPortNumber */);
+
+        int assignedLocalPortNumber = s.getLocalPort();
+
+        // Create a socket with an invalid port and localhost as the client address. Both
+        // BindException and IllegalArgumentException are expected in this case as the address is
+        // already bound to the socket above and port is invalid, however, to preserve the
+        // precedence order, IllegalArgumentException should be thrown.
+        try (Socket s1 = sf.createSocket(InetAddress.getLocalHost() /* ServerAddress */,
+                invalidPort /* ServerPortNumber */,
+                InetAddress.getLocalHost() /* ClientAddress */,
+                assignedLocalPortNumber /* ClientPortNumber */)) {
+            fail("IllegalArgumentException wasn't thrown for " + invalidPort);
+        } catch (IllegalArgumentException expected) {
         }
     }
 

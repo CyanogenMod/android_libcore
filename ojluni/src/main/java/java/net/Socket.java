@@ -423,11 +423,12 @@ class Socket implements java.io.Closeable {
         for (int i = 0; i < addresses.length; i++) {
             setImpl();
             try {
+                InetSocketAddress address = new InetSocketAddress(addresses[i], port);
                 createImpl(stream);
                 if (localAddr != null) {
                     bind(localAddr);
                 }
-                connect(new InetSocketAddress(addresses[i], port));
+                connect(address);
                 break;
             } catch (IOException | IllegalArgumentException | SecurityException e) {
                 try {
