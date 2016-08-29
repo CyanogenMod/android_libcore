@@ -2683,6 +2683,27 @@ public final class CipherTest extends TestCase {
 
     /*
      * Test vector generation:
+     * openssl rand -hex 16 | sed 's/\(..\)/(byte) 0x\1, /g'
+     */
+    private static final byte[] DES_112_KEY = new byte[] {
+            (byte) 0x6b, (byte) 0xb3, (byte) 0x85, (byte) 0x1c, (byte) 0x3d, (byte) 0x50,
+            (byte) 0xd4, (byte) 0x95, (byte) 0x39, (byte) 0x48, (byte) 0x77, (byte) 0x30,
+            (byte) 0x1a, (byte) 0xd7, (byte) 0x86, (byte) 0x57,
+    };
+
+    /*
+     * Test vector generation:
+     * openssl rand -hex 24 | sed 's/\(..\)/(byte) 0x\1, /g'
+     */
+    private static final byte[] DES_168_KEY = new byte[] {
+            (byte) 0xfe, (byte) 0xd4, (byte) 0xd7, (byte) 0xc9, (byte) 0x8a, (byte) 0x13,
+            (byte) 0x6a, (byte) 0xa8, (byte) 0x5a, (byte) 0xb8, (byte) 0x19, (byte) 0xb8,
+            (byte) 0xcf, (byte) 0x3c, (byte) 0x5f, (byte) 0xe0, (byte) 0xa2, (byte) 0xf7,
+            (byte) 0x7b, (byte) 0x65, (byte) 0x43, (byte) 0xc0, (byte) 0xc4, (byte) 0xe1,
+    };
+
+    /*
+     * Test vector generation:
      * openssl rand -hex 16
      * echo '3d4f8970b1f27537f40a39298a41555f' | sed 's/\(..\)/(byte) 0x\1, /g'
      */
@@ -2724,6 +2745,61 @@ public final class CipherTest extends TestCase {
             "AES/CFB",
             "AES/CTR",
             "AES/OFB",
+    };
+
+    /*
+     * Test vector generation:
+     * echo -n 'Testing rocks!' | recode ../x1 | sed 's/0x/(byte) 0x/g'
+     */
+    private static final byte[] DES_Plaintext1 = new byte[] {
+            (byte) 0x54, (byte) 0x65, (byte) 0x73, (byte) 0x74, (byte) 0x69, (byte) 0x6E,
+            (byte) 0x67, (byte) 0x20, (byte) 0x72, (byte) 0x6F, (byte) 0x63, (byte) 0x6B,
+            (byte) 0x73, (byte) 0x21
+    };
+
+    /*
+     * Test vector generation: take DES_Plaintext1 and PKCS #5 pad it manually (it's not hard).
+     */
+    private static final byte[] DES_Plaintext1_PKCS5_Padded = new byte[] {
+            (byte) 0x54, (byte) 0x65, (byte) 0x73, (byte) 0x74, (byte) 0x69, (byte) 0x6E,
+            (byte) 0x67, (byte) 0x20, (byte) 0x72, (byte) 0x6F, (byte) 0x63, (byte) 0x6B,
+            (byte) 0x73, (byte) 0x21, (byte) 0x02, (byte) 0x02,
+    };
+
+    /*
+     * Test vector generation:
+     * openssl rand -hex 8 | sed 's/\(..\)/(byte) 0x\1, /g'
+     */
+    private static final byte[] DES_IV1 = new byte[] {
+            (byte) 0x5c, (byte) 0x47, (byte) 0x5e, (byte) 0x57, (byte) 0x0c, (byte) 0x46,
+            (byte) 0xcb, (byte) 0x47,
+    };
+
+    /*
+     * Test vector generation:
+     * openssl enc -des-ede-cbc -K 6bb3851c3d50d495394877301ad78657 -iv 5c475e570c46cb47 -in blah
+     * | recode ../x1 | sed 's/0x/(byte) 0x/g'
+     */
+    private static final byte[]
+            DES_Plaintext1_Encrypted_With_DES_112_KEY_And_DESEDE_CBC_PKCS5PADDING_With_DES_IV1 =
+                    new byte[] {
+            (byte) 0x09, (byte) 0xA5, (byte) 0x5D, (byte) 0x94, (byte) 0x94, (byte) 0xAA,
+            (byte) 0x3F, (byte) 0xC8, (byte) 0xB7, (byte) 0x73, (byte) 0x94, (byte) 0x0E,
+            (byte) 0xFC, (byte) 0xF4, (byte) 0xA5, (byte) 0x28,
+    };
+
+
+    /*
+     * Test vector generation:
+     * openssl enc -des-ede3-cbc -K fed4d7c98a136aa85ab819b8cf3c5fe0a2f77b6543c0c4e1
+     *     -iv 5c475e570c46cb47 -in blah | recode ../x1 | sed 's/0x/(byte) 0x/g'
+     */
+    private static final byte[]
+            DES_Plaintext1_Encrypted_With_DES_168_KEY_And_DESEDE_CBC_PKCS5PADDING_With_DES_IV1 =
+                    new byte[] {
+            (byte) 0xC9, (byte) 0xF1, (byte) 0x83, (byte) 0x1F, (byte) 0x24, (byte) 0x83,
+            (byte) 0x2C, (byte) 0x7B, (byte) 0x66, (byte) 0x66, (byte) 0x99, (byte) 0x98,
+            (byte) 0x27, (byte) 0xB0, (byte) 0xED, (byte) 0x47
     };
 
     /*
@@ -2932,6 +3008,8 @@ public final class CipherTest extends TestCase {
 
         public final byte[] key;
 
+        public final String keyAlgorithm;
+
         public final byte[] iv;
 
         public final byte[] aad;
@@ -2942,9 +3020,10 @@ public final class CipherTest extends TestCase {
 
         public final byte[] plaintextPadded;
 
-        public CipherTestParam(String transformation, byte[] key, byte[] iv, byte[] aad,
-                byte[] plaintext, byte[] plaintextPadded, byte[] ciphertext) {
+        public CipherTestParam(String transformation, String keyAlgorithm, byte[] key, byte[] iv,
+                byte[] aad, byte[] plaintext, byte[] plaintextPadded, byte[] ciphertext) {
             this.transformation = transformation.toUpperCase(Locale.ROOT);
+            this.keyAlgorithm = keyAlgorithm;
             this.key = key;
             this.iv = iv;
             this.aad = aad;
@@ -2954,22 +3033,47 @@ public final class CipherTest extends TestCase {
         }
     }
 
+    private static List<CipherTestParam> DES_CIPHER_TEST_PARAMS = new ArrayList<CipherTestParam>();
+    static {
+        DES_CIPHER_TEST_PARAMS.add(new CipherTestParam(
+                "DESede/CBC/PKCS5Padding",
+                "DESede",
+                DES_112_KEY,
+                DES_IV1,
+                null,
+                DES_Plaintext1,
+                DES_Plaintext1_PKCS5_Padded,
+                DES_Plaintext1_Encrypted_With_DES_112_KEY_And_DESEDE_CBC_PKCS5PADDING_With_DES_IV1
+                ));
+        DES_CIPHER_TEST_PARAMS.add(new CipherTestParam(
+                "DESede/CBC/PKCS5Padding",
+                "DESede",
+                DES_168_KEY,
+                DES_IV1,
+                null,
+                DES_Plaintext1,
+                DES_Plaintext1_PKCS5_Padded,
+                DES_Plaintext1_Encrypted_With_DES_168_KEY_And_DESEDE_CBC_PKCS5PADDING_With_DES_IV1
+                ));
+    }
+
     private static List<CipherTestParam> CIPHER_TEST_PARAMS = new ArrayList<CipherTestParam>();
     static {
-        CIPHER_TEST_PARAMS.add(new CipherTestParam("AES/ECB/PKCS5Padding", AES_128_KEY,
+        CIPHER_TEST_PARAMS.add(new CipherTestParam("AES/ECB/PKCS5Padding", "AES", AES_128_KEY,
                 null,
                 null,
                 AES_128_ECB_PKCS5Padding_TestVector_1_Plaintext,
                 AES_128_ECB_PKCS5Padding_TestVector_1_Plaintext_Padded,
                 AES_128_ECB_PKCS5Padding_TestVector_1_Encrypted));
         // PKCS#5 is assumed to be equivalent to PKCS#7 -- same test vectors are thus used for both.
-        CIPHER_TEST_PARAMS.add(new CipherTestParam("AES/ECB/PKCS7Padding", AES_128_KEY,
+        CIPHER_TEST_PARAMS.add(new CipherTestParam("AES/ECB/PKCS7Padding", "AES", AES_128_KEY,
                 null,
                 null,
                 AES_128_ECB_PKCS5Padding_TestVector_1_Plaintext,
                 AES_128_ECB_PKCS5Padding_TestVector_1_Plaintext_Padded,
                 AES_128_ECB_PKCS5Padding_TestVector_1_Encrypted));
         CIPHER_TEST_PARAMS.add(new CipherTestParam("AES/GCM/NOPADDING",
+                "AES",
                 AES_128_GCM_TestVector_1_Key,
                 AES_128_GCM_TestVector_1_IV,
                 AES_128_GCM_TestVector_1_AAD,
@@ -2977,19 +3081,19 @@ public final class CipherTest extends TestCase {
                 AES_128_GCM_TestVector_1_Plaintext,
                 AES_128_GCM_TestVector_1_Encrypted));
         if (IS_UNLIMITED) {
-            CIPHER_TEST_PARAMS.add(new CipherTestParam("AES/CTR/NoPadding", AES_192_KEY,
+            CIPHER_TEST_PARAMS.add(new CipherTestParam("AES/CTR/NoPadding", "AES", AES_192_KEY,
                     AES_192_CTR_NoPadding_TestVector_1_IV,
                     null,
                     AES_192_CTR_NoPadding_TestVector_1_Plaintext,
                     AES_192_CTR_NoPadding_TestVector_1_Plaintext,
                     AES_192_CTR_NoPadding_TestVector_1_Ciphertext));
-            CIPHER_TEST_PARAMS.add(new CipherTestParam("AES/CBC/PKCS5Padding", AES_256_KEY,
+            CIPHER_TEST_PARAMS.add(new CipherTestParam("AES/CBC/PKCS5Padding", "AES", AES_256_KEY,
                     AES_256_CBC_PKCS5Padding_TestVector_1_IV,
                     null,
                     AES_256_CBC_PKCS5Padding_TestVector_1_Plaintext,
                     AES_256_CBC_PKCS5Padding_TestVector_1_Plaintext_Padded,
                     AES_256_CBC_PKCS5Padding_TestVector_1_Ciphertext));
-            CIPHER_TEST_PARAMS.add(new CipherTestParam("AES/CBC/PKCS7Padding", AES_256_KEY,
+            CIPHER_TEST_PARAMS.add(new CipherTestParam("AES/CBC/PKCS7Padding", "AES", AES_256_KEY,
                     AES_256_CBC_PKCS5Padding_TestVector_1_IV,
                     null,
                     AES_256_CBC_PKCS5Padding_TestVector_1_Plaintext,
@@ -3001,6 +3105,41 @@ public final class CipherTest extends TestCase {
     public void testCipher_Success() throws Exception {
         for (String provider : AES_PROVIDERS) {
             testCipher_Success(provider);
+        }
+
+        testCipher_Success_ForAllSupportingProviders_AtLeastOneProviderRequired(
+                DES_CIPHER_TEST_PARAMS);
+    }
+
+    /**
+     * For each test vector in the list, tests that the transformation is supported by at least one
+     * provider and that all implementations of the transformation pass the Known Answer Test (KAT)
+     * as well as other functional tests.
+     */
+    private void testCipher_Success_ForAllSupportingProviders_AtLeastOneProviderRequired(
+            List<CipherTestParam> testVectors) throws Exception {
+        ByteArrayOutputStream errBuffer = new ByteArrayOutputStream();
+        PrintStream out = new PrintStream(errBuffer);
+        for (CipherTestParam testVector : testVectors) {
+            Provider[] providers = Security.getProviders("Cipher." + testVector.transformation);
+            if ((providers == null) || (providers.length == 0)) {
+                out.append("No providers offer " + testVector.transformation + "\n");
+                continue;
+            }
+            for (Provider provider : providers) {
+                try {
+                    checkCipher(testVector, provider.getName());
+                } catch (Throwable e) {
+                    out.append("Error encountered checking " + testVector.transformation
+                            + ", keySize=" + (testVector.key.length * 8) + " with provider "
+                            + provider.getName() + "\n");
+                    e.printStackTrace(out);
+                }
+            }
+        }
+        out.flush();
+        if (errBuffer.size() > 0) {
+            throw new Exception("Errors encountered:\n\n" + errBuffer.toString() + "\n\n");
         }
     }
 
@@ -3025,7 +3164,7 @@ public final class CipherTest extends TestCase {
     }
 
     private void checkCipher(CipherTestParam p, String provider) throws Exception {
-        SecretKey key = new SecretKeySpec(p.key, "AES");
+        SecretKey key = new SecretKeySpec(p.key, p.keyAlgorithm);
         Cipher c = Cipher.getInstance(p.transformation, provider);
 
         AlgorithmParameterSpec spec = null;
