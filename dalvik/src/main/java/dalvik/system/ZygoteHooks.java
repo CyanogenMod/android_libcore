@@ -38,6 +38,7 @@ public final class ZygoteHooks {
         Daemons.stop();
         waitUntilAllThreadsStopped();
         token = nativePreFork();
+        System.closeLogSockets();
     }
 
     /**

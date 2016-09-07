@@ -62,6 +62,10 @@ static void System_log(JNIEnv* env, jclass, jchar type, jstring javaMessage, jth
     }
 }
 
+static void System_closeLogSockets(JNIEnv*, jclass) {
+  __android_log_close();
+}
+
 // Sets a field via JNI. Used for the standard streams, which are read-only otherwise.
 static void System_setFieldImpl(JNIEnv* env, jclass clazz,
         jstring javaName, jstring javaSignature, jobject object) {
@@ -125,6 +129,7 @@ static jlong System_nanoTime(JNIEnv*, jclass) {
 }
 
 static JNINativeMethod gMethods[] = {
+    NATIVE_METHOD(System, closeLogSockets, "()V"),
     NATIVE_METHOD(System, currentTimeMillis, "!()J"),
     NATIVE_METHOD(System, log, "(CLjava/lang/String;Ljava/lang/Throwable;)V"),
     NATIVE_METHOD(System, nanoTime, "!()J"),
