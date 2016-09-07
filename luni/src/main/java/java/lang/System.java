@@ -1189,6 +1189,9 @@ public final class System {
         }
     }
 
+    /** @hide */
+    public static native void closeLogSockets();
+
     /**
      * Returns the platform specific file name format for the shared library
      * named by the argument. On Android, this would turn {@code "MyLibrary"} into
