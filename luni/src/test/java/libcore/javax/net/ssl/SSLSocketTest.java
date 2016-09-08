@@ -80,6 +80,8 @@ import libcore.java.security.TestKeyStore;
 import libcore.tlswire.handshake.CipherSuite;
 import libcore.tlswire.handshake.ClientHello;
 import libcore.tlswire.handshake.CompressionMethod;
+import libcore.tlswire.handshake.EllipticCurve;
+import libcore.tlswire.handshake.EllipticCurvesHelloExtension;
 import libcore.tlswire.handshake.HandshakeMessage;
 import libcore.tlswire.handshake.HelloExtension;
 import libcore.tlswire.handshake.ServerNameHelloExtension;
@@ -1689,6 +1691,31 @@ public class SSLSocketTest extends TestCase {
                     cipherSuites[i] = cipherSuite.getAndroidName();
                 }
                 StandardNames.assertDefaultCipherSuites(cipherSuites);
+            }
+        }, getSSLSocketFactoriesToTest());
+    }
+
+    public void test_SSLSocket_ClientHello_supportedCurves() throws Exception {
+        ForEachRunner.runNamed(new ForEachRunner.Callback<SSLSocketFactory>() {
+            @Override
+            public void run(SSLSocketFactory sslSocketFactory) throws Exception {
+                ClientHello clientHello = captureTlsHandshakeClientHello(sslSocketFactory);
+
+                EllipticCurvesHelloExtension ecExtension = (EllipticCurvesHelloExtension)
+                        clientHello.findExtensionByType(HelloExtension.TYPE_ELLIPTIC_CURVES);
+                final String[] supportedCurves;
+                if (ecExtension == null) {
+                    supportedCurves = new String[0];
+                } else {
+                    assertTrue(ecExtension.wellFormed);
+                    supportedCurves = new String[ecExtension.supported.size()];
+                    for (int i = 0; i < ecExtension.supported.size(); i++) {
+                        EllipticCurve curve = ecExtension.supported.get(i);
+                        supportedCurves[i] = curve.toString();
+                    }
+                }
+
+                StandardNames.assertDefaultEllipticCurves(supportedCurves);
             }
         }, getSSLSocketFactoriesToTest());
     }
