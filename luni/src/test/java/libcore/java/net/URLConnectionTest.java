@@ -150,7 +150,7 @@ public final class URLConnectionTest extends AbstractResourceLeakageDetectorTest
         // allow (but strip) trailing \n, \r and \r\n
         // assertForbiddenRequestHeaderValue("\r");
         // End of workaround
-        assertForbiddenRequestHeaderValue("\t");
+        assertEquals("a valid\tvalue", setAndReturnRequestHeaderValue("a valid\tvalue"));
         assertForbiddenRequestHeaderValue("\u001f");
         assertForbiddenRequestHeaderValue("\u007f");
 
