@@ -37,4 +37,15 @@ public class IDNTest extends TestCase {
         String longInput = makePunyString(512);
         assertEquals(longInput, IDN.toUnicode(longInput));
     }
+
+    // http://b/30765246
+    public void testLongDomainName() {
+        String label63 = "123456789-123456789-123456789-123456789-123456789-123456789-123";
+        String host255 = label63 + "." + label63 + "." + label63 + "." + label63;
+        try {
+            IDN.toASCII(host255.substring(3) + ".com");
+            fail();
+        } catch (IllegalArgumentException expected) {
+        }
+    }
 }
