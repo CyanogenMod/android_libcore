@@ -502,12 +502,6 @@ public class SimpleDateFormat extends DateFormat {
     private static final String GMT = "GMT";
 
     /**
-     * Cache to hold the DateTimePatterns of a Locale.
-     */
-    private static final ConcurrentMap<Locale, String[]> cachedLocaleData
-        = new ConcurrentHashMap<Locale, String[]>(3);
-
-    /**
      * Cache NumberFormat instances with Locale key.
      */
     private static final ConcurrentMap<Locale, NumberFormat> cachedNumberFormatData
@@ -618,33 +612,20 @@ public class SimpleDateFormat extends DateFormat {
         // initialize calendar and related fields
         initializeCalendar(loc);
 
-        /* try the cache first */
-        String[] dateTimePatterns = cachedLocaleData.get(loc);
-        if (dateTimePatterns == null) { /* cache miss */
-            LocaleData localeData = LocaleData.get(loc);
-            dateTimePatterns = new String[9];
-            dateTimePatterns[DateFormat.SHORT + 4] = localeData.getDateFormat(DateFormat.SHORT);
-            dateTimePatterns[DateFormat.MEDIUM + 4] = localeData.getDateFormat(DateFormat.MEDIUM);
-            dateTimePatterns[DateFormat.LONG + 4] = localeData.getDateFormat(DateFormat.LONG);
-            dateTimePatterns[DateFormat.FULL + 4] = localeData.getDateFormat(DateFormat.FULL);
-            dateTimePatterns[DateFormat.SHORT] = localeData.getTimeFormat(DateFormat.SHORT);
-            dateTimePatterns[DateFormat.MEDIUM] = localeData.getTimeFormat(DateFormat.MEDIUM);
-            dateTimePatterns[DateFormat.LONG] = localeData.getTimeFormat(DateFormat.LONG);
-            dateTimePatterns[DateFormat.FULL] = localeData.getTimeFormat(DateFormat.FULL);
-            dateTimePatterns[8] = "{0} {1}";
-            /* update cache */
-            cachedLocaleData.putIfAbsent(loc, dateTimePatterns);
-        }
         formatData = DateFormatSymbols.getInstanceRef(loc);
+        LocaleData localeData = LocaleData.get(loc);
         if ((timeStyle >= 0) && (dateStyle >= 0)) {
-            Object[] dateTimeArgs = {dateTimePatterns[dateStyle + 4], dateTimePatterns[timeStyle]};
-            pattern = MessageFormat.format(dateTimePatterns[8], dateTimeArgs);
+            Object[] dateTimeArgs = {
+                localeData.getDateFormat(dateStyle),
+                localeData.getTimeFormat(timeStyle),
+            };
+            pattern = MessageFormat.format("{0} {1}", dateTimeArgs);
         }
         else if (timeStyle >= 0) {
-            pattern = dateTimePatterns[timeStyle];
+            pattern = localeData.getTimeFormat(timeStyle);
         }
         else if (dateStyle >= 0) {
-            pattern = dateTimePatterns[dateStyle + 4];
+            pattern = localeData.getDateFormat(dateStyle);
         }
         else {
             throw new IllegalArgumentException("No date or time style specified");
