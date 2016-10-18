@@ -3374,6 +3374,9 @@ public final class CipherTest extends TestCase {
         }
     }
 
+    // Test that when reading GCM parameters encoded using ASN1, a value for the tag size
+    // not present indicates a value of 12.
+    // https://b/29876633
     public void test_DefaultGCMTagSizeAlgorithmParameterSpec() throws Exception {
         final String AES = "AES";
         final String AES_GCM = "AES/GCM/NoPadding";
@@ -3386,14 +3389,12 @@ public final class CipherTest extends TestCase {
             (byte) 14,    // DER encoding : total length
             (byte) 4,     // DER encoding : tag_OctetString
             (byte) 12,    // DER encoding : counter length
-            // Note that IV's size 12 bytes is recommended, but authentication tag size should be 16
-            // bytes.
             (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0,
             (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0 });
         cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(key, AES), param);
         byte[] ciphertext = cipher.update(input);
         byte[] tag = cipher.doFinal();
-        assertEquals(16, tag.length);
+        assertEquals(12, tag.length);
     }
 
     public void testAES_ECB_PKCS5Padding_ShortBuffer_Failure() throws Exception {

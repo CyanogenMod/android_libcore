@@ -18,8 +18,13 @@ package libcore.java.net;
 
 import junit.framework.TestCase;
 
+import java.lang.reflect.Field;
+import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.DatagramSocketImpl;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.SocketException;
 
 public class DatagramSocketTest extends TestCase {
 
@@ -54,5 +59,52 @@ public class DatagramSocketTest extends TestCase {
     assertNull(ds.getLocalAddress());
     assertEquals(-1, ds.getLocalPort());
     assertNull(ds.getLocalSocketAddress());
+  }
+
+  public void testPendingException() throws Exception {
+    final int port = 9999;
+
+    try (DatagramSocket s = new DatagramSocket()) {
+      s.connect(InetAddress.getLocalHost(), port);
+
+      // connect may set pendingConnectException on internal failure; since we have no reliable way
+      // to make connect fail, set pendingConnectException through reflection.
+      Field pendingConnectException = s.getClass().getDeclaredField("pendingConnectException");
+      pendingConnectException.setAccessible(true);
+      pendingConnectException.set(s, new SocketException());
+
+      byte[] data = new byte[100];
+      DatagramPacket p = new DatagramPacket(data, data.length);
+
+      try {
+        s.send(p);
+        fail();
+      } catch (SocketException expected) {
+      }
+
+      try {
+        s.receive(p);
+        fail();
+      } catch (SocketException expected) {
+      }
+    }
+  }
+
+  // Socket should become connected even if impl.connect() failed and threw exception.
+  public void test_b31218085() throws Exception {
+    final int port = 9999;
+
+    try (DatagramSocket s = new DatagramSocket()) {
+      // Set fd of DatagramSocket to null, forcing impl.connect() to throw.
+      Field f = DatagramSocket.class.getDeclaredField("impl");
+      f.setAccessible(true);
+      DatagramSocketImpl impl = (DatagramSocketImpl) f.get(s);
+      f = DatagramSocketImpl.class.getDeclaredField("fd");
+      f.setAccessible(true);
+      f.set(impl, null);
+
+      s.connect(InetAddress.getLocalHost(), port);
+      assertTrue(s.isConnected());
+    }
   }
 }
