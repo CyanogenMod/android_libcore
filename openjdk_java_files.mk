@@ -1043,7 +1043,6 @@ openjdk_javadoc_files := \
     ojluni/src/main/java/sun/reflect/CallerSensitive.java \
 
 openjdk_java_files := \
-    ojluni/src/main/java/com/sun/net/ssl/internal/ssl/Provider.java \
     ojluni/src/main/java/com/sun/net/ssl/internal/ssl/X509ExtendedTrustManager.java \
     ojluni/src/main/java/com/sun/security/cert/internal/x509/X509V1CertImpl.java \
     ojluni/src/main/java/java/beans/ChangeListenerMap.java \
@@ -1169,11 +1168,6 @@ openjdk_java_files := \
     ojluni/src/main/java/sun/net/www/protocol/http/NegotiateAuthentication.java \
     ojluni/src/main/java/sun/net/www/protocol/http/Negotiator.java \
     ojluni/src/main/java/sun/net/www/protocol/http/NTLMAuthenticationProxy.java \
-    ojluni/src/main/java/sun/net/www/protocol/https/AbstractDelegateHttpsURLConnection.java \
-    ojluni/src/main/java/sun/net/www/protocol/https/DelegateHttpsURLConnection.java \
-    ojluni/src/main/java/sun/net/www/protocol/https/Handler.java \
-    ojluni/src/main/java/sun/net/www/protocol/https/HttpsClient.java \
-    ojluni/src/main/java/sun/net/www/protocol/https/HttpsURLConnectionImpl.java \
     ojluni/src/main/java/sun/net/www/protocol/jar/Handler.java \
     ojluni/src/main/java/sun/net/www/protocol/jar/JarFileFactory.java \
     ojluni/src/main/java/sun/net/www/protocol/jar/JarURLConnection.java \
@@ -1310,61 +1304,6 @@ openjdk_java_files := \
     ojluni/src/main/java/sun/security/provider/certpath/X509CertificatePair.java \
     ojluni/src/main/java/sun/security/provider/X509Factory.java \
     ojluni/src/main/java/sun/security/rsa/SunRsaSignEntries.java \
-    ojluni/src/main/java/sun/security/ssl/Alerts.java \
-    ojluni/src/main/java/sun/security/ssl/AppInputStream.java \
-    ojluni/src/main/java/sun/security/ssl/AppOutputStream.java \
-    ojluni/src/main/java/sun/security/ssl/BaseSSLSocketImpl.java \
-    ojluni/src/main/java/sun/security/ssl/ByteBufferInputStream.java \
-    ojluni/src/main/java/sun/security/ssl/CipherBox.java \
-    ojluni/src/main/java/sun/security/ssl/CipherSuite.java \
-    ojluni/src/main/java/sun/security/ssl/CipherSuiteList.java \
-    ojluni/src/main/java/sun/security/ssl/ClientHandshaker.java \
-    ojluni/src/main/java/sun/security/ssl/Debug.java \
-    ojluni/src/main/java/sun/security/ssl/DHClientKeyExchange.java \
-    ojluni/src/main/java/sun/security/ssl/DHCrypt.java \
-    ojluni/src/main/java/sun/security/ssl/ECDHClientKeyExchange.java \
-    ojluni/src/main/java/sun/security/ssl/ECDHCrypt.java \
-    ojluni/src/main/java/sun/security/ssl/EngineArgs.java \
-    ojluni/src/main/java/sun/security/ssl/EngineInputRecord.java \
-    ojluni/src/main/java/sun/security/ssl/EngineOutputRecord.java \
-    ojluni/src/main/java/sun/security/ssl/EngineWriter.java \
-    ojluni/src/main/java/sun/security/ssl/EphemeralKeyManager.java \
-    ojluni/src/main/java/sun/security/ssl/HandshakeHash.java \
-    ojluni/src/main/java/sun/security/ssl/HandshakeInStream.java \
-    ojluni/src/main/java/sun/security/ssl/HandshakeMessage.java \
-    ojluni/src/main/java/sun/security/ssl/HandshakeOutStream.java \
-    ojluni/src/main/java/sun/security/ssl/Handshaker.java \
-    ojluni/src/main/java/sun/security/ssl/HelloExtensions.java \
-    ojluni/src/main/java/sun/security/ssl/InputRecord.java \
-    ojluni/src/main/java/sun/security/ssl/JsseJce.java \
-    ojluni/src/main/java/sun/security/ssl/KerberosClientKeyExchange.java \
-    ojluni/src/main/java/sun/security/ssl/Krb5Helper.java \
-    ojluni/src/main/java/sun/security/ssl/Krb5Proxy.java \
-    ojluni/src/main/java/sun/security/ssl/MAC.java \
-    ojluni/src/main/java/sun/security/ssl/OutputRecord.java \
-    ojluni/src/main/java/sun/security/ssl/ProtocolList.java \
-    ojluni/src/main/java/sun/security/ssl/ProtocolVersion.java \
-    ojluni/src/main/java/sun/security/ssl/RandomCookie.java \
-    ojluni/src/main/java/sun/security/ssl/Record.java \
-    ojluni/src/main/java/sun/security/ssl/RSAClientKeyExchange.java \
-    ojluni/src/main/java/sun/security/ssl/RSASignature.java \
-    ojluni/src/main/java/sun/security/ssl/ServerHandshaker.java \
-    ojluni/src/main/java/sun/security/ssl/SessionId.java \
-    ojluni/src/main/java/sun/security/ssl/SignatureAndHashAlgorithm.java \
-    ojluni/src/main/java/sun/security/ssl/SSLAlgorithmConstraints.java \
-    ojluni/src/main/java/sun/security/ssl/SSLContextImpl.java \
-    ojluni/src/main/java/sun/security/ssl/SSLEngineImpl.java \
-    ojluni/src/main/java/sun/security/ssl/SSLServerSocketFactoryImpl.java \
-    ojluni/src/main/java/sun/security/ssl/SSLServerSocketImpl.java \
-    ojluni/src/main/java/sun/security/ssl/SSLSessionContextImpl.java \
-    ojluni/src/main/java/sun/security/ssl/SSLSessionImpl.java \
-    ojluni/src/main/java/sun/security/ssl/SSLSocketFactoryImpl.java \
-    ojluni/src/main/java/sun/security/ssl/SSLSocketImpl.java \
-    ojluni/src/main/java/sun/security/ssl/SunJSSE.java \
-    ojluni/src/main/java/sun/security/ssl/SunX509KeyManagerImpl.java \
-    ojluni/src/main/java/sun/security/ssl/TrustManagerFactoryImpl.java \
-    ojluni/src/main/java/sun/security/ssl/X509KeyManagerImpl.java \
-    ojluni/src/main/java/sun/security/ssl/X509TrustManagerImpl.java \
     ojluni/src/main/java/sun/security/timestamp/TimestampToken.java \
     ojluni/src/main/java/sun/security/util/BitArray.java \
     ojluni/src/main/java/sun/security/util/ByteArrayLexOrder.java \
@@ -1378,7 +1317,6 @@ openjdk_java_files := \
     ojluni/src/main/java/sun/security/util/DerOutputStream.java \
     ojluni/src/main/java/sun/security/util/DerValue.java \
     ojluni/src/main/java/sun/security/util/DisabledAlgorithmConstraints.java \
-    ojluni/src/main/java/sun/security/util/HostnameChecker.java \
     ojluni/src/main/java/sun/security/util/KeyUtil.java \
     ojluni/src/main/java/sun/security/util/Length.java \
     ojluni/src/main/java/sun/security/util/ManifestDigester.java \

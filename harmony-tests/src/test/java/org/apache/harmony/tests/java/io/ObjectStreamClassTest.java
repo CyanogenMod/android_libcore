@@ -17,7 +17,6 @@
 
 package org.apache.harmony.tests.java.io;
 
-import junit.framework.TestCase;
 import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
@@ -27,6 +26,7 @@ import java.io.ObjectStreamField;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import junit.framework.TestCase;
 
 public class ObjectStreamClassTest extends TestCase {
 

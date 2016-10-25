@@ -41,7 +41,6 @@ public final class DexFile {
     private Object mCookie;
     private Object mInternalCookie;
     private final String mFileName;
-    private final CloseGuard guard = CloseGuard.get();
 
     /**
      * Opens a DEX file from a given File object. This will usually be a ZIP/JAR
@@ -113,7 +112,6 @@ public final class DexFile {
         mCookie = openDexFile(fileName, null, 0, loader, elements);
         mInternalCookie = mCookie;
         mFileName = fileName;
-        guard.open("close");
         //System.out.println("DEX FILE cookie is " + mCookie + " fileName=" + fileName);
     }
 
@@ -250,7 +248,6 @@ public final class DexFile {
             if (closeDexFile(mInternalCookie)) {
                 mInternalCookie = null;
             }
-            guard.close();
             mCookie = null;
         }
     }
@@ -349,9 +346,6 @@ public final class DexFile {
      */
     @Override protected void finalize() throws Throwable {
         try {
-            if (guard != null) {
-                guard.warnIfOpen();
-            }
             if (mInternalCookie != null && !closeDexFile(mInternalCookie)) {
                 throw new AssertionError("Failed to close dex file in finalizer.");
             }
@@ -506,5 +500,13 @@ public final class DexFile {
      * @hide
      */
     public static native String getDexFileStatus(String fileName, String instructionSet)
+        throws FileNotFoundException;
+
+    /**
+     * Returns the full file path of the optimized dex file {@code fileName}.  The returned string
+     * is the full file name including path of optimized dex file, if it exists.
+     * @hide
+     */
+    public static native String getDexFileOutputPath(String fileName, String instructionSet)
         throws FileNotFoundException;
 }

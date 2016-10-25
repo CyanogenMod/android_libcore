@@ -868,11 +868,22 @@ public class Runtime {
      */
     @CallerSensitive
     public void load(String filename) {
-        load0(VMStack.getStackClass2(), filename);
+        load0(VMStack.getStackClass1(), filename);
+    }
+
+    /** Check target sdk, if it's higher than N, we throw an UnsupportedOperationException */
+    private void checkTargetSdkVersionForLoad(String methodName) {
+        final int targetSdkVersion = VMRuntime.getRuntime().getTargetSdkVersion();
+        if (targetSdkVersion > 24) {
+            throw new UnsupportedOperationException(methodName + " is not supported on SDK " +
+                                                    targetSdkVersion);
+        }
     }
 
     // Fixes b/25859957 regression. Depending on private methods is bad, mkay.
     void load(String absolutePath, ClassLoader loader) {
+        checkTargetSdkVersionForLoad("java.lang.Runtime#load(String, ClassLoader)");
+
         java.lang.System.logE("java.lang.Runtime#load(String, ClassLoader)" +
                               " is private and will be removed in a future Android release");
         if (absolutePath == null) {
@@ -951,6 +962,7 @@ public class Runtime {
      * @hide
      */
     public void loadLibrary(String libname, ClassLoader classLoader) {
+        checkTargetSdkVersionForLoad("java.lang.Runtime#loadLibrary(String, ClassLoader)");
         java.lang.System.logE("java.lang.Runtime#loadLibrary(String, ClassLoader)" +
                               " is private and will be removed in a future Android release");
         loadLibrary0(classLoader, libname);

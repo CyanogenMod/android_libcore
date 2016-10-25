@@ -16,13 +16,20 @@
 
 package libcore.java.util;
 
+import junit.framework.TestCase;
+
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.SimpleTimeZone;
 import java.util.TimeZone;
-import junit.framework.TestCase;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class TimeZoneTest extends TestCase {
     // http://code.google.com/p/android/issues/detail?id=877
@@ -338,6 +345,109 @@ public class TimeZoneTest extends TestCase {
             assertEquals(tz.getID(), icuTz.getID());
         } finally {
             TimeZone.setDefault(origTz);
+        }
+    }
+
+    // http://b/30937209
+    public void testSetDefaultDeadlock() throws InterruptedException, BrokenBarrierException {
+        // Since this tests a deadlock, the test has two fundamental problems:
+        // - it is probabilistic: it's not guaranteed to fail if the problem exists
+        // - if it fails, it will effectively hang the current runtime, as no other thread will
+        //   be able to call TimeZone.getDefault()/setDefault() successfully any more.
+
+        // 10 was too low to be reliable, 100 failed more than half the time (on a bullhead).
+        final int iterations = 100;
+        TimeZone otherTimeZone = TimeZone.getTimeZone("Europe/London");
+        AtomicInteger setterCount = new AtomicInteger();
+        CyclicBarrier startBarrier = new CyclicBarrier(2);
+        Thread setter = new Thread(() -> {
+            waitFor(startBarrier);
+            for (int i = 0; i < iterations; i++) {
+                TimeZone.setDefault(otherTimeZone);
+                TimeZone.setDefault(null);
+                setterCount.set(i+1);
+            }
+        });
+        setter.setName("testSetDefaultDeadlock setter");
+
+        AtomicInteger getterCount = new AtomicInteger();
+        Thread getter = new Thread(() -> {
+            waitFor(startBarrier);
+            for (int i = 0; i < iterations; i++) {
+                android.icu.util.TimeZone.getDefault();
+                getterCount.set(i+1);
+            }
+        });
+        getter.setName("testSetDefaultDeadlock getter");
+
+        setter.start();
+        getter.start();
+
+        // 2 seconds is plenty: If successful, we usually complete much faster.
+        setter.join(1000);
+        getter.join(1000);
+        if (setter.isAlive() || getter.isAlive()) {
+            fail("Threads are still alive. Getter iteration count: " + getterCount.get()
+                    + ", setter iteration count: " + setterCount.get());
+        }
+        // Guard against unexpected uncaught exceptions.
+        assertEquals("Setter iterations", iterations, setterCount.get());
+        assertEquals("Getter iterations", iterations, getterCount.get());
+    }
+
+    // http://b/30979219
+    public void testSetDefaultRace() throws InterruptedException {
+        // Since this tests a race condition, the test is probabilistic: it's not guaranteed to
+        // fail if the problem exists
+
+        // These iterations are significantly faster than the ones in #testSetDefaultDeadlock
+        final int iterations = 10000;
+        List<Throwable> exceptions = Collections.synchronizedList(new ArrayList<>());
+        Thread.UncaughtExceptionHandler handler = (t, e) -> exceptions.add(e);
+
+        CyclicBarrier startBarrier = new CyclicBarrier(2);
+        Thread clearer = new Thread(() -> {
+            waitFor(startBarrier);
+            for (int i = 0; i < iterations; i++) {
+                // This is not public API but can effectively be invoked via
+                // java.util.TimeZone.setDefault. Call it directly to reduce the amount of code
+                // involved in this test.
+                android.icu.util.TimeZone.clearCachedDefault();
+            }
+        });
+        clearer.setName("testSetDefaultRace clearer");
+        clearer.setUncaughtExceptionHandler(handler);
+
+        Thread getter = new Thread(() -> {
+            waitFor(startBarrier);
+            for (int i = 0; i < iterations; i++) {
+                android.icu.util.TimeZone.getDefault();
+            }
+        });
+        getter.setName("testSetDefaultRace getter");
+        getter.setUncaughtExceptionHandler(handler);
+
+        clearer.start();
+        getter.start();
+
+        // 2 seconds is plenty: If successful, we usually complete much faster.
+        clearer.join(1000);
+        getter.join(1000);
+
+        if (!exceptions.isEmpty()) {
+            Throwable firstException = exceptions.get(0);
+            firstException.printStackTrace();
+            fail("Threads did not succeed successfully: " + firstException);
+        }
+        assertFalse("clearer thread is still alive", clearer.isAlive());
+        assertFalse("getter thread is still alive", getter.isAlive());
+    }
+
+    private static void waitFor(CyclicBarrier barrier) {
+        try {
+            barrier.await();
+        } catch (InterruptedException | BrokenBarrierException e) {
+            throw new RuntimeException(e);
         }
     }
 }

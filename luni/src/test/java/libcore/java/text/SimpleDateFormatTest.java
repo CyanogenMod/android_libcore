@@ -17,6 +17,7 @@
 package libcore.java.text;
 
 import java.text.DateFormat;
+import java.text.DateFormatSymbols;
 import java.text.ParseException;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
@@ -221,6 +222,9 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
         Date d = sdf.parse(value, pp);
         if (d == null) {
             fail(pp.toString());
+        }
+        if (pp.getIndex() != value.length()) {
+            fail("Value " + value + " must be fully consumed: " +  pp.toString());
         }
         Calendar c = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         c.setTime(d);
@@ -447,5 +451,52 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
         df.setTimeZone(tz);
         df.parse("22 Jul 1977 12:23:45 HST");
         assertEquals(tz, df.getTimeZone());
+    }
+
+    public void testTimeZoneFormattingRespectsSetZoneStrings() throws ParseException {
+        DateFormatSymbols symbols = DateFormatSymbols.getInstance(Locale.ENGLISH);
+        String[][] zoneStrings = symbols.getZoneStrings();
+        TimeZone tz = TimeZone.getTimeZone(zoneStrings[0][0]);
+        String originalTzName = zoneStrings[0][1];
+        symbols.setZoneStrings(zoneStrings);
+        SimpleDateFormat sdf = new SimpleDateFormat("zzzz", symbols);
+        sdf.setTimeZone(tz);
+
+        // just re-setting the default values
+        assertEquals(originalTzName, sdf.format(new Date(1376927400000L)));
+
+        // providing a custom name
+        zoneStrings[0][1] = "CustomTimeZone";
+        symbols.setZoneStrings(zoneStrings);
+        sdf = new SimpleDateFormat("zzzz", symbols);
+        sdf.setTimeZone(tz);
+        assertEquals("CustomTimeZone", sdf.format(new Date(1376927400000L)));
+
+        // setting the name to null should format as GMT[+-]...
+        zoneStrings[0][1] = null;
+        symbols.setZoneStrings(zoneStrings);
+        sdf = new SimpleDateFormat("zzzz", symbols);
+        sdf.setTimeZone(tz);
+        assertTrue(sdf.format(new Date(1376927400000L)).startsWith("GMT"));
+    }
+
+    // http://b/30323478
+    public void testStandaloneWeekdayParsing() throws Exception {
+        Locale fi = new Locale("fi"); // Finnish has separate standalone weekday names
+        // tiistaina = Tuesday (regular)
+        // tiistai = Tuesday (standalone)
+        assertEquals(Calendar.TUESDAY,
+                parseDate(fi, "cccc yyyy", "tiistai 2000").get(Calendar.DAY_OF_WEEK));
+        assertEquals(Calendar.TUESDAY,
+                parseDate(fi, "EEEE yyyy", "tiistaina 2000").get(Calendar.DAY_OF_WEEK));
+        assertCannotParse(fi, "cccc yyyy", "tiistaina 2000");
+        assertCannotParse(fi, "EEEE yyyy", "tiistai 2000");
+    }
+
+    // http://b/30323478
+    public void testStandaloneWeekdayFormatting() throws Exception {
+        Locale fi = new Locale("fi"); // Finnish has separate standalone weekday names
+        assertEquals("torstai", formatDate(fi, "cccc"));
+        assertEquals("torstaina", formatDate(fi, "EEEE"));
     }
 }

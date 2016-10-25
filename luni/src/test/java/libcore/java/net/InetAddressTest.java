@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
@@ -334,11 +335,15 @@ public class InetAddressTest extends junit.framework.TestCase {
 
     public void test_getHostNameCaches() throws Exception {
         InetAddress inetAddress = InetAddress.getByAddress(LOOPBACK6_BYTES);
-        // TODO(narayan): Investigate why these tests are suppressed.
-        // assertEquals("::1", inetAddress.getHostString());
+
+        // There should be no cached name.
+        assertEquals("::1", getHostStringWithoutReverseDns(inetAddress));
+
+        // Force the reverse-DNS lookup.
         assertEquals("ip6-localhost", inetAddress.getHostName());
-        // getHostString() should now be different.
-        // assertEquals("ip6-localhost", inetAddress.getHostString());
+
+        // The cached name should now be different.
+        assertEquals("ip6-localhost", getHostStringWithoutReverseDns(inetAddress));
     }
 
     public void test_getByAddress_loopbackIpv4() throws Exception {
@@ -367,7 +372,7 @@ public class InetAddressTest extends junit.framework.TestCase {
 
     public void test_getByName_empty() throws Exception {
         InetAddress inetAddress = InetAddress.getByName("");
-        assertEquals(LOOPBACK6_BYTES, "localhost", inetAddress);
+        assertEquals(LOOPBACK6_BYTES, "ip6-localhost", inetAddress);
         assertTrue(inetAddress.isLoopbackAddress());
     }
 
@@ -418,6 +423,13 @@ public class InetAddressTest extends junit.framework.TestCase {
         assertEquals(expectedLoopbackAddresses, createSet(inetAddresses));
     }
 
+    // http://b/29311351
+    public void test_loopbackConstantsPreInitializedNames() {
+        // Note: Inet6Address / Inet4Address equals() does not check host name.
+        assertEquals("ip6-localhost", getHostStringWithoutReverseDns(Inet6Address.LOOPBACK));
+        assertEquals("localhost", getHostStringWithoutReverseDns(Inet4Address.LOOPBACK));
+    }
+
     private static void assertEquals(
         byte[] expectedAddressBytes, String expectedHostname, InetAddress actual) {
         assertArrayEquals(expectedAddressBytes, actual.getAddress());
@@ -432,5 +444,12 @@ public class InetAddressTest extends junit.framework.TestCase {
 
     private static Set<InetAddress> createSet(InetAddress... members) {
         return new HashSet<InetAddress>(Arrays.asList(members));
+    }
+
+    private static String getHostStringWithoutReverseDns(InetAddress inetAddress) {
+        // The InetAddress API provides no way of avoiding a DNS lookup, but InetSocketAddress
+        // does via InetSocketAddress.getHostString().
+        InetSocketAddress inetSocketAddress = new InetSocketAddress(inetAddress, 9999);
+        return inetSocketAddress.getHostString();
     }
 }

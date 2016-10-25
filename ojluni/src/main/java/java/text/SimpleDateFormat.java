@@ -52,6 +52,8 @@ import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import libcore.icu.LocaleData;
+import libcore.icu.TimeZoneNames;
+
 import sun.util.calendar.CalendarUtils;
 
 import static java.text.DateFormatSymbols.*;
@@ -1193,7 +1195,13 @@ public class SimpleDateFormat extends DateFormat {
                 TimeZone tz = calendar.getTimeZone();
                 boolean daylight = (calendar.get(Calendar.DST_OFFSET) != 0);
                 int tzstyle = count < 4 ? TimeZone.SHORT : TimeZone.LONG;
-                String zoneString = tz.getDisplayName(daylight, tzstyle, formatData.locale);
+                String zoneString;
+                if (formatData.isZoneStringsSet) {
+                    zoneString = TimeZoneNames.getDisplayName(
+                            formatData.getZoneStringsWrapper(), tz.getID(), daylight, tzstyle);
+                } else {
+                    zoneString = tz.getDisplayName(daylight, tzstyle, formatData.locale);
+                }
                 if (zoneString != null) {
                     buffer.append(zoneString);
                 } else {
@@ -1966,7 +1974,7 @@ public class SimpleDateFormat extends DateFormat {
             case PATTERN_STANDALONE_DAY_OF_WEEK: // 'c'
             {
                 final int idx = parseWeekday(text, start, field, useDateFormatSymbols,
-                        false /* standalone */, calb);
+                        true /* standalone */, calb);
                 if (idx > 0) {
                     return idx;
                 }
