@@ -560,9 +560,13 @@ public abstract class DateFormat extends Format {
     public static Boolean is24Hour;
 
     /**
+     * Override the time formatting behavior for SHORT and MEDIUM time formats.
+     * {@code null}: use Locale default. {@code true}: force 24-hour format.
+     * {@code false} force 12-hour format.
+     *
      * @hide for internal use only.
      */
-    public static final void set24HourTimePref(boolean is24Hour) {
+    public static final void set24HourTimePref(Boolean is24Hour) {
         DateFormat.is24Hour = is24Hour;
     }
 
