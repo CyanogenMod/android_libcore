@@ -17,6 +17,7 @@
 
 package libcore.java.text;
 
+import java.text.AttributedCharacterIterator;
 import java.text.Bidi;
 import junit.framework.TestCase;
 
@@ -192,4 +193,16 @@ public class OldBidiTest extends TestCase {
         }
     }
 
+    // http://b/30652865
+    public void testUnicode9EmojisAreLtrNeutral() {
+        String callMeHand = "\uD83E\uDD19"; // U+1F919 in UTF-16
+        String hebrewAndEmoji = "\u05e9\u05dc" + callMeHand + "\u05d5\u05dd";
+        String latinAndEmoji = "Hel" + callMeHand + "lo";
+        Bidi hebrew = new Bidi(hebrewAndEmoji, Bidi.DIRECTION_DEFAULT_LEFT_TO_RIGHT);
+        assertFalse("Hebrew bidi is mixed: " + hebrew, hebrew.isMixed());
+        assertTrue("Hebrew bidi is not right to left: " + hebrew, hebrew.isRightToLeft());
+        Bidi latin = new Bidi(latinAndEmoji, Bidi.DIRECTION_DEFAULT_LEFT_TO_RIGHT);
+        assertFalse("Latin bidi is mixed: " + latin, latin.isMixed());
+        assertTrue("latin bidi is not left to right: " + latin, latin.isLeftToRight());
+    }
 }

@@ -988,6 +988,14 @@ public final class StandardNames extends Assert {
             "TLS_PSK_WITH_AES_256_CBC_SHA"
             );
 
+    // Should be updated to match BoringSSL's defaults when they change.
+    // https://android.googlesource.com/platform/external/boringssl/+/master/src/ssl/t1_lib.c#305
+    public static final List<String> ELLIPTIC_CURVES_DEFAULT = Arrays.asList(
+            "secp256r1 (23)",
+            "secp384r1 (24)",
+            "secp521r1 (25)"
+            );
+
     private static final Set<String> PERMITTED_DEFAULT_KEY_EXCHANGE_ALGS =
             new HashSet<String>(Arrays.asList("RSA",
                                               "DHE_RSA",
@@ -1152,6 +1160,10 @@ public final class StandardNames extends Assert {
             }
             assertEquals(Collections.EMPTY_LIST, disallowedDefaultCipherSuites);
         }
+    }
+
+    public static void assertDefaultEllipticCurves(String[] curves) {
+        assertEquals(ELLIPTIC_CURVES_DEFAULT, Arrays.asList(curves));
     }
 
     public static void assertSSLContextEnabledProtocols(String version, String[] protocols) {

@@ -59,4 +59,14 @@ public class MacTest extends TestCase {
             Security.removeProvider(mockProvider.getName());
         }
     }
+
+    /**
+     * Aliases used to be wrong due to a typo.
+     * http://b/31114355
+     */
+    public void testMac_correctAlias() throws Exception {
+        Provider androidOpenSSLProvider = Security.getProvider("AndroidOpenSSL");
+        assertEquals("HmacSHA224", androidOpenSSLProvider.get("Alg.Alias.Mac.1.2.840.113549.2.8"));
+        assertEquals("HmacSHA256", androidOpenSSLProvider.get("Alg.Alias.Mac.1.2.840.113549.2.9"));
+    }
 }

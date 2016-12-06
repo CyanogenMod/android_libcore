@@ -22,6 +22,7 @@ import libcore.io.Libcore;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileDescriptor;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -73,5 +74,15 @@ public final class ZipFileTest extends AbstractZipFileTest {
     private static void assertOffset(long initialOffset, FileDescriptor fd) throws Exception {
         long currentOffset = android.system.Os.lseek(fd, 0, OsConstants.SEEK_CUR);
         assertEquals(initialOffset, currentOffset);
+    }
+
+    // b/31077136
+    public void test_FileNotFound() throws Exception {
+        File nonExistentFile = new File("fileThatDefinitelyDoesntExist.zip");
+        assertFalse(nonExistentFile.exists());
+
+        try (ZipFile zipFile = new ZipFile(nonExistentFile, ZipFile.OPEN_READ)) {
+            fail();
+        } catch(FileNotFoundException expected) {}
     }
 }

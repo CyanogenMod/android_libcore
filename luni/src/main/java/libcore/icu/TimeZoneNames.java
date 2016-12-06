@@ -68,7 +68,7 @@ public final class TimeZoneNames {
             }
 
             long nativeStart = System.nanoTime();
-            fillZoneStrings(locale.toString(), result);
+            fillZoneStrings(locale.toLanguageTag(), result);
             long nativeEnd = System.nanoTime();
 
             internStrings(result);

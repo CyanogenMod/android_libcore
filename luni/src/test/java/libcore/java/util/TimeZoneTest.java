@@ -268,6 +268,31 @@ public class TimeZoneTest extends TestCase {
         assertEquals("", failures.toString());
     }
 
+    // http://b/30527513
+    public void testDisplayNamesWithScript() throws Exception {
+        Locale latinLocale = Locale.forLanguageTag("sr-Latn-RS");
+        Locale cyrillicLocale = Locale.forLanguageTag("sr-Cyrl-RS");
+        Locale noScriptLocale = Locale.forLanguageTag("sr-RS");
+        TimeZone tz = TimeZone.getTimeZone("Europe/London");
+
+        final String latinName = "Srednje vreme po Griniču";
+        final String cyrillicName = "Средње време по Гриничу";
+
+        // Check java.util.TimeZone
+        assertEquals(latinName, tz.getDisplayName(latinLocale));
+        assertEquals(cyrillicName, tz.getDisplayName(cyrillicLocale));
+        assertEquals(cyrillicName, tz.getDisplayName(noScriptLocale));
+
+        // Check ICU TimeZoneNames
+        // The one-argument getDisplayName() override uses LONG_GENERIC style which is different
+        // from what java.util.TimeZone uses. Force the LONG style to get equivalent results.
+        final int style = android.icu.util.TimeZone.LONG;
+        android.icu.util.TimeZone utz = android.icu.util.TimeZone.getTimeZone(tz.getID());
+        assertEquals(latinName, utz.getDisplayName(false, style, latinLocale));
+        assertEquals(cyrillicName, utz.getDisplayName(false, style, cyrillicLocale));
+        assertEquals(cyrillicName, utz.getDisplayName(false, style, noScriptLocale));
+    }
+
     // http://b/7955614
     public void testApia() throws Exception {
         TimeZone tz = TimeZone.getTimeZone("Pacific/Apia");

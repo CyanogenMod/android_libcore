@@ -1238,6 +1238,7 @@ public class Vector<E>
                 checkForComodification();
                 Vector.this.add(i, e);
                 expectedModCount = modCount;
+                limit++;
             }
             cursor = i + 1;
             lastRet = -1;
